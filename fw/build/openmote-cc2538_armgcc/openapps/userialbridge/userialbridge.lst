@@ -1,0 +1,501 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"userialbridge.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.rodata
+  19              		.align	2
+  22              	rreg_uriquery:
+  23 0000 683D7563 		.ascii	"h=ucb\000"
+  23      6200
+  24 0006 0000     		.align	2
+  27              	infoBoardname:
+  28 0008 43433235 		.ascii	"CC2538\000"
+  28      333800
+  29 000f 00       		.align	2
+  32              	infouCName:
+  33 0010 43433235 		.ascii	"CC2538\000"
+  33      333800
+  34 0017 00       		.align	2
+  37              	infoRadioName:
+  38 0018 43433235 		.ascii	"CC2538 SoC\000"
+  38      33382053 
+  38      6F4300
+  39 0023 00       		.align	2
+  42              	infoStackName:
+  43 0024 4F70656E 		.ascii	"OpenWSN \000"
+  43      57534E20 
+  43      00
+  44 002d 000000   		.align	2
+  47              	chTemplate_default:
+  48 0030 05       		.byte	5
+  49 0031 06       		.byte	6
+  50 0032 0C       		.byte	12
+  51 0033 07       		.byte	7
+  52 0034 0F       		.byte	15
+  53 0035 04       		.byte	4
+  54 0036 0E       		.byte	14
+  55 0037 0B       		.byte	11
+  56 0038 08       		.byte	8
+  57 0039 00       		.byte	0
+  58 003a 01       		.byte	1
+  59 003b 02       		.byte	2
+  60 003c 0D       		.byte	13
+  61 003d 03       		.byte	3
+  62 003e 09       		.byte	9
+  63 003f 0A       		.byte	10
+  64              		.comm	userialbridge_vars,64,4
+  65              		.align	2
+  68              	userialbridge_dst_addr:
+  69 0040 BB       		.byte	-69
+  70 0041 BB       		.byte	-69
+  71 0042 00       		.byte	0
+  72 0043 00       		.byte	0
+  73 0044 00       		.byte	0
+  74 0045 00       		.byte	0
+  75 0046 00       		.byte	0
+  76 0047 00       		.byte	0
+  77 0048 00       		.byte	0
+  78 0049 00       		.byte	0
+  79 004a 00       		.byte	0
+  80 004b 00       		.byte	0
+  81 004c 00       		.byte	0
+  82 004d 00       		.byte	0
+  83 004e 00       		.byte	0
+  84 004f 01       		.byte	1
+  85              		.text
+  86              		.align	2
+  87              		.global	userialbridge_init
+  88              		.thumb
+  89              		.thumb_func
+  91              	userialbridge_init:
+  92              	.LFB0:
+  93              		.file 1 "build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c"
+   1:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c **** #include "opendefs.h"
+   2:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c **** #include "userialbridge.h"
+   3:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c **** #include "openqueue.h"
+   4:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c **** #include "opentimers.h"
+   5:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c **** #include "openserial.h"
+   6:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c **** #include "packetfunctions.h"
+   7:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c **** #include "scheduler.h"
+   8:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c **** #include "IEEE802154E.h"
+   9:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c **** #include "idmanager.h"
+  10:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c **** 
+  11:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c **** //=========================== variables =======================================
+  12:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c **** 
+  13:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c **** userialbridge_vars_t userialbridge_vars;
+  14:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c **** 
+  15:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c **** static const uint8_t userialbridge_dst_addr[]   = {
+  16:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     0xbb, 0xbb, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  17:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01
+  18:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c **** }; 
+  19:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c **** 
+  20:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c **** //=========================== prototypes ======================================
+  21:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c **** 
+  22:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c **** void userialbridge_task_cb(void);
+  23:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c **** 
+  24:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c **** //=========================== public ==========================================
+  25:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c **** 
+  26:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c **** void userialbridge_init() {
+  94              		.loc 1 26 0
+  95              		.cfi_startproc
+  96              		@ args = 0, pretend = 0, frame = 0
+  97              		@ frame_needed = 1, uses_anonymous_args = 0
+  98 0000 80B5     		push	{r7, lr}
+  99              		.cfi_def_cfa_offset 8
+ 100              		.cfi_offset 7, -8
+ 101              		.cfi_offset 14, -4
+ 102 0002 00AF     		add	r7, sp, #0
+ 103              		.cfi_def_cfa_register 7
+  27:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     
+  28:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     // clear local variables
+  29:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     memset(&userialbridge_vars,0,sizeof(userialbridge_vars_t));
+ 104              		.loc 1 29 0
+ 105 0004 40F20000 		movw	r0, #:lower16:userialbridge_vars
+ 106 0008 C0F20000 		movt	r0, #:upper16:userialbridge_vars
+ 107 000c 0021     		movs	r1, #0
+ 108 000e 4022     		movs	r2, #64
+ 109 0010 FFF7FEFF 		bl	memset
+  30:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     
+  31:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     // register with openserial
+  32:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     userialbridge_vars.openserial_rsvp.cmdId = SERFRAME_PC2MOTE_TRIGGERUSERIALBRIDGE;
+ 110              		.loc 1 32 0
+ 111 0014 40F20003 		movw	r3, #:lower16:userialbridge_vars
+ 112 0018 C0F20003 		movt	r3, #:upper16:userialbridge_vars
+ 113 001c 4222     		movs	r2, #66
+ 114 001e 83F82420 		strb	r2, [r3, #36]
+  33:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     userialbridge_vars.openserial_rsvp.cb    = userialbridge_triggerData;
+ 115              		.loc 1 33 0
+ 116 0022 40F20003 		movw	r3, #:lower16:userialbridge_vars
+ 117 0026 C0F20003 		movt	r3, #:upper16:userialbridge_vars
+ 118 002a 40F20002 		movw	r2, #:lower16:userialbridge_triggerData
+ 119 002e C0F20002 		movt	r2, #:upper16:userialbridge_triggerData
+ 120 0032 9A62     		str	r2, [r3, #40]
+  34:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     userialbridge_vars.openserial_rsvp.next  = NULL;
+ 121              		.loc 1 34 0
+ 122 0034 40F20003 		movw	r3, #:lower16:userialbridge_vars
+ 123 0038 C0F20003 		movt	r3, #:upper16:userialbridge_vars
+ 124 003c 0022     		movs	r2, #0
+ 125 003e DA62     		str	r2, [r3, #44]
+  35:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     openserial_register(&userialbridge_vars.openserial_rsvp);
+ 126              		.loc 1 35 0
+ 127 0040 0E48     		ldr	r0, .L2
+ 128 0042 FFF7FEFF 		bl	openserial_register
+  36:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c **** 
+  37:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     // register at UDP stack
+  38:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     userialbridge_vars.desc.port              = WKP_UDP_SERIALBRIDGE;
+ 129              		.loc 1 38 0
+ 130 0046 40F20003 		movw	r3, #:lower16:userialbridge_vars
+ 131 004a C0F20003 		movt	r3, #:upper16:userialbridge_vars
+ 132 004e 40F2D172 		movw	r2, #2001
+ 133 0052 1A86     		strh	r2, [r3, #48]	@ movhi
+  39:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     userialbridge_vars.desc.callbackReceive   = NULL;
+ 134              		.loc 1 39 0
+ 135 0054 40F20003 		movw	r3, #:lower16:userialbridge_vars
+ 136 0058 C0F20003 		movt	r3, #:upper16:userialbridge_vars
+ 137 005c 0022     		movs	r2, #0
+ 138 005e 5A63     		str	r2, [r3, #52]
+  40:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     userialbridge_vars.desc.callbackSendDone  = &userialbridge_sendDone;
+ 139              		.loc 1 40 0
+ 140 0060 40F20003 		movw	r3, #:lower16:userialbridge_vars
+ 141 0064 C0F20003 		movt	r3, #:upper16:userialbridge_vars
+ 142 0068 40F20002 		movw	r2, #:lower16:userialbridge_sendDone
+ 143 006c C0F20002 		movt	r2, #:upper16:userialbridge_sendDone
+ 144 0070 9A63     		str	r2, [r3, #56]
+  41:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     openudp_register(&userialbridge_vars.desc);
+ 145              		.loc 1 41 0
+ 146 0072 0348     		ldr	r0, .L2+4
+ 147 0074 FFF7FEFF 		bl	openudp_register
+  42:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c **** }
+ 148              		.loc 1 42 0
+ 149 0078 80BD     		pop	{r7, pc}
+ 150              	.L3:
+ 151 007a 00BF     		.align	2
+ 152              	.L2:
+ 153 007c 24000000 		.word	userialbridge_vars+36
+ 154 0080 30000000 		.word	userialbridge_vars+48
+ 155              		.cfi_endproc
+ 156              	.LFE0:
+ 158              		.align	2
+ 159              		.global	userialbridge_sendDone
+ 160              		.thumb
+ 161              		.thumb_func
+ 163              	userialbridge_sendDone:
+ 164              	.LFB1:
+  43:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c **** 
+  44:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c **** void userialbridge_sendDone(OpenQueueEntry_t* msg, owerror_t error) {
+ 165              		.loc 1 44 0
+ 166              		.cfi_startproc
+ 167              		@ args = 0, pretend = 0, frame = 8
+ 168              		@ frame_needed = 1, uses_anonymous_args = 0
+ 169 0084 80B5     		push	{r7, lr}
+ 170              		.cfi_def_cfa_offset 8
+ 171              		.cfi_offset 7, -8
+ 172              		.cfi_offset 14, -4
+ 173 0086 82B0     		sub	sp, sp, #8
+ 174              		.cfi_def_cfa_offset 16
+ 175 0088 00AF     		add	r7, sp, #0
+ 176              		.cfi_def_cfa_register 7
+ 177 008a 7860     		str	r0, [r7, #4]
+ 178 008c 0B46     		mov	r3, r1
+ 179 008e FB70     		strb	r3, [r7, #3]
+  45:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     openqueue_freePacketBuffer(msg);
+ 180              		.loc 1 45 0
+ 181 0090 7868     		ldr	r0, [r7, #4]
+ 182 0092 FFF7FEFF 		bl	openqueue_freePacketBuffer
+  46:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c **** }
+ 183              		.loc 1 46 0
+ 184 0096 0837     		adds	r7, r7, #8
+ 185 0098 BD46     		mov	sp, r7
+ 186              		@ sp needed
+ 187 009a 80BD     		pop	{r7, pc}
+ 188              		.cfi_endproc
+ 189              	.LFE1:
+ 191              		.align	2
+ 192              		.global	userialbridge_triggerData
+ 193              		.thumb
+ 194              		.thumb_func
+ 196              	userialbridge_triggerData:
+ 197              	.LFB2:
+  47:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c **** 
+  48:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c **** //=========================== private =========================================
+  49:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c **** 
+  50:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c **** void userialbridge_triggerData(void) {
+ 198              		.loc 1 50 0
+ 199              		.cfi_startproc
+ 200              		@ args = 0, pretend = 0, frame = 0
+ 201              		@ frame_needed = 1, uses_anonymous_args = 0
+ 202 009c 80B5     		push	{r7, lr}
+ 203              		.cfi_def_cfa_offset 8
+ 204              		.cfi_offset 7, -8
+ 205              		.cfi_offset 14, -4
+ 206 009e 00AF     		add	r7, sp, #0
+ 207              		.cfi_def_cfa_register 7
+  51:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     
+  52:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     // store payload to send
+  53:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     userialbridge_vars.txbufLen = openserial_getInputBuffer(
+ 208              		.loc 1 53 0
+ 209 00a0 40F20000 		movw	r0, #:lower16:userialbridge_vars
+ 210 00a4 C0F20000 		movt	r0, #:upper16:userialbridge_vars
+ 211 00a8 2021     		movs	r1, #32
+ 212 00aa FFF7FEFF 		bl	openserial_getInputBuffer
+ 213 00ae 0346     		mov	r3, r0
+ 214 00b0 1A46     		mov	r2, r3
+ 215 00b2 40F20003 		movw	r3, #:lower16:userialbridge_vars
+ 216 00b6 C0F20003 		movt	r3, #:upper16:userialbridge_vars
+ 217 00ba 83F82020 		strb	r2, [r3, #32]
+  54:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****         &userialbridge_vars.txbuf[0],
+  55:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****         USERIALBRIDGE_MAXPAYLEN
+  56:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     );
+  57:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     
+  58:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     // push task
+  59:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     scheduler_push_task(userialbridge_task_cb,TASKPRIO_COAP);
+ 218              		.loc 1 59 0
+ 219 00be 40F20000 		movw	r0, #:lower16:userialbridge_task_cb
+ 220 00c2 C0F20000 		movt	r0, #:upper16:userialbridge_task_cb
+ 221 00c6 0621     		movs	r1, #6
+ 222 00c8 FFF7FEFF 		bl	scheduler_push_task
+  60:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c **** }
+ 223              		.loc 1 60 0
+ 224 00cc 80BD     		pop	{r7, pc}
+ 225              		.cfi_endproc
+ 226              	.LFE2:
+ 228 00ce 00BF     		.align	2
+ 229              		.global	userialbridge_task_cb
+ 230              		.thumb
+ 231              		.thumb_func
+ 233              	userialbridge_task_cb:
+ 234              	.LFB3:
+  61:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c **** 
+  62:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c **** void userialbridge_task_cb(void) {
+ 235              		.loc 1 62 0
+ 236              		.cfi_startproc
+ 237              		@ args = 0, pretend = 0, frame = 8
+ 238              		@ frame_needed = 1, uses_anonymous_args = 0
+ 239 00d0 B0B5     		push	{r4, r5, r7, lr}
+ 240              		.cfi_def_cfa_offset 16
+ 241              		.cfi_offset 4, -16
+ 242              		.cfi_offset 5, -12
+ 243              		.cfi_offset 7, -8
+ 244              		.cfi_offset 14, -4
+ 245 00d2 82B0     		sub	sp, sp, #8
+ 246              		.cfi_def_cfa_offset 24
+ 247 00d4 00AF     		add	r7, sp, #0
+ 248              		.cfi_def_cfa_register 7
+  63:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     OpenQueueEntry_t*    pkt;
+  64:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     
+  65:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     // don't run if not synch
+  66:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     if (ieee154e_isSynch() == FALSE) return;
+ 249              		.loc 1 66 0
+ 250 00d6 FFF7FEFF 		bl	ieee154e_isSynch
+ 251 00da 0346     		mov	r3, r0
+ 252 00dc 83F00103 		eor	r3, r3, #1
+ 253 00e0 DBB2     		uxtb	r3, r3
+ 254 00e2 002B     		cmp	r3, #0
+ 255 00e4 00D0     		beq	.L7
+ 256              		.loc 1 66 0 is_stmt 0 discriminator 1
+ 257 00e6 52E0     		b	.L6
+ 258              	.L7:
+  67:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     
+  68:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     // if you get here, send a packet
+  69:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     
+  70:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     // get a free packet buffer
+  71:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     pkt = openqueue_getFreePacketBuffer(COMPONENT_USERIALBRIDGE);
+ 259              		.loc 1 71 0 is_stmt 1
+ 260 00e8 2720     		movs	r0, #39
+ 261 00ea FFF7FEFF 		bl	openqueue_getFreePacketBuffer
+ 262 00ee 7860     		str	r0, [r7, #4]
+  72:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     if (pkt==NULL) {
+ 263              		.loc 1 72 0
+ 264 00f0 7B68     		ldr	r3, [r7, #4]
+ 265 00f2 002B     		cmp	r3, #0
+ 266 00f4 06D1     		bne	.L9
+  73:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****         openserial_printError(
+ 267              		.loc 1 73 0
+ 268 00f6 2720     		movs	r0, #39
+ 269 00f8 2C21     		movs	r1, #44
+ 270 00fa 0022     		movs	r2, #0
+ 271 00fc 0023     		movs	r3, #0
+ 272 00fe FFF7FEFF 		bl	openserial_printError
+  74:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****             COMPONENT_USERIALBRIDGE,
+  75:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****             ERR_NO_FREE_PACKET_BUFFER,
+  76:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****             (errorparameter_t)0,
+  77:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****             (errorparameter_t)0
+  78:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****         );
+  79:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****         return;
+ 273              		.loc 1 79 0
+ 274 0102 44E0     		b	.L6
+ 275              	.L9:
+  80:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     }
+  81:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     
+  82:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     pkt->owner                         = COMPONENT_USERIALBRIDGE;
+ 276              		.loc 1 82 0
+ 277 0104 7B68     		ldr	r3, [r7, #4]
+ 278 0106 2722     		movs	r2, #39
+ 279 0108 5A70     		strb	r2, [r3, #1]
+  83:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     pkt->creator                       = COMPONENT_USERIALBRIDGE;
+ 280              		.loc 1 83 0
+ 281 010a 7B68     		ldr	r3, [r7, #4]
+ 282 010c 2722     		movs	r2, #39
+ 283 010e 1A70     		strb	r2, [r3]
+  84:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     pkt->l4_protocol                   = IANA_UDP;
+ 284              		.loc 1 84 0
+ 285 0110 7B68     		ldr	r3, [r7, #4]
+ 286 0112 1122     		movs	r2, #17
+ 287 0114 5A72     		strb	r2, [r3, #9]
+  85:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     pkt->l4_destination_port           = WKP_UDP_SERIALBRIDGE;
+ 288              		.loc 1 85 0
+ 289 0116 7B68     		ldr	r3, [r7, #4]
+ 290 0118 40F2D172 		movw	r2, #2001
+ 291 011c DA81     		strh	r2, [r3, #14]	@ movhi
+  86:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     pkt->l4_sourcePortORicmpv6Type     = WKP_UDP_SERIALBRIDGE;
+ 292              		.loc 1 86 0
+ 293 011e 7B68     		ldr	r3, [r7, #4]
+ 294 0120 40F2D172 		movw	r2, #2001
+ 295 0124 9A81     		strh	r2, [r3, #12]	@ movhi
+  87:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     pkt->l3_destinationAdd.type        = ADDR_128B;
+ 296              		.loc 1 87 0
+ 297 0126 7B68     		ldr	r3, [r7, #4]
+ 298 0128 0322     		movs	r2, #3
+ 299 012a 5A75     		strb	r2, [r3, #21]
+  88:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     memcpy(&pkt->l3_destinationAdd.addr_128b[0],userialbridge_dst_addr,16);
+ 300              		.loc 1 88 0
+ 301 012c 7B68     		ldr	r3, [r7, #4]
+ 302 012e 03F11602 		add	r2, r3, #22
+ 303 0132 40F20003 		movw	r3, #:lower16:userialbridge_dst_addr
+ 304 0136 C0F20003 		movt	r3, #:upper16:userialbridge_dst_addr
+ 305 013a 1446     		mov	r4, r2
+ 306 013c 1D46     		mov	r5, r3
+ 307 013e 0FCD     		ldmia	r5!, {r0, r1, r2, r3}
+ 308 0140 2060     		str	r0, [r4]	@ unaligned
+ 309 0142 6160     		str	r1, [r4, #4]	@ unaligned
+ 310 0144 A260     		str	r2, [r4, #8]	@ unaligned
+ 311 0146 E360     		str	r3, [r4, #12]	@ unaligned
+  89:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     
+  90:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     packetfunctions_reserveHeaderSize(pkt,userialbridge_vars.txbufLen);
+ 312              		.loc 1 90 0
+ 313 0148 40F20003 		movw	r3, #:lower16:userialbridge_vars
+ 314 014c C0F20003 		movt	r3, #:upper16:userialbridge_vars
+ 315 0150 93F82030 		ldrb	r3, [r3, #32]	@ zero_extendqisi2
+ 316 0154 7868     		ldr	r0, [r7, #4]
+ 317 0156 1946     		mov	r1, r3
+ 318 0158 FFF7FEFF 		bl	packetfunctions_reserveHeaderSize
+  91:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     memcpy(&pkt->payload[0],&userialbridge_vars.txbuf[0],userialbridge_vars.txbufLen);
+ 319              		.loc 1 91 0
+ 320 015c 7B68     		ldr	r3, [r7, #4]
+ 321 015e 5A68     		ldr	r2, [r3, #4]
+ 322 0160 40F20003 		movw	r3, #:lower16:userialbridge_vars
+ 323 0164 C0F20003 		movt	r3, #:upper16:userialbridge_vars
+ 324 0168 93F82030 		ldrb	r3, [r3, #32]	@ zero_extendqisi2
+ 325 016c 1046     		mov	r0, r2
+ 326 016e 40F20001 		movw	r1, #:lower16:userialbridge_vars
+ 327 0172 C0F20001 		movt	r1, #:upper16:userialbridge_vars
+ 328 0176 1A46     		mov	r2, r3
+ 329 0178 FFF7FEFF 		bl	memcpy
+  92:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     
+  93:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     if ((openudp_send(pkt))==E_FAIL) {
+ 330              		.loc 1 93 0
+ 331 017c 7868     		ldr	r0, [r7, #4]
+ 332 017e FFF7FEFF 		bl	openudp_send
+ 333 0182 0346     		mov	r3, r0
+ 334 0184 012B     		cmp	r3, #1
+ 335 0186 02D1     		bne	.L6
+  94:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****         openqueue_freePacketBuffer(pkt);
+ 336              		.loc 1 94 0
+ 337 0188 7868     		ldr	r0, [r7, #4]
+ 338 018a FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 339              	.L6:
+  95:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c ****     }
+  96:build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.c **** }
+ 340              		.loc 1 96 0
+ 341 018e 0837     		adds	r7, r7, #8
+ 342 0190 BD46     		mov	sp, r7
+ 343              		@ sp needed
+ 344 0192 B0BD     		pop	{r4, r5, r7, pc}
+ 345              		.cfi_endproc
+ 346              	.LFE3:
+ 348              	.Letext0:
+ 349              		.file 2 "/usr/include/newlib/machine/_default_types.h"
+ 350              		.file 3 "/usr/include/newlib/stdint.h"
+ 351              		.file 4 "inc/opendefs.h"
+ 352              		.file 5 "drivers/common/openserial.h"
+ 353              		.file 6 "openstack/04-TRAN/openudp.h"
+ 354              		.file 7 "build/openmote-cc2538_armgcc/openapps/userialbridge/userialbridge.h"
+ 355              		.file 8 "kernel/scheduler.h"
+ 356              		.file 9 "bsp/boards/openmote-cc2538/board_info.h"
+ 357              		.file 10 "openstack/02a-MAClow/IEEE802154E.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 userialbridge.c
+     /tmp/ccca7SqP.s:19     .rodata:0000000000000000 $d
+     /tmp/ccca7SqP.s:22     .rodata:0000000000000000 rreg_uriquery
+     /tmp/ccca7SqP.s:27     .rodata:0000000000000008 infoBoardname
+     /tmp/ccca7SqP.s:32     .rodata:0000000000000010 infouCName
+     /tmp/ccca7SqP.s:37     .rodata:0000000000000018 infoRadioName
+     /tmp/ccca7SqP.s:42     .rodata:0000000000000024 infoStackName
+     /tmp/ccca7SqP.s:47     .rodata:0000000000000030 chTemplate_default
+                            *COM*:0000000000000040 userialbridge_vars
+     /tmp/ccca7SqP.s:68     .rodata:0000000000000040 userialbridge_dst_addr
+     /tmp/ccca7SqP.s:86     .text:0000000000000000 $t
+     /tmp/ccca7SqP.s:91     .text:0000000000000000 userialbridge_init
+     /tmp/ccca7SqP.s:196    .text:000000000000009c userialbridge_triggerData
+     /tmp/ccca7SqP.s:163    .text:0000000000000084 userialbridge_sendDone
+     /tmp/ccca7SqP.s:153    .text:000000000000007c $d
+     /tmp/ccca7SqP.s:158    .text:0000000000000084 $t
+     /tmp/ccca7SqP.s:233    .text:00000000000000d0 userialbridge_task_cb
+                     .debug_frame:0000000000000010 $d
+                           .group:0000000000000000 wm4.1.08074afb2ccc9da754fae8e3ee0f577b
+                           .group:0000000000000000 wm4.features.h.22.6a4ca7cd053637cc1d0db6c16f39b2d7
+                           .group:0000000000000000 wm4._default_types.h.15.8b2cb27e528498f8ff711db085d6e489
+                           .group:0000000000000000 wm4.stdint.h.20.796e373797e732130a803d4c0338fa1b
+                           .group:0000000000000000 wm4.toolchain_defs.h.2.e5fd326231d01413e5361944b26cde07
+                           .group:0000000000000000 wm4.newlib.h.8.fec018e441fee7bfa1923812ad010f97
+                           .group:0000000000000000 wm4.config.h.212.4163ef2871a828c674038d036b081cfd
+                           .group:0000000000000000 wm4._ansi.h.23.5644b60c990a4800b02a6e654e88f93a
+                           .group:0000000000000000 wm4.stddef.h.39.daafd3d79fe2f3a84d2d73d7d4e706f8
+                           .group:0000000000000000 wm4.lock.h.2.9bc98482741e5e2a9450b12934a684ea
+                           .group:0000000000000000 wm4._types.h.54.d3d34a3b7f3cc230cd159baf022b4b08
+                           .group:0000000000000000 wm4.stddef.h.158.61317cdbfb4026324507d123a50b0fd6
+                           .group:0000000000000000 wm4.reent.h.17.8bd9e4098e0428508c282cad794fae43
+                           .group:0000000000000000 wm4.cdefs.h.47.339223046f475c9f2d5db3a9118d7c65
+                           .group:0000000000000000 wm4.string.h.15.dab3980bf35408a4c507182805e2de3a
+                           .group:0000000000000000 wm4.stddef.h.158.a7efb00f6cbc6f43213b50e183c9830c
+                           .group:0000000000000000 wm4.string.h.126.6ff3aa59129e7f66b2c273baf353e066
+                           .group:0000000000000000 wm4.stdbool.h.29.1c9ee6859ce8145f7838a4f2549ccec2
+                           .group:0000000000000000 wm4.hw_types.h.67.b10589a0806dcc2d274d6fab6b736519
+                           .group:0000000000000000 wm4.interrupt.h.41.272fc4ec0e276feb439e7974d0f77eaf
+                           .group:0000000000000000 wm4.board_info.h.22.aeb00002354a4949fff54190040e37af
+                           .group:0000000000000000 wm4.opendefs.h.23.16dafe2a30b31097968a5d4db894173a
+                           .group:0000000000000000 wm4.openserial.h.9.0a357d13b4113cc69ceb77572df48861
+                           .group:0000000000000000 wm4.IEEE802154.h.2.38fb510ed33a23a9a0660164e6dfab69
+                           .group:0000000000000000 wm4.opentimers.h.8.044f2d040a134cdb0ddb58adfc2508be
+                           .group:0000000000000000 wm4.scheduler.h.2.d8d85f436d0d4b3991926a15b8490cf4
+                           .group:0000000000000000 wm4.schedule.h.2.5f1ce0fba8afc2f4b06da872a2bf3e7d
+                           .group:0000000000000000 wm4.processIE.h.2.f7e3ebe58176b1696c1c10947f24f68e
+                           .group:0000000000000000 wm4.IEEE802154E.h.25.67f34a05c141666eec3d609543338803
+                           .group:0000000000000000 wm4.idmanager.h.2.8c0e2159b32ef3125cbb1e984805cbfe
+
+UNDEFINED SYMBOLS
+memset
+openserial_register
+openudp_register
+openqueue_freePacketBuffer
+openserial_getInputBuffer
+scheduler_push_task
+ieee154e_isSynch
+openqueue_getFreePacketBuffer
+openserial_printError
+packetfunctions_reserveHeaderSize
+memcpy
+openudp_send

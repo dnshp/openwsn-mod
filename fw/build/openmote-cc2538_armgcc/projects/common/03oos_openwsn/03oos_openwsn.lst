@@ -1,0 +1,184 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"03oos_openwsn.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.rodata
+  19              		.align	2
+  22              	rreg_uriquery:
+  23 0000 683D7563 		.ascii	"h=ucb\000"
+  23      6200
+  24 0006 0000     		.align	2
+  27              	infoBoardname:
+  28 0008 43433235 		.ascii	"CC2538\000"
+  28      333800
+  29 000f 00       		.align	2
+  32              	infouCName:
+  33 0010 43433235 		.ascii	"CC2538\000"
+  33      333800
+  34 0017 00       		.align	2
+  37              	infoRadioName:
+  38 0018 43433235 		.ascii	"CC2538 SoC\000"
+  38      33382053 
+  38      6F4300
+  39 0023 00       		.align	2
+  42              	infoStackName:
+  43 0024 4F70656E 		.ascii	"OpenWSN \000"
+  43      57534E20 
+  43      00
+  44 002d 000000   		.text
+  45              		.align	2
+  46              		.global	mote_main
+  47              		.thumb
+  48              		.thumb_func
+  50              	mote_main:
+  51              	.LFB0:
+  52              		.file 1 "build/openmote-cc2538_armgcc/projects/common/03oos_openwsn/03oos_openwsn.c"
+   1:build/openmote-cc2538_armgcc/projects/common/03oos_openwsn/03oos_openwsn.c **** /**
+   2:build/openmote-cc2538_armgcc/projects/common/03oos_openwsn/03oos_openwsn.c **** \brief This project runs the full OpenWSN stack.
+   3:build/openmote-cc2538_armgcc/projects/common/03oos_openwsn/03oos_openwsn.c **** 
+   4:build/openmote-cc2538_armgcc/projects/common/03oos_openwsn/03oos_openwsn.c **** \author Thomas Watteyne <watteyne@eecs.berkeley.edu>, August 2010
+   5:build/openmote-cc2538_armgcc/projects/common/03oos_openwsn/03oos_openwsn.c **** */
+   6:build/openmote-cc2538_armgcc/projects/common/03oos_openwsn/03oos_openwsn.c **** 
+   7:build/openmote-cc2538_armgcc/projects/common/03oos_openwsn/03oos_openwsn.c **** #include "board.h"
+   8:build/openmote-cc2538_armgcc/projects/common/03oos_openwsn/03oos_openwsn.c **** #include "crypto_engine.h"
+   9:build/openmote-cc2538_armgcc/projects/common/03oos_openwsn/03oos_openwsn.c **** #include "scheduler.h"
+  10:build/openmote-cc2538_armgcc/projects/common/03oos_openwsn/03oos_openwsn.c **** #include "openstack.h"
+  11:build/openmote-cc2538_armgcc/projects/common/03oos_openwsn/03oos_openwsn.c **** #include "opendefs.h"
+  12:build/openmote-cc2538_armgcc/projects/common/03oos_openwsn/03oos_openwsn.c **** 
+  13:build/openmote-cc2538_armgcc/projects/common/03oos_openwsn/03oos_openwsn.c **** int mote_main(void) {
+  53              		.loc 1 13 0
+  54              		.cfi_startproc
+  55              		@ args = 0, pretend = 0, frame = 0
+  56              		@ frame_needed = 1, uses_anonymous_args = 0
+  57 0000 80B5     		push	{r7, lr}
+  58              		.cfi_def_cfa_offset 8
+  59              		.cfi_offset 7, -8
+  60              		.cfi_offset 14, -4
+  61 0002 00AF     		add	r7, sp, #0
+  62              		.cfi_def_cfa_register 7
+  14:build/openmote-cc2538_armgcc/projects/common/03oos_openwsn/03oos_openwsn.c ****    
+  15:build/openmote-cc2538_armgcc/projects/common/03oos_openwsn/03oos_openwsn.c ****    // initialize
+  16:build/openmote-cc2538_armgcc/projects/common/03oos_openwsn/03oos_openwsn.c ****    board_init();
+  63              		.loc 1 16 0
+  64 0004 FFF7FEFF 		bl	board_init
+  17:build/openmote-cc2538_armgcc/projects/common/03oos_openwsn/03oos_openwsn.c ****    CRYPTO_ENGINE.init();
+  65              		.loc 1 17 0
+  66 0008 40F20003 		movw	r3, #:lower16:board_crypto_engine
+  67 000c C0F20003 		movt	r3, #:upper16:board_crypto_engine
+  68 0010 5B69     		ldr	r3, [r3, #20]
+  69 0012 9847     		blx	r3
+  18:build/openmote-cc2538_armgcc/projects/common/03oos_openwsn/03oos_openwsn.c ****    scheduler_init();
+  70              		.loc 1 18 0
+  71 0014 FFF7FEFF 		bl	scheduler_init
+  19:build/openmote-cc2538_armgcc/projects/common/03oos_openwsn/03oos_openwsn.c ****    openstack_init();
+  72              		.loc 1 19 0
+  73 0018 FFF7FEFF 		bl	openstack_init
+  20:build/openmote-cc2538_armgcc/projects/common/03oos_openwsn/03oos_openwsn.c ****    
+  21:build/openmote-cc2538_armgcc/projects/common/03oos_openwsn/03oos_openwsn.c ****    // indicate
+  22:build/openmote-cc2538_armgcc/projects/common/03oos_openwsn/03oos_openwsn.c ****    
+  23:build/openmote-cc2538_armgcc/projects/common/03oos_openwsn/03oos_openwsn.c ****    // start
+  24:build/openmote-cc2538_armgcc/projects/common/03oos_openwsn/03oos_openwsn.c ****    scheduler_start();
+  74              		.loc 1 24 0
+  75 001c FFF7FEFF 		bl	scheduler_start
+  25:build/openmote-cc2538_armgcc/projects/common/03oos_openwsn/03oos_openwsn.c ****    return 0; // this line should never be reached
+  76              		.loc 1 25 0
+  77 0020 0023     		movs	r3, #0
+  26:build/openmote-cc2538_armgcc/projects/common/03oos_openwsn/03oos_openwsn.c **** }
+  78              		.loc 1 26 0
+  79 0022 1846     		mov	r0, r3
+  80 0024 80BD     		pop	{r7, pc}
+  81              		.cfi_endproc
+  82              	.LFE0:
+  84 0026 00BF     		.align	2
+  85              		.global	sniffer_setListeningChannel
+  86              		.thumb
+  87              		.thumb_func
+  89              	sniffer_setListeningChannel:
+  90              	.LFB1:
+  27:build/openmote-cc2538_armgcc/projects/common/03oos_openwsn/03oos_openwsn.c **** 
+  28:build/openmote-cc2538_armgcc/projects/common/03oos_openwsn/03oos_openwsn.c **** void sniffer_setListeningChannel(uint8_t channel){return;}
+  91              		.loc 1 28 0
+  92              		.cfi_startproc
+  93              		@ args = 0, pretend = 0, frame = 8
+  94              		@ frame_needed = 1, uses_anonymous_args = 0
+  95              		@ link register save eliminated.
+  96 0028 80B4     		push	{r7}
+  97              		.cfi_def_cfa_offset 4
+  98              		.cfi_offset 7, -4
+  99 002a 83B0     		sub	sp, sp, #12
+ 100              		.cfi_def_cfa_offset 16
+ 101 002c 00AF     		add	r7, sp, #0
+ 102              		.cfi_def_cfa_register 7
+ 103 002e 0346     		mov	r3, r0
+ 104 0030 FB71     		strb	r3, [r7, #7]
+ 105              		.loc 1 28 0
+ 106 0032 00BF     		nop
+ 107 0034 0C37     		adds	r7, r7, #12
+ 108 0036 BD46     		mov	sp, r7
+ 109              		@ sp needed
+ 110 0038 5DF8047B 		ldr	r7, [sp], #4
+ 111 003c 7047     		bx	lr
+ 112              		.cfi_endproc
+ 113              	.LFE1:
+ 115              	.Letext0:
+ 116              		.file 2 "/usr/include/newlib/machine/_default_types.h"
+ 117              		.file 3 "/usr/include/newlib/stdint.h"
+ 118              		.file 4 "inc/opendefs.h"
+ 119              		.file 5 "bsp/boards/crypto_engine.h"
+ 120              		.file 6 "bsp/boards/openmote-cc2538/board_info.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 03oos_openwsn.c
+     /tmp/ccwU2BSG.s:19     .rodata:0000000000000000 $d
+     /tmp/ccwU2BSG.s:22     .rodata:0000000000000000 rreg_uriquery
+     /tmp/ccwU2BSG.s:27     .rodata:0000000000000008 infoBoardname
+     /tmp/ccwU2BSG.s:32     .rodata:0000000000000010 infouCName
+     /tmp/ccwU2BSG.s:37     .rodata:0000000000000018 infoRadioName
+     /tmp/ccwU2BSG.s:42     .rodata:0000000000000024 infoStackName
+     /tmp/ccwU2BSG.s:45     .text:0000000000000000 $t
+     /tmp/ccwU2BSG.s:50     .text:0000000000000000 mote_main
+     /tmp/ccwU2BSG.s:89     .text:0000000000000028 sniffer_setListeningChannel
+                     .debug_frame:0000000000000010 $d
+                           .group:0000000000000000 wm4.1.08074afb2ccc9da754fae8e3ee0f577b
+                           .group:0000000000000000 wm4.features.h.22.6a4ca7cd053637cc1d0db6c16f39b2d7
+                           .group:0000000000000000 wm4._default_types.h.15.8b2cb27e528498f8ff711db085d6e489
+                           .group:0000000000000000 wm4.stdint.h.20.796e373797e732130a803d4c0338fa1b
+                           .group:0000000000000000 wm4.newlib.h.8.fec018e441fee7bfa1923812ad010f97
+                           .group:0000000000000000 wm4.config.h.212.4163ef2871a828c674038d036b081cfd
+                           .group:0000000000000000 wm4._ansi.h.23.5644b60c990a4800b02a6e654e88f93a
+                           .group:0000000000000000 wm4.stddef.h.39.daafd3d79fe2f3a84d2d73d7d4e706f8
+                           .group:0000000000000000 wm4.lock.h.2.9bc98482741e5e2a9450b12934a684ea
+                           .group:0000000000000000 wm4._types.h.54.d3d34a3b7f3cc230cd159baf022b4b08
+                           .group:0000000000000000 wm4.stddef.h.158.61317cdbfb4026324507d123a50b0fd6
+                           .group:0000000000000000 wm4.reent.h.17.8bd9e4098e0428508c282cad794fae43
+                           .group:0000000000000000 wm4.cdefs.h.47.339223046f475c9f2d5db3a9118d7c65
+                           .group:0000000000000000 wm4.string.h.15.dab3980bf35408a4c507182805e2de3a
+                           .group:0000000000000000 wm4.stddef.h.158.a7efb00f6cbc6f43213b50e183c9830c
+                           .group:0000000000000000 wm4.string.h.126.6ff3aa59129e7f66b2c273baf353e066
+                           .group:0000000000000000 wm4.stdbool.h.29.1c9ee6859ce8145f7838a4f2549ccec2
+                           .group:0000000000000000 wm4.hw_types.h.67.b10589a0806dcc2d274d6fab6b736519
+                           .group:0000000000000000 wm4.interrupt.h.41.272fc4ec0e276feb439e7974d0f77eaf
+                           .group:0000000000000000 wm4.board_info.h.22.aeb00002354a4949fff54190040e37af
+                           .group:0000000000000000 wm4.toolchain_defs.h.2.1de8df52ab2567aa1aa0a288d2325900
+                           .group:0000000000000000 wm4.opendefs.h.23.16dafe2a30b31097968a5d4db894173a
+                           .group:0000000000000000 wm4.crypto_engine.h.17.23540fa955a265a0c9d1c1216a5a854b
+                           .group:0000000000000000 wm4.scheduler.h.2.d8d85f436d0d4b3991926a15b8490cf4
+
+UNDEFINED SYMBOLS
+board_init
+board_crypto_engine
+scheduler_init
+openstack_init
+scheduler_start

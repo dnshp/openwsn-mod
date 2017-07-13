@@ -1,0 +1,492 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"cwellknown.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.rodata
+  19              		.align	2
+  22              	rreg_uriquery:
+  23 0000 683D7563 		.ascii	"h=ucb\000"
+  23      6200
+  24 0006 0000     		.align	2
+  27              	infoBoardname:
+  28 0008 43433235 		.ascii	"CC2538\000"
+  28      333800
+  29 000f 00       		.align	2
+  32              	infouCName:
+  33 0010 43433235 		.ascii	"CC2538\000"
+  33      333800
+  34 0017 00       		.align	2
+  37              	infoRadioName:
+  38 0018 43433235 		.ascii	"CC2538 SoC\000"
+  38      33382053 
+  38      6F4300
+  39 0023 00       		.align	2
+  42              	infoStackName:
+  43 0024 4F70656E 		.ascii	"OpenWSN \000"
+  43      57534E20 
+  43      00
+  44 002d 000000   		.align	2
+  47              	ipAddr_ipsoRD:
+  48 0030 26       		.byte	38
+  49 0031 07       		.byte	7
+  50 0032 F7       		.byte	-9
+  51 0033 40       		.byte	64
+  52 0034 00       		.byte	0
+  53 0035 00       		.byte	0
+  54 0036 00       		.byte	0
+  55 0037 3F       		.byte	63
+  56 0038 00       		.byte	0
+  57 0039 00       		.byte	0
+  58 003a 00       		.byte	0
+  59 003b 00       		.byte	0
+  60 003c 00       		.byte	0
+  61 003d 00       		.byte	0
+  62 003e 0E       		.byte	14
+  63 003f 29       		.byte	41
+  64              		.align	2
+  67              	ipAddr_motesEecs:
+  68 0040 20       		.byte	32
+  69 0041 01       		.byte	1
+  70 0042 04       		.byte	4
+  71 0043 70       		.byte	112
+  72 0044 00       		.byte	0
+  73 0045 66       		.byte	102
+  74 0046 00       		.byte	0
+  75 0047 19       		.byte	25
+  76 0048 00       		.byte	0
+  77 0049 00       		.byte	0
+  78 004a 00       		.byte	0
+  79 004b 00       		.byte	0
+  80 004c 00       		.byte	0
+  81 004d 00       		.byte	0
+  82 004e 00       		.byte	0
+  83 004f 02       		.byte	2
+  84              		.align	2
+  87              	ipAddr_local:
+  88 0050 26       		.byte	38
+  89 0051 07       		.byte	7
+  90 0052 F1       		.byte	-15
+  91 0053 40       		.byte	64
+  92 0054 04       		.byte	4
+  93 0055 00       		.byte	0
+  94 0056 10       		.byte	16
+  95 0057 36       		.byte	54
+  96 0058 4D       		.byte	77
+  97 0059 CD       		.byte	-51
+  98 005a AB       		.byte	-85
+  99 005b 54       		.byte	84
+ 100 005c 81       		.byte	-127
+ 101 005d 99       		.byte	-103
+ 102 005e C1       		.byte	-63
+ 103 005f F7       		.byte	-9
+ 104              		.align	2
+ 107              	ipAddr_motedata:
+ 108 0060 20       		.byte	32
+ 109 0061 01       		.byte	1
+ 110 0062 04       		.byte	4
+ 111 0063 70       		.byte	112
+ 112 0064 00       		.byte	0
+ 113 0065 66       		.byte	102
+ 114 0066 00       		.byte	0
+ 115 0067 17       		.byte	23
+ 116 0068 00       		.byte	0
+ 117 0069 00       		.byte	0
+ 118 006a 00       		.byte	0
+ 119 006b 00       		.byte	0
+ 120 006c 00       		.byte	0
+ 121 006d 00       		.byte	0
+ 122 006e 00       		.byte	0
+ 123 006f 02       		.byte	2
+ 124              		.align	2
+ 127              	ipAddr_ringmaster:
+ 128 0070 BB       		.byte	-69
+ 129 0071 BB       		.byte	-69
+ 130 0072 00       		.byte	0
+ 131 0073 00       		.byte	0
+ 132 0074 00       		.byte	0
+ 133 0075 00       		.byte	0
+ 134 0076 00       		.byte	0
+ 135 0077 00       		.byte	0
+ 136 0078 00       		.byte	0
+ 137 0079 00       		.byte	0
+ 138 007a 00       		.byte	0
+ 139 007b 00       		.byte	0
+ 140 007c 00       		.byte	0
+ 141 007d 00       		.byte	0
+ 142 007e 00       		.byte	0
+ 143 007f 01       		.byte	1
+ 144              		.comm	cwellknown_vars,48,4
+ 145              		.global	cwellknown_path0
+ 146              		.align	2
+ 149              	cwellknown_path0:
+ 150 0080 2E77656C 		.ascii	".well-known\000"
+ 150      6C2D6B6E 
+ 150      6F776E00 
+ 151              		.global	cwellknown_path1
+ 152              		.align	2
+ 155              	cwellknown_path1:
+ 156 008c 636F7265 		.ascii	"core\000"
+ 156      00
+ 157 0091 000000   		.text
+ 158              		.align	2
+ 159              		.global	cwellknown_init
+ 160              		.thumb
+ 161              		.thumb_func
+ 163              	cwellknown_init:
+ 164              	.LFB0:
+ 165              		.file 1 "build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c"
+   1:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c **** #include "opendefs.h"
+   2:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c **** #include "cwellknown.h"
+   3:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c **** #include "opencoap.h"
+   4:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c **** #include "openqueue.h"
+   5:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c **** #include "packetfunctions.h"
+   6:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c **** #include "openserial.h"
+   7:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c **** #include "idmanager.h"
+   8:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c **** 
+   9:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c **** //=========================== variables =======================================
+  10:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c **** 
+  11:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c **** cwellknown_vars_t cwellknown_vars;
+  12:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c **** 
+  13:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c **** const uint8_t cwellknown_path0[]       = ".well-known";
+  14:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c **** const uint8_t cwellknown_path1[]       = "core";
+  15:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c **** 
+  16:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c **** //=========================== prototypes ======================================
+  17:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c **** 
+  18:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c **** owerror_t cwellknown_receive(
+  19:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****    OpenQueueEntry_t* msg,
+  20:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****    coap_header_iht*  coap_header,
+  21:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****    coap_option_iht*  coap_options
+  22:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c **** );
+  23:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c **** 
+  24:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c **** void    cwellknown_sendDone(
+  25:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****    OpenQueueEntry_t* msg,
+  26:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****    owerror_t         error
+  27:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c **** );
+  28:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c **** 
+  29:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c **** //=========================== public ==========================================
+  30:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c **** 
+  31:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c **** void cwellknown_init() {
+ 166              		.loc 1 31 0
+ 167              		.cfi_startproc
+ 168              		@ args = 0, pretend = 0, frame = 0
+ 169              		@ frame_needed = 1, uses_anonymous_args = 0
+ 170 0000 80B5     		push	{r7, lr}
+ 171              		.cfi_def_cfa_offset 8
+ 172              		.cfi_offset 7, -8
+ 173              		.cfi_offset 14, -4
+ 174 0002 00AF     		add	r7, sp, #0
+ 175              		.cfi_def_cfa_register 7
+  32:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****    if(idmanager_getIsDAGroot()==TRUE) return; 
+ 176              		.loc 1 32 0
+ 177 0004 FFF7FEFF 		bl	idmanager_getIsDAGroot
+ 178 0008 0346     		mov	r3, r0
+ 179 000a 002B     		cmp	r3, #0
+ 180 000c 00D0     		beq	.L2
+ 181              		.loc 1 32 0 is_stmt 0 discriminator 1
+ 182 000e 41E0     		b	.L1
+ 183              	.L2:
+  33:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****    
+  34:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****    // prepare the resource descriptor for the /.well-known/core path
+  35:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****    cwellknown_vars.desc.path0len            = sizeof(cwellknown_path0)-1;
+ 184              		.loc 1 35 0 is_stmt 1
+ 185 0010 40F20003 		movw	r3, #:lower16:cwellknown_vars
+ 186 0014 C0F20003 		movt	r3, #:upper16:cwellknown_vars
+ 187 0018 0B22     		movs	r2, #11
+ 188 001a 1A70     		strb	r2, [r3]
+  36:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****    cwellknown_vars.desc.path0val            = (uint8_t*)(&cwellknown_path0);
+ 189              		.loc 1 36 0
+ 190 001c 40F20003 		movw	r3, #:lower16:cwellknown_vars
+ 191 0020 C0F20003 		movt	r3, #:upper16:cwellknown_vars
+ 192 0024 40F20002 		movw	r2, #:lower16:cwellknown_path0
+ 193 0028 C0F20002 		movt	r2, #:upper16:cwellknown_path0
+ 194 002c 5A60     		str	r2, [r3, #4]
+  37:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****    cwellknown_vars.desc.path1len            = sizeof(cwellknown_path1)-1;
+ 195              		.loc 1 37 0
+ 196 002e 40F20003 		movw	r3, #:lower16:cwellknown_vars
+ 197 0032 C0F20003 		movt	r3, #:upper16:cwellknown_vars
+ 198 0036 0422     		movs	r2, #4
+ 199 0038 1A72     		strb	r2, [r3, #8]
+  38:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****    cwellknown_vars.desc.path1val            = (uint8_t*)(&cwellknown_path1);
+ 200              		.loc 1 38 0
+ 201 003a 40F20003 		movw	r3, #:lower16:cwellknown_vars
+ 202 003e C0F20003 		movt	r3, #:upper16:cwellknown_vars
+ 203 0042 40F20002 		movw	r2, #:lower16:cwellknown_path1
+ 204 0046 C0F20002 		movt	r2, #:upper16:cwellknown_path1
+ 205 004a DA60     		str	r2, [r3, #12]
+  39:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****    cwellknown_vars.desc.componentID         = COMPONENT_CWELLKNOWN;
+ 206              		.loc 1 39 0
+ 207 004c 40F20003 		movw	r3, #:lower16:cwellknown_vars
+ 208 0050 C0F20003 		movt	r3, #:upper16:cwellknown_vars
+ 209 0054 2022     		movs	r2, #32
+ 210 0056 1A74     		strb	r2, [r3, #16]
+  40:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****    cwellknown_vars.desc.discoverable        = FALSE;
+ 211              		.loc 1 40 0
+ 212 0058 40F20003 		movw	r3, #:lower16:cwellknown_vars
+ 213 005c C0F20003 		movt	r3, #:upper16:cwellknown_vars
+ 214 0060 0022     		movs	r2, #0
+ 215 0062 5A74     		strb	r2, [r3, #17]
+  41:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****    cwellknown_vars.desc.callbackRx          = &cwellknown_receive;
+ 216              		.loc 1 41 0
+ 217 0064 40F20003 		movw	r3, #:lower16:cwellknown_vars
+ 218 0068 C0F20003 		movt	r3, #:upper16:cwellknown_vars
+ 219 006c 40F20002 		movw	r2, #:lower16:cwellknown_receive
+ 220 0070 C0F20002 		movt	r2, #:upper16:cwellknown_receive
+ 221 0074 5A61     		str	r2, [r3, #20]
+  42:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****    cwellknown_vars.desc.callbackSendDone    = &cwellknown_sendDone;
+ 222              		.loc 1 42 0
+ 223 0076 40F20003 		movw	r3, #:lower16:cwellknown_vars
+ 224 007a C0F20003 		movt	r3, #:upper16:cwellknown_vars
+ 225 007e 40F20002 		movw	r2, #:lower16:cwellknown_sendDone
+ 226 0082 C0F20002 		movt	r2, #:upper16:cwellknown_sendDone
+ 227 0086 9A61     		str	r2, [r3, #24]
+  43:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****    
+  44:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****    opencoap_register(&cwellknown_vars.desc);
+ 228              		.loc 1 44 0
+ 229 0088 40F20000 		movw	r0, #:lower16:cwellknown_vars
+ 230 008c C0F20000 		movt	r0, #:upper16:cwellknown_vars
+ 231 0090 FFF7FEFF 		bl	opencoap_register
+ 232              	.L1:
+  45:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c **** }
+ 233              		.loc 1 45 0
+ 234 0094 80BD     		pop	{r7, pc}
+ 235              		.cfi_endproc
+ 236              	.LFE0:
+ 238 0096 00BF     		.align	2
+ 239              		.global	cwellknown_receive
+ 240              		.thumb
+ 241              		.thumb_func
+ 243              	cwellknown_receive:
+ 244              	.LFB1:
+  46:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c **** 
+  47:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c **** //=========================== private =========================================
+  48:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c **** 
+  49:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c **** owerror_t cwellknown_receive(
+  50:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****       OpenQueueEntry_t* msg,
+  51:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****       coap_header_iht*  coap_header,
+  52:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****       coap_option_iht*  coap_options
+  53:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****    ) {
+ 245              		.loc 1 53 0
+ 246              		.cfi_startproc
+ 247              		@ args = 0, pretend = 0, frame = 24
+ 248              		@ frame_needed = 1, uses_anonymous_args = 0
+ 249 0098 80B5     		push	{r7, lr}
+ 250              		.cfi_def_cfa_offset 8
+ 251              		.cfi_offset 7, -8
+ 252              		.cfi_offset 14, -4
+ 253 009a 86B0     		sub	sp, sp, #24
+ 254              		.cfi_def_cfa_offset 32
+ 255 009c 00AF     		add	r7, sp, #0
+ 256              		.cfi_def_cfa_register 7
+ 257 009e F860     		str	r0, [r7, #12]
+ 258 00a0 B960     		str	r1, [r7, #8]
+ 259 00a2 7A60     		str	r2, [r7, #4]
+  54:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****    owerror_t outcome;
+  55:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****    
+  56:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****    switch(coap_header->Code) {
+ 260              		.loc 1 56 0
+ 261 00a4 BB68     		ldr	r3, [r7, #8]
+ 262 00a6 DB78     		ldrb	r3, [r3, #3]	@ zero_extendqisi2
+ 263 00a8 012B     		cmp	r3, #1
+ 264 00aa 26D1     		bne	.L9
+  57:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****       case COAP_CODE_REQ_GET:
+  58:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****          // reset packet payload
+  59:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****          msg->payload        = &(msg->packet[127]);
+ 265              		.loc 1 59 0
+ 266 00ac FB68     		ldr	r3, [r7, #12]
+ 267 00ae 03F20B12 		addw	r2, r3, #267
+ 268 00b2 FB68     		ldr	r3, [r7, #12]
+ 269 00b4 5A60     		str	r2, [r3, #4]
+  60:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****          msg->length         = 0;
+ 270              		.loc 1 60 0
+ 271 00b6 FB68     		ldr	r3, [r7, #12]
+ 272 00b8 0022     		movs	r2, #0
+ 273 00ba 1A72     		strb	r2, [r3, #8]
+  61:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****          
+  62:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****          // have CoAP module write links to all resources
+  63:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****          opencoap_writeLinks(msg,COMPONENT_CWELLKNOWN);
+ 274              		.loc 1 63 0
+ 275 00bc F868     		ldr	r0, [r7, #12]
+ 276 00be 2021     		movs	r1, #32
+ 277 00c0 FFF7FEFF 		bl	opencoap_writeLinks
+  64:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****          
+  65:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****          packetfunctions_reserveHeaderSize(msg,1);
+ 278              		.loc 1 65 0
+ 279 00c4 F868     		ldr	r0, [r7, #12]
+ 280 00c6 0121     		movs	r1, #1
+ 281 00c8 FFF7FEFF 		bl	packetfunctions_reserveHeaderSize
+  66:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****          msg->payload[0]     = COAP_PAYLOAD_MARKER;
+ 282              		.loc 1 66 0
+ 283 00cc FB68     		ldr	r3, [r7, #12]
+ 284 00ce 5B68     		ldr	r3, [r3, #4]
+ 285 00d0 FF22     		movs	r2, #255
+ 286 00d2 1A70     		strb	r2, [r3]
+  67:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****             
+  68:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****          // add return option
+  69:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****          packetfunctions_reserveHeaderSize(msg,2);
+ 287              		.loc 1 69 0
+ 288 00d4 F868     		ldr	r0, [r7, #12]
+ 289 00d6 0221     		movs	r1, #2
+ 290 00d8 FFF7FEFF 		bl	packetfunctions_reserveHeaderSize
+  70:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****          msg->payload[0]     = COAP_OPTION_NUM_CONTENTFORMAT << 4 | 1;
+ 291              		.loc 1 70 0
+ 292 00dc FB68     		ldr	r3, [r7, #12]
+ 293 00de 5B68     		ldr	r3, [r3, #4]
+ 294 00e0 C122     		movs	r2, #193
+ 295 00e2 1A70     		strb	r2, [r3]
+  71:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****          msg->payload[1]     = COAP_MEDTYPE_APPLINKFORMAT;
+ 296              		.loc 1 71 0
+ 297 00e4 FB68     		ldr	r3, [r7, #12]
+ 298 00e6 5B68     		ldr	r3, [r3, #4]
+ 299 00e8 0133     		adds	r3, r3, #1
+ 300 00ea 2822     		movs	r2, #40
+ 301 00ec 1A70     		strb	r2, [r3]
+  72:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****          
+  73:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****          // set the CoAP header
+  74:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****          coap_header->Code   = COAP_CODE_RESP_CONTENT;
+ 302              		.loc 1 74 0
+ 303 00ee BB68     		ldr	r3, [r7, #8]
+ 304 00f0 4522     		movs	r2, #69
+ 305 00f2 DA70     		strb	r2, [r3, #3]
+  75:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****          
+  76:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****          outcome             = E_SUCCESS;
+ 306              		.loc 1 76 0
+ 307 00f4 0023     		movs	r3, #0
+ 308 00f6 FB75     		strb	r3, [r7, #23]
+  77:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****          
+  78:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****          break;
+ 309              		.loc 1 78 0
+ 310 00f8 02E0     		b	.L7
+ 311              	.L9:
+  79:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****       default:
+  80:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****          outcome             = E_FAIL;
+ 312              		.loc 1 80 0
+ 313 00fa 0123     		movs	r3, #1
+ 314 00fc FB75     		strb	r3, [r7, #23]
+  81:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****          break;
+ 315              		.loc 1 81 0
+ 316 00fe 00BF     		nop
+ 317              	.L7:
+  82:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****    }
+  83:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****    
+  84:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****    return outcome;
+ 318              		.loc 1 84 0
+ 319 0100 FB7D     		ldrb	r3, [r7, #23]	@ zero_extendqisi2
+  85:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c **** }
+ 320              		.loc 1 85 0
+ 321 0102 1846     		mov	r0, r3
+ 322 0104 1837     		adds	r7, r7, #24
+ 323 0106 BD46     		mov	sp, r7
+ 324              		@ sp needed
+ 325 0108 80BD     		pop	{r7, pc}
+ 326              		.cfi_endproc
+ 327              	.LFE1:
+ 329 010a 00BF     		.align	2
+ 330              		.global	cwellknown_sendDone
+ 331              		.thumb
+ 332              		.thumb_func
+ 334              	cwellknown_sendDone:
+ 335              	.LFB2:
+  86:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c **** 
+  87:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c **** void cwellknown_sendDone(OpenQueueEntry_t* msg, owerror_t error) {
+ 336              		.loc 1 87 0
+ 337              		.cfi_startproc
+ 338              		@ args = 0, pretend = 0, frame = 8
+ 339              		@ frame_needed = 1, uses_anonymous_args = 0
+ 340 010c 80B5     		push	{r7, lr}
+ 341              		.cfi_def_cfa_offset 8
+ 342              		.cfi_offset 7, -8
+ 343              		.cfi_offset 14, -4
+ 344 010e 82B0     		sub	sp, sp, #8
+ 345              		.cfi_def_cfa_offset 16
+ 346 0110 00AF     		add	r7, sp, #0
+ 347              		.cfi_def_cfa_register 7
+ 348 0112 7860     		str	r0, [r7, #4]
+ 349 0114 0B46     		mov	r3, r1
+ 350 0116 FB70     		strb	r3, [r7, #3]
+  88:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c ****    openqueue_freePacketBuffer(msg);
+ 351              		.loc 1 88 0
+ 352 0118 7868     		ldr	r0, [r7, #4]
+ 353 011a FFF7FEFF 		bl	openqueue_freePacketBuffer
+  89:build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.c **** }
+ 354              		.loc 1 89 0
+ 355 011e 0837     		adds	r7, r7, #8
+ 356 0120 BD46     		mov	sp, r7
+ 357              		@ sp needed
+ 358 0122 80BD     		pop	{r7, pc}
+ 359              		.cfi_endproc
+ 360              	.LFE2:
+ 362              	.Letext0:
+ 363              		.file 2 "/usr/include/newlib/machine/_default_types.h"
+ 364              		.file 3 "/usr/include/newlib/stdint.h"
+ 365              		.file 4 "inc/opendefs.h"
+ 366              		.file 5 "openapps/opencoap/opencoap.h"
+ 367              		.file 6 "build/openmote-cc2538_armgcc/openapps/cwellknown/cwellknown.h"
+ 368              		.file 7 "bsp/boards/openmote-cc2538/board_info.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 cwellknown.c
+     /tmp/cczzDuxh.s:19     .rodata:0000000000000000 $d
+     /tmp/cczzDuxh.s:22     .rodata:0000000000000000 rreg_uriquery
+     /tmp/cczzDuxh.s:27     .rodata:0000000000000008 infoBoardname
+     /tmp/cczzDuxh.s:32     .rodata:0000000000000010 infouCName
+     /tmp/cczzDuxh.s:37     .rodata:0000000000000018 infoRadioName
+     /tmp/cczzDuxh.s:42     .rodata:0000000000000024 infoStackName
+     /tmp/cczzDuxh.s:47     .rodata:0000000000000030 ipAddr_ipsoRD
+     /tmp/cczzDuxh.s:67     .rodata:0000000000000040 ipAddr_motesEecs
+     /tmp/cczzDuxh.s:87     .rodata:0000000000000050 ipAddr_local
+     /tmp/cczzDuxh.s:107    .rodata:0000000000000060 ipAddr_motedata
+     /tmp/cczzDuxh.s:127    .rodata:0000000000000070 ipAddr_ringmaster
+                            *COM*:0000000000000030 cwellknown_vars
+     /tmp/cczzDuxh.s:149    .rodata:0000000000000080 cwellknown_path0
+     /tmp/cczzDuxh.s:155    .rodata:000000000000008c cwellknown_path1
+     /tmp/cczzDuxh.s:158    .text:0000000000000000 $t
+     /tmp/cczzDuxh.s:163    .text:0000000000000000 cwellknown_init
+     /tmp/cczzDuxh.s:243    .text:0000000000000098 cwellknown_receive
+     /tmp/cczzDuxh.s:334    .text:000000000000010c cwellknown_sendDone
+                     .debug_frame:0000000000000010 $d
+                           .group:0000000000000000 wm4.1.08074afb2ccc9da754fae8e3ee0f577b
+                           .group:0000000000000000 wm4.features.h.22.6a4ca7cd053637cc1d0db6c16f39b2d7
+                           .group:0000000000000000 wm4._default_types.h.15.8b2cb27e528498f8ff711db085d6e489
+                           .group:0000000000000000 wm4.stdint.h.20.796e373797e732130a803d4c0338fa1b
+                           .group:0000000000000000 wm4.toolchain_defs.h.2.e5fd326231d01413e5361944b26cde07
+                           .group:0000000000000000 wm4.newlib.h.8.fec018e441fee7bfa1923812ad010f97
+                           .group:0000000000000000 wm4.config.h.212.4163ef2871a828c674038d036b081cfd
+                           .group:0000000000000000 wm4._ansi.h.23.5644b60c990a4800b02a6e654e88f93a
+                           .group:0000000000000000 wm4.stddef.h.39.daafd3d79fe2f3a84d2d73d7d4e706f8
+                           .group:0000000000000000 wm4.lock.h.2.9bc98482741e5e2a9450b12934a684ea
+                           .group:0000000000000000 wm4._types.h.54.d3d34a3b7f3cc230cd159baf022b4b08
+                           .group:0000000000000000 wm4.stddef.h.158.61317cdbfb4026324507d123a50b0fd6
+                           .group:0000000000000000 wm4.reent.h.17.8bd9e4098e0428508c282cad794fae43
+                           .group:0000000000000000 wm4.cdefs.h.47.339223046f475c9f2d5db3a9118d7c65
+                           .group:0000000000000000 wm4.string.h.15.dab3980bf35408a4c507182805e2de3a
+                           .group:0000000000000000 wm4.stddef.h.158.a7efb00f6cbc6f43213b50e183c9830c
+                           .group:0000000000000000 wm4.string.h.126.6ff3aa59129e7f66b2c273baf353e066
+                           .group:0000000000000000 wm4.stdbool.h.29.1c9ee6859ce8145f7838a4f2549ccec2
+                           .group:0000000000000000 wm4.hw_types.h.67.b10589a0806dcc2d274d6fab6b736519
+                           .group:0000000000000000 wm4.interrupt.h.41.272fc4ec0e276feb439e7974d0f77eaf
+                           .group:0000000000000000 wm4.board_info.h.22.aeb00002354a4949fff54190040e37af
+                           .group:0000000000000000 wm4.opendefs.h.23.16dafe2a30b31097968a5d4db894173a
+                           .group:0000000000000000 wm4.opentimers.h.8.044f2d040a134cdb0ddb58adfc2508be
+                           .group:0000000000000000 wm4.opencoap.h.32.54fb4d751dc200645403fc22b4aec840
+                           .group:0000000000000000 wm4.IEEE802154.h.2.38fb510ed33a23a9a0660164e6dfab69
+                           .group:0000000000000000 wm4.openserial.h.9.0a357d13b4113cc69ceb77572df48861
+                           .group:0000000000000000 wm4.idmanager.h.2.8c0e2159b32ef3125cbb1e984805cbfe
+
+UNDEFINED SYMBOLS
+idmanager_getIsDAGroot
+opencoap_register
+opencoap_writeLinks
+packetfunctions_reserveHeaderSize
+openqueue_freePacketBuffer

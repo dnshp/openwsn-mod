@@ -1,0 +1,3581 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"neighbors.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.rodata
+  19              		.align	2
+  22              	rreg_uriquery:
+  23 0000 683D7563 		.ascii	"h=ucb\000"
+  23      6200
+  24 0006 0000     		.align	2
+  27              	infoBoardname:
+  28 0008 43433235 		.ascii	"CC2538\000"
+  28      333800
+  29 000f 00       		.align	2
+  32              	infouCName:
+  33 0010 43433235 		.ascii	"CC2538\000"
+  33      333800
+  34 0017 00       		.align	2
+  37              	infoRadioName:
+  38 0018 43433235 		.ascii	"CC2538 SoC\000"
+  38      33382053 
+  38      6F4300
+  39 0023 00       		.align	2
+  42              	infoStackName:
+  43 0024 4F70656E 		.ascii	"OpenWSN \000"
+  43      57534E20 
+  43      00
+  44 002d 000000   		.align	2
+  47              	all_routers_multicast:
+  48 0030 FF       		.byte	-1
+  49 0031 02       		.byte	2
+  50 0032 00       		.byte	0
+  51 0033 00       		.byte	0
+  52 0034 00       		.byte	0
+  53 0035 00       		.byte	0
+  54 0036 00       		.byte	0
+  55 0037 00       		.byte	0
+  56 0038 00       		.byte	0
+  57 0039 00       		.byte	0
+  58 003a 00       		.byte	0
+  59 003b 00       		.byte	0
+  60 003c 00       		.byte	0
+  61 003d 00       		.byte	0
+  62 003e 00       		.byte	0
+  63 003f 1A       		.byte	26
+  64              		.align	2
+  67              	chTemplate_default:
+  68 0040 05       		.byte	5
+  69 0041 06       		.byte	6
+  70 0042 0C       		.byte	12
+  71 0043 07       		.byte	7
+  72 0044 0F       		.byte	15
+  73 0045 04       		.byte	4
+  74 0046 0E       		.byte	14
+  75 0047 0B       		.byte	11
+  76 0048 08       		.byte	8
+  77 0049 00       		.byte	0
+  78 004a 01       		.byte	1
+  79 004b 02       		.byte	2
+  80 004c 0D       		.byte	13
+  81 004d 03       		.byte	3
+  82 004e 09       		.byte	9
+  83 004f 0A       		.byte	10
+  84              		.bss
+  85              		.align	2
+  86              	neighbors_vars:
+  87 0000 00000000 		.space	354
+  87      00000000 
+  87      00000000 
+  87      00000000 
+  87      00000000 
+  88 0162 0000     		.text
+  89              		.align	2
+  90              		.global	neighbors_init
+  91              		.thumb
+  92              		.thumb_func
+  94              	neighbors_init:
+  95              	.LFB0:
+  96              		.file 1 "build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c"
+   1:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** #include "opendefs.h"
+   2:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** #include "neighbors.h"
+   3:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** #include "openqueue.h"
+   4:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** #include "packetfunctions.h"
+   5:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** #include "idmanager.h"
+   6:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** #include "openserial.h"
+   7:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** #include "IEEE802154E.h"
+   8:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+   9:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** //=========================== variables =======================================
+  10:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+  11:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** static neighbors_vars_t neighbors_vars;
+  12:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+  13:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** //=========================== prototypes ======================================
+  14:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+  15:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** void registerNewNeighbor(
+  16:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         open_addr_t* neighborID,
+  17:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         int8_t       rssi,
+  18:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         asn_t*       asnTimestamp,
+  19:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         bool         joinPrioPresent,
+  20:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         uint8_t      joinPrio
+  21:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****      );
+  22:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** bool isNeighbor(open_addr_t* neighbor);
+  23:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** void removeNeighbor(uint8_t neighborIndex);
+  24:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** bool isThisRowMatching(
+  25:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         open_addr_t* address,
+  26:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         uint8_t      rowNumber
+  27:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****      );
+  28:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+  29:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** //=========================== public ==========================================
+  30:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+  31:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** /**
+  32:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** \brief Initializes this module.
+  33:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** */
+  34:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** void neighbors_init() {
+  97              		.loc 1 34 0
+  98              		.cfi_startproc
+  99              		@ args = 0, pretend = 0, frame = 0
+ 100              		@ frame_needed = 1, uses_anonymous_args = 0
+ 101 0000 80B5     		push	{r7, lr}
+ 102              		.cfi_def_cfa_offset 8
+ 103              		.cfi_offset 7, -8
+ 104              		.cfi_offset 14, -4
+ 105 0002 00AF     		add	r7, sp, #0
+ 106              		.cfi_def_cfa_register 7
+  35:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    
+  36:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    // clear module variables
+  37:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    memset(&neighbors_vars,0,sizeof(neighbors_vars_t));
+ 107              		.loc 1 37 0
+ 108 0004 40F20000 		movw	r0, #:lower16:neighbors_vars
+ 109 0008 C0F20000 		movt	r0, #:upper16:neighbors_vars
+ 110 000c 0021     		movs	r1, #0
+ 111 000e 4FF4B172 		mov	r2, #354
+ 112 0012 FFF7FEFF 		bl	memset
+  38:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    // The .used fields get reset to FALSE by this memset.
+  39:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    
+  40:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** }
+ 113              		.loc 1 40 0
+ 114 0016 80BD     		pop	{r7, pc}
+ 115              		.cfi_endproc
+ 116              	.LFE0:
+ 118              		.align	2
+ 119              		.global	neighbors_getNumNeighbors
+ 120              		.thumb
+ 121              		.thumb_func
+ 123              	neighbors_getNumNeighbors:
+ 124              	.LFB1:
+  41:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+  42:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** //===== getters
+  43:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+  44:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** /**
+  45:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** \brief Retrieve the number of neighbors this mote's currently knows of.
+  46:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+  47:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** \returns The number of neighbors this mote's currently knows of.
+  48:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** */
+  49:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** uint8_t neighbors_getNumNeighbors() {
+ 125              		.loc 1 49 0
+ 126              		.cfi_startproc
+ 127              		@ args = 0, pretend = 0, frame = 8
+ 128              		@ frame_needed = 1, uses_anonymous_args = 0
+ 129              		@ link register save eliminated.
+ 130 0018 80B4     		push	{r7}
+ 131              		.cfi_def_cfa_offset 4
+ 132              		.cfi_offset 7, -4
+ 133 001a 83B0     		sub	sp, sp, #12
+ 134              		.cfi_def_cfa_offset 16
+ 135 001c 00AF     		add	r7, sp, #0
+ 136              		.cfi_def_cfa_register 7
+  50:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    uint8_t i;
+  51:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    uint8_t returnVal;
+  52:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    
+  53:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    returnVal=0;
+ 137              		.loc 1 53 0
+ 138 001e 0023     		movs	r3, #0
+ 139 0020 BB71     		strb	r3, [r7, #6]
+  54:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    for (i=0;i<MAXNUMNEIGHBORS;i++) {
+ 140              		.loc 1 54 0
+ 141 0022 0023     		movs	r3, #0
+ 142 0024 FB71     		strb	r3, [r7, #7]
+ 143 0026 13E0     		b	.L3
+ 144              	.L5:
+  55:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       if (neighbors_vars.neighbors[i].used==TRUE) {
+ 145              		.loc 1 55 0
+ 146 0028 FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 147 002a 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 148 002e C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 149 0032 1346     		mov	r3, r2
+ 150 0034 9B00     		lsls	r3, r3, #2
+ 151 0036 1344     		add	r3, r3, r2
+ 152 0038 DA00     		lsls	r2, r3, #3
+ 153 003a D21A     		subs	r2, r2, r3
+ 154 003c 8B18     		adds	r3, r1, r2
+ 155 003e 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 156 0040 002B     		cmp	r3, #0
+ 157 0042 02D0     		beq	.L4
+  56:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          returnVal++;
+ 158              		.loc 1 56 0
+ 159 0044 BB79     		ldrb	r3, [r7, #6]	@ zero_extendqisi2
+ 160 0046 0133     		adds	r3, r3, #1
+ 161 0048 BB71     		strb	r3, [r7, #6]
+ 162              	.L4:
+  54:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    for (i=0;i<MAXNUMNEIGHBORS;i++) {
+ 163              		.loc 1 54 0
+ 164 004a FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 165 004c 0133     		adds	r3, r3, #1
+ 166 004e FB71     		strb	r3, [r7, #7]
+ 167              	.L3:
+  54:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    for (i=0;i<MAXNUMNEIGHBORS;i++) {
+ 168              		.loc 1 54 0 is_stmt 0 discriminator 1
+ 169 0050 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 170 0052 092B     		cmp	r3, #9
+ 171 0054 E8D9     		bls	.L5
+  57:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       }
+  58:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    }
+  59:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    return returnVal;
+ 172              		.loc 1 59 0 is_stmt 1
+ 173 0056 BB79     		ldrb	r3, [r7, #6]	@ zero_extendqisi2
+  60:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** }
+ 174              		.loc 1 60 0
+ 175 0058 1846     		mov	r0, r3
+ 176 005a 0C37     		adds	r7, r7, #12
+ 177 005c BD46     		mov	sp, r7
+ 178              		@ sp needed
+ 179 005e 5DF8047B 		ldr	r7, [sp], #4
+ 180 0062 7047     		bx	lr
+ 181              		.cfi_endproc
+ 182              	.LFE1:
+ 184              		.align	2
+ 185              		.global	neighbors_getNeighborRank
+ 186              		.thumb
+ 187              		.thumb_func
+ 189              	neighbors_getNeighborRank:
+ 190              	.LFB2:
+  61:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+  62:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** dagrank_t neighbors_getNeighborRank(uint8_t index) {
+ 191              		.loc 1 62 0
+ 192              		.cfi_startproc
+ 193              		@ args = 0, pretend = 0, frame = 8
+ 194              		@ frame_needed = 1, uses_anonymous_args = 0
+ 195              		@ link register save eliminated.
+ 196 0064 80B4     		push	{r7}
+ 197              		.cfi_def_cfa_offset 4
+ 198              		.cfi_offset 7, -4
+ 199 0066 83B0     		sub	sp, sp, #12
+ 200              		.cfi_def_cfa_offset 16
+ 201 0068 00AF     		add	r7, sp, #0
+ 202              		.cfi_def_cfa_register 7
+ 203 006a 0346     		mov	r3, r0
+ 204 006c FB71     		strb	r3, [r7, #7]
+  63:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    return neighbors_vars.neighbors[index].DAGrank;
+ 205              		.loc 1 63 0
+ 206 006e FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 207 0070 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 208 0074 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 209 0078 1346     		mov	r3, r2
+ 210 007a 9B00     		lsls	r3, r3, #2
+ 211 007c 1344     		add	r3, r3, r2
+ 212 007e DA00     		lsls	r2, r3, #3
+ 213 0080 D21A     		subs	r2, r2, r3
+ 214 0082 8B18     		adds	r3, r1, r2
+ 215 0084 1033     		adds	r3, r3, #16
+ 216 0086 B3F80530 		ldrh	r3, [r3, #5]	@ unaligned
+ 217 008a 9BB2     		uxth	r3, r3
+  64:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** }
+ 218              		.loc 1 64 0
+ 219 008c 1846     		mov	r0, r3
+ 220 008e 0C37     		adds	r7, r7, #12
+ 221 0090 BD46     		mov	sp, r7
+ 222              		@ sp needed
+ 223 0092 5DF8047B 		ldr	r7, [sp], #4
+ 224 0096 7047     		bx	lr
+ 225              		.cfi_endproc
+ 226              	.LFE2:
+ 228              		.align	2
+ 229              		.global	neighbors_getKANeighbor
+ 230              		.thumb
+ 231              		.thumb_func
+ 233              	neighbors_getKANeighbor:
+ 234              	.LFB3:
+  65:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+  66:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** /**
+  67:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** \brief Find neighbor to which to send KA.
+  68:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+  69:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** This function iterates through the neighbor table and identifies the neighbor
+  70:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** we need to send a KA to, if any. This neighbor satisfies the following
+  71:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** conditions:
+  72:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** - it is one of our preferred parents
+  73:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** - we haven't heard it for over kaPeriod
+  74:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+  75:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** \param[in] kaPeriod The maximum number of slots I'm allowed not to have heard
+  76:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    it.
+  77:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+  78:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** \returns A pointer to the neighbor's address, or NULL if no KA is needed.
+  79:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** */
+  80:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** open_addr_t* neighbors_getKANeighbor(uint16_t kaPeriod) {
+ 235              		.loc 1 80 0
+ 236              		.cfi_startproc
+ 237              		@ args = 0, pretend = 0, frame = 16
+ 238              		@ frame_needed = 1, uses_anonymous_args = 0
+ 239 0098 80B5     		push	{r7, lr}
+ 240              		.cfi_def_cfa_offset 8
+ 241              		.cfi_offset 7, -8
+ 242              		.cfi_offset 14, -4
+ 243 009a 84B0     		sub	sp, sp, #16
+ 244              		.cfi_def_cfa_offset 24
+ 245 009c 00AF     		add	r7, sp, #0
+ 246              		.cfi_def_cfa_register 7
+ 247 009e 0346     		mov	r3, r0
+ 248 00a0 FB80     		strh	r3, [r7, #6]	@ movhi
+  81:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    uint8_t         i;
+  82:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    uint16_t        timeSinceHeard;
+  83:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    
+  84:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    // policy is not to KA to non-preferred parents so go strait to check if Preferred Parent is agi
+  85:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    if (icmpv6rpl_getPreferredParentIndex(&i)) {      // we have a Parent
+ 249              		.loc 1 85 0
+ 250 00a2 07F10D03 		add	r3, r7, #13
+ 251 00a6 1846     		mov	r0, r3
+ 252 00a8 FFF7FEFF 		bl	icmpv6rpl_getPreferredParentIndex
+ 253 00ac 0346     		mov	r3, r0
+ 254 00ae 002B     		cmp	r3, #0
+ 255 00b0 33D0     		beq	.L10
+  86:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       if (neighbors_vars.neighbors[i].used==1) {     // that resolves to a neighbor in use (should 
+ 256              		.loc 1 86 0
+ 257 00b2 7B7B     		ldrb	r3, [r7, #13]	@ zero_extendqisi2
+ 258 00b4 1A46     		mov	r2, r3
+ 259 00b6 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 260 00ba C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 261 00be 1346     		mov	r3, r2
+ 262 00c0 9B00     		lsls	r3, r3, #2
+ 263 00c2 1344     		add	r3, r3, r2
+ 264 00c4 DA00     		lsls	r2, r3, #3
+ 265 00c6 D21A     		subs	r2, r2, r3
+ 266 00c8 8B18     		adds	r3, r1, r2
+ 267 00ca 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 268 00cc 002B     		cmp	r3, #0
+ 269 00ce 24D0     		beq	.L10
+  87:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          timeSinceHeard = ieee154e_asnDiff(&neighbors_vars.neighbors[i].asn);
+ 270              		.loc 1 87 0
+ 271 00d0 7B7B     		ldrb	r3, [r7, #13]	@ zero_extendqisi2
+ 272 00d2 1A46     		mov	r2, r3
+ 273 00d4 1346     		mov	r3, r2
+ 274 00d6 9B00     		lsls	r3, r3, #2
+ 275 00d8 1344     		add	r3, r3, r2
+ 276 00da DA00     		lsls	r2, r3, #3
+ 277 00dc D21A     		subs	r2, r2, r3
+ 278 00de 1832     		adds	r2, r2, #24
+ 279 00e0 40F20003 		movw	r3, #:lower16:neighbors_vars
+ 280 00e4 C0F20003 		movt	r3, #:upper16:neighbors_vars
+ 281 00e8 1344     		add	r3, r3, r2
+ 282 00ea 0433     		adds	r3, r3, #4
+ 283 00ec 1846     		mov	r0, r3
+ 284 00ee FFF7FEFF 		bl	ieee154e_asnDiff
+ 285 00f2 0346     		mov	r3, r0
+ 286 00f4 FB81     		strh	r3, [r7, #14]	@ movhi
+  88:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          if (timeSinceHeard>kaPeriod) {
+ 287              		.loc 1 88 0
+ 288 00f6 FA89     		ldrh	r2, [r7, #14]
+ 289 00f8 FB88     		ldrh	r3, [r7, #6]
+ 290 00fa 9A42     		cmp	r2, r3
+ 291 00fc 0DD9     		bls	.L10
+  89:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             // this neighbor needs to be KA'ed to
+  90:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             return &(neighbors_vars.neighbors[i].addr_64b);
+ 292              		.loc 1 90 0
+ 293 00fe 7B7B     		ldrb	r3, [r7, #13]	@ zero_extendqisi2
+ 294 0100 1A46     		mov	r2, r3
+ 295 0102 1346     		mov	r3, r2
+ 296 0104 9B00     		lsls	r3, r3, #2
+ 297 0106 1344     		add	r3, r3, r2
+ 298 0108 DA00     		lsls	r2, r3, #3
+ 299 010a D21A     		subs	r2, r2, r3
+ 300 010c 40F20003 		movw	r3, #:lower16:neighbors_vars
+ 301 0110 C0F20003 		movt	r3, #:upper16:neighbors_vars
+ 302 0114 1344     		add	r3, r3, r2
+ 303 0116 0433     		adds	r3, r3, #4
+ 304 0118 00E0     		b	.L12
+ 305              	.L10:
+  91:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          }
+  92:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       }
+  93:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    }
+  94:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    return NULL;
+ 306              		.loc 1 94 0
+ 307 011a 0023     		movs	r3, #0
+ 308              	.L12:
+  95:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** }
+ 309              		.loc 1 95 0
+ 310 011c 1846     		mov	r0, r3
+ 311 011e 1037     		adds	r7, r7, #16
+ 312 0120 BD46     		mov	sp, r7
+ 313              		@ sp needed
+ 314 0122 80BD     		pop	{r7, pc}
+ 315              		.cfi_endproc
+ 316              	.LFE3:
+ 318              		.align	2
+ 319              		.global	neighbors_getNeighborNoResource
+ 320              		.thumb
+ 321              		.thumb_func
+ 323              	neighbors_getNeighborNoResource:
+ 324              	.LFB4:
+  96:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+  97:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** bool neighbors_getNeighborNoResource(uint8_t index){
+ 325              		.loc 1 97 0
+ 326              		.cfi_startproc
+ 327              		@ args = 0, pretend = 0, frame = 8
+ 328              		@ frame_needed = 1, uses_anonymous_args = 0
+ 329              		@ link register save eliminated.
+ 330 0124 80B4     		push	{r7}
+ 331              		.cfi_def_cfa_offset 4
+ 332              		.cfi_offset 7, -4
+ 333 0126 83B0     		sub	sp, sp, #12
+ 334              		.cfi_def_cfa_offset 16
+ 335 0128 00AF     		add	r7, sp, #0
+ 336              		.cfi_def_cfa_register 7
+ 337 012a 0346     		mov	r3, r0
+ 338 012c FB71     		strb	r3, [r7, #7]
+  98:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****     return neighbors_vars.neighbors[index].f6PNORES;
+ 339              		.loc 1 98 0
+ 340 012e FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 341 0130 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 342 0134 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 343 0138 1346     		mov	r3, r2
+ 344 013a 9B00     		lsls	r3, r3, #2
+ 345 013c 1344     		add	r3, r3, r2
+ 346 013e DA00     		lsls	r2, r3, #3
+ 347 0140 D21A     		subs	r2, r2, r3
+ 348 0142 8B18     		adds	r3, r1, r2
+ 349 0144 2033     		adds	r3, r3, #32
+ 350 0146 9B78     		ldrb	r3, [r3, #2]	@ zero_extendqisi2
+  99:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** }
+ 351              		.loc 1 99 0
+ 352 0148 1846     		mov	r0, r3
+ 353 014a 0C37     		adds	r7, r7, #12
+ 354 014c BD46     		mov	sp, r7
+ 355              		@ sp needed
+ 356 014e 5DF8047B 		ldr	r7, [sp], #4
+ 357 0152 7047     		bx	lr
+ 358              		.cfi_endproc
+ 359              	.LFE4:
+ 361              		.align	2
+ 362              		.global	neighbors_isStableNeighbor
+ 363              		.thumb
+ 364              		.thumb_func
+ 366              	neighbors_isStableNeighbor:
+ 367              	.LFB5:
+ 100:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 101:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** //===== interrogators
+ 102:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 103:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** /**
+ 104:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** \brief Indicate whether some neighbor is a stable neighbor
+ 105:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 106:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** \param[in] address The address of the neighbor, a full 128-bit IPv6 addres.
+ 107:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 108:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** \returns TRUE if that neighbor is stable, FALSE otherwise.
+ 109:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** */
+ 110:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** bool neighbors_isStableNeighbor(open_addr_t* address) {
+ 368              		.loc 1 110 0
+ 369              		.cfi_startproc
+ 370              		@ args = 0, pretend = 0, frame = 48
+ 371              		@ frame_needed = 1, uses_anonymous_args = 0
+ 372 0154 80B5     		push	{r7, lr}
+ 373              		.cfi_def_cfa_offset 8
+ 374              		.cfi_offset 7, -8
+ 375              		.cfi_offset 14, -4
+ 376 0156 8CB0     		sub	sp, sp, #48
+ 377              		.cfi_def_cfa_offset 56
+ 378 0158 00AF     		add	r7, sp, #0
+ 379              		.cfi_def_cfa_register 7
+ 380 015a 7860     		str	r0, [r7, #4]
+ 111:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    uint8_t     i;
+ 112:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    open_addr_t temp_addr_64b;
+ 113:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    open_addr_t temp_prefix;
+ 114:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    bool        returnVal;
+ 115:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    
+ 116:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    // by default, not stable
+ 117:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    returnVal  = FALSE;
+ 381              		.loc 1 117 0
+ 382 015c 0023     		movs	r3, #0
+ 383 015e 87F82E30 		strb	r3, [r7, #46]
+ 118:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    
+ 119:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    // but neighbor's IPv6 address in prefix and EUI64
+ 120:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    switch (address->type) {
+ 384              		.loc 1 120 0
+ 385 0162 7B68     		ldr	r3, [r7, #4]
+ 386 0164 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 387 0166 032B     		cmp	r3, #3
+ 388 0168 0DD1     		bne	.L25
+ 121:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       case ADDR_128B:
+ 122:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          packetfunctions_ip128bToMac64b(address,&temp_prefix,&temp_addr_64b);
+ 389              		.loc 1 122 0
+ 390 016a 07F10802 		add	r2, r7, #8
+ 391 016e 07F11C03 		add	r3, r7, #28
+ 392 0172 7868     		ldr	r0, [r7, #4]
+ 393 0174 1146     		mov	r1, r2
+ 394 0176 1A46     		mov	r2, r3
+ 395 0178 FFF7FEFF 		bl	packetfunctions_ip128bToMac64b
+ 123:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          break;
+ 396              		.loc 1 123 0
+ 397 017c 00BF     		nop
+ 124:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       default:
+ 125:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          openserial_printCritical(COMPONENT_NEIGHBORS,ERR_WRONG_ADDR_TYPE,
+ 126:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                                (errorparameter_t)address->type,
+ 127:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                                (errorparameter_t)0);
+ 128:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          return returnVal;
+ 129:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    }
+ 130:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    
+ 131:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    // iterate through neighbor table
+ 132:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    for (i=0;i<MAXNUMNEIGHBORS;i++) {
+ 398              		.loc 1 132 0
+ 399 017e 0023     		movs	r3, #0
+ 400 0180 87F82F30 		strb	r3, [r7, #47]
+ 401 0184 2DE0     		b	.L20
+ 402              	.L25:
+ 126:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                                (errorparameter_t)0);
+ 403              		.loc 1 126 0
+ 404 0186 7B68     		ldr	r3, [r7, #4]
+ 405 0188 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 125:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                                (errorparameter_t)address->type,
+ 406              		.loc 1 125 0
+ 407 018a 0D20     		movs	r0, #13
+ 408 018c 3121     		movs	r1, #49
+ 409 018e 1A46     		mov	r2, r3
+ 410 0190 0023     		movs	r3, #0
+ 411 0192 FFF7FEFF 		bl	openserial_printCritical
+ 128:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    }
+ 412              		.loc 1 128 0
+ 413 0196 97F82E30 		ldrb	r3, [r7, #46]	@ zero_extendqisi2
+ 414 019a 28E0     		b	.L24
+ 415              	.L23:
+ 133:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       if (isThisRowMatching(&temp_addr_64b,i) && neighbors_vars.neighbors[i].stableNeighbor==TRUE) 
+ 416              		.loc 1 133 0
+ 417 019c 07F11C02 		add	r2, r7, #28
+ 418 01a0 97F82F30 		ldrb	r3, [r7, #47]	@ zero_extendqisi2
+ 419 01a4 1046     		mov	r0, r2
+ 420 01a6 1946     		mov	r1, r3
+ 421 01a8 FFF7FEFF 		bl	isThisRowMatching
+ 422 01ac 0346     		mov	r3, r0
+ 423 01ae 002B     		cmp	r3, #0
+ 424 01b0 12D0     		beq	.L21
+ 425              		.loc 1 133 0 is_stmt 0 discriminator 1
+ 426 01b2 97F82F20 		ldrb	r2, [r7, #47]	@ zero_extendqisi2
+ 427 01b6 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 428 01ba C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 429 01be 1346     		mov	r3, r2
+ 430 01c0 9B00     		lsls	r3, r3, #2
+ 431 01c2 1344     		add	r3, r3, r2
+ 432 01c4 DA00     		lsls	r2, r3, #3
+ 433 01c6 D21A     		subs	r2, r2, r3
+ 434 01c8 8B18     		adds	r3, r1, r2
+ 435 01ca 9B78     		ldrb	r3, [r3, #2]	@ zero_extendqisi2
+ 436 01cc 002B     		cmp	r3, #0
+ 437 01ce 03D0     		beq	.L21
+ 134:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          returnVal  = TRUE;
+ 438              		.loc 1 134 0 is_stmt 1
+ 439 01d0 0123     		movs	r3, #1
+ 440 01d2 87F82E30 		strb	r3, [r7, #46]
+ 135:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          break;
+ 441              		.loc 1 135 0
+ 442 01d6 08E0     		b	.L22
+ 443              	.L21:
+ 132:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       if (isThisRowMatching(&temp_addr_64b,i) && neighbors_vars.neighbors[i].stableNeighbor==TRUE) 
+ 444              		.loc 1 132 0
+ 445 01d8 97F82F30 		ldrb	r3, [r7, #47]	@ zero_extendqisi2
+ 446 01dc 0133     		adds	r3, r3, #1
+ 447 01de 87F82F30 		strb	r3, [r7, #47]
+ 448              	.L20:
+ 132:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       if (isThisRowMatching(&temp_addr_64b,i) && neighbors_vars.neighbors[i].stableNeighbor==TRUE) 
+ 449              		.loc 1 132 0 is_stmt 0 discriminator 1
+ 450 01e2 97F82F30 		ldrb	r3, [r7, #47]	@ zero_extendqisi2
+ 451 01e6 092B     		cmp	r3, #9
+ 452 01e8 D8D9     		bls	.L23
+ 453              	.L22:
+ 136:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       }
+ 137:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    }
+ 138:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    
+ 139:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    return returnVal;
+ 454              		.loc 1 139 0 is_stmt 1
+ 455 01ea 97F82E30 		ldrb	r3, [r7, #46]	@ zero_extendqisi2
+ 456              	.L24:
+ 140:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** }
+ 457              		.loc 1 140 0
+ 458 01ee 1846     		mov	r0, r3
+ 459 01f0 3037     		adds	r7, r7, #48
+ 460 01f2 BD46     		mov	sp, r7
+ 461              		@ sp needed
+ 462 01f4 80BD     		pop	{r7, pc}
+ 463              		.cfi_endproc
+ 464              	.LFE5:
+ 466 01f6 00BF     		.align	2
+ 467              		.global	neighbors_isStableNeighborByIndex
+ 468              		.thumb
+ 469              		.thumb_func
+ 471              	neighbors_isStableNeighborByIndex:
+ 472              	.LFB6:
+ 141:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 142:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** /**
+ 143:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** \brief Indicate whether some neighbor is a stable neighbor
+ 144:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 145:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** \param[in] index into the neighbor table.
+ 146:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 147:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** \returns TRUE if that neighbor is in use and stable, FALSE otherwise.
+ 148:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** */
+ 149:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** bool neighbors_isStableNeighborByIndex(uint8_t index) {
+ 473              		.loc 1 149 0
+ 474              		.cfi_startproc
+ 475              		@ args = 0, pretend = 0, frame = 8
+ 476              		@ frame_needed = 1, uses_anonymous_args = 0
+ 477              		@ link register save eliminated.
+ 478 01f8 80B4     		push	{r7}
+ 479              		.cfi_def_cfa_offset 4
+ 480              		.cfi_offset 7, -4
+ 481 01fa 83B0     		sub	sp, sp, #12
+ 482              		.cfi_def_cfa_offset 16
+ 483 01fc 00AF     		add	r7, sp, #0
+ 484              		.cfi_def_cfa_register 7
+ 485 01fe 0346     		mov	r3, r0
+ 486 0200 FB71     		strb	r3, [r7, #7]
+ 150:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    return (neighbors_vars.neighbors[index].stableNeighbor &&
+ 487              		.loc 1 150 0
+ 488 0202 FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 489 0204 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 490 0208 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 491 020c 1346     		mov	r3, r2
+ 492 020e 9B00     		lsls	r3, r3, #2
+ 493 0210 1344     		add	r3, r3, r2
+ 494 0212 DA00     		lsls	r2, r3, #3
+ 495 0214 D21A     		subs	r2, r2, r3
+ 496 0216 8B18     		adds	r3, r1, r2
+ 497 0218 9B78     		ldrb	r3, [r3, #2]	@ zero_extendqisi2
+ 498 021a 002B     		cmp	r3, #0
+ 499 021c 0FD0     		beq	.L27
+ 151:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****            neighbors_vars.neighbors[index].used);
+ 500              		.loc 1 151 0 discriminator 1
+ 501 021e FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 502 0220 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 503 0224 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 504 0228 1346     		mov	r3, r2
+ 505 022a 9B00     		lsls	r3, r3, #2
+ 506 022c 1344     		add	r3, r3, r2
+ 507 022e DA00     		lsls	r2, r3, #3
+ 508 0230 D21A     		subs	r2, r2, r3
+ 509 0232 8B18     		adds	r3, r1, r2
+ 510 0234 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 150:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    return (neighbors_vars.neighbors[index].stableNeighbor &&
+ 511              		.loc 1 150 0 discriminator 1
+ 512 0236 002B     		cmp	r3, #0
+ 513 0238 01D0     		beq	.L27
+ 150:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    return (neighbors_vars.neighbors[index].stableNeighbor &&
+ 514              		.loc 1 150 0 is_stmt 0 discriminator 3
+ 515 023a 0123     		movs	r3, #1
+ 516 023c 00E0     		b	.L28
+ 517              	.L27:
+ 150:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    return (neighbors_vars.neighbors[index].stableNeighbor &&
+ 518              		.loc 1 150 0 discriminator 2
+ 519 023e 0023     		movs	r3, #0
+ 520              	.L28:
+ 150:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    return (neighbors_vars.neighbors[index].stableNeighbor &&
+ 521              		.loc 1 150 0 discriminator 4
+ 522 0240 03F00103 		and	r3, r3, #1
+ 523 0244 DBB2     		uxtb	r3, r3
+ 152:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** }
+ 524              		.loc 1 152 0 is_stmt 1 discriminator 4
+ 525 0246 1846     		mov	r0, r3
+ 526 0248 0C37     		adds	r7, r7, #12
+ 527 024a BD46     		mov	sp, r7
+ 528              		@ sp needed
+ 529 024c 5DF8047B 		ldr	r7, [sp], #4
+ 530 0250 7047     		bx	lr
+ 531              		.cfi_endproc
+ 532              	.LFE6:
+ 534 0252 00BF     		.align	2
+ 535              		.global	neighbors_isNeighborWithLowerDAGrank
+ 536              		.thumb
+ 537              		.thumb_func
+ 539              	neighbors_isNeighborWithLowerDAGrank:
+ 540              	.LFB7:
+ 153:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 154:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** /**
+ 155:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** \brief Indicate whether some neighbor has a lower DAG rank that me.
+ 156:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 157:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** \param[in] index The index of that neighbor in the neighbor table.
+ 158:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 159:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** \returns TRUE if that neighbor is in use and has a lower DAG rank than me, FALSE otherwise.
+ 160:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** */
+ 161:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** bool neighbors_isNeighborWithLowerDAGrank(uint8_t index) {
+ 541              		.loc 1 161 0
+ 542              		.cfi_startproc
+ 543              		@ args = 0, pretend = 0, frame = 16
+ 544              		@ frame_needed = 1, uses_anonymous_args = 0
+ 545 0254 90B5     		push	{r4, r7, lr}
+ 546              		.cfi_def_cfa_offset 12
+ 547              		.cfi_offset 4, -12
+ 548              		.cfi_offset 7, -8
+ 549              		.cfi_offset 14, -4
+ 550 0256 85B0     		sub	sp, sp, #20
+ 551              		.cfi_def_cfa_offset 32
+ 552 0258 00AF     		add	r7, sp, #0
+ 553              		.cfi_def_cfa_register 7
+ 554 025a 0346     		mov	r3, r0
+ 555 025c FB71     		strb	r3, [r7, #7]
+ 162:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    bool    returnVal;
+ 163:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    
+ 164:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    if (neighbors_vars.neighbors[index].used==TRUE &&
+ 556              		.loc 1 164 0
+ 557 025e FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 558 0260 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 559 0264 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 560 0268 1346     		mov	r3, r2
+ 561 026a 9B00     		lsls	r3, r3, #2
+ 562 026c 1344     		add	r3, r3, r2
+ 563 026e DA00     		lsls	r2, r3, #3
+ 564 0270 D21A     		subs	r2, r2, r3
+ 565 0272 8B18     		adds	r3, r1, r2
+ 566 0274 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 567 0276 002B     		cmp	r3, #0
+ 568 0278 16D0     		beq	.L31
+ 165:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****        neighbors_vars.neighbors[index].DAGrank < icmpv6rpl_getMyDAGrank()) { 
+ 569              		.loc 1 165 0 discriminator 1
+ 570 027a FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 571 027c 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 572 0280 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 573 0284 1346     		mov	r3, r2
+ 574 0286 9B00     		lsls	r3, r3, #2
+ 575 0288 1344     		add	r3, r3, r2
+ 576 028a DA00     		lsls	r2, r3, #3
+ 577 028c D21A     		subs	r2, r2, r3
+ 578 028e 8B18     		adds	r3, r1, r2
+ 579 0290 1033     		adds	r3, r3, #16
+ 580 0292 B3F80530 		ldrh	r3, [r3, #5]	@ unaligned
+ 581 0296 9CB2     		uxth	r4, r3
+ 582 0298 FFF7FEFF 		bl	icmpv6rpl_getMyDAGrank
+ 583 029c 0346     		mov	r3, r0
+ 164:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****        neighbors_vars.neighbors[index].DAGrank < icmpv6rpl_getMyDAGrank()) { 
+ 584              		.loc 1 164 0 discriminator 1
+ 585 029e 9C42     		cmp	r4, r3
+ 586 02a0 02D2     		bcs	.L31
+ 166:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       returnVal = TRUE;
+ 587              		.loc 1 166 0
+ 588 02a2 0123     		movs	r3, #1
+ 589 02a4 FB73     		strb	r3, [r7, #15]
+ 590 02a6 01E0     		b	.L32
+ 591              	.L31:
+ 167:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    } else {
+ 168:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       returnVal = FALSE;
+ 592              		.loc 1 168 0
+ 593 02a8 0023     		movs	r3, #0
+ 594 02aa FB73     		strb	r3, [r7, #15]
+ 595              	.L32:
+ 169:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    }
+ 170:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    
+ 171:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    return returnVal;
+ 596              		.loc 1 171 0
+ 597 02ac FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 172:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** }
+ 598              		.loc 1 172 0
+ 599 02ae 1846     		mov	r0, r3
+ 600 02b0 1437     		adds	r7, r7, #20
+ 601 02b2 BD46     		mov	sp, r7
+ 602              		@ sp needed
+ 603 02b4 90BD     		pop	{r4, r7, pc}
+ 604              		.cfi_endproc
+ 605              	.LFE7:
+ 607 02b6 00BF     		.align	2
+ 608              		.global	neighbors_isNeighborWithHigherDAGrank
+ 609              		.thumb
+ 610              		.thumb_func
+ 612              	neighbors_isNeighborWithHigherDAGrank:
+ 613              	.LFB8:
+ 173:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 174:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 175:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** /**
+ 176:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** \brief Indicate whether some neighbor has a lower DAG rank that me.
+ 177:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 178:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** \param[in] index The index of that neighbor in the neighbor table.
+ 179:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 180:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** \returns TRUE if that neighbor is in use and has a higher DAG rank than me, FALSE otherwise.
+ 181:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** */
+ 182:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** bool neighbors_isNeighborWithHigherDAGrank(uint8_t index) {
+ 614              		.loc 1 182 0
+ 615              		.cfi_startproc
+ 616              		@ args = 0, pretend = 0, frame = 16
+ 617              		@ frame_needed = 1, uses_anonymous_args = 0
+ 618 02b8 90B5     		push	{r4, r7, lr}
+ 619              		.cfi_def_cfa_offset 12
+ 620              		.cfi_offset 4, -12
+ 621              		.cfi_offset 7, -8
+ 622              		.cfi_offset 14, -4
+ 623 02ba 85B0     		sub	sp, sp, #20
+ 624              		.cfi_def_cfa_offset 32
+ 625 02bc 00AF     		add	r7, sp, #0
+ 626              		.cfi_def_cfa_register 7
+ 627 02be 0346     		mov	r3, r0
+ 628 02c0 FB71     		strb	r3, [r7, #7]
+ 183:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    bool    returnVal;
+ 184:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    
+ 185:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    if (neighbors_vars.neighbors[index].used==TRUE &&
+ 629              		.loc 1 185 0
+ 630 02c2 FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 631 02c4 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 632 02c8 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 633 02cc 1346     		mov	r3, r2
+ 634 02ce 9B00     		lsls	r3, r3, #2
+ 635 02d0 1344     		add	r3, r3, r2
+ 636 02d2 DA00     		lsls	r2, r3, #3
+ 637 02d4 D21A     		subs	r2, r2, r3
+ 638 02d6 8B18     		adds	r3, r1, r2
+ 639 02d8 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 640 02da 002B     		cmp	r3, #0
+ 641 02dc 16D0     		beq	.L35
+ 186:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****        neighbors_vars.neighbors[index].DAGrank >= icmpv6rpl_getMyDAGrank()) { 
+ 642              		.loc 1 186 0 discriminator 1
+ 643 02de FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 644 02e0 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 645 02e4 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 646 02e8 1346     		mov	r3, r2
+ 647 02ea 9B00     		lsls	r3, r3, #2
+ 648 02ec 1344     		add	r3, r3, r2
+ 649 02ee DA00     		lsls	r2, r3, #3
+ 650 02f0 D21A     		subs	r2, r2, r3
+ 651 02f2 8B18     		adds	r3, r1, r2
+ 652 02f4 1033     		adds	r3, r3, #16
+ 653 02f6 B3F80530 		ldrh	r3, [r3, #5]	@ unaligned
+ 654 02fa 9CB2     		uxth	r4, r3
+ 655 02fc FFF7FEFF 		bl	icmpv6rpl_getMyDAGrank
+ 656 0300 0346     		mov	r3, r0
+ 185:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****        neighbors_vars.neighbors[index].DAGrank >= icmpv6rpl_getMyDAGrank()) { 
+ 657              		.loc 1 185 0 discriminator 1
+ 658 0302 9C42     		cmp	r4, r3
+ 659 0304 02D3     		bcc	.L35
+ 187:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       returnVal = TRUE;
+ 660              		.loc 1 187 0
+ 661 0306 0123     		movs	r3, #1
+ 662 0308 FB73     		strb	r3, [r7, #15]
+ 663 030a 01E0     		b	.L36
+ 664              	.L35:
+ 188:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    } else {
+ 189:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       returnVal = FALSE;
+ 665              		.loc 1 189 0
+ 666 030c 0023     		movs	r3, #0
+ 667 030e FB73     		strb	r3, [r7, #15]
+ 668              	.L36:
+ 190:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    }
+ 191:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    
+ 192:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    return returnVal;
+ 669              		.loc 1 192 0
+ 670 0310 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 193:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** }
+ 671              		.loc 1 193 0
+ 672 0312 1846     		mov	r0, r3
+ 673 0314 1437     		adds	r7, r7, #20
+ 674 0316 BD46     		mov	sp, r7
+ 675              		@ sp needed
+ 676 0318 90BD     		pop	{r4, r7, pc}
+ 677              		.cfi_endproc
+ 678              	.LFE8:
+ 680 031a 00BF     		.align	2
+ 681              		.global	neighbors_indicateRx
+ 682              		.thumb
+ 683              		.thumb_func
+ 685              	neighbors_indicateRx:
+ 686              	.LFB9:
+ 194:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 195:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** //===== updating neighbor information
+ 196:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 197:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** /**
+ 198:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** \brief Indicate some (non-ACK) packet was received from a neighbor.
+ 199:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 200:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** This function should be called for each received (non-ACK) packet so neighbor
+ 201:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** statistics in the neighbor table can be updated.
+ 202:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 203:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** The fields which are updated are:
+ 204:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** - numRx
+ 205:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** - rssi
+ 206:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** - asn
+ 207:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** - stableNeighbor
+ 208:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** - switchStabilityCounter
+ 209:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 210:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** \param[in] l2_src MAC source address of the packet, i.e. the neighbor who sent
+ 211:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    the packet just received.
+ 212:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** \param[in] rssi   RSSI with which this packet was received.
+ 213:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** \param[in] asnTs  ASN at which this packet was received.
+ 214:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** \param[in] joinPrioPresent Whether a join priority was present in the received
+ 215:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    packet.
+ 216:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** \param[in] joinPrio The join priority present in the packet, if any.
+ 217:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** */
+ 218:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** void neighbors_indicateRx(open_addr_t* l2_src,
+ 219:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                           int8_t       rssi,
+ 220:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                           asn_t*       asnTs,
+ 221:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                           bool         joinPrioPresent,
+ 222:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                           uint8_t      joinPrio) {
+ 687              		.loc 1 222 0
+ 688              		.cfi_startproc
+ 689              		@ args = 4, pretend = 0, frame = 24
+ 690              		@ frame_needed = 1, uses_anonymous_args = 0
+ 691 031c 80B5     		push	{r7, lr}
+ 692              		.cfi_def_cfa_offset 8
+ 693              		.cfi_offset 7, -8
+ 694              		.cfi_offset 14, -4
+ 695 031e 88B0     		sub	sp, sp, #32
+ 696              		.cfi_def_cfa_offset 40
+ 697 0320 02AF     		add	r7, sp, #8
+ 698              		.cfi_def_cfa 7, 32
+ 699 0322 F860     		str	r0, [r7, #12]
+ 700 0324 7A60     		str	r2, [r7, #4]
+ 701 0326 0A46     		mov	r2, r1
+ 702 0328 FA72     		strb	r2, [r7, #11]
+ 703 032a BB72     		strb	r3, [r7, #10]
+ 223:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    uint8_t i;
+ 224:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    bool    newNeighbor;
+ 225:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    
+ 226:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    // update existing neighbor
+ 227:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    newNeighbor = TRUE;
+ 704              		.loc 1 227 0
+ 705 032c 0123     		movs	r3, #1
+ 706 032e BB75     		strb	r3, [r7, #22]
+ 228:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    for (i=0;i<MAXNUMNEIGHBORS;i++) {
+ 707              		.loc 1 228 0
+ 708 0330 0023     		movs	r3, #0
+ 709 0332 FB75     		strb	r3, [r7, #23]
+ 710 0334 40E1     		b	.L39
+ 711              	.L50:
+ 229:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       if (isThisRowMatching(l2_src,i)) {
+ 712              		.loc 1 229 0
+ 713 0336 FB7D     		ldrb	r3, [r7, #23]	@ zero_extendqisi2
+ 714 0338 F868     		ldr	r0, [r7, #12]
+ 715 033a 1946     		mov	r1, r3
+ 716 033c FFF7FEFF 		bl	isThisRowMatching
+ 717 0340 0346     		mov	r3, r0
+ 718 0342 002B     		cmp	r3, #0
+ 719 0344 00F03581 		beq	.L40
+ 230:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          
+ 231:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          // this is not a new neighbor
+ 232:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          newNeighbor = FALSE;
+ 720              		.loc 1 232 0
+ 721 0348 0023     		movs	r3, #0
+ 722 034a BB75     		strb	r3, [r7, #22]
+ 233:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          
+ 234:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          // update numRx, rssi, asn
+ 235:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          neighbors_vars.neighbors[i].numRx++;
+ 723              		.loc 1 235 0
+ 724 034c FA7D     		ldrb	r2, [r7, #23]	@ zero_extendqisi2
+ 725 034e 40F20000 		movw	r0, #:lower16:neighbors_vars
+ 726 0352 C0F20000 		movt	r0, #:upper16:neighbors_vars
+ 727 0356 1346     		mov	r3, r2
+ 728 0358 9B00     		lsls	r3, r3, #2
+ 729 035a 1344     		add	r3, r3, r2
+ 730 035c D900     		lsls	r1, r3, #3
+ 731 035e C91A     		subs	r1, r1, r3
+ 732 0360 4318     		adds	r3, r0, r1
+ 733 0362 1833     		adds	r3, r3, #24
+ 734 0364 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 735 0366 0133     		adds	r3, r3, #1
+ 736 0368 D8B2     		uxtb	r0, r3
+ 737 036a 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 738 036e C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 739 0372 1346     		mov	r3, r2
+ 740 0374 9B00     		lsls	r3, r3, #2
+ 741 0376 1344     		add	r3, r3, r2
+ 742 0378 DA00     		lsls	r2, r3, #3
+ 743 037a D21A     		subs	r2, r2, r3
+ 744 037c 8B18     		adds	r3, r1, r2
+ 745 037e 1833     		adds	r3, r3, #24
+ 746 0380 0246     		mov	r2, r0
+ 747 0382 1A70     		strb	r2, [r3]
+ 236:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          neighbors_vars.neighbors[i].rssi=rssi;
+ 748              		.loc 1 236 0
+ 749 0384 FA7D     		ldrb	r2, [r7, #23]	@ zero_extendqisi2
+ 750 0386 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 751 038a C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 752 038e 1346     		mov	r3, r2
+ 753 0390 9B00     		lsls	r3, r3, #2
+ 754 0392 1344     		add	r3, r3, r2
+ 755 0394 DA00     		lsls	r2, r3, #3
+ 756 0396 D21A     		subs	r2, r2, r3
+ 757 0398 8B18     		adds	r3, r1, r2
+ 758 039a 1033     		adds	r3, r3, #16
+ 759 039c FA7A     		ldrb	r2, [r7, #11]
+ 760 039e DA71     		strb	r2, [r3, #7]
+ 237:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          memcpy(&neighbors_vars.neighbors[i].asn,asnTs,sizeof(asn_t));
+ 761              		.loc 1 237 0
+ 762 03a0 FA7D     		ldrb	r2, [r7, #23]	@ zero_extendqisi2
+ 763 03a2 1346     		mov	r3, r2
+ 764 03a4 9B00     		lsls	r3, r3, #2
+ 765 03a6 1344     		add	r3, r3, r2
+ 766 03a8 DA00     		lsls	r2, r3, #3
+ 767 03aa D21A     		subs	r2, r2, r3
+ 768 03ac 1832     		adds	r2, r2, #24
+ 769 03ae 40F20003 		movw	r3, #:lower16:neighbors_vars
+ 770 03b2 C0F20003 		movt	r3, #:upper16:neighbors_vars
+ 771 03b6 1344     		add	r3, r3, r2
+ 772 03b8 0433     		adds	r3, r3, #4
+ 773 03ba 7A68     		ldr	r2, [r7, #4]
+ 774 03bc 1168     		ldr	r1, [r2]	@ unaligned
+ 775 03be 1960     		str	r1, [r3]	@ unaligned
+ 776 03c0 1279     		ldrb	r2, [r2, #4]
+ 777 03c2 1A71     		strb	r2, [r3, #4]
+ 238:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          //update jp
+ 239:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          if (joinPrioPresent==TRUE){
+ 778              		.loc 1 239 0
+ 779 03c4 BB7A     		ldrb	r3, [r7, #10]	@ zero_extendqisi2
+ 780 03c6 002B     		cmp	r3, #0
+ 781 03c8 0ED0     		beq	.L41
+ 240:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             neighbors_vars.neighbors[i].joinPrio=joinPrio;
+ 782              		.loc 1 240 0
+ 783 03ca FA7D     		ldrb	r2, [r7, #23]	@ zero_extendqisi2
+ 784 03cc 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 785 03d0 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 786 03d4 1346     		mov	r3, r2
+ 787 03d6 9B00     		lsls	r3, r3, #2
+ 788 03d8 1344     		add	r3, r3, r2
+ 789 03da DA00     		lsls	r2, r3, #3
+ 790 03dc D21A     		subs	r2, r2, r3
+ 791 03de 8B18     		adds	r3, r1, r2
+ 792 03e0 2033     		adds	r3, r3, #32
+ 793 03e2 97F82020 		ldrb	r2, [r7, #32]
+ 794 03e6 5A70     		strb	r2, [r3, #1]
+ 795              	.L41:
+ 241:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          }
+ 242:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          
+ 243:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          // update stableNeighbor, switchStabilityCounter
+ 244:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          if (neighbors_vars.neighbors[i].stableNeighbor==FALSE) {
+ 796              		.loc 1 244 0
+ 797 03e8 FA7D     		ldrb	r2, [r7, #23]	@ zero_extendqisi2
+ 798 03ea 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 799 03ee C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 800 03f2 1346     		mov	r3, r2
+ 801 03f4 9B00     		lsls	r3, r3, #2
+ 802 03f6 1344     		add	r3, r3, r2
+ 803 03f8 DA00     		lsls	r2, r3, #3
+ 804 03fa D21A     		subs	r2, r2, r3
+ 805 03fc 8B18     		adds	r3, r1, r2
+ 806 03fe 9B78     		ldrb	r3, [r3, #2]	@ zero_extendqisi2
+ 807 0400 83F00103 		eor	r3, r3, #1
+ 808 0404 DBB2     		uxtb	r3, r3
+ 809 0406 002B     		cmp	r3, #0
+ 810 0408 62D0     		beq	.L42
+ 245:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             if (neighbors_vars.neighbors[i].rssi>BADNEIGHBORMAXRSSI) {
+ 811              		.loc 1 245 0
+ 812 040a FA7D     		ldrb	r2, [r7, #23]	@ zero_extendqisi2
+ 813 040c 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 814 0410 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 815 0414 1346     		mov	r3, r2
+ 816 0416 9B00     		lsls	r3, r3, #2
+ 817 0418 1344     		add	r3, r3, r2
+ 818 041a DA00     		lsls	r2, r3, #3
+ 819 041c D21A     		subs	r2, r2, r3
+ 820 041e 8B18     		adds	r3, r1, r2
+ 821 0420 1033     		adds	r3, r3, #16
+ 822 0422 DB79     		ldrb	r3, [r3, #7]	@ zero_extendqisi2
+ 823 0424 5BB2     		sxtb	r3, r3
+ 824 0426 13F14F0F 		cmn	r3, #79
+ 825 042a 43DB     		blt	.L43
+ 246:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                neighbors_vars.neighbors[i].switchStabilityCounter++;
+ 826              		.loc 1 246 0
+ 827 042c FA7D     		ldrb	r2, [r7, #23]	@ zero_extendqisi2
+ 828 042e 40F20000 		movw	r0, #:lower16:neighbors_vars
+ 829 0432 C0F20000 		movt	r0, #:upper16:neighbors_vars
+ 830 0436 1346     		mov	r3, r2
+ 831 0438 9B00     		lsls	r3, r3, #2
+ 832 043a 1344     		add	r3, r3, r2
+ 833 043c D900     		lsls	r1, r3, #3
+ 834 043e C91A     		subs	r1, r1, r3
+ 835 0440 4318     		adds	r3, r0, r1
+ 836 0442 DB78     		ldrb	r3, [r3, #3]	@ zero_extendqisi2
+ 837 0444 0133     		adds	r3, r3, #1
+ 838 0446 D8B2     		uxtb	r0, r3
+ 839 0448 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 840 044c C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 841 0450 1346     		mov	r3, r2
+ 842 0452 9B00     		lsls	r3, r3, #2
+ 843 0454 1344     		add	r3, r3, r2
+ 844 0456 DA00     		lsls	r2, r3, #3
+ 845 0458 D21A     		subs	r2, r2, r3
+ 846 045a 8B18     		adds	r3, r1, r2
+ 847 045c 0246     		mov	r2, r0
+ 848 045e DA70     		strb	r2, [r3, #3]
+ 247:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                if (neighbors_vars.neighbors[i].switchStabilityCounter>=SWITCHSTABILITYTHRESHOLD) {
+ 849              		.loc 1 247 0
+ 850 0460 FA7D     		ldrb	r2, [r7, #23]	@ zero_extendqisi2
+ 851 0462 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 852 0466 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 853 046a 1346     		mov	r3, r2
+ 854 046c 9B00     		lsls	r3, r3, #2
+ 855 046e 1344     		add	r3, r3, r2
+ 856 0470 DA00     		lsls	r2, r3, #3
+ 857 0472 D21A     		subs	r2, r2, r3
+ 858 0474 8B18     		adds	r3, r1, r2
+ 859 0476 DB78     		ldrb	r3, [r3, #3]	@ zero_extendqisi2
+ 860 0478 022B     		cmp	r3, #2
+ 861 047a 40F29980 		bls	.L46
+ 248:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                   neighbors_vars.neighbors[i].switchStabilityCounter=0;
+ 862              		.loc 1 248 0
+ 863 047e FA7D     		ldrb	r2, [r7, #23]	@ zero_extendqisi2
+ 864 0480 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 865 0484 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 866 0488 1346     		mov	r3, r2
+ 867 048a 9B00     		lsls	r3, r3, #2
+ 868 048c 1344     		add	r3, r3, r2
+ 869 048e DA00     		lsls	r2, r3, #3
+ 870 0490 D21A     		subs	r2, r2, r3
+ 871 0492 8B18     		adds	r3, r1, r2
+ 872 0494 0022     		movs	r2, #0
+ 873 0496 DA70     		strb	r2, [r3, #3]
+ 249:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                   neighbors_vars.neighbors[i].stableNeighbor=TRUE;
+ 874              		.loc 1 249 0
+ 875 0498 FA7D     		ldrb	r2, [r7, #23]	@ zero_extendqisi2
+ 876 049a 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 877 049e C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 878 04a2 1346     		mov	r3, r2
+ 879 04a4 9B00     		lsls	r3, r3, #2
+ 880 04a6 1344     		add	r3, r3, r2
+ 881 04a8 DA00     		lsls	r2, r3, #3
+ 882 04aa D21A     		subs	r2, r2, r3
+ 883 04ac 8B18     		adds	r3, r1, r2
+ 884 04ae 0122     		movs	r2, #1
+ 885 04b0 9A70     		strb	r2, [r3, #2]
+ 886 04b2 7DE0     		b	.L46
+ 887              	.L43:
+ 250:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                }
+ 251:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             } else {
+ 252:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                neighbors_vars.neighbors[i].switchStabilityCounter=0;
+ 888              		.loc 1 252 0
+ 889 04b4 FA7D     		ldrb	r2, [r7, #23]	@ zero_extendqisi2
+ 890 04b6 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 891 04ba C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 892 04be 1346     		mov	r3, r2
+ 893 04c0 9B00     		lsls	r3, r3, #2
+ 894 04c2 1344     		add	r3, r3, r2
+ 895 04c4 DA00     		lsls	r2, r3, #3
+ 896 04c6 D21A     		subs	r2, r2, r3
+ 897 04c8 8B18     		adds	r3, r1, r2
+ 898 04ca 0022     		movs	r2, #0
+ 899 04cc DA70     		strb	r2, [r3, #3]
+ 253:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             }
+ 254:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          } else if (neighbors_vars.neighbors[i].stableNeighbor==TRUE) {
+ 255:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             if (neighbors_vars.neighbors[i].rssi<GOODNEIGHBORMINRSSI) {
+ 256:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                neighbors_vars.neighbors[i].switchStabilityCounter++;
+ 257:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                if (neighbors_vars.neighbors[i].switchStabilityCounter>=SWITCHSTABILITYTHRESHOLD) {
+ 258:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                   neighbors_vars.neighbors[i].switchStabilityCounter=0;
+ 259:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                    neighbors_vars.neighbors[i].stableNeighbor=FALSE;
+ 260:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                }
+ 261:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             } else {
+ 262:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                neighbors_vars.neighbors[i].switchStabilityCounter=0;
+ 263:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             }
+ 264:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          }
+ 265:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          
+ 266:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          // stop looping
+ 267:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          break;
+ 900              		.loc 1 267 0
+ 901 04ce 77E0     		b	.L49
+ 902              	.L42:
+ 254:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             if (neighbors_vars.neighbors[i].rssi<GOODNEIGHBORMINRSSI) {
+ 903              		.loc 1 254 0
+ 904 04d0 FA7D     		ldrb	r2, [r7, #23]	@ zero_extendqisi2
+ 905 04d2 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 906 04d6 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 907 04da 1346     		mov	r3, r2
+ 908 04dc 9B00     		lsls	r3, r3, #2
+ 909 04de 1344     		add	r3, r3, r2
+ 910 04e0 DA00     		lsls	r2, r3, #3
+ 911 04e2 D21A     		subs	r2, r2, r3
+ 912 04e4 8B18     		adds	r3, r1, r2
+ 913 04e6 9B78     		ldrb	r3, [r3, #2]	@ zero_extendqisi2
+ 914 04e8 002B     		cmp	r3, #0
+ 915 04ea 61D0     		beq	.L46
+ 255:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                neighbors_vars.neighbors[i].switchStabilityCounter++;
+ 916              		.loc 1 255 0
+ 917 04ec FA7D     		ldrb	r2, [r7, #23]	@ zero_extendqisi2
+ 918 04ee 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 919 04f2 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 920 04f6 1346     		mov	r3, r2
+ 921 04f8 9B00     		lsls	r3, r3, #2
+ 922 04fa 1344     		add	r3, r3, r2
+ 923 04fc DA00     		lsls	r2, r3, #3
+ 924 04fe D21A     		subs	r2, r2, r3
+ 925 0500 8B18     		adds	r3, r1, r2
+ 926 0502 1033     		adds	r3, r3, #16
+ 927 0504 DB79     		ldrb	r3, [r3, #7]	@ zero_extendqisi2
+ 928 0506 5BB2     		sxtb	r3, r3
+ 929 0508 13F15A0F 		cmn	r3, #90
+ 930 050c 42DA     		bge	.L47
+ 256:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                if (neighbors_vars.neighbors[i].switchStabilityCounter>=SWITCHSTABILITYTHRESHOLD) {
+ 931              		.loc 1 256 0
+ 932 050e FA7D     		ldrb	r2, [r7, #23]	@ zero_extendqisi2
+ 933 0510 40F20000 		movw	r0, #:lower16:neighbors_vars
+ 934 0514 C0F20000 		movt	r0, #:upper16:neighbors_vars
+ 935 0518 1346     		mov	r3, r2
+ 936 051a 9B00     		lsls	r3, r3, #2
+ 937 051c 1344     		add	r3, r3, r2
+ 938 051e D900     		lsls	r1, r3, #3
+ 939 0520 C91A     		subs	r1, r1, r3
+ 940 0522 4318     		adds	r3, r0, r1
+ 941 0524 DB78     		ldrb	r3, [r3, #3]	@ zero_extendqisi2
+ 942 0526 0133     		adds	r3, r3, #1
+ 943 0528 D8B2     		uxtb	r0, r3
+ 944 052a 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 945 052e C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 946 0532 1346     		mov	r3, r2
+ 947 0534 9B00     		lsls	r3, r3, #2
+ 948 0536 1344     		add	r3, r3, r2
+ 949 0538 DA00     		lsls	r2, r3, #3
+ 950 053a D21A     		subs	r2, r2, r3
+ 951 053c 8B18     		adds	r3, r1, r2
+ 952 053e 0246     		mov	r2, r0
+ 953 0540 DA70     		strb	r2, [r3, #3]
+ 257:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                   neighbors_vars.neighbors[i].switchStabilityCounter=0;
+ 954              		.loc 1 257 0
+ 955 0542 FA7D     		ldrb	r2, [r7, #23]	@ zero_extendqisi2
+ 956 0544 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 957 0548 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 958 054c 1346     		mov	r3, r2
+ 959 054e 9B00     		lsls	r3, r3, #2
+ 960 0550 1344     		add	r3, r3, r2
+ 961 0552 DA00     		lsls	r2, r3, #3
+ 962 0554 D21A     		subs	r2, r2, r3
+ 963 0556 8B18     		adds	r3, r1, r2
+ 964 0558 DB78     		ldrb	r3, [r3, #3]	@ zero_extendqisi2
+ 965 055a 022B     		cmp	r3, #2
+ 966 055c 28D9     		bls	.L46
+ 258:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                    neighbors_vars.neighbors[i].stableNeighbor=FALSE;
+ 967              		.loc 1 258 0
+ 968 055e FA7D     		ldrb	r2, [r7, #23]	@ zero_extendqisi2
+ 969 0560 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 970 0564 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 971 0568 1346     		mov	r3, r2
+ 972 056a 9B00     		lsls	r3, r3, #2
+ 973 056c 1344     		add	r3, r3, r2
+ 974 056e DA00     		lsls	r2, r3, #3
+ 975 0570 D21A     		subs	r2, r2, r3
+ 976 0572 8B18     		adds	r3, r1, r2
+ 977 0574 0022     		movs	r2, #0
+ 978 0576 DA70     		strb	r2, [r3, #3]
+ 259:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                }
+ 979              		.loc 1 259 0
+ 980 0578 FA7D     		ldrb	r2, [r7, #23]	@ zero_extendqisi2
+ 981 057a 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 982 057e C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 983 0582 1346     		mov	r3, r2
+ 984 0584 9B00     		lsls	r3, r3, #2
+ 985 0586 1344     		add	r3, r3, r2
+ 986 0588 DA00     		lsls	r2, r3, #3
+ 987 058a D21A     		subs	r2, r2, r3
+ 988 058c 8B18     		adds	r3, r1, r2
+ 989 058e 0022     		movs	r2, #0
+ 990 0590 9A70     		strb	r2, [r3, #2]
+ 991              		.loc 1 267 0
+ 992 0592 15E0     		b	.L49
+ 993              	.L47:
+ 262:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             }
+ 994              		.loc 1 262 0
+ 995 0594 FA7D     		ldrb	r2, [r7, #23]	@ zero_extendqisi2
+ 996 0596 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 997 059a C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 998 059e 1346     		mov	r3, r2
+ 999 05a0 9B00     		lsls	r3, r3, #2
+ 1000 05a2 1344     		add	r3, r3, r2
+ 1001 05a4 DA00     		lsls	r2, r3, #3
+ 1002 05a6 D21A     		subs	r2, r2, r3
+ 1003 05a8 8B18     		adds	r3, r1, r2
+ 1004 05aa 0022     		movs	r2, #0
+ 1005 05ac DA70     		strb	r2, [r3, #3]
+ 1006              		.loc 1 267 0
+ 1007 05ae 07E0     		b	.L49
+ 1008              	.L46:
+ 1009 05b0 06E0     		b	.L49
+ 1010              	.L40:
+ 228:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       if (isThisRowMatching(l2_src,i)) {
+ 1011              		.loc 1 228 0
+ 1012 05b2 FB7D     		ldrb	r3, [r7, #23]	@ zero_extendqisi2
+ 1013 05b4 0133     		adds	r3, r3, #1
+ 1014 05b6 FB75     		strb	r3, [r7, #23]
+ 1015              	.L39:
+ 228:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       if (isThisRowMatching(l2_src,i)) {
+ 1016              		.loc 1 228 0 is_stmt 0 discriminator 1
+ 1017 05b8 FB7D     		ldrb	r3, [r7, #23]	@ zero_extendqisi2
+ 1018 05ba 092B     		cmp	r3, #9
+ 1019 05bc 7FF6BBAE 		bls	.L50
+ 1020              	.L49:
+ 268:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       }
+ 269:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    }
+ 270:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    
+ 271:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    // register new neighbor
+ 272:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    if (newNeighbor==TRUE) {
+ 1021              		.loc 1 272 0 is_stmt 1
+ 1022 05c0 BB7D     		ldrb	r3, [r7, #22]	@ zero_extendqisi2
+ 1023 05c2 002B     		cmp	r3, #0
+ 1024 05c4 0AD0     		beq	.L38
+ 273:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       registerNewNeighbor(l2_src, rssi, asnTs, joinPrioPresent,joinPrio);
+ 1025              		.loc 1 273 0
+ 1026 05c6 97F90B20 		ldrsb	r2, [r7, #11]
+ 1027 05ca BB7A     		ldrb	r3, [r7, #10]	@ zero_extendqisi2
+ 1028 05cc 97F82010 		ldrb	r1, [r7, #32]	@ zero_extendqisi2
+ 1029 05d0 0091     		str	r1, [sp]
+ 1030 05d2 F868     		ldr	r0, [r7, #12]
+ 1031 05d4 1146     		mov	r1, r2
+ 1032 05d6 7A68     		ldr	r2, [r7, #4]
+ 1033 05d8 FFF7FEFF 		bl	registerNewNeighbor
+ 1034              	.L38:
+ 274:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    }
+ 275:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** }
+ 1035              		.loc 1 275 0
+ 1036 05dc 1837     		adds	r7, r7, #24
+ 1037 05de BD46     		mov	sp, r7
+ 1038              		@ sp needed
+ 1039 05e0 80BD     		pop	{r7, pc}
+ 1040              		.cfi_endproc
+ 1041              	.LFE9:
+ 1043 05e2 00BF     		.align	2
+ 1044              		.global	neighbors_indicateTx
+ 1045              		.thumb
+ 1046              		.thumb_func
+ 1048              	neighbors_indicateTx:
+ 1049              	.LFB10:
+ 276:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 277:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** /**
+ 278:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** \brief Indicate some packet was sent to some neighbor.
+ 279:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 280:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** This function should be called for each transmitted (non-ACK) packet so
+ 281:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** neighbor statistics in the neighbor table can be updated.
+ 282:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 283:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** The fields which are updated are:
+ 284:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** - numTx
+ 285:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** - numTxACK
+ 286:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** - asn
+ 287:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 288:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** \param[in] l2_dest MAC destination address of the packet, i.e. the neighbor
+ 289:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    who I just sent the packet to.
+ 290:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** \param[in] numTxAttempts Number of transmission attempts to this neighbor.
+ 291:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** \param[in] was_finally_acked TRUE iff the packet was ACK'ed by the neighbor
+ 292:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    on final transmission attempt.
+ 293:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** \param[in] asnTs ASN of the last transmission attempt.
+ 294:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** */
+ 295:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** void neighbors_indicateTx(open_addr_t* l2_dest,
+ 296:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                           uint8_t      numTxAttempts,
+ 297:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                           bool         was_finally_acked,
+ 298:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                           asn_t*       asnTs) {
+ 1050              		.loc 1 298 0
+ 1051              		.cfi_startproc
+ 1052              		@ args = 0, pretend = 0, frame = 24
+ 1053              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1054 05e4 90B5     		push	{r4, r7, lr}
+ 1055              		.cfi_def_cfa_offset 12
+ 1056              		.cfi_offset 4, -12
+ 1057              		.cfi_offset 7, -8
+ 1058              		.cfi_offset 14, -4
+ 1059 05e6 87B0     		sub	sp, sp, #28
+ 1060              		.cfi_def_cfa_offset 40
+ 1061 05e8 00AF     		add	r7, sp, #0
+ 1062              		.cfi_def_cfa_register 7
+ 1063 05ea F860     		str	r0, [r7, #12]
+ 1064 05ec 7B60     		str	r3, [r7, #4]
+ 1065 05ee 0B46     		mov	r3, r1
+ 1066 05f0 FB72     		strb	r3, [r7, #11]
+ 1067 05f2 1346     		mov	r3, r2
+ 1068 05f4 BB72     		strb	r3, [r7, #10]
+ 299:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    uint8_t i;
+ 300:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    // don't run through this function if packet was sent to broadcast address
+ 301:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    if (packetfunctions_isBroadcastMulticast(l2_dest)==TRUE) {
+ 1069              		.loc 1 301 0
+ 1070 05f6 F868     		ldr	r0, [r7, #12]
+ 1071 05f8 FFF7FEFF 		bl	packetfunctions_isBroadcastMulticast
+ 1072 05fc 0346     		mov	r3, r0
+ 1073 05fe 002B     		cmp	r3, #0
+ 1074 0600 00D0     		beq	.L53
+ 302:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       return;
+ 1075              		.loc 1 302 0
+ 1076 0602 CCE0     		b	.L52
+ 1077              	.L53:
+ 303:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    }
+ 304:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    
+ 305:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    // loop through neighbor table
+ 306:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    for (i=0;i<MAXNUMNEIGHBORS;i++) {
+ 1078              		.loc 1 306 0
+ 1079 0604 0023     		movs	r3, #0
+ 1080 0606 FB75     		strb	r3, [r7, #23]
+ 1081 0608 C5E0     		b	.L55
+ 1082              	.L59:
+ 307:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       if (isThisRowMatching(l2_dest,i)) {
+ 1083              		.loc 1 307 0
+ 1084 060a FB7D     		ldrb	r3, [r7, #23]	@ zero_extendqisi2
+ 1085 060c F868     		ldr	r0, [r7, #12]
+ 1086 060e 1946     		mov	r1, r3
+ 1087 0610 FFF7FEFF 		bl	isThisRowMatching
+ 1088 0614 0346     		mov	r3, r0
+ 1089 0616 002B     		cmp	r3, #0
+ 1090 0618 00F0BA80 		beq	.L56
+ 308:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          // handle roll-over case
+ 309:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         
+ 310:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****           if (neighbors_vars.neighbors[i].numTx>(0xff-numTxAttempts)) {
+ 1091              		.loc 1 310 0
+ 1092 061c FA7D     		ldrb	r2, [r7, #23]	@ zero_extendqisi2
+ 1093 061e 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 1094 0622 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 1095 0626 1346     		mov	r3, r2
+ 1096 0628 9B00     		lsls	r3, r3, #2
+ 1097 062a 1344     		add	r3, r3, r2
+ 1098 062c DA00     		lsls	r2, r3, #3
+ 1099 062e D21A     		subs	r2, r2, r3
+ 1100 0630 8B18     		adds	r3, r1, r2
+ 1101 0632 1833     		adds	r3, r3, #24
+ 1102 0634 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 1103 0636 1A46     		mov	r2, r3
+ 1104 0638 FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 1105 063a C3F1FF03 		rsb	r3, r3, #255
+ 1106 063e 9A42     		cmp	r2, r3
+ 1107 0640 55DD     		ble	.L57
+ 311:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****               neighbors_vars.neighbors[i].numWraps++; //counting the number of times that tx wraps.
+ 1108              		.loc 1 311 0
+ 1109 0642 FA7D     		ldrb	r2, [r7, #23]	@ zero_extendqisi2
+ 1110 0644 40F20000 		movw	r0, #:lower16:neighbors_vars
+ 1111 0648 C0F20000 		movt	r0, #:upper16:neighbors_vars
+ 1112 064c 1346     		mov	r3, r2
+ 1113 064e 9B00     		lsls	r3, r3, #2
+ 1114 0650 1344     		add	r3, r3, r2
+ 1115 0652 D900     		lsls	r1, r3, #3
+ 1116 0654 C91A     		subs	r1, r1, r3
+ 1117 0656 4318     		adds	r3, r0, r1
+ 1118 0658 1833     		adds	r3, r3, #24
+ 1119 065a DB78     		ldrb	r3, [r3, #3]	@ zero_extendqisi2
+ 1120 065c 0133     		adds	r3, r3, #1
+ 1121 065e D8B2     		uxtb	r0, r3
+ 1122 0660 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 1123 0664 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 1124 0668 1346     		mov	r3, r2
+ 1125 066a 9B00     		lsls	r3, r3, #2
+ 1126 066c 1344     		add	r3, r3, r2
+ 1127 066e DA00     		lsls	r2, r3, #3
+ 1128 0670 D21A     		subs	r2, r2, r3
+ 1129 0672 8B18     		adds	r3, r1, r2
+ 1130 0674 1833     		adds	r3, r3, #24
+ 1131 0676 0246     		mov	r2, r0
+ 1132 0678 DA70     		strb	r2, [r3, #3]
+ 312:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****               neighbors_vars.neighbors[i].numTx/=2;
+ 1133              		.loc 1 312 0
+ 1134 067a F87D     		ldrb	r0, [r7, #23]	@ zero_extendqisi2
+ 1135 067c FA7D     		ldrb	r2, [r7, #23]	@ zero_extendqisi2
+ 1136 067e 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 1137 0682 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 1138 0686 1346     		mov	r3, r2
+ 1139 0688 9B00     		lsls	r3, r3, #2
+ 1140 068a 1344     		add	r3, r3, r2
+ 1141 068c DA00     		lsls	r2, r3, #3
+ 1142 068e D21A     		subs	r2, r2, r3
+ 1143 0690 8B18     		adds	r3, r1, r2
+ 1144 0692 1833     		adds	r3, r3, #24
+ 1145 0694 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 1146 0696 5B08     		lsrs	r3, r3, #1
+ 1147 0698 DCB2     		uxtb	r4, r3
+ 1148 069a 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 1149 069e C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 1150 06a2 0346     		mov	r3, r0
+ 1151 06a4 9B00     		lsls	r3, r3, #2
+ 1152 06a6 0344     		add	r3, r3, r0
+ 1153 06a8 DA00     		lsls	r2, r3, #3
+ 1154 06aa D21A     		subs	r2, r2, r3
+ 1155 06ac 8B18     		adds	r3, r1, r2
+ 1156 06ae 1833     		adds	r3, r3, #24
+ 1157 06b0 2246     		mov	r2, r4
+ 1158 06b2 5A70     		strb	r2, [r3, #1]
+ 313:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****               neighbors_vars.neighbors[i].numTxACK/=2;
+ 1159              		.loc 1 313 0
+ 1160 06b4 F87D     		ldrb	r0, [r7, #23]	@ zero_extendqisi2
+ 1161 06b6 FA7D     		ldrb	r2, [r7, #23]	@ zero_extendqisi2
+ 1162 06b8 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 1163 06bc C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 1164 06c0 1346     		mov	r3, r2
+ 1165 06c2 9B00     		lsls	r3, r3, #2
+ 1166 06c4 1344     		add	r3, r3, r2
+ 1167 06c6 DA00     		lsls	r2, r3, #3
+ 1168 06c8 D21A     		subs	r2, r2, r3
+ 1169 06ca 8B18     		adds	r3, r1, r2
+ 1170 06cc 1833     		adds	r3, r3, #24
+ 1171 06ce 9B78     		ldrb	r3, [r3, #2]	@ zero_extendqisi2
+ 1172 06d0 5B08     		lsrs	r3, r3, #1
+ 1173 06d2 DCB2     		uxtb	r4, r3
+ 1174 06d4 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 1175 06d8 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 1176 06dc 0346     		mov	r3, r0
+ 1177 06de 9B00     		lsls	r3, r3, #2
+ 1178 06e0 0344     		add	r3, r3, r0
+ 1179 06e2 DA00     		lsls	r2, r3, #3
+ 1180 06e4 D21A     		subs	r2, r2, r3
+ 1181 06e6 8B18     		adds	r3, r1, r2
+ 1182 06e8 1833     		adds	r3, r3, #24
+ 1183 06ea 2246     		mov	r2, r4
+ 1184 06ec 9A70     		strb	r2, [r3, #2]
+ 1185              	.L57:
+ 314:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****            }
+ 315:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          // update statistics
+ 316:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         neighbors_vars.neighbors[i].numTx += numTxAttempts; 
+ 1186              		.loc 1 316 0
+ 1187 06ee F87D     		ldrb	r0, [r7, #23]	@ zero_extendqisi2
+ 1188 06f0 FA7D     		ldrb	r2, [r7, #23]	@ zero_extendqisi2
+ 1189 06f2 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 1190 06f6 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 1191 06fa 1346     		mov	r3, r2
+ 1192 06fc 9B00     		lsls	r3, r3, #2
+ 1193 06fe 1344     		add	r3, r3, r2
+ 1194 0700 DA00     		lsls	r2, r3, #3
+ 1195 0702 D21A     		subs	r2, r2, r3
+ 1196 0704 8B18     		adds	r3, r1, r2
+ 1197 0706 1833     		adds	r3, r3, #24
+ 1198 0708 5A78     		ldrb	r2, [r3, #1]	@ zero_extendqisi2
+ 1199 070a FB7A     		ldrb	r3, [r7, #11]
+ 1200 070c 1344     		add	r3, r3, r2
+ 1201 070e DCB2     		uxtb	r4, r3
+ 1202 0710 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 1203 0714 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 1204 0718 0346     		mov	r3, r0
+ 1205 071a 9B00     		lsls	r3, r3, #2
+ 1206 071c 0344     		add	r3, r3, r0
+ 1207 071e DA00     		lsls	r2, r3, #3
+ 1208 0720 D21A     		subs	r2, r2, r3
+ 1209 0722 8B18     		adds	r3, r1, r2
+ 1210 0724 1833     		adds	r3, r3, #24
+ 1211 0726 2246     		mov	r2, r4
+ 1212 0728 5A70     		strb	r2, [r3, #1]
+ 317:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         
+ 318:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         if (was_finally_acked==TRUE) {
+ 1213              		.loc 1 318 0
+ 1214 072a BB7A     		ldrb	r3, [r7, #10]	@ zero_extendqisi2
+ 1215 072c 002B     		cmp	r3, #0
+ 1216 072e 2ED0     		beq	.L58
+ 319:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             neighbors_vars.neighbors[i].numTxACK++;
+ 1217              		.loc 1 319 0
+ 1218 0730 FA7D     		ldrb	r2, [r7, #23]	@ zero_extendqisi2
+ 1219 0732 40F20000 		movw	r0, #:lower16:neighbors_vars
+ 1220 0736 C0F20000 		movt	r0, #:upper16:neighbors_vars
+ 1221 073a 1346     		mov	r3, r2
+ 1222 073c 9B00     		lsls	r3, r3, #2
+ 1223 073e 1344     		add	r3, r3, r2
+ 1224 0740 D900     		lsls	r1, r3, #3
+ 1225 0742 C91A     		subs	r1, r1, r3
+ 1226 0744 4318     		adds	r3, r0, r1
+ 1227 0746 1833     		adds	r3, r3, #24
+ 1228 0748 9B78     		ldrb	r3, [r3, #2]	@ zero_extendqisi2
+ 1229 074a 0133     		adds	r3, r3, #1
+ 1230 074c D8B2     		uxtb	r0, r3
+ 1231 074e 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 1232 0752 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 1233 0756 1346     		mov	r3, r2
+ 1234 0758 9B00     		lsls	r3, r3, #2
+ 1235 075a 1344     		add	r3, r3, r2
+ 1236 075c DA00     		lsls	r2, r3, #3
+ 1237 075e D21A     		subs	r2, r2, r3
+ 1238 0760 8B18     		adds	r3, r1, r2
+ 1239 0762 1833     		adds	r3, r3, #24
+ 1240 0764 0246     		mov	r2, r0
+ 1241 0766 9A70     		strb	r2, [r3, #2]
+ 320:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             memcpy(&neighbors_vars.neighbors[i].asn,asnTs,sizeof(asn_t));
+ 1242              		.loc 1 320 0
+ 1243 0768 FA7D     		ldrb	r2, [r7, #23]	@ zero_extendqisi2
+ 1244 076a 1346     		mov	r3, r2
+ 1245 076c 9B00     		lsls	r3, r3, #2
+ 1246 076e 1344     		add	r3, r3, r2
+ 1247 0770 DA00     		lsls	r2, r3, #3
+ 1248 0772 D21A     		subs	r2, r2, r3
+ 1249 0774 1832     		adds	r2, r2, #24
+ 1250 0776 40F20003 		movw	r3, #:lower16:neighbors_vars
+ 1251 077a C0F20003 		movt	r3, #:upper16:neighbors_vars
+ 1252 077e 1344     		add	r3, r3, r2
+ 1253 0780 0433     		adds	r3, r3, #4
+ 1254 0782 7A68     		ldr	r2, [r7, #4]
+ 1255 0784 1168     		ldr	r1, [r2]	@ unaligned
+ 1256 0786 1960     		str	r1, [r3]	@ unaligned
+ 1257 0788 1279     		ldrb	r2, [r2, #4]
+ 1258 078a 1A71     		strb	r2, [r3, #4]
+ 321:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         }
+ 322:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         // #TODO : investigate this TX wrap thing! @incorrect in the meantime
+ 323:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         // DB (Nov 2015) I believe this is correct. The ratio numTx/numTxAck is still a correct app
+ 324:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         // of ETX after scaling down by a factor 2. Obviously, each one of numTx and numTxAck is no
+ 325:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         // accurate count of the related events, so don't rely of them to keep track of frames sent
+ 326:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         // and don't use numTx as a frame sequence number!
+ 327:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         // The scaling means that older events have less weight when the scaling occurs. It is a wa
+ 328:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         // forgetting about the ancient past and giving more importance to recent observations.
+ 329:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         break;
+ 1259              		.loc 1 329 0
+ 1260 078c 07E0     		b	.L52
+ 1261              	.L58:
+ 1262 078e 06E0     		b	.L52
+ 1263              	.L56:
+ 306:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       if (isThisRowMatching(l2_dest,i)) {
+ 1264              		.loc 1 306 0
+ 1265 0790 FB7D     		ldrb	r3, [r7, #23]	@ zero_extendqisi2
+ 1266 0792 0133     		adds	r3, r3, #1
+ 1267 0794 FB75     		strb	r3, [r7, #23]
+ 1268              	.L55:
+ 306:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       if (isThisRowMatching(l2_dest,i)) {
+ 1269              		.loc 1 306 0 is_stmt 0 discriminator 1
+ 1270 0796 FB7D     		ldrb	r3, [r7, #23]	@ zero_extendqisi2
+ 1271 0798 092B     		cmp	r3, #9
+ 1272 079a 7FF636AF 		bls	.L59
+ 1273              	.L52:
+ 330:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       }
+ 331:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    }
+ 332:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** }
+ 1274              		.loc 1 332 0 is_stmt 1
+ 1275 079e 1C37     		adds	r7, r7, #28
+ 1276 07a0 BD46     		mov	sp, r7
+ 1277              		@ sp needed
+ 1278 07a2 90BD     		pop	{r4, r7, pc}
+ 1279              		.cfi_endproc
+ 1280              	.LFE10:
+ 1282              		.align	2
+ 1283              		.global	neighbors_getNeighborEui64
+ 1284              		.thumb
+ 1285              		.thumb_func
+ 1287              	neighbors_getNeighborEui64:
+ 1288              	.LFB11:
+ 333:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 334:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** //===== write addresses
+ 335:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 336:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** /**
+ 337:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** \brief Write the 64-bit address of some neighbor to some location.
+ 338:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** // Returns false if neighbor not in use or address type is not 64bits
+ 339:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** */
+ 340:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** bool  neighbors_getNeighborEui64(open_addr_t* address, uint8_t addr_type, uint8_t index){
+ 1289              		.loc 1 340 0
+ 1290              		.cfi_startproc
+ 1291              		@ args = 0, pretend = 0, frame = 16
+ 1292              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1293 07a4 80B5     		push	{r7, lr}
+ 1294              		.cfi_def_cfa_offset 8
+ 1295              		.cfi_offset 7, -8
+ 1296              		.cfi_offset 14, -4
+ 1297 07a6 84B0     		sub	sp, sp, #16
+ 1298              		.cfi_def_cfa_offset 24
+ 1299 07a8 00AF     		add	r7, sp, #0
+ 1300              		.cfi_def_cfa_register 7
+ 1301 07aa 7860     		str	r0, [r7, #4]
+ 1302 07ac 1346     		mov	r3, r2
+ 1303 07ae 0A46     		mov	r2, r1
+ 1304 07b0 FA70     		strb	r2, [r7, #3]
+ 1305 07b2 BB70     		strb	r3, [r7, #2]
+ 341:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    bool ReturnVal = FALSE;
+ 1306              		.loc 1 341 0
+ 1307 07b4 0023     		movs	r3, #0
+ 1308 07b6 FB73     		strb	r3, [r7, #15]
+ 342:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    switch(addr_type) {
+ 1309              		.loc 1 342 0
+ 1310 07b8 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 1311 07ba 022B     		cmp	r3, #2
+ 1312 07bc 23D1     		bne	.L65
+ 343:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       case ADDR_64B:
+ 344:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          memcpy(&(address->addr_64b),&(neighbors_vars.neighbors[index].addr_64b.addr_64b),LENGTH_AD
+ 1313              		.loc 1 344 0
+ 1314 07be 7B68     		ldr	r3, [r7, #4]
+ 1315 07c0 591C     		adds	r1, r3, #1
+ 1316 07c2 BA78     		ldrb	r2, [r7, #2]	@ zero_extendqisi2
+ 1317 07c4 1346     		mov	r3, r2
+ 1318 07c6 9B00     		lsls	r3, r3, #2
+ 1319 07c8 1344     		add	r3, r3, r2
+ 1320 07ca DA00     		lsls	r2, r3, #3
+ 1321 07cc D21A     		subs	r2, r2, r3
+ 1322 07ce 40F20003 		movw	r3, #:lower16:neighbors_vars
+ 1323 07d2 C0F20003 		movt	r3, #:upper16:neighbors_vars
+ 1324 07d6 1344     		add	r3, r3, r2
+ 1325 07d8 5A1D     		adds	r2, r3, #5
+ 1326 07da 0B46     		mov	r3, r1
+ 1327 07dc 1168     		ldr	r1, [r2]	@ unaligned
+ 1328 07de 5268     		ldr	r2, [r2, #4]	@ unaligned
+ 1329 07e0 1960     		str	r1, [r3]	@ unaligned
+ 1330 07e2 5A60     		str	r2, [r3, #4]	@ unaligned
+ 345:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          address->type=ADDR_64B;
+ 1331              		.loc 1 345 0
+ 1332 07e4 7B68     		ldr	r3, [r7, #4]
+ 1333 07e6 0222     		movs	r2, #2
+ 1334 07e8 1A70     		strb	r2, [r3]
+ 346:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          ReturnVal=neighbors_vars.neighbors[index].used;
+ 1335              		.loc 1 346 0
+ 1336 07ea BA78     		ldrb	r2, [r7, #2]	@ zero_extendqisi2
+ 1337 07ec 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 1338 07f0 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 1339 07f4 1346     		mov	r3, r2
+ 1340 07f6 9B00     		lsls	r3, r3, #2
+ 1341 07f8 1344     		add	r3, r3, r2
+ 1342 07fa DA00     		lsls	r2, r3, #3
+ 1343 07fc D21A     		subs	r2, r2, r3
+ 1344 07fe 8B18     		adds	r3, r1, r2
+ 1345 0800 1B78     		ldrb	r3, [r3]
+ 1346 0802 FB73     		strb	r3, [r7, #15]
+ 347:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          break;
+ 1347              		.loc 1 347 0
+ 1348 0804 08E0     		b	.L63
+ 1349              	.L65:
+ 348:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       default:
+ 349:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          openserial_printCritical(COMPONENT_NEIGHBORS,ERR_WRONG_ADDR_TYPE,
+ 1350              		.loc 1 349 0
+ 1351 0806 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 1352 0808 9BB2     		uxth	r3, r3
+ 1353 080a 0D20     		movs	r0, #13
+ 1354 080c 3121     		movs	r1, #49
+ 1355 080e 1A46     		mov	r2, r3
+ 1356 0810 0123     		movs	r3, #1
+ 1357 0812 FFF7FEFF 		bl	openserial_printCritical
+ 350:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                                (errorparameter_t)addr_type,
+ 351:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                                (errorparameter_t)1);
+ 352:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          break; 
+ 1358              		.loc 1 352 0
+ 1359 0816 00BF     		nop
+ 1360              	.L63:
+ 353:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    }
+ 354:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    return ReturnVal;
+ 1361              		.loc 1 354 0
+ 1362 0818 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 355:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** }
+ 1363              		.loc 1 355 0
+ 1364 081a 1846     		mov	r0, r3
+ 1365 081c 1037     		adds	r7, r7, #16
+ 1366 081e BD46     		mov	sp, r7
+ 1367              		@ sp needed
+ 1368 0820 80BD     		pop	{r7, pc}
+ 1369              		.cfi_endproc
+ 1370              	.LFE11:
+ 1372 0822 00BF     		.align	2
+ 1373              		.global	neighbors_setNeighborRank
+ 1374              		.thumb
+ 1375              		.thumb_func
+ 1377              	neighbors_setNeighborRank:
+ 1378              	.LFB12:
+ 356:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 357:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** //===== setters
+ 358:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 359:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** void neighbors_setNeighborRank(uint8_t index, dagrank_t rank) {
+ 1379              		.loc 1 359 0
+ 1380              		.cfi_startproc
+ 1381              		@ args = 0, pretend = 0, frame = 8
+ 1382              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1383              		@ link register save eliminated.
+ 1384 0824 80B4     		push	{r7}
+ 1385              		.cfi_def_cfa_offset 4
+ 1386              		.cfi_offset 7, -4
+ 1387 0826 83B0     		sub	sp, sp, #12
+ 1388              		.cfi_def_cfa_offset 16
+ 1389 0828 00AF     		add	r7, sp, #0
+ 1390              		.cfi_def_cfa_register 7
+ 1391 082a 0246     		mov	r2, r0
+ 1392 082c 0B46     		mov	r3, r1
+ 1393 082e FA71     		strb	r2, [r7, #7]
+ 1394 0830 BB80     		strh	r3, [r7, #4]	@ movhi
+ 360:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    neighbors_vars.neighbors[index].DAGrank=rank;
+ 1395              		.loc 1 360 0
+ 1396 0832 FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 1397 0834 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 1398 0838 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 1399 083c 1346     		mov	r3, r2
+ 1400 083e 9B00     		lsls	r3, r3, #2
+ 1401 0840 1344     		add	r3, r3, r2
+ 1402 0842 DA00     		lsls	r2, r3, #3
+ 1403 0844 D21A     		subs	r2, r2, r3
+ 1404 0846 8B18     		adds	r3, r1, r2
+ 1405 0848 1033     		adds	r3, r3, #16
+ 1406 084a BA88     		ldrh	r2, [r7, #4]	@ movhi
+ 1407 084c A3F80520 		strh	r2, [r3, #5]	@ unaligned
+ 361:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 362:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** }
+ 1408              		.loc 1 362 0
+ 1409 0850 0C37     		adds	r7, r7, #12
+ 1410 0852 BD46     		mov	sp, r7
+ 1411              		@ sp needed
+ 1412 0854 5DF8047B 		ldr	r7, [sp], #4
+ 1413 0858 7047     		bx	lr
+ 1414              		.cfi_endproc
+ 1415              	.LFE12:
+ 1417 085a 00BF     		.align	2
+ 1418              		.global	neighbors_setNeighborNoResource
+ 1419              		.thumb
+ 1420              		.thumb_func
+ 1422              	neighbors_setNeighborNoResource:
+ 1423              	.LFB13:
+ 363:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 364:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** void neighbors_setNeighborNoResource(open_addr_t* address){
+ 1424              		.loc 1 364 0
+ 1425              		.cfi_startproc
+ 1426              		@ args = 0, pretend = 0, frame = 16
+ 1427              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1428 085c 80B5     		push	{r7, lr}
+ 1429              		.cfi_def_cfa_offset 8
+ 1430              		.cfi_offset 7, -8
+ 1431              		.cfi_offset 14, -4
+ 1432 085e 84B0     		sub	sp, sp, #16
+ 1433              		.cfi_def_cfa_offset 24
+ 1434 0860 00AF     		add	r7, sp, #0
+ 1435              		.cfi_def_cfa_register 7
+ 1436 0862 7860     		str	r0, [r7, #4]
+ 365:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    uint8_t i;
+ 366:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    
+ 367:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    // loop through neighbor table
+ 368:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    for (i=0;i<MAXNUMNEIGHBORS;i++) {
+ 1437              		.loc 1 368 0
+ 1438 0864 0023     		movs	r3, #0
+ 1439 0866 FB73     		strb	r3, [r7, #15]
+ 1440 0868 19E0     		b	.L68
+ 1441              	.L71:
+ 369:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       if (isThisRowMatching(address,i)) {
+ 1442              		.loc 1 369 0
+ 1443 086a FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1444 086c 7868     		ldr	r0, [r7, #4]
+ 1445 086e 1946     		mov	r1, r3
+ 1446 0870 FFF7FEFF 		bl	isThisRowMatching
+ 1447 0874 0346     		mov	r3, r0
+ 1448 0876 002B     		cmp	r3, #0
+ 1449 0878 0ED0     		beq	.L69
+ 370:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****           neighbors_vars.neighbors[i].f6PNORES = TRUE;
+ 1450              		.loc 1 370 0
+ 1451 087a FA7B     		ldrb	r2, [r7, #15]	@ zero_extendqisi2
+ 1452 087c 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 1453 0880 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 1454 0884 1346     		mov	r3, r2
+ 1455 0886 9B00     		lsls	r3, r3, #2
+ 1456 0888 1344     		add	r3, r3, r2
+ 1457 088a DA00     		lsls	r2, r3, #3
+ 1458 088c D21A     		subs	r2, r2, r3
+ 1459 088e 8B18     		adds	r3, r1, r2
+ 1460 0890 2033     		adds	r3, r3, #32
+ 1461 0892 0122     		movs	r2, #1
+ 1462 0894 9A70     		strb	r2, [r3, #2]
+ 371:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****           break;
+ 1463              		.loc 1 371 0
+ 1464 0896 05E0     		b	.L67
+ 1465              	.L69:
+ 368:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       if (isThisRowMatching(address,i)) {
+ 1466              		.loc 1 368 0
+ 1467 0898 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1468 089a 0133     		adds	r3, r3, #1
+ 1469 089c FB73     		strb	r3, [r7, #15]
+ 1470              	.L68:
+ 368:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       if (isThisRowMatching(address,i)) {
+ 1471              		.loc 1 368 0 is_stmt 0 discriminator 1
+ 1472 089e FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1473 08a0 092B     		cmp	r3, #9
+ 1474 08a2 E2D9     		bls	.L71
+ 1475              	.L67:
+ 372:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       }
+ 373:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    }
+ 374:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** }
+ 1476              		.loc 1 374 0 is_stmt 1
+ 1477 08a4 1037     		adds	r7, r7, #16
+ 1478 08a6 BD46     		mov	sp, r7
+ 1479              		@ sp needed
+ 1480 08a8 80BD     		pop	{r7, pc}
+ 1481              		.cfi_endproc
+ 1482              	.LFE13:
+ 1484 08aa 00BF     		.align	2
+ 1485              		.global	neighbors_setPreferredParent
+ 1486              		.thumb
+ 1487              		.thumb_func
+ 1489              	neighbors_setPreferredParent:
+ 1490              	.LFB14:
+ 375:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 376:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** void neighbors_setPreferredParent(uint8_t index, bool isPreferred){
+ 1491              		.loc 1 376 0
+ 1492              		.cfi_startproc
+ 1493              		@ args = 0, pretend = 0, frame = 8
+ 1494              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1495              		@ link register save eliminated.
+ 1496 08ac 80B4     		push	{r7}
+ 1497              		.cfi_def_cfa_offset 4
+ 1498              		.cfi_offset 7, -4
+ 1499 08ae 83B0     		sub	sp, sp, #12
+ 1500              		.cfi_def_cfa_offset 16
+ 1501 08b0 00AF     		add	r7, sp, #0
+ 1502              		.cfi_def_cfa_register 7
+ 1503 08b2 0246     		mov	r2, r0
+ 1504 08b4 0B46     		mov	r3, r1
+ 1505 08b6 FA71     		strb	r2, [r7, #7]
+ 1506 08b8 BB71     		strb	r3, [r7, #6]
+ 377:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****     neighbors_vars.neighbors[index].parentPreference = isPreferred;
+ 1507              		.loc 1 377 0
+ 1508 08ba FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 1509 08bc B879     		ldrb	r0, [r7, #6]	@ zero_extendqisi2
+ 1510 08be 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 1511 08c2 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 1512 08c6 1346     		mov	r3, r2
+ 1513 08c8 9B00     		lsls	r3, r3, #2
+ 1514 08ca 1344     		add	r3, r3, r2
+ 1515 08cc DA00     		lsls	r2, r3, #3
+ 1516 08ce D21A     		subs	r2, r2, r3
+ 1517 08d0 8B18     		adds	r3, r1, r2
+ 1518 08d2 0246     		mov	r2, r0
+ 1519 08d4 5A70     		strb	r2, [r3, #1]
+ 378:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** }
+ 1520              		.loc 1 378 0
+ 1521 08d6 0C37     		adds	r7, r7, #12
+ 1522 08d8 BD46     		mov	sp, r7
+ 1523              		@ sp needed
+ 1524 08da 5DF8047B 		ldr	r7, [sp], #4
+ 1525 08de 7047     		bx	lr
+ 1526              		.cfi_endproc
+ 1527              	.LFE14:
+ 1529              		.align	2
+ 1530              		.global	neighbors_getLinkMetric
+ 1531              		.thumb
+ 1532              		.thumb_func
+ 1534              	neighbors_getLinkMetric:
+ 1535              	.LFB15:
+ 379:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 380:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** //===== managing routing info
+ 381:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 382:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** /**
+ 383:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** \brief return the link cost to a neighbor, expressed as a rank increase from this neighbor to this 
+ 384:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 385:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** This really belongs to icmpv6rpl but it would require a much more complex interface to the neighbor
+ 386:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** */
+ 387:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 388:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** uint16_t neighbors_getLinkMetric(uint8_t index) {
+ 1536              		.loc 1 388 0
+ 1537              		.cfi_startproc
+ 1538              		@ args = 0, pretend = 0, frame = 16
+ 1539              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1540              		@ link register save eliminated.
+ 1541 08e0 80B4     		push	{r7}
+ 1542              		.cfi_def_cfa_offset 4
+ 1543              		.cfi_offset 7, -4
+ 1544 08e2 85B0     		sub	sp, sp, #20
+ 1545              		.cfi_def_cfa_offset 24
+ 1546 08e4 00AF     		add	r7, sp, #0
+ 1547              		.cfi_def_cfa_register 7
+ 1548 08e6 0346     		mov	r3, r0
+ 1549 08e8 FB71     		strb	r3, [r7, #7]
+ 389:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    uint16_t  rankIncrease;
+ 390:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    uint32_t  rankIncreaseIntermediary; // stores intermediary results of rankIncrease calculation
+ 391:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 392:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    // we assume that this neighbor has already been checked for being in use         
+ 393:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    // calculate link cost to this neighbor
+ 394:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    if (neighbors_vars.neighbors[index].numTxACK==0) {
+ 1550              		.loc 1 394 0
+ 1551 08ea FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 1552 08ec 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 1553 08f0 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 1554 08f4 1346     		mov	r3, r2
+ 1555 08f6 9B00     		lsls	r3, r3, #2
+ 1556 08f8 1344     		add	r3, r3, r2
+ 1557 08fa DA00     		lsls	r2, r3, #3
+ 1558 08fc D21A     		subs	r2, r2, r3
+ 1559 08fe 8B18     		adds	r3, r1, r2
+ 1560 0900 1833     		adds	r3, r3, #24
+ 1561 0902 9B78     		ldrb	r3, [r3, #2]	@ zero_extendqisi2
+ 1562 0904 002B     		cmp	r3, #0
+ 1563 0906 03D1     		bne	.L74
+ 395:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       rankIncrease = (3*DEFAULTLINKCOST-2)*MINHOPRANKINCREASE;
+ 1564              		.loc 1 395 0
+ 1565 0908 4FF42C53 		mov	r3, #11008
+ 1566 090c FB81     		strh	r3, [r7, #14]	@ movhi
+ 1567 090e 33E0     		b	.L75
+ 1568              	.L74:
+ 396:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    } else {
+ 397:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       //6TiSCH minimal draft using OF0 for rank computation: ((3*numTx/numTxAck)-2)*minHopRankIncre
+ 398:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       // numTx is on 8 bits, so scaling up 10 bits won't lead to saturation
+ 399:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       // but this <<10 followed by >>10 does not provide any benefit either. Result is the same.
+ 400:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       rankIncreaseIntermediary = (((uint32_t)neighbors_vars.neighbors[index].numTx) << 10);
+ 1569              		.loc 1 400 0
+ 1570 0910 FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 1571 0912 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 1572 0916 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 1573 091a 1346     		mov	r3, r2
+ 1574 091c 9B00     		lsls	r3, r3, #2
+ 1575 091e 1344     		add	r3, r3, r2
+ 1576 0920 DA00     		lsls	r2, r3, #3
+ 1577 0922 D21A     		subs	r2, r2, r3
+ 1578 0924 8B18     		adds	r3, r1, r2
+ 1579 0926 1833     		adds	r3, r3, #24
+ 1580 0928 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 1581 092a 9B02     		lsls	r3, r3, #10
+ 1582 092c BB60     		str	r3, [r7, #8]
+ 401:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       rankIncreaseIntermediary = (3*rankIncreaseIntermediary * MINHOPRANKINCREASE) / ((uint32_t)nei
+ 1583              		.loc 1 401 0
+ 1584 092e BA68     		ldr	r2, [r7, #8]
+ 1585 0930 1346     		mov	r3, r2
+ 1586 0932 5B00     		lsls	r3, r3, #1
+ 1587 0934 1344     		add	r3, r3, r2
+ 1588 0936 1B02     		lsls	r3, r3, #8
+ 1589 0938 1846     		mov	r0, r3
+ 1590 093a FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 1591 093c 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 1592 0940 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 1593 0944 1346     		mov	r3, r2
+ 1594 0946 9B00     		lsls	r3, r3, #2
+ 1595 0948 1344     		add	r3, r3, r2
+ 1596 094a DA00     		lsls	r2, r3, #3
+ 1597 094c D21A     		subs	r2, r2, r3
+ 1598 094e 8B18     		adds	r3, r1, r2
+ 1599 0950 1833     		adds	r3, r3, #24
+ 1600 0952 9B78     		ldrb	r3, [r3, #2]	@ zero_extendqisi2
+ 1601 0954 B0FBF3F3 		udiv	r3, r0, r3
+ 1602 0958 BB60     		str	r3, [r7, #8]
+ 402:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       rankIncreaseIntermediary = rankIncreaseIntermediary - ((uint32_t)(2 * MINHOPRANKINCREASE)<<10
+ 1603              		.loc 1 402 0
+ 1604 095a BB68     		ldr	r3, [r7, #8]
+ 1605 095c A3F50023 		sub	r3, r3, #524288
+ 1606 0960 BB60     		str	r3, [r7, #8]
+ 403:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       // this could still overflow for numTx large and numTxAck small, Casting to 16 bits will yiel
+ 404:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       if (rankIncreaseIntermediary >= (65536<<10)) {
+ 1607              		.loc 1 404 0
+ 1608 0962 BB68     		ldr	r3, [r7, #8]
+ 1609 0964 B3F1806F 		cmp	r3, #67108864
+ 1610 0968 03D3     		bcc	.L76
+ 405:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          rankIncrease = 65535;
+ 1611              		.loc 1 405 0
+ 1612 096a 4FF6FF73 		movw	r3, #65535
+ 1613 096e FB81     		strh	r3, [r7, #14]	@ movhi
+ 1614 0970 02E0     		b	.L75
+ 1615              	.L76:
+ 406:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       } else {
+ 407:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       rankIncrease = (uint16_t)(rankIncreaseIntermediary >> 10);
+ 1616              		.loc 1 407 0
+ 1617 0972 BB68     		ldr	r3, [r7, #8]
+ 1618 0974 9B0A     		lsrs	r3, r3, #10
+ 1619 0976 FB81     		strh	r3, [r7, #14]	@ movhi
+ 1620              	.L75:
+ 408:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       }
+ 409:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    }
+ 410:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    return rankIncrease;
+ 1621              		.loc 1 410 0
+ 1622 0978 FB89     		ldrh	r3, [r7, #14]
+ 411:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** }
+ 1623              		.loc 1 411 0
+ 1624 097a 1846     		mov	r0, r3
+ 1625 097c 1437     		adds	r7, r7, #20
+ 1626 097e BD46     		mov	sp, r7
+ 1627              		@ sp needed
+ 1628 0980 5DF8047B 		ldr	r7, [sp], #4
+ 1629 0984 7047     		bx	lr
+ 1630              		.cfi_endproc
+ 1631              	.LFE15:
+ 1633 0986 00BF     		.align	2
+ 1634              		.global	neighbors_removeOld
+ 1635              		.thumb
+ 1636              		.thumb_func
+ 1638              	neighbors_removeOld:
+ 1639              	.LFB16:
+ 412:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 413:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** //===== maintenance
+ 414:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 415:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** void  neighbors_removeOld() {
+ 1640              		.loc 1 415 0
+ 1641              		.cfi_startproc
+ 1642              		@ args = 0, pretend = 0, frame = 16
+ 1643              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1644 0988 80B5     		push	{r7, lr}
+ 1645              		.cfi_def_cfa_offset 8
+ 1646              		.cfi_offset 7, -8
+ 1647              		.cfi_offset 14, -4
+ 1648 098a 84B0     		sub	sp, sp, #16
+ 1649              		.cfi_def_cfa_offset 24
+ 1650 098c 00AF     		add	r7, sp, #0
+ 1651              		.cfi_def_cfa_register 7
+ 416:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****     uint8_t    i, j;
+ 417:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****     bool       haveParent;
+ 418:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****     uint8_t    neighborIndexWithLowestRank[3];
+ 419:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****     dagrank_t  lowestRank;
+ 420:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****     PORT_RADIOTIMER_WIDTH timeSinceHeard;
+ 421:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****     
+ 422:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****     // remove old neighbor
+ 423:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****     for (i=0;i<MAXNUMNEIGHBORS;i++) {
+ 1652              		.loc 1 423 0
+ 1653 098e 0023     		movs	r3, #0
+ 1654 0990 FB73     		strb	r3, [r7, #15]
+ 1655 0992 40E0     		b	.L79
+ 1656              	.L82:
+ 424:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         if (neighbors_vars.neighbors[i].used==1) {
+ 1657              		.loc 1 424 0
+ 1658 0994 FA7B     		ldrb	r2, [r7, #15]	@ zero_extendqisi2
+ 1659 0996 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 1660 099a C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 1661 099e 1346     		mov	r3, r2
+ 1662 09a0 9B00     		lsls	r3, r3, #2
+ 1663 09a2 1344     		add	r3, r3, r2
+ 1664 09a4 DA00     		lsls	r2, r3, #3
+ 1665 09a6 D21A     		subs	r2, r2, r3
+ 1666 09a8 8B18     		adds	r3, r1, r2
+ 1667 09aa 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1668 09ac 002B     		cmp	r3, #0
+ 1669 09ae 2FD0     		beq	.L80
+ 425:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             timeSinceHeard = ieee154e_asnDiff(&neighbors_vars.neighbors[i].asn);
+ 1670              		.loc 1 425 0
+ 1671 09b0 FA7B     		ldrb	r2, [r7, #15]	@ zero_extendqisi2
+ 1672 09b2 1346     		mov	r3, r2
+ 1673 09b4 9B00     		lsls	r3, r3, #2
+ 1674 09b6 1344     		add	r3, r3, r2
+ 1675 09b8 DA00     		lsls	r2, r3, #3
+ 1676 09ba D21A     		subs	r2, r2, r3
+ 1677 09bc 1832     		adds	r2, r2, #24
+ 1678 09be 40F20003 		movw	r3, #:lower16:neighbors_vars
+ 1679 09c2 C0F20003 		movt	r3, #:upper16:neighbors_vars
+ 1680 09c6 1344     		add	r3, r3, r2
+ 1681 09c8 0433     		adds	r3, r3, #4
+ 1682 09ca 1846     		mov	r0, r3
+ 1683 09cc FFF7FEFF 		bl	ieee154e_asnDiff
+ 1684 09d0 B860     		str	r0, [r7, #8]
+ 426:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             if (timeSinceHeard>DESYNCTIMEOUT) {
+ 1685              		.loc 1 426 0
+ 1686 09d2 BA68     		ldr	r2, [r7, #8]
+ 1687 09d4 40F61D13 		movw	r3, #2333
+ 1688 09d8 9A42     		cmp	r2, r3
+ 1689 09da 19D9     		bls	.L80
+ 427:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                 haveParent = icmpv6rpl_getPreferredParentIndex(&j);
+ 1690              		.loc 1 427 0
+ 1691 09dc BB1D     		adds	r3, r7, #6
+ 1692 09de 1846     		mov	r0, r3
+ 1693 09e0 FFF7FEFF 		bl	icmpv6rpl_getPreferredParentIndex
+ 1694 09e4 0346     		mov	r3, r0
+ 1695 09e6 FB71     		strb	r3, [r7, #7]
+ 428:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                 if (haveParent && (i==j)) { // this is our preferred parent, carefully!
+ 1696              		.loc 1 428 0
+ 1697 09e8 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 1698 09ea 002B     		cmp	r3, #0
+ 1699 09ec 0CD0     		beq	.L81
+ 1700              		.loc 1 428 0 is_stmt 0 discriminator 1
+ 1701 09ee BB79     		ldrb	r3, [r7, #6]	@ zero_extendqisi2
+ 1702 09f0 FA7B     		ldrb	r2, [r7, #15]	@ zero_extendqisi2
+ 1703 09f2 9A42     		cmp	r2, r3
+ 1704 09f4 08D1     		bne	.L81
+ 429:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                     icmpv6rpl_killPreferredParent();
+ 1705              		.loc 1 429 0 is_stmt 1
+ 1706 09f6 FFF7FEFF 		bl	icmpv6rpl_killPreferredParent
+ 430:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                     removeNeighbor(i);
+ 1707              		.loc 1 430 0
+ 1708 09fa FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1709 09fc 1846     		mov	r0, r3
+ 1710 09fe FFF7FEFF 		bl	removeNeighbor
+ 431:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                     icmpv6rpl_updateMyDAGrankAndParentSelection();
+ 1711              		.loc 1 431 0
+ 1712 0a02 FFF7FEFF 		bl	icmpv6rpl_updateMyDAGrankAndParentSelection
+ 1713 0a06 03E0     		b	.L80
+ 1714              	.L81:
+ 432:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                 } else {
+ 433:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                     removeNeighbor(i);
+ 1715              		.loc 1 433 0
+ 1716 0a08 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1717 0a0a 1846     		mov	r0, r3
+ 1718 0a0c FFF7FEFF 		bl	removeNeighbor
+ 1719              	.L80:
+ 423:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         if (neighbors_vars.neighbors[i].used==1) {
+ 1720              		.loc 1 423 0
+ 1721 0a10 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1722 0a12 0133     		adds	r3, r3, #1
+ 1723 0a14 FB73     		strb	r3, [r7, #15]
+ 1724              	.L79:
+ 423:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         if (neighbors_vars.neighbors[i].used==1) {
+ 1725              		.loc 1 423 0 is_stmt 0 discriminator 1
+ 1726 0a16 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1727 0a18 092B     		cmp	r3, #9
+ 1728 0a1a BBD9     		bls	.L82
+ 434:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                 }
+ 435:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             }
+ 436:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         }
+ 437:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****     }
+ 438:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****     
+ 439:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****     // neighbors marked as NO_RES will never removed.
+ 440:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****     
+ 441:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****     // first round
+ 442:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****     lowestRank = MAXDAGRANK;
+ 1729              		.loc 1 442 0 is_stmt 1
+ 1730 0a1c 4FF6FF73 		movw	r3, #65535
+ 1731 0a20 BB81     		strh	r3, [r7, #12]	@ movhi
+ 443:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****     for (i=0;i<MAXNUMNEIGHBORS;i++) {
+ 1732              		.loc 1 443 0
+ 1733 0a22 0023     		movs	r3, #0
+ 1734 0a24 FB73     		strb	r3, [r7, #15]
+ 1735 0a26 47E0     		b	.L83
+ 1736              	.L85:
+ 444:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         if (neighbors_vars.neighbors[i].used==1) {
+ 1737              		.loc 1 444 0
+ 1738 0a28 FA7B     		ldrb	r2, [r7, #15]	@ zero_extendqisi2
+ 1739 0a2a 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 1740 0a2e C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 1741 0a32 1346     		mov	r3, r2
+ 1742 0a34 9B00     		lsls	r3, r3, #2
+ 1743 0a36 1344     		add	r3, r3, r2
+ 1744 0a38 DA00     		lsls	r2, r3, #3
+ 1745 0a3a D21A     		subs	r2, r2, r3
+ 1746 0a3c 8B18     		adds	r3, r1, r2
+ 1747 0a3e 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1748 0a40 002B     		cmp	r3, #0
+ 1749 0a42 36D0     		beq	.L84
+ 445:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             if (
+ 446:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                 lowestRank>neighbors_vars.neighbors[i].DAGrank && 
+ 1750              		.loc 1 446 0
+ 1751 0a44 FA7B     		ldrb	r2, [r7, #15]	@ zero_extendqisi2
+ 1752 0a46 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 1753 0a4a C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 1754 0a4e 1346     		mov	r3, r2
+ 1755 0a50 9B00     		lsls	r3, r3, #2
+ 1756 0a52 1344     		add	r3, r3, r2
+ 1757 0a54 DA00     		lsls	r2, r3, #3
+ 1758 0a56 D21A     		subs	r2, r2, r3
+ 1759 0a58 8B18     		adds	r3, r1, r2
+ 1760 0a5a 1033     		adds	r3, r3, #16
+ 1761 0a5c B3F80530 		ldrh	r3, [r3, #5]	@ unaligned
+ 1762 0a60 9BB2     		uxth	r3, r3
+ 445:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             if (
+ 1763              		.loc 1 445 0
+ 1764 0a62 BA89     		ldrh	r2, [r7, #12]
+ 1765 0a64 9A42     		cmp	r2, r3
+ 1766 0a66 24D9     		bls	.L84
+ 447:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                 neighbors_vars.neighbors[i].f6PNORES == FALSE
+ 1767              		.loc 1 447 0
+ 1768 0a68 FA7B     		ldrb	r2, [r7, #15]	@ zero_extendqisi2
+ 1769 0a6a 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 1770 0a6e C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 1771 0a72 1346     		mov	r3, r2
+ 1772 0a74 9B00     		lsls	r3, r3, #2
+ 1773 0a76 1344     		add	r3, r3, r2
+ 1774 0a78 DA00     		lsls	r2, r3, #3
+ 1775 0a7a D21A     		subs	r2, r2, r3
+ 1776 0a7c 8B18     		adds	r3, r1, r2
+ 1777 0a7e 2033     		adds	r3, r3, #32
+ 1778 0a80 9B78     		ldrb	r3, [r3, #2]	@ zero_extendqisi2
+ 1779 0a82 83F00103 		eor	r3, r3, #1
+ 1780 0a86 DBB2     		uxtb	r3, r3
+ 446:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                 neighbors_vars.neighbors[i].f6PNORES == FALSE
+ 1781              		.loc 1 446 0
+ 1782 0a88 002B     		cmp	r3, #0
+ 1783 0a8a 12D0     		beq	.L84
+ 448:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             ){
+ 449:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                 lowestRank = neighbors_vars.neighbors[i].DAGrank;
+ 1784              		.loc 1 449 0
+ 1785 0a8c FA7B     		ldrb	r2, [r7, #15]	@ zero_extendqisi2
+ 1786 0a8e 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 1787 0a92 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 1788 0a96 1346     		mov	r3, r2
+ 1789 0a98 9B00     		lsls	r3, r3, #2
+ 1790 0a9a 1344     		add	r3, r3, r2
+ 1791 0a9c DA00     		lsls	r2, r3, #3
+ 1792 0a9e D21A     		subs	r2, r2, r3
+ 1793 0aa0 8B18     		adds	r3, r1, r2
+ 1794 0aa2 1033     		adds	r3, r3, #16
+ 1795 0aa4 5A79     		ldrb	r2, [r3, #5]	@ zero_extendqisi2
+ 1796 0aa6 9B79     		ldrb	r3, [r3, #6]	@ zero_extendqisi2
+ 1797 0aa8 1B02     		lsls	r3, r3, #8
+ 1798 0aaa 1343     		orrs	r3, r3, r2
+ 1799 0aac BB81     		strh	r3, [r7, #12]	@ movhi
+ 450:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                 neighborIndexWithLowestRank[0] = i;
+ 1800              		.loc 1 450 0
+ 1801 0aae FB7B     		ldrb	r3, [r7, #15]
+ 1802 0ab0 3B70     		strb	r3, [r7]
+ 1803              	.L84:
+ 443:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         if (neighbors_vars.neighbors[i].used==1) {
+ 1804              		.loc 1 443 0
+ 1805 0ab2 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1806 0ab4 0133     		adds	r3, r3, #1
+ 1807 0ab6 FB73     		strb	r3, [r7, #15]
+ 1808              	.L83:
+ 443:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         if (neighbors_vars.neighbors[i].used==1) {
+ 1809              		.loc 1 443 0 is_stmt 0 discriminator 1
+ 1810 0ab8 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1811 0aba 092B     		cmp	r3, #9
+ 1812 0abc B4D9     		bls	.L85
+ 451:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             }
+ 452:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         }
+ 453:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****     }
+ 454:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****     
+ 455:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****     if (lowestRank==MAXDAGRANK){
+ 1813              		.loc 1 455 0 is_stmt 1
+ 1814 0abe BA89     		ldrh	r2, [r7, #12]
+ 1815 0ac0 4FF6FF73 		movw	r3, #65535
+ 1816 0ac4 9A42     		cmp	r2, r3
+ 1817 0ac6 00D1     		bne	.L86
+ 456:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         // none of the neighbors have rank yet
+ 457:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         return;
+ 1818              		.loc 1 457 0
+ 1819 0ac8 03E1     		b	.L78
+ 1820              	.L86:
+ 458:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****     }
+ 459:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    
+ 460:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****     // second round
+ 461:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****     lowestRank = MAXDAGRANK;
+ 1821              		.loc 1 461 0
+ 1822 0aca 4FF6FF73 		movw	r3, #65535
+ 1823 0ace BB81     		strh	r3, [r7, #12]	@ movhi
+ 462:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****     for (i=0;i<MAXNUMNEIGHBORS;i++) {
+ 1824              		.loc 1 462 0
+ 1825 0ad0 0023     		movs	r3, #0
+ 1826 0ad2 FB73     		strb	r3, [r7, #15]
+ 1827 0ad4 4BE0     		b	.L88
+ 1828              	.L90:
+ 463:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         if (neighbors_vars.neighbors[i].used==1) {
+ 1829              		.loc 1 463 0
+ 1830 0ad6 FA7B     		ldrb	r2, [r7, #15]	@ zero_extendqisi2
+ 1831 0ad8 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 1832 0adc C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 1833 0ae0 1346     		mov	r3, r2
+ 1834 0ae2 9B00     		lsls	r3, r3, #2
+ 1835 0ae4 1344     		add	r3, r3, r2
+ 1836 0ae6 DA00     		lsls	r2, r3, #3
+ 1837 0ae8 D21A     		subs	r2, r2, r3
+ 1838 0aea 8B18     		adds	r3, r1, r2
+ 1839 0aec 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1840 0aee 002B     		cmp	r3, #0
+ 1841 0af0 3AD0     		beq	.L89
+ 464:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             if (
+ 465:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                 lowestRank>neighbors_vars.neighbors[i].DAGrank &&
+ 1842              		.loc 1 465 0
+ 1843 0af2 FA7B     		ldrb	r2, [r7, #15]	@ zero_extendqisi2
+ 1844 0af4 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 1845 0af8 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 1846 0afc 1346     		mov	r3, r2
+ 1847 0afe 9B00     		lsls	r3, r3, #2
+ 1848 0b00 1344     		add	r3, r3, r2
+ 1849 0b02 DA00     		lsls	r2, r3, #3
+ 1850 0b04 D21A     		subs	r2, r2, r3
+ 1851 0b06 8B18     		adds	r3, r1, r2
+ 1852 0b08 1033     		adds	r3, r3, #16
+ 1853 0b0a B3F80530 		ldrh	r3, [r3, #5]	@ unaligned
+ 1854 0b0e 9BB2     		uxth	r3, r3
+ 464:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             if (
+ 1855              		.loc 1 464 0
+ 1856 0b10 BA89     		ldrh	r2, [r7, #12]
+ 1857 0b12 9A42     		cmp	r2, r3
+ 1858 0b14 28D9     		bls	.L89
+ 466:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                 i != neighborIndexWithLowestRank[0]           && 
+ 1859              		.loc 1 466 0
+ 1860 0b16 3B78     		ldrb	r3, [r7]	@ zero_extendqisi2
+ 465:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                 i != neighborIndexWithLowestRank[0]           && 
+ 1861              		.loc 1 465 0
+ 1862 0b18 FA7B     		ldrb	r2, [r7, #15]	@ zero_extendqisi2
+ 1863 0b1a 9A42     		cmp	r2, r3
+ 1864 0b1c 24D0     		beq	.L89
+ 467:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                 neighbors_vars.neighbors[i].f6PNORES == FALSE
+ 1865              		.loc 1 467 0
+ 1866 0b1e FA7B     		ldrb	r2, [r7, #15]	@ zero_extendqisi2
+ 1867 0b20 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 1868 0b24 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 1869 0b28 1346     		mov	r3, r2
+ 1870 0b2a 9B00     		lsls	r3, r3, #2
+ 1871 0b2c 1344     		add	r3, r3, r2
+ 1872 0b2e DA00     		lsls	r2, r3, #3
+ 1873 0b30 D21A     		subs	r2, r2, r3
+ 1874 0b32 8B18     		adds	r3, r1, r2
+ 1875 0b34 2033     		adds	r3, r3, #32
+ 1876 0b36 9B78     		ldrb	r3, [r3, #2]	@ zero_extendqisi2
+ 1877 0b38 83F00103 		eor	r3, r3, #1
+ 1878 0b3c DBB2     		uxtb	r3, r3
+ 466:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                 i != neighborIndexWithLowestRank[0]           && 
+ 1879              		.loc 1 466 0
+ 1880 0b3e 002B     		cmp	r3, #0
+ 1881 0b40 12D0     		beq	.L89
+ 468:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             ){
+ 469:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                 lowestRank = neighbors_vars.neighbors[i].DAGrank;
+ 1882              		.loc 1 469 0
+ 1883 0b42 FA7B     		ldrb	r2, [r7, #15]	@ zero_extendqisi2
+ 1884 0b44 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 1885 0b48 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 1886 0b4c 1346     		mov	r3, r2
+ 1887 0b4e 9B00     		lsls	r3, r3, #2
+ 1888 0b50 1344     		add	r3, r3, r2
+ 1889 0b52 DA00     		lsls	r2, r3, #3
+ 1890 0b54 D21A     		subs	r2, r2, r3
+ 1891 0b56 8B18     		adds	r3, r1, r2
+ 1892 0b58 1033     		adds	r3, r3, #16
+ 1893 0b5a 5A79     		ldrb	r2, [r3, #5]	@ zero_extendqisi2
+ 1894 0b5c 9B79     		ldrb	r3, [r3, #6]	@ zero_extendqisi2
+ 1895 0b5e 1B02     		lsls	r3, r3, #8
+ 1896 0b60 1343     		orrs	r3, r3, r2
+ 1897 0b62 BB81     		strh	r3, [r7, #12]	@ movhi
+ 470:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                 neighborIndexWithLowestRank[1] = i;
+ 1898              		.loc 1 470 0
+ 1899 0b64 FB7B     		ldrb	r3, [r7, #15]
+ 1900 0b66 7B70     		strb	r3, [r7, #1]
+ 1901              	.L89:
+ 462:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         if (neighbors_vars.neighbors[i].used==1) {
+ 1902              		.loc 1 462 0
+ 1903 0b68 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1904 0b6a 0133     		adds	r3, r3, #1
+ 1905 0b6c FB73     		strb	r3, [r7, #15]
+ 1906              	.L88:
+ 462:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         if (neighbors_vars.neighbors[i].used==1) {
+ 1907              		.loc 1 462 0 is_stmt 0 discriminator 1
+ 1908 0b6e FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1909 0b70 092B     		cmp	r3, #9
+ 1910 0b72 B0D9     		bls	.L90
+ 471:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             }
+ 472:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         }
+ 473:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****     }
+ 474:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    
+ 475:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****     if (lowestRank==MAXDAGRANK){
+ 1911              		.loc 1 475 0 is_stmt 1
+ 1912 0b74 BA89     		ldrh	r2, [r7, #12]
+ 1913 0b76 4FF6FF73 		movw	r3, #65535
+ 1914 0b7a 9A42     		cmp	r2, r3
+ 1915 0b7c 00D1     		bne	.L91
+ 476:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         // only one neighbor has rank
+ 477:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         return;
+ 1916              		.loc 1 477 0
+ 1917 0b7e A8E0     		b	.L78
+ 1918              	.L91:
+ 478:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****     }
+ 479:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    
+ 480:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****     // third round
+ 481:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****     lowestRank = MAXDAGRANK;
+ 1919              		.loc 1 481 0
+ 1920 0b80 4FF6FF73 		movw	r3, #65535
+ 1921 0b84 BB81     		strh	r3, [r7, #12]	@ movhi
+ 482:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****     for (i=0;i<MAXNUMNEIGHBORS;i++) {
+ 1922              		.loc 1 482 0
+ 1923 0b86 0023     		movs	r3, #0
+ 1924 0b88 FB73     		strb	r3, [r7, #15]
+ 1925 0b8a 4FE0     		b	.L92
+ 1926              	.L94:
+ 483:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         if (neighbors_vars.neighbors[i].used==1) {
+ 1927              		.loc 1 483 0
+ 1928 0b8c FA7B     		ldrb	r2, [r7, #15]	@ zero_extendqisi2
+ 1929 0b8e 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 1930 0b92 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 1931 0b96 1346     		mov	r3, r2
+ 1932 0b98 9B00     		lsls	r3, r3, #2
+ 1933 0b9a 1344     		add	r3, r3, r2
+ 1934 0b9c DA00     		lsls	r2, r3, #3
+ 1935 0b9e D21A     		subs	r2, r2, r3
+ 1936 0ba0 8B18     		adds	r3, r1, r2
+ 1937 0ba2 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1938 0ba4 002B     		cmp	r3, #0
+ 1939 0ba6 3ED0     		beq	.L93
+ 484:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             if (
+ 485:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                 lowestRank>neighbors_vars.neighbors[i].DAGrank &&
+ 1940              		.loc 1 485 0
+ 1941 0ba8 FA7B     		ldrb	r2, [r7, #15]	@ zero_extendqisi2
+ 1942 0baa 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 1943 0bae C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 1944 0bb2 1346     		mov	r3, r2
+ 1945 0bb4 9B00     		lsls	r3, r3, #2
+ 1946 0bb6 1344     		add	r3, r3, r2
+ 1947 0bb8 DA00     		lsls	r2, r3, #3
+ 1948 0bba D21A     		subs	r2, r2, r3
+ 1949 0bbc 8B18     		adds	r3, r1, r2
+ 1950 0bbe 1033     		adds	r3, r3, #16
+ 1951 0bc0 B3F80530 		ldrh	r3, [r3, #5]	@ unaligned
+ 1952 0bc4 9BB2     		uxth	r3, r3
+ 484:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             if (
+ 1953              		.loc 1 484 0
+ 1954 0bc6 BA89     		ldrh	r2, [r7, #12]
+ 1955 0bc8 9A42     		cmp	r2, r3
+ 1956 0bca 2CD9     		bls	.L93
+ 486:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                 i != neighborIndexWithLowestRank[0]           &&
+ 1957              		.loc 1 486 0
+ 1958 0bcc 3B78     		ldrb	r3, [r7]	@ zero_extendqisi2
+ 485:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                 i != neighborIndexWithLowestRank[0]           &&
+ 1959              		.loc 1 485 0
+ 1960 0bce FA7B     		ldrb	r2, [r7, #15]	@ zero_extendqisi2
+ 1961 0bd0 9A42     		cmp	r2, r3
+ 1962 0bd2 28D0     		beq	.L93
+ 487:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                 i != neighborIndexWithLowestRank[1]           && 
+ 1963              		.loc 1 487 0
+ 1964 0bd4 7B78     		ldrb	r3, [r7, #1]	@ zero_extendqisi2
+ 486:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                 i != neighborIndexWithLowestRank[0]           &&
+ 1965              		.loc 1 486 0
+ 1966 0bd6 FA7B     		ldrb	r2, [r7, #15]	@ zero_extendqisi2
+ 1967 0bd8 9A42     		cmp	r2, r3
+ 1968 0bda 24D0     		beq	.L93
+ 488:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                 neighbors_vars.neighbors[i].f6PNORES == FALSE
+ 1969              		.loc 1 488 0
+ 1970 0bdc FA7B     		ldrb	r2, [r7, #15]	@ zero_extendqisi2
+ 1971 0bde 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 1972 0be2 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 1973 0be6 1346     		mov	r3, r2
+ 1974 0be8 9B00     		lsls	r3, r3, #2
+ 1975 0bea 1344     		add	r3, r3, r2
+ 1976 0bec DA00     		lsls	r2, r3, #3
+ 1977 0bee D21A     		subs	r2, r2, r3
+ 1978 0bf0 8B18     		adds	r3, r1, r2
+ 1979 0bf2 2033     		adds	r3, r3, #32
+ 1980 0bf4 9B78     		ldrb	r3, [r3, #2]	@ zero_extendqisi2
+ 1981 0bf6 83F00103 		eor	r3, r3, #1
+ 1982 0bfa DBB2     		uxtb	r3, r3
+ 487:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                 i != neighborIndexWithLowestRank[1]           && 
+ 1983              		.loc 1 487 0
+ 1984 0bfc 002B     		cmp	r3, #0
+ 1985 0bfe 12D0     		beq	.L93
+ 489:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             ){
+ 490:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                 lowestRank = neighbors_vars.neighbors[i].DAGrank;
+ 1986              		.loc 1 490 0
+ 1987 0c00 FA7B     		ldrb	r2, [r7, #15]	@ zero_extendqisi2
+ 1988 0c02 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 1989 0c06 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 1990 0c0a 1346     		mov	r3, r2
+ 1991 0c0c 9B00     		lsls	r3, r3, #2
+ 1992 0c0e 1344     		add	r3, r3, r2
+ 1993 0c10 DA00     		lsls	r2, r3, #3
+ 1994 0c12 D21A     		subs	r2, r2, r3
+ 1995 0c14 8B18     		adds	r3, r1, r2
+ 1996 0c16 1033     		adds	r3, r3, #16
+ 1997 0c18 5A79     		ldrb	r2, [r3, #5]	@ zero_extendqisi2
+ 1998 0c1a 9B79     		ldrb	r3, [r3, #6]	@ zero_extendqisi2
+ 1999 0c1c 1B02     		lsls	r3, r3, #8
+ 2000 0c1e 1343     		orrs	r3, r3, r2
+ 2001 0c20 BB81     		strh	r3, [r7, #12]	@ movhi
+ 491:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                 neighborIndexWithLowestRank[2] = i;
+ 2002              		.loc 1 491 0
+ 2003 0c22 FB7B     		ldrb	r3, [r7, #15]
+ 2004 0c24 BB70     		strb	r3, [r7, #2]
+ 2005              	.L93:
+ 482:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         if (neighbors_vars.neighbors[i].used==1) {
+ 2006              		.loc 1 482 0
+ 2007 0c26 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 2008 0c28 0133     		adds	r3, r3, #1
+ 2009 0c2a FB73     		strb	r3, [r7, #15]
+ 2010              	.L92:
+ 482:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         if (neighbors_vars.neighbors[i].used==1) {
+ 2011              		.loc 1 482 0 is_stmt 0 discriminator 1
+ 2012 0c2c FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 2013 0c2e 092B     		cmp	r3, #9
+ 2014 0c30 ACD9     		bls	.L94
+ 492:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             }
+ 493:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         }
+ 494:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****     }
+ 495:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****     
+ 496:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****     if (lowestRank==MAXDAGRANK){
+ 2015              		.loc 1 496 0 is_stmt 1
+ 2016 0c32 BA89     		ldrh	r2, [r7, #12]
+ 2017 0c34 4FF6FF73 		movw	r3, #65535
+ 2018 0c38 9A42     		cmp	r2, r3
+ 2019 0c3a 00D1     		bne	.L95
+ 497:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         // only two neighbors have rank
+ 498:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         return;
+ 2020              		.loc 1 498 0
+ 2021 0c3c 49E0     		b	.L78
+ 2022              	.L95:
+ 499:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****     }
+ 500:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****     
+ 501:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****     // remove all neighbors except the ones that f6PNORES flag is set or is recorded as lowest 3 ra
+ 502:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****     for (i=0;i<MAXNUMNEIGHBORS;i++) {
+ 2023              		.loc 1 502 0
+ 2024 0c3e 0023     		movs	r3, #0
+ 2025 0c40 FB73     		strb	r3, [r7, #15]
+ 2026 0c42 43E0     		b	.L96
+ 2027              	.L99:
+ 503:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         if (neighbors_vars.neighbors[i].used==1) {
+ 2028              		.loc 1 503 0
+ 2029 0c44 FA7B     		ldrb	r2, [r7, #15]	@ zero_extendqisi2
+ 2030 0c46 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 2031 0c4a C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 2032 0c4e 1346     		mov	r3, r2
+ 2033 0c50 9B00     		lsls	r3, r3, #2
+ 2034 0c52 1344     		add	r3, r3, r2
+ 2035 0c54 DA00     		lsls	r2, r3, #3
+ 2036 0c56 D21A     		subs	r2, r2, r3
+ 2037 0c58 8B18     		adds	r3, r1, r2
+ 2038 0c5a 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 2039 0c5c 002B     		cmp	r3, #0
+ 2040 0c5e 32D0     		beq	.L97
+ 504:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             if (
+ 505:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                 i!= neighborIndexWithLowestRank[0] &&
+ 2041              		.loc 1 505 0
+ 2042 0c60 3B78     		ldrb	r3, [r7]	@ zero_extendqisi2
+ 504:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             if (
+ 2043              		.loc 1 504 0
+ 2044 0c62 FA7B     		ldrb	r2, [r7, #15]	@ zero_extendqisi2
+ 2045 0c64 9A42     		cmp	r2, r3
+ 2046 0c66 2ED0     		beq	.L97
+ 506:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                 i!= neighborIndexWithLowestRank[1] &&
+ 2047              		.loc 1 506 0
+ 2048 0c68 7B78     		ldrb	r3, [r7, #1]	@ zero_extendqisi2
+ 505:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                 i!= neighborIndexWithLowestRank[1] &&
+ 2049              		.loc 1 505 0
+ 2050 0c6a FA7B     		ldrb	r2, [r7, #15]	@ zero_extendqisi2
+ 2051 0c6c 9A42     		cmp	r2, r3
+ 2052 0c6e 2AD0     		beq	.L97
+ 507:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                 i!= neighborIndexWithLowestRank[2]
+ 2053              		.loc 1 507 0
+ 2054 0c70 BB78     		ldrb	r3, [r7, #2]	@ zero_extendqisi2
+ 506:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                 i!= neighborIndexWithLowestRank[1] &&
+ 2055              		.loc 1 506 0
+ 2056 0c72 FA7B     		ldrb	r2, [r7, #15]	@ zero_extendqisi2
+ 2057 0c74 9A42     		cmp	r2, r3
+ 2058 0c76 26D0     		beq	.L97
+ 508:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             ) {
+ 509:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                 haveParent = icmpv6rpl_getPreferredParentIndex(&j);
+ 2059              		.loc 1 509 0
+ 2060 0c78 BB1D     		adds	r3, r7, #6
+ 2061 0c7a 1846     		mov	r0, r3
+ 2062 0c7c FFF7FEFF 		bl	icmpv6rpl_getPreferredParentIndex
+ 2063 0c80 0346     		mov	r3, r0
+ 2064 0c82 FB71     		strb	r3, [r7, #7]
+ 510:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                 if (haveParent && (i==j)) { // this is our preferred parent, carefully!
+ 2065              		.loc 1 510 0
+ 2066 0c84 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 2067 0c86 002B     		cmp	r3, #0
+ 2068 0c88 07D0     		beq	.L98
+ 2069              		.loc 1 510 0 is_stmt 0 discriminator 1
+ 2070 0c8a BB79     		ldrb	r3, [r7, #6]	@ zero_extendqisi2
+ 2071 0c8c FA7B     		ldrb	r2, [r7, #15]	@ zero_extendqisi2
+ 2072 0c8e 9A42     		cmp	r2, r3
+ 2073 0c90 03D1     		bne	.L98
+ 511:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                     icmpv6rpl_killPreferredParent();
+ 2074              		.loc 1 511 0 is_stmt 1
+ 2075 0c92 FFF7FEFF 		bl	icmpv6rpl_killPreferredParent
+ 512:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                     icmpv6rpl_updateMyDAGrankAndParentSelection();
+ 2076              		.loc 1 512 0
+ 2077 0c96 FFF7FEFF 		bl	icmpv6rpl_updateMyDAGrankAndParentSelection
+ 2078              	.L98:
+ 513:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                 }
+ 514:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                 if (neighbors_vars.neighbors[i].f6PNORES == FALSE){
+ 2079              		.loc 1 514 0
+ 2080 0c9a FA7B     		ldrb	r2, [r7, #15]	@ zero_extendqisi2
+ 2081 0c9c 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 2082 0ca0 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 2083 0ca4 1346     		mov	r3, r2
+ 2084 0ca6 9B00     		lsls	r3, r3, #2
+ 2085 0ca8 1344     		add	r3, r3, r2
+ 2086 0caa DA00     		lsls	r2, r3, #3
+ 2087 0cac D21A     		subs	r2, r2, r3
+ 2088 0cae 8B18     		adds	r3, r1, r2
+ 2089 0cb0 2033     		adds	r3, r3, #32
+ 2090 0cb2 9B78     		ldrb	r3, [r3, #2]	@ zero_extendqisi2
+ 2091 0cb4 83F00103 		eor	r3, r3, #1
+ 2092 0cb8 DBB2     		uxtb	r3, r3
+ 2093 0cba 002B     		cmp	r3, #0
+ 2094 0cbc 03D0     		beq	.L97
+ 515:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                     removeNeighbor(i);
+ 2095              		.loc 1 515 0
+ 2096 0cbe FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 2097 0cc0 1846     		mov	r0, r3
+ 2098 0cc2 FFF7FEFF 		bl	removeNeighbor
+ 2099              	.L97:
+ 502:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         if (neighbors_vars.neighbors[i].used==1) {
+ 2100              		.loc 1 502 0
+ 2101 0cc6 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 2102 0cc8 0133     		adds	r3, r3, #1
+ 2103 0cca FB73     		strb	r3, [r7, #15]
+ 2104              	.L96:
+ 502:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         if (neighbors_vars.neighbors[i].used==1) {
+ 2105              		.loc 1 502 0 is_stmt 0 discriminator 1
+ 2106 0ccc FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 2107 0cce 092B     		cmp	r3, #9
+ 2108 0cd0 B8D9     		bls	.L99
+ 2109              	.L78:
+ 516:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                 }
+ 517:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             }
+ 518:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****         }
+ 519:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****     }
+ 520:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** }
+ 2110              		.loc 1 520 0 is_stmt 1
+ 2111 0cd2 1037     		adds	r7, r7, #16
+ 2112 0cd4 BD46     		mov	sp, r7
+ 2113              		@ sp needed
+ 2114 0cd6 80BD     		pop	{r7, pc}
+ 2115              		.cfi_endproc
+ 2116              	.LFE16:
+ 2118              		.align	2
+ 2119              		.global	debugPrint_neighbors
+ 2120              		.thumb
+ 2121              		.thumb_func
+ 2123              	debugPrint_neighbors:
+ 2124              	.LFB17:
+ 521:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 522:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** //===== debug
+ 523:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 524:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** /**
+ 525:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** \brief Triggers this module to print status information, over serial.
+ 526:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 527:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** debugPrint_* functions are used by the openserial module to continuously print
+ 528:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** status information about several modules in the OpenWSN stack.
+ 529:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 530:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** \returns TRUE if this function printed something, FALSE otherwise.
+ 531:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** */
+ 532:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** bool debugPrint_neighbors() {
+ 2125              		.loc 1 532 0
+ 2126              		.cfi_startproc
+ 2127              		@ args = 0, pretend = 0, frame = 40
+ 2128              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2129 0cd8 F0B5     		push	{r4, r5, r6, r7, lr}
+ 2130              		.cfi_def_cfa_offset 20
+ 2131              		.cfi_offset 4, -20
+ 2132              		.cfi_offset 5, -16
+ 2133              		.cfi_offset 6, -12
+ 2134              		.cfi_offset 7, -8
+ 2135              		.cfi_offset 14, -4
+ 2136 0cda 8BB0     		sub	sp, sp, #44
+ 2137              		.cfi_def_cfa_offset 64
+ 2138 0cdc 00AF     		add	r7, sp, #0
+ 2139              		.cfi_def_cfa_register 7
+ 533:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    debugNeighborEntry_t temp;
+ 534:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    neighbors_vars.debugRow=(neighbors_vars.debugRow+1)%MAXNUMNEIGHBORS;
+ 2140              		.loc 1 534 0
+ 2141 0cde 40F20003 		movw	r3, #:lower16:neighbors_vars
+ 2142 0ce2 C0F20003 		movt	r3, #:upper16:neighbors_vars
+ 2143 0ce6 93F86031 		ldrb	r3, [r3, #352]	@ zero_extendqisi2
+ 2144 0cea 591C     		adds	r1, r3, #1
+ 2145 0cec 46F26763 		movw	r3, #26215
+ 2146 0cf0 C6F26663 		movt	r3, 26214
+ 2147 0cf4 83FB0123 		smull	r2, r3, r3, r1
+ 2148 0cf8 9A10     		asrs	r2, r3, #2
+ 2149 0cfa CB17     		asrs	r3, r1, #31
+ 2150 0cfc D21A     		subs	r2, r2, r3
+ 2151 0cfe 1346     		mov	r3, r2
+ 2152 0d00 9B00     		lsls	r3, r3, #2
+ 2153 0d02 1344     		add	r3, r3, r2
+ 2154 0d04 5B00     		lsls	r3, r3, #1
+ 2155 0d06 CA1A     		subs	r2, r1, r3
+ 2156 0d08 D2B2     		uxtb	r2, r2
+ 2157 0d0a 40F20003 		movw	r3, #:lower16:neighbors_vars
+ 2158 0d0e C0F20003 		movt	r3, #:upper16:neighbors_vars
+ 2159 0d12 83F86021 		strb	r2, [r3, #352]
+ 535:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    temp.row=neighbors_vars.debugRow;
+ 2160              		.loc 1 535 0
+ 2161 0d16 40F20003 		movw	r3, #:lower16:neighbors_vars
+ 2162 0d1a C0F20003 		movt	r3, #:upper16:neighbors_vars
+ 2163 0d1e 93F86031 		ldrb	r3, [r3, #352]	@ zero_extendqisi2
+ 2164 0d22 3B71     		strb	r3, [r7, #4]
+ 536:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    temp.neighborEntry=neighbors_vars.neighbors[neighbors_vars.debugRow];
+ 2165              		.loc 1 536 0
+ 2166 0d24 40F20003 		movw	r3, #:lower16:neighbors_vars
+ 2167 0d28 C0F20003 		movt	r3, #:upper16:neighbors_vars
+ 2168 0d2c 93F86031 		ldrb	r3, [r3, #352]	@ zero_extendqisi2
+ 2169 0d30 1A46     		mov	r2, r3
+ 2170 0d32 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 2171 0d36 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 2172 0d3a 1346     		mov	r3, r2
+ 2173 0d3c 9B00     		lsls	r3, r3, #2
+ 2174 0d3e 1344     		add	r3, r3, r2
+ 2175 0d40 DA00     		lsls	r2, r3, #3
+ 2176 0d42 D21A     		subs	r2, r2, r3
+ 2177 0d44 8B18     		adds	r3, r1, r2
+ 2178 0d46 7A1D     		adds	r2, r7, #5
+ 2179 0d48 03F12004 		add	r4, r3, #32
+ 2180              	.L102:
+ 2181 0d4c 1146     		mov	r1, r2
+ 2182 0d4e 1846     		mov	r0, r3
+ 2183 0d50 D0F800E0 		ldr	lr, [r0]	@ unaligned
+ 2184 0d54 4668     		ldr	r6, [r0, #4]	@ unaligned
+ 2185 0d56 8568     		ldr	r5, [r0, #8]	@ unaligned
+ 2186 0d58 C068     		ldr	r0, [r0, #12]	@ unaligned
+ 2187 0d5a C1F800E0 		str	lr, [r1]	@ unaligned
+ 2188 0d5e 4E60     		str	r6, [r1, #4]	@ unaligned
+ 2189 0d60 8D60     		str	r5, [r1, #8]	@ unaligned
+ 2190 0d62 C860     		str	r0, [r1, #12]	@ unaligned
+ 2191 0d64 1033     		adds	r3, r3, #16
+ 2192 0d66 1032     		adds	r2, r2, #16
+ 2193 0d68 A342     		cmp	r3, r4
+ 2194 0d6a EFD1     		bne	.L102
+ 2195 0d6c 1988     		ldrh	r1, [r3]	@ unaligned
+ 2196 0d6e 9B78     		ldrb	r3, [r3, #2]
+ 2197 0d70 1180     		strh	r1, [r2]	@ unaligned
+ 2198 0d72 9370     		strb	r3, [r2, #2]
+ 537:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    openserial_printStatus(STATUS_NEIGHBORS,(uint8_t*)&temp,sizeof(debugNeighborEntry_t));
+ 2199              		.loc 1 537 0
+ 2200 0d74 3B1D     		adds	r3, r7, #4
+ 2201 0d76 0920     		movs	r0, #9
+ 2202 0d78 1946     		mov	r1, r3
+ 2203 0d7a 2422     		movs	r2, #36
+ 2204 0d7c FFF7FEFF 		bl	openserial_printStatus
+ 538:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    return TRUE;
+ 2205              		.loc 1 538 0
+ 2206 0d80 0123     		movs	r3, #1
+ 539:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** }
+ 2207              		.loc 1 539 0
+ 2208 0d82 1846     		mov	r0, r3
+ 2209 0d84 2C37     		adds	r7, r7, #44
+ 2210 0d86 BD46     		mov	sp, r7
+ 2211              		@ sp needed
+ 2212 0d88 F0BD     		pop	{r4, r5, r6, r7, pc}
+ 2213              		.cfi_endproc
+ 2214              	.LFE17:
+ 2216 0d8a 00BF     		.align	2
+ 2217              		.global	registerNewNeighbor
+ 2218              		.thumb
+ 2219              		.thumb_func
+ 2221              	registerNewNeighbor:
+ 2222              	.LFB18:
+ 540:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 541:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** //=========================== private =========================================
+ 542:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 543:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** void registerNewNeighbor(open_addr_t* address,
+ 544:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                          int8_t       rssi,
+ 545:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                          asn_t*       asnTimestamp,
+ 546:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                          bool         joinPrioPresent,
+ 547:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                          uint8_t      joinPrio) {
+ 2223              		.loc 1 547 0
+ 2224              		.cfi_startproc
+ 2225              		@ args = 4, pretend = 0, frame = 24
+ 2226              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2227 0d8c B0B5     		push	{r4, r5, r7, lr}
+ 2228              		.cfi_def_cfa_offset 16
+ 2229              		.cfi_offset 4, -16
+ 2230              		.cfi_offset 5, -12
+ 2231              		.cfi_offset 7, -8
+ 2232              		.cfi_offset 14, -4
+ 2233 0d8e 86B0     		sub	sp, sp, #24
+ 2234              		.cfi_def_cfa_offset 40
+ 2235 0d90 00AF     		add	r7, sp, #0
+ 2236              		.cfi_def_cfa_register 7
+ 2237 0d92 F860     		str	r0, [r7, #12]
+ 2238 0d94 7A60     		str	r2, [r7, #4]
+ 2239 0d96 0A46     		mov	r2, r1
+ 2240 0d98 FA72     		strb	r2, [r7, #11]
+ 2241 0d9a BB72     		strb	r3, [r7, #10]
+ 548:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    uint8_t  i;
+ 549:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    // filter errors
+ 550:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    if (address->type!=ADDR_64B) {
+ 2242              		.loc 1 550 0
+ 2243 0d9c FB68     		ldr	r3, [r7, #12]
+ 2244 0d9e 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 2245 0da0 022B     		cmp	r3, #2
+ 2246 0da2 08D0     		beq	.L105
+ 551:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       openserial_printCritical(COMPONENT_NEIGHBORS,ERR_WRONG_ADDR_TYPE,
+ 552:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                             (errorparameter_t)address->type,
+ 2247              		.loc 1 552 0
+ 2248 0da4 FB68     		ldr	r3, [r7, #12]
+ 2249 0da6 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 551:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       openserial_printCritical(COMPONENT_NEIGHBORS,ERR_WRONG_ADDR_TYPE,
+ 2250              		.loc 1 551 0
+ 2251 0da8 0D20     		movs	r0, #13
+ 2252 0daa 3121     		movs	r1, #49
+ 2253 0dac 1A46     		mov	r2, r3
+ 2254 0dae 0223     		movs	r3, #2
+ 2255 0db0 FFF7FEFF 		bl	openserial_printCritical
+ 553:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                             (errorparameter_t)2);
+ 554:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       return;
+ 2256              		.loc 1 554 0
+ 2257 0db4 DDE0     		b	.L104
+ 2258              	.L105:
+ 555:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    }
+ 556:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    // add this neighbor
+ 557:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    if (isNeighbor(address)==FALSE) {
+ 2259              		.loc 1 557 0
+ 2260 0db6 F868     		ldr	r0, [r7, #12]
+ 2261 0db8 FFF7FEFF 		bl	isNeighbor
+ 2262 0dbc 0346     		mov	r3, r0
+ 2263 0dbe 83F00103 		eor	r3, r3, #1
+ 2264 0dc2 DBB2     		uxtb	r3, r3
+ 2265 0dc4 002B     		cmp	r3, #0
+ 2266 0dc6 00F0D480 		beq	.L104
+ 558:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       i=0;
+ 2267              		.loc 1 558 0
+ 2268 0dca 0023     		movs	r3, #0
+ 2269 0dcc FB75     		strb	r3, [r7, #23]
+ 559:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       while(i<MAXNUMNEIGHBORS) {
+ 2270              		.loc 1 559 0
+ 2271 0dce C2E0     		b	.L107
+ 2272              	.L111:
+ 560:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          if (neighbors_vars.neighbors[i].used==FALSE) {
+ 2273              		.loc 1 560 0
+ 2274 0dd0 FA7D     		ldrb	r2, [r7, #23]	@ zero_extendqisi2
+ 2275 0dd2 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 2276 0dd6 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 2277 0dda 1346     		mov	r3, r2
+ 2278 0ddc 9B00     		lsls	r3, r3, #2
+ 2279 0dde 1344     		add	r3, r3, r2
+ 2280 0de0 DA00     		lsls	r2, r3, #3
+ 2281 0de2 D21A     		subs	r2, r2, r3
+ 2282 0de4 8B18     		adds	r3, r1, r2
+ 2283 0de6 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 2284 0de8 83F00103 		eor	r3, r3, #1
+ 2285 0dec DBB2     		uxtb	r3, r3
+ 2286 0dee 002B     		cmp	r3, #0
+ 2287 0df0 00F0AE80 		beq	.L108
+ 561:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             // add this neighbor
+ 562:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             neighbors_vars.neighbors[i].used                   = TRUE;
+ 2288              		.loc 1 562 0
+ 2289 0df4 FA7D     		ldrb	r2, [r7, #23]	@ zero_extendqisi2
+ 2290 0df6 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 2291 0dfa C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 2292 0dfe 1346     		mov	r3, r2
+ 2293 0e00 9B00     		lsls	r3, r3, #2
+ 2294 0e02 1344     		add	r3, r3, r2
+ 2295 0e04 DA00     		lsls	r2, r3, #3
+ 2296 0e06 D21A     		subs	r2, r2, r3
+ 2297 0e08 8B18     		adds	r3, r1, r2
+ 2298 0e0a 0122     		movs	r2, #1
+ 2299 0e0c 1A70     		strb	r2, [r3]
+ 563:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             // neighbors_vars.neighbors[i].stableNeighbor         = FALSE;
+ 564:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             // Note: all new neighbors are consider stable
+ 565:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             neighbors_vars.neighbors[i].stableNeighbor         = TRUE;
+ 2300              		.loc 1 565 0
+ 2301 0e0e FA7D     		ldrb	r2, [r7, #23]	@ zero_extendqisi2
+ 2302 0e10 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 2303 0e14 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 2304 0e18 1346     		mov	r3, r2
+ 2305 0e1a 9B00     		lsls	r3, r3, #2
+ 2306 0e1c 1344     		add	r3, r3, r2
+ 2307 0e1e DA00     		lsls	r2, r3, #3
+ 2308 0e20 D21A     		subs	r2, r2, r3
+ 2309 0e22 8B18     		adds	r3, r1, r2
+ 2310 0e24 0122     		movs	r2, #1
+ 2311 0e26 9A70     		strb	r2, [r3, #2]
+ 566:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             neighbors_vars.neighbors[i].switchStabilityCounter = 0;
+ 2312              		.loc 1 566 0
+ 2313 0e28 FA7D     		ldrb	r2, [r7, #23]	@ zero_extendqisi2
+ 2314 0e2a 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 2315 0e2e C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 2316 0e32 1346     		mov	r3, r2
+ 2317 0e34 9B00     		lsls	r3, r3, #2
+ 2318 0e36 1344     		add	r3, r3, r2
+ 2319 0e38 DA00     		lsls	r2, r3, #3
+ 2320 0e3a D21A     		subs	r2, r2, r3
+ 2321 0e3c 8B18     		adds	r3, r1, r2
+ 2322 0e3e 0022     		movs	r2, #0
+ 2323 0e40 DA70     		strb	r2, [r3, #3]
+ 567:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             memcpy(&neighbors_vars.neighbors[i].addr_64b,address,sizeof(open_addr_t));
+ 2324              		.loc 1 567 0
+ 2325 0e42 FA7D     		ldrb	r2, [r7, #23]	@ zero_extendqisi2
+ 2326 0e44 1346     		mov	r3, r2
+ 2327 0e46 9B00     		lsls	r3, r3, #2
+ 2328 0e48 1344     		add	r3, r3, r2
+ 2329 0e4a DA00     		lsls	r2, r3, #3
+ 2330 0e4c D21A     		subs	r2, r2, r3
+ 2331 0e4e 40F20003 		movw	r3, #:lower16:neighbors_vars
+ 2332 0e52 C0F20003 		movt	r3, #:upper16:neighbors_vars
+ 2333 0e56 1344     		add	r3, r3, r2
+ 2334 0e58 0433     		adds	r3, r3, #4
+ 2335 0e5a FA68     		ldr	r2, [r7, #12]
+ 2336 0e5c 1568     		ldr	r5, [r2]	@ unaligned
+ 2337 0e5e 5468     		ldr	r4, [r2, #4]	@ unaligned
+ 2338 0e60 9068     		ldr	r0, [r2, #8]	@ unaligned
+ 2339 0e62 D168     		ldr	r1, [r2, #12]	@ unaligned
+ 2340 0e64 1D60     		str	r5, [r3]	@ unaligned
+ 2341 0e66 5C60     		str	r4, [r3, #4]	@ unaligned
+ 2342 0e68 9860     		str	r0, [r3, #8]	@ unaligned
+ 2343 0e6a D960     		str	r1, [r3, #12]	@ unaligned
+ 2344 0e6c 127C     		ldrb	r2, [r2, #16]
+ 2345 0e6e 1A74     		strb	r2, [r3, #16]
+ 568:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             neighbors_vars.neighbors[i].DAGrank                = DEFAULTDAGRANK;
+ 2346              		.loc 1 568 0
+ 2347 0e70 FA7D     		ldrb	r2, [r7, #23]	@ zero_extendqisi2
+ 2348 0e72 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 2349 0e76 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 2350 0e7a 1346     		mov	r3, r2
+ 2351 0e7c 9B00     		lsls	r3, r3, #2
+ 2352 0e7e 1344     		add	r3, r3, r2
+ 2353 0e80 DA00     		lsls	r2, r3, #3
+ 2354 0e82 D21A     		subs	r2, r2, r3
+ 2355 0e84 8B18     		adds	r3, r1, r2
+ 2356 0e86 1033     		adds	r3, r3, #16
+ 2357 0e88 4FF0FF32 		mov	r2, #-1
+ 2358 0e8c 5A71     		strb	r2, [r3, #5]
+ 2359 0e8e 4FF0FF32 		mov	r2, #-1
+ 2360 0e92 9A71     		strb	r2, [r3, #6]
+ 569:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             // since we don't have a DAG rank at this point, no need to call for routing table upda
+ 570:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             neighbors_vars.neighbors[i].rssi                   = rssi;
+ 2361              		.loc 1 570 0
+ 2362 0e94 FA7D     		ldrb	r2, [r7, #23]	@ zero_extendqisi2
+ 2363 0e96 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 2364 0e9a C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 2365 0e9e 1346     		mov	r3, r2
+ 2366 0ea0 9B00     		lsls	r3, r3, #2
+ 2367 0ea2 1344     		add	r3, r3, r2
+ 2368 0ea4 DA00     		lsls	r2, r3, #3
+ 2369 0ea6 D21A     		subs	r2, r2, r3
+ 2370 0ea8 8B18     		adds	r3, r1, r2
+ 2371 0eaa 1033     		adds	r3, r3, #16
+ 2372 0eac FA7A     		ldrb	r2, [r7, #11]
+ 2373 0eae DA71     		strb	r2, [r3, #7]
+ 571:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             neighbors_vars.neighbors[i].numRx                  = 1;
+ 2374              		.loc 1 571 0
+ 2375 0eb0 FA7D     		ldrb	r2, [r7, #23]	@ zero_extendqisi2
+ 2376 0eb2 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 2377 0eb6 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 2378 0eba 1346     		mov	r3, r2
+ 2379 0ebc 9B00     		lsls	r3, r3, #2
+ 2380 0ebe 1344     		add	r3, r3, r2
+ 2381 0ec0 DA00     		lsls	r2, r3, #3
+ 2382 0ec2 D21A     		subs	r2, r2, r3
+ 2383 0ec4 8B18     		adds	r3, r1, r2
+ 2384 0ec6 1833     		adds	r3, r3, #24
+ 2385 0ec8 0122     		movs	r2, #1
+ 2386 0eca 1A70     		strb	r2, [r3]
+ 572:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             neighbors_vars.neighbors[i].numTx                  = 0;
+ 2387              		.loc 1 572 0
+ 2388 0ecc FA7D     		ldrb	r2, [r7, #23]	@ zero_extendqisi2
+ 2389 0ece 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 2390 0ed2 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 2391 0ed6 1346     		mov	r3, r2
+ 2392 0ed8 9B00     		lsls	r3, r3, #2
+ 2393 0eda 1344     		add	r3, r3, r2
+ 2394 0edc DA00     		lsls	r2, r3, #3
+ 2395 0ede D21A     		subs	r2, r2, r3
+ 2396 0ee0 8B18     		adds	r3, r1, r2
+ 2397 0ee2 1833     		adds	r3, r3, #24
+ 2398 0ee4 0022     		movs	r2, #0
+ 2399 0ee6 5A70     		strb	r2, [r3, #1]
+ 573:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             neighbors_vars.neighbors[i].numTxACK               = 0;
+ 2400              		.loc 1 573 0
+ 2401 0ee8 FA7D     		ldrb	r2, [r7, #23]	@ zero_extendqisi2
+ 2402 0eea 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 2403 0eee C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 2404 0ef2 1346     		mov	r3, r2
+ 2405 0ef4 9B00     		lsls	r3, r3, #2
+ 2406 0ef6 1344     		add	r3, r3, r2
+ 2407 0ef8 DA00     		lsls	r2, r3, #3
+ 2408 0efa D21A     		subs	r2, r2, r3
+ 2409 0efc 8B18     		adds	r3, r1, r2
+ 2410 0efe 1833     		adds	r3, r3, #24
+ 2411 0f00 0022     		movs	r2, #0
+ 2412 0f02 9A70     		strb	r2, [r3, #2]
+ 574:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             memcpy(&neighbors_vars.neighbors[i].asn,asnTimestamp,sizeof(asn_t));
+ 2413              		.loc 1 574 0
+ 2414 0f04 FA7D     		ldrb	r2, [r7, #23]	@ zero_extendqisi2
+ 2415 0f06 1346     		mov	r3, r2
+ 2416 0f08 9B00     		lsls	r3, r3, #2
+ 2417 0f0a 1344     		add	r3, r3, r2
+ 2418 0f0c DA00     		lsls	r2, r3, #3
+ 2419 0f0e D21A     		subs	r2, r2, r3
+ 2420 0f10 1832     		adds	r2, r2, #24
+ 2421 0f12 40F20003 		movw	r3, #:lower16:neighbors_vars
+ 2422 0f16 C0F20003 		movt	r3, #:upper16:neighbors_vars
+ 2423 0f1a 1344     		add	r3, r3, r2
+ 2424 0f1c 0433     		adds	r3, r3, #4
+ 2425 0f1e 7A68     		ldr	r2, [r7, #4]
+ 2426 0f20 1168     		ldr	r1, [r2]	@ unaligned
+ 2427 0f22 1960     		str	r1, [r3]	@ unaligned
+ 2428 0f24 1279     		ldrb	r2, [r2, #4]
+ 2429 0f26 1A71     		strb	r2, [r3, #4]
+ 575:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             //update jp
+ 576:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             if (joinPrioPresent==TRUE){
+ 2430              		.loc 1 576 0
+ 2431 0f28 BB7A     		ldrb	r3, [r7, #10]	@ zero_extendqisi2
+ 2432 0f2a 002B     		cmp	r3, #0
+ 2433 0f2c 0FD0     		beq	.L109
+ 577:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                neighbors_vars.neighbors[i].joinPrio=joinPrio;
+ 2434              		.loc 1 577 0
+ 2435 0f2e FA7D     		ldrb	r2, [r7, #23]	@ zero_extendqisi2
+ 2436 0f30 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 2437 0f34 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 2438 0f38 1346     		mov	r3, r2
+ 2439 0f3a 9B00     		lsls	r3, r3, #2
+ 2440 0f3c 1344     		add	r3, r3, r2
+ 2441 0f3e DA00     		lsls	r2, r3, #3
+ 2442 0f40 D21A     		subs	r2, r2, r3
+ 2443 0f42 8B18     		adds	r3, r1, r2
+ 2444 0f44 2033     		adds	r3, r3, #32
+ 2445 0f46 97F82820 		ldrb	r2, [r7, #40]
+ 2446 0f4a 5A70     		strb	r2, [r3, #1]
+ 578:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             }
+ 579:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             
+ 580:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****             break;
+ 2447              		.loc 1 580 0
+ 2448 0f4c 07E0     		b	.L110
+ 2449              	.L109:
+ 2450 0f4e 06E0     		b	.L110
+ 2451              	.L108:
+ 581:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          }
+ 582:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          i++;
+ 2452              		.loc 1 582 0
+ 2453 0f50 FB7D     		ldrb	r3, [r7, #23]	@ zero_extendqisi2
+ 2454 0f52 0133     		adds	r3, r3, #1
+ 2455 0f54 FB75     		strb	r3, [r7, #23]
+ 2456              	.L107:
+ 559:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          if (neighbors_vars.neighbors[i].used==FALSE) {
+ 2457              		.loc 1 559 0 discriminator 1
+ 2458 0f56 FB7D     		ldrb	r3, [r7, #23]	@ zero_extendqisi2
+ 2459 0f58 092B     		cmp	r3, #9
+ 2460 0f5a 7FF639AF 		bls	.L111
+ 2461              	.L110:
+ 583:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       }
+ 584:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       if (i==MAXNUMNEIGHBORS) {
+ 2462              		.loc 1 584 0
+ 2463 0f5e FB7D     		ldrb	r3, [r7, #23]	@ zero_extendqisi2
+ 2464 0f60 0A2B     		cmp	r3, #10
+ 2465 0f62 06D1     		bne	.L104
+ 585:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          openserial_printError(COMPONENT_NEIGHBORS,ERR_NEIGHBORS_FULL,
+ 2466              		.loc 1 585 0
+ 2467 0f64 0D20     		movs	r0, #13
+ 2468 0f66 1421     		movs	r1, #20
+ 2469 0f68 0A22     		movs	r2, #10
+ 2470 0f6a 0023     		movs	r3, #0
+ 2471 0f6c FFF7FEFF 		bl	openserial_printError
+ 586:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                                (errorparameter_t)MAXNUMNEIGHBORS,
+ 587:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                                (errorparameter_t)0);
+ 588:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          return;
+ 2472              		.loc 1 588 0
+ 2473 0f70 00BF     		nop
+ 2474              	.L104:
+ 589:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       }
+ 590:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    }
+ 591:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** }
+ 2475              		.loc 1 591 0
+ 2476 0f72 1837     		adds	r7, r7, #24
+ 2477 0f74 BD46     		mov	sp, r7
+ 2478              		@ sp needed
+ 2479 0f76 B0BD     		pop	{r4, r5, r7, pc}
+ 2480              		.cfi_endproc
+ 2481              	.LFE18:
+ 2483              		.align	2
+ 2484              		.global	isNeighbor
+ 2485              		.thumb
+ 2486              		.thumb_func
+ 2488              	isNeighbor:
+ 2489              	.LFB19:
+ 592:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 593:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** bool isNeighbor(open_addr_t* neighbor) {
+ 2490              		.loc 1 593 0
+ 2491              		.cfi_startproc
+ 2492              		@ args = 0, pretend = 0, frame = 16
+ 2493              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2494 0f78 80B5     		push	{r7, lr}
+ 2495              		.cfi_def_cfa_offset 8
+ 2496              		.cfi_offset 7, -8
+ 2497              		.cfi_offset 14, -4
+ 2498 0f7a 84B0     		sub	sp, sp, #16
+ 2499              		.cfi_def_cfa_offset 24
+ 2500 0f7c 00AF     		add	r7, sp, #0
+ 2501              		.cfi_def_cfa_register 7
+ 2502 0f7e 7860     		str	r0, [r7, #4]
+ 594:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    uint8_t i=0;
+ 2503              		.loc 1 594 0
+ 2504 0f80 0023     		movs	r3, #0
+ 2505 0f82 FB73     		strb	r3, [r7, #15]
+ 595:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    for (i=0;i<MAXNUMNEIGHBORS;i++) {
+ 2506              		.loc 1 595 0
+ 2507 0f84 0023     		movs	r3, #0
+ 2508 0f86 FB73     		strb	r3, [r7, #15]
+ 2509 0f88 0CE0     		b	.L113
+ 2510              	.L116:
+ 596:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       if (isThisRowMatching(neighbor,i)) {
+ 2511              		.loc 1 596 0
+ 2512 0f8a FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 2513 0f8c 7868     		ldr	r0, [r7, #4]
+ 2514 0f8e 1946     		mov	r1, r3
+ 2515 0f90 FFF7FEFF 		bl	isThisRowMatching
+ 2516 0f94 0346     		mov	r3, r0
+ 2517 0f96 002B     		cmp	r3, #0
+ 2518 0f98 01D0     		beq	.L114
+ 597:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          return TRUE;
+ 2519              		.loc 1 597 0
+ 2520 0f9a 0123     		movs	r3, #1
+ 2521 0f9c 06E0     		b	.L115
+ 2522              	.L114:
+ 595:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    for (i=0;i<MAXNUMNEIGHBORS;i++) {
+ 2523              		.loc 1 595 0
+ 2524 0f9e FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 2525 0fa0 0133     		adds	r3, r3, #1
+ 2526 0fa2 FB73     		strb	r3, [r7, #15]
+ 2527              	.L113:
+ 595:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    for (i=0;i<MAXNUMNEIGHBORS;i++) {
+ 2528              		.loc 1 595 0 is_stmt 0 discriminator 1
+ 2529 0fa4 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 2530 0fa6 092B     		cmp	r3, #9
+ 2531 0fa8 EFD9     		bls	.L116
+ 598:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       }
+ 599:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    }
+ 600:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    return FALSE;
+ 2532              		.loc 1 600 0 is_stmt 1
+ 2533 0faa 0023     		movs	r3, #0
+ 2534              	.L115:
+ 601:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** }
+ 2535              		.loc 1 601 0
+ 2536 0fac 1846     		mov	r0, r3
+ 2537 0fae 1037     		adds	r7, r7, #16
+ 2538 0fb0 BD46     		mov	sp, r7
+ 2539              		@ sp needed
+ 2540 0fb2 80BD     		pop	{r7, pc}
+ 2541              		.cfi_endproc
+ 2542              	.LFE19:
+ 2544              		.align	2
+ 2545              		.global	removeNeighbor
+ 2546              		.thumb
+ 2547              		.thumb_func
+ 2549              	removeNeighbor:
+ 2550              	.LFB20:
+ 602:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 603:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** void removeNeighbor(uint8_t neighborIndex) {
+ 2551              		.loc 1 603 0
+ 2552              		.cfi_startproc
+ 2553              		@ args = 0, pretend = 0, frame = 8
+ 2554              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2555              		@ link register save eliminated.
+ 2556 0fb4 80B4     		push	{r7}
+ 2557              		.cfi_def_cfa_offset 4
+ 2558              		.cfi_offset 7, -4
+ 2559 0fb6 83B0     		sub	sp, sp, #12
+ 2560              		.cfi_def_cfa_offset 16
+ 2561 0fb8 00AF     		add	r7, sp, #0
+ 2562              		.cfi_def_cfa_register 7
+ 2563 0fba 0346     		mov	r3, r0
+ 2564 0fbc FB71     		strb	r3, [r7, #7]
+ 604:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    neighbors_vars.neighbors[neighborIndex].used                      = FALSE;
+ 2565              		.loc 1 604 0
+ 2566 0fbe FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 2567 0fc0 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 2568 0fc4 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 2569 0fc8 1346     		mov	r3, r2
+ 2570 0fca 9B00     		lsls	r3, r3, #2
+ 2571 0fcc 1344     		add	r3, r3, r2
+ 2572 0fce DA00     		lsls	r2, r3, #3
+ 2573 0fd0 D21A     		subs	r2, r2, r3
+ 2574 0fd2 8B18     		adds	r3, r1, r2
+ 2575 0fd4 0022     		movs	r2, #0
+ 2576 0fd6 1A70     		strb	r2, [r3]
+ 605:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    neighbors_vars.neighbors[neighborIndex].parentPreference          = 0;
+ 2577              		.loc 1 605 0
+ 2578 0fd8 FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 2579 0fda 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 2580 0fde C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 2581 0fe2 1346     		mov	r3, r2
+ 2582 0fe4 9B00     		lsls	r3, r3, #2
+ 2583 0fe6 1344     		add	r3, r3, r2
+ 2584 0fe8 DA00     		lsls	r2, r3, #3
+ 2585 0fea D21A     		subs	r2, r2, r3
+ 2586 0fec 8B18     		adds	r3, r1, r2
+ 2587 0fee 0022     		movs	r2, #0
+ 2588 0ff0 5A70     		strb	r2, [r3, #1]
+ 606:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    neighbors_vars.neighbors[neighborIndex].stableNeighbor            = FALSE;
+ 2589              		.loc 1 606 0
+ 2590 0ff2 FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 2591 0ff4 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 2592 0ff8 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 2593 0ffc 1346     		mov	r3, r2
+ 2594 0ffe 9B00     		lsls	r3, r3, #2
+ 2595 1000 1344     		add	r3, r3, r2
+ 2596 1002 DA00     		lsls	r2, r3, #3
+ 2597 1004 D21A     		subs	r2, r2, r3
+ 2598 1006 8B18     		adds	r3, r1, r2
+ 2599 1008 0022     		movs	r2, #0
+ 2600 100a 9A70     		strb	r2, [r3, #2]
+ 607:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    neighbors_vars.neighbors[neighborIndex].switchStabilityCounter    = 0;
+ 2601              		.loc 1 607 0
+ 2602 100c FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 2603 100e 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 2604 1012 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 2605 1016 1346     		mov	r3, r2
+ 2606 1018 9B00     		lsls	r3, r3, #2
+ 2607 101a 1344     		add	r3, r3, r2
+ 2608 101c DA00     		lsls	r2, r3, #3
+ 2609 101e D21A     		subs	r2, r2, r3
+ 2610 1020 8B18     		adds	r3, r1, r2
+ 2611 1022 0022     		movs	r2, #0
+ 2612 1024 DA70     		strb	r2, [r3, #3]
+ 608:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    //neighbors_vars.neighbors[neighborIndex].addr_16b.type           = ADDR_NONE; // to save RAM
+ 609:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    neighbors_vars.neighbors[neighborIndex].addr_64b.type             = ADDR_NONE;
+ 2613              		.loc 1 609 0
+ 2614 1026 FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 2615 1028 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 2616 102c C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 2617 1030 1346     		mov	r3, r2
+ 2618 1032 9B00     		lsls	r3, r3, #2
+ 2619 1034 1344     		add	r3, r3, r2
+ 2620 1036 DA00     		lsls	r2, r3, #3
+ 2621 1038 D21A     		subs	r2, r2, r3
+ 2622 103a 8B18     		adds	r3, r1, r2
+ 2623 103c 0022     		movs	r2, #0
+ 2624 103e 1A71     		strb	r2, [r3, #4]
+ 610:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    //neighbors_vars.neighbors[neighborIndex].addr_128b.type          = ADDR_NONE; // to save RAM
+ 611:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    neighbors_vars.neighbors[neighborIndex].DAGrank                   = DEFAULTDAGRANK;
+ 2625              		.loc 1 611 0
+ 2626 1040 FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 2627 1042 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 2628 1046 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 2629 104a 1346     		mov	r3, r2
+ 2630 104c 9B00     		lsls	r3, r3, #2
+ 2631 104e 1344     		add	r3, r3, r2
+ 2632 1050 DA00     		lsls	r2, r3, #3
+ 2633 1052 D21A     		subs	r2, r2, r3
+ 2634 1054 8B18     		adds	r3, r1, r2
+ 2635 1056 1033     		adds	r3, r3, #16
+ 2636 1058 4FF0FF32 		mov	r2, #-1
+ 2637 105c 5A71     		strb	r2, [r3, #5]
+ 2638 105e 4FF0FF32 		mov	r2, #-1
+ 2639 1062 9A71     		strb	r2, [r3, #6]
+ 612:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    neighbors_vars.neighbors[neighborIndex].rssi                      = 0;
+ 2640              		.loc 1 612 0
+ 2641 1064 FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 2642 1066 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 2643 106a C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 2644 106e 1346     		mov	r3, r2
+ 2645 1070 9B00     		lsls	r3, r3, #2
+ 2646 1072 1344     		add	r3, r3, r2
+ 2647 1074 DA00     		lsls	r2, r3, #3
+ 2648 1076 D21A     		subs	r2, r2, r3
+ 2649 1078 8B18     		adds	r3, r1, r2
+ 2650 107a 1033     		adds	r3, r3, #16
+ 2651 107c 0022     		movs	r2, #0
+ 2652 107e DA71     		strb	r2, [r3, #7]
+ 613:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    neighbors_vars.neighbors[neighborIndex].numRx                     = 0;
+ 2653              		.loc 1 613 0
+ 2654 1080 FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 2655 1082 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 2656 1086 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 2657 108a 1346     		mov	r3, r2
+ 2658 108c 9B00     		lsls	r3, r3, #2
+ 2659 108e 1344     		add	r3, r3, r2
+ 2660 1090 DA00     		lsls	r2, r3, #3
+ 2661 1092 D21A     		subs	r2, r2, r3
+ 2662 1094 8B18     		adds	r3, r1, r2
+ 2663 1096 1833     		adds	r3, r3, #24
+ 2664 1098 0022     		movs	r2, #0
+ 2665 109a 1A70     		strb	r2, [r3]
+ 614:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    neighbors_vars.neighbors[neighborIndex].numTx                     = 0;
+ 2666              		.loc 1 614 0
+ 2667 109c FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 2668 109e 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 2669 10a2 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 2670 10a6 1346     		mov	r3, r2
+ 2671 10a8 9B00     		lsls	r3, r3, #2
+ 2672 10aa 1344     		add	r3, r3, r2
+ 2673 10ac DA00     		lsls	r2, r3, #3
+ 2674 10ae D21A     		subs	r2, r2, r3
+ 2675 10b0 8B18     		adds	r3, r1, r2
+ 2676 10b2 1833     		adds	r3, r3, #24
+ 2677 10b4 0022     		movs	r2, #0
+ 2678 10b6 5A70     		strb	r2, [r3, #1]
+ 615:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    neighbors_vars.neighbors[neighborIndex].numTxACK                  = 0;
+ 2679              		.loc 1 615 0
+ 2680 10b8 FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 2681 10ba 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 2682 10be C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 2683 10c2 1346     		mov	r3, r2
+ 2684 10c4 9B00     		lsls	r3, r3, #2
+ 2685 10c6 1344     		add	r3, r3, r2
+ 2686 10c8 DA00     		lsls	r2, r3, #3
+ 2687 10ca D21A     		subs	r2, r2, r3
+ 2688 10cc 8B18     		adds	r3, r1, r2
+ 2689 10ce 1833     		adds	r3, r3, #24
+ 2690 10d0 0022     		movs	r2, #0
+ 2691 10d2 9A70     		strb	r2, [r3, #2]
+ 616:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    neighbors_vars.neighbors[neighborIndex].asn.bytes0and1            = 0;
+ 2692              		.loc 1 616 0
+ 2693 10d4 FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 2694 10d6 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 2695 10da C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 2696 10de 1346     		mov	r3, r2
+ 2697 10e0 9B00     		lsls	r3, r3, #2
+ 2698 10e2 1344     		add	r3, r3, r2
+ 2699 10e4 DA00     		lsls	r2, r3, #3
+ 2700 10e6 D21A     		subs	r2, r2, r3
+ 2701 10e8 8B18     		adds	r3, r1, r2
+ 2702 10ea 1833     		adds	r3, r3, #24
+ 2703 10ec 0022     		movs	r2, #0
+ 2704 10ee DA71     		strb	r2, [r3, #7]
+ 2705 10f0 0022     		movs	r2, #0
+ 2706 10f2 1A72     		strb	r2, [r3, #8]
+ 617:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    neighbors_vars.neighbors[neighborIndex].asn.bytes2and3            = 0;
+ 2707              		.loc 1 617 0
+ 2708 10f4 FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 2709 10f6 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 2710 10fa C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 2711 10fe 1346     		mov	r3, r2
+ 2712 1100 9B00     		lsls	r3, r3, #2
+ 2713 1102 1344     		add	r3, r3, r2
+ 2714 1104 DA00     		lsls	r2, r3, #3
+ 2715 1106 D21A     		subs	r2, r2, r3
+ 2716 1108 8B18     		adds	r3, r1, r2
+ 2717 110a 1833     		adds	r3, r3, #24
+ 2718 110c 0022     		movs	r2, #0
+ 2719 110e 5A71     		strb	r2, [r3, #5]
+ 2720 1110 0022     		movs	r2, #0
+ 2721 1112 9A71     		strb	r2, [r3, #6]
+ 618:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    neighbors_vars.neighbors[neighborIndex].asn.byte4                 = 0;
+ 2722              		.loc 1 618 0
+ 2723 1114 FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 2724 1116 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 2725 111a C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 2726 111e 1346     		mov	r3, r2
+ 2727 1120 9B00     		lsls	r3, r3, #2
+ 2728 1122 1344     		add	r3, r3, r2
+ 2729 1124 DA00     		lsls	r2, r3, #3
+ 2730 1126 D21A     		subs	r2, r2, r3
+ 2731 1128 8B18     		adds	r3, r1, r2
+ 2732 112a 1833     		adds	r3, r3, #24
+ 2733 112c 0022     		movs	r2, #0
+ 2734 112e 1A71     		strb	r2, [r3, #4]
+ 619:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    neighbors_vars.neighbors[neighborIndex].f6PNORES                  = FALSE;
+ 2735              		.loc 1 619 0
+ 2736 1130 FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 2737 1132 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 2738 1136 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 2739 113a 1346     		mov	r3, r2
+ 2740 113c 9B00     		lsls	r3, r3, #2
+ 2741 113e 1344     		add	r3, r3, r2
+ 2742 1140 DA00     		lsls	r2, r3, #3
+ 2743 1142 D21A     		subs	r2, r2, r3
+ 2744 1144 8B18     		adds	r3, r1, r2
+ 2745 1146 2033     		adds	r3, r3, #32
+ 2746 1148 0022     		movs	r2, #0
+ 2747 114a 9A70     		strb	r2, [r3, #2]
+ 620:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** }
+ 2748              		.loc 1 620 0
+ 2749 114c 0C37     		adds	r7, r7, #12
+ 2750 114e BD46     		mov	sp, r7
+ 2751              		@ sp needed
+ 2752 1150 5DF8047B 		ldr	r7, [sp], #4
+ 2753 1154 7047     		bx	lr
+ 2754              		.cfi_endproc
+ 2755              	.LFE20:
+ 2757 1156 00BF     		.align	2
+ 2758              		.global	isThisRowMatching
+ 2759              		.thumb
+ 2760              		.thumb_func
+ 2762              	isThisRowMatching:
+ 2763              	.LFB21:
+ 621:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 622:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** //=========================== helpers =========================================
+ 623:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** 
+ 624:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** bool isThisRowMatching(open_addr_t* address, uint8_t rowNumber) {
+ 2764              		.loc 1 624 0
+ 2765              		.cfi_startproc
+ 2766              		@ args = 0, pretend = 0, frame = 8
+ 2767              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2768 1158 80B5     		push	{r7, lr}
+ 2769              		.cfi_def_cfa_offset 8
+ 2770              		.cfi_offset 7, -8
+ 2771              		.cfi_offset 14, -4
+ 2772 115a 82B0     		sub	sp, sp, #8
+ 2773              		.cfi_def_cfa_offset 16
+ 2774 115c 00AF     		add	r7, sp, #0
+ 2775              		.cfi_def_cfa_register 7
+ 2776 115e 7860     		str	r0, [r7, #4]
+ 2777 1160 0B46     		mov	r3, r1
+ 2778 1162 FB70     		strb	r3, [r7, #3]
+ 625:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    switch (address->type) {
+ 2779              		.loc 1 625 0
+ 2780 1164 7B68     		ldr	r3, [r7, #4]
+ 2781 1166 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 2782 1168 022B     		cmp	r3, #2
+ 2783 116a 27D1     		bne	.L124
+ 626:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       case ADDR_64B:
+ 627:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          return neighbors_vars.neighbors[rowNumber].used &&
+ 2784              		.loc 1 627 0
+ 2785 116c FA78     		ldrb	r2, [r7, #3]	@ zero_extendqisi2
+ 2786 116e 40F20001 		movw	r1, #:lower16:neighbors_vars
+ 2787 1172 C0F20001 		movt	r1, #:upper16:neighbors_vars
+ 2788 1176 1346     		mov	r3, r2
+ 2789 1178 9B00     		lsls	r3, r3, #2
+ 2790 117a 1344     		add	r3, r3, r2
+ 2791 117c DA00     		lsls	r2, r3, #3
+ 2792 117e D21A     		subs	r2, r2, r3
+ 2793 1180 8B18     		adds	r3, r1, r2
+ 2794 1182 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 2795 1184 002B     		cmp	r3, #0
+ 2796 1186 14D0     		beq	.L121
+ 628:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                 packetfunctions_sameAddress(address,&neighbors_vars.neighbors[rowNumber].addr_64b);
+ 2797              		.loc 1 628 0 discriminator 1
+ 2798 1188 FA78     		ldrb	r2, [r7, #3]	@ zero_extendqisi2
+ 2799 118a 1346     		mov	r3, r2
+ 2800 118c 9B00     		lsls	r3, r3, #2
+ 2801 118e 1344     		add	r3, r3, r2
+ 2802 1190 DA00     		lsls	r2, r3, #3
+ 2803 1192 D21A     		subs	r2, r2, r3
+ 2804 1194 40F20003 		movw	r3, #:lower16:neighbors_vars
+ 2805 1198 C0F20003 		movt	r3, #:upper16:neighbors_vars
+ 2806 119c 1344     		add	r3, r3, r2
+ 2807 119e 0433     		adds	r3, r3, #4
+ 2808 11a0 7868     		ldr	r0, [r7, #4]
+ 2809 11a2 1946     		mov	r1, r3
+ 2810 11a4 FFF7FEFF 		bl	packetfunctions_sameAddress
+ 2811 11a8 0346     		mov	r3, r0
+ 627:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                 packetfunctions_sameAddress(address,&neighbors_vars.neighbors[rowNumber].addr_64b);
+ 2812              		.loc 1 627 0 discriminator 1
+ 2813 11aa 002B     		cmp	r3, #0
+ 2814 11ac 01D0     		beq	.L121
+ 627:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                 packetfunctions_sameAddress(address,&neighbors_vars.neighbors[rowNumber].addr_64b);
+ 2815              		.loc 1 627 0 is_stmt 0 discriminator 3
+ 2816 11ae 0123     		movs	r3, #1
+ 2817 11b0 00E0     		b	.L122
+ 2818              	.L121:
+ 627:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                 packetfunctions_sameAddress(address,&neighbors_vars.neighbors[rowNumber].addr_64b);
+ 2819              		.loc 1 627 0 discriminator 2
+ 2820 11b2 0023     		movs	r3, #0
+ 2821              	.L122:
+ 627:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                 packetfunctions_sameAddress(address,&neighbors_vars.neighbors[rowNumber].addr_64b);
+ 2822              		.loc 1 627 0 discriminator 4
+ 2823 11b4 03F00103 		and	r3, r3, #1
+ 2824 11b8 DBB2     		uxtb	r3, r3
+ 2825 11ba 08E0     		b	.L123
+ 2826              	.L124:
+ 629:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****       default:
+ 630:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          openserial_printCritical(COMPONENT_NEIGHBORS,ERR_WRONG_ADDR_TYPE,
+ 631:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                                (errorparameter_t)address->type,
+ 2827              		.loc 1 631 0 is_stmt 1
+ 2828 11bc 7B68     		ldr	r3, [r7, #4]
+ 2829 11be 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 630:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                                (errorparameter_t)address->type,
+ 2830              		.loc 1 630 0
+ 2831 11c0 0D20     		movs	r0, #13
+ 2832 11c2 3121     		movs	r1, #49
+ 2833 11c4 1A46     		mov	r2, r3
+ 2834 11c6 0323     		movs	r3, #3
+ 2835 11c8 FFF7FEFF 		bl	openserial_printCritical
+ 632:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****                                (errorparameter_t)3);
+ 633:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****          return FALSE;
+ 2836              		.loc 1 633 0
+ 2837 11cc 0023     		movs	r3, #0
+ 2838              	.L123:
+ 634:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c ****    }
+ 635:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.c **** }
+ 2839              		.loc 1 635 0
+ 2840 11ce 1846     		mov	r0, r3
+ 2841 11d0 0837     		adds	r7, r7, #8
+ 2842 11d2 BD46     		mov	sp, r7
+ 2843              		@ sp needed
+ 2844 11d4 80BD     		pop	{r7, pc}
+ 2845              		.cfi_endproc
+ 2846              	.LFE21:
+ 2848              	.Letext0:
+ 2849              		.file 2 "/usr/include/newlib/machine/_default_types.h"
+ 2850              		.file 3 "/usr/include/newlib/stdint.h"
+ 2851              		.file 4 "inc/opendefs.h"
+ 2852              		.file 5 "build/openmote-cc2538_armgcc/openstack/02b-MAChigh/neighbors.h"
+ 2853              		.file 6 "bsp/boards/openmote-cc2538/board_info.h"
+ 2854              		.file 7 "openstack/03b-IPv6/icmpv6rpl.h"
+ 2855              		.file 8 "openstack/02a-MAClow/IEEE802154E.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 neighbors.c
+     /tmp/ccHLgXFz.s:19     .rodata:0000000000000000 $d
+     /tmp/ccHLgXFz.s:22     .rodata:0000000000000000 rreg_uriquery
+     /tmp/ccHLgXFz.s:27     .rodata:0000000000000008 infoBoardname
+     /tmp/ccHLgXFz.s:32     .rodata:0000000000000010 infouCName
+     /tmp/ccHLgXFz.s:37     .rodata:0000000000000018 infoRadioName
+     /tmp/ccHLgXFz.s:42     .rodata:0000000000000024 infoStackName
+     /tmp/ccHLgXFz.s:47     .rodata:0000000000000030 all_routers_multicast
+     /tmp/ccHLgXFz.s:67     .rodata:0000000000000040 chTemplate_default
+     /tmp/ccHLgXFz.s:85     .bss:0000000000000000 $d
+     /tmp/ccHLgXFz.s:86     .bss:0000000000000000 neighbors_vars
+     /tmp/ccHLgXFz.s:89     .text:0000000000000000 $t
+     /tmp/ccHLgXFz.s:94     .text:0000000000000000 neighbors_init
+     /tmp/ccHLgXFz.s:123    .text:0000000000000018 neighbors_getNumNeighbors
+     /tmp/ccHLgXFz.s:189    .text:0000000000000064 neighbors_getNeighborRank
+     /tmp/ccHLgXFz.s:233    .text:0000000000000098 neighbors_getKANeighbor
+     /tmp/ccHLgXFz.s:323    .text:0000000000000124 neighbors_getNeighborNoResource
+     /tmp/ccHLgXFz.s:366    .text:0000000000000154 neighbors_isStableNeighbor
+     /tmp/ccHLgXFz.s:2762   .text:0000000000001158 isThisRowMatching
+     /tmp/ccHLgXFz.s:471    .text:00000000000001f8 neighbors_isStableNeighborByIndex
+     /tmp/ccHLgXFz.s:539    .text:0000000000000254 neighbors_isNeighborWithLowerDAGrank
+     /tmp/ccHLgXFz.s:612    .text:00000000000002b8 neighbors_isNeighborWithHigherDAGrank
+     /tmp/ccHLgXFz.s:685    .text:000000000000031c neighbors_indicateRx
+     /tmp/ccHLgXFz.s:2221   .text:0000000000000d8c registerNewNeighbor
+     /tmp/ccHLgXFz.s:1048   .text:00000000000005e4 neighbors_indicateTx
+     /tmp/ccHLgXFz.s:1287   .text:00000000000007a4 neighbors_getNeighborEui64
+     /tmp/ccHLgXFz.s:1377   .text:0000000000000824 neighbors_setNeighborRank
+     /tmp/ccHLgXFz.s:1422   .text:000000000000085c neighbors_setNeighborNoResource
+     /tmp/ccHLgXFz.s:1489   .text:00000000000008ac neighbors_setPreferredParent
+     /tmp/ccHLgXFz.s:1534   .text:00000000000008e0 neighbors_getLinkMetric
+     /tmp/ccHLgXFz.s:1638   .text:0000000000000988 neighbors_removeOld
+     /tmp/ccHLgXFz.s:2549   .text:0000000000000fb4 removeNeighbor
+     /tmp/ccHLgXFz.s:2123   .text:0000000000000cd8 debugPrint_neighbors
+     /tmp/ccHLgXFz.s:2488   .text:0000000000000f78 isNeighbor
+                     .debug_frame:0000000000000010 $d
+                           .group:0000000000000000 wm4.1.08074afb2ccc9da754fae8e3ee0f577b
+                           .group:0000000000000000 wm4.features.h.22.6a4ca7cd053637cc1d0db6c16f39b2d7
+                           .group:0000000000000000 wm4._default_types.h.15.8b2cb27e528498f8ff711db085d6e489
+                           .group:0000000000000000 wm4.stdint.h.20.796e373797e732130a803d4c0338fa1b
+                           .group:0000000000000000 wm4.toolchain_defs.h.2.e5fd326231d01413e5361944b26cde07
+                           .group:0000000000000000 wm4.newlib.h.8.fec018e441fee7bfa1923812ad010f97
+                           .group:0000000000000000 wm4.config.h.212.4163ef2871a828c674038d036b081cfd
+                           .group:0000000000000000 wm4._ansi.h.23.5644b60c990a4800b02a6e654e88f93a
+                           .group:0000000000000000 wm4.stddef.h.39.daafd3d79fe2f3a84d2d73d7d4e706f8
+                           .group:0000000000000000 wm4.lock.h.2.9bc98482741e5e2a9450b12934a684ea
+                           .group:0000000000000000 wm4._types.h.54.d3d34a3b7f3cc230cd159baf022b4b08
+                           .group:0000000000000000 wm4.stddef.h.158.61317cdbfb4026324507d123a50b0fd6
+                           .group:0000000000000000 wm4.reent.h.17.8bd9e4098e0428508c282cad794fae43
+                           .group:0000000000000000 wm4.cdefs.h.47.339223046f475c9f2d5db3a9118d7c65
+                           .group:0000000000000000 wm4.string.h.15.dab3980bf35408a4c507182805e2de3a
+                           .group:0000000000000000 wm4.stddef.h.158.a7efb00f6cbc6f43213b50e183c9830c
+                           .group:0000000000000000 wm4.string.h.126.6ff3aa59129e7f66b2c273baf353e066
+                           .group:0000000000000000 wm4.stdbool.h.29.1c9ee6859ce8145f7838a4f2549ccec2
+                           .group:0000000000000000 wm4.hw_types.h.67.b10589a0806dcc2d274d6fab6b736519
+                           .group:0000000000000000 wm4.interrupt.h.41.272fc4ec0e276feb439e7974d0f77eaf
+                           .group:0000000000000000 wm4.board_info.h.22.aeb00002354a4949fff54190040e37af
+                           .group:0000000000000000 wm4.opendefs.h.23.16dafe2a30b31097968a5d4db894173a
+                           .group:0000000000000000 wm4.opentimers.h.8.044f2d040a134cdb0ddb58adfc2508be
+                           .group:0000000000000000 wm4.icmpv6rpl.h.15.0573bca2230f8b0d62a096dd795549d0
+                           .group:0000000000000000 wm4.neighbors.h.15.6d6181cbf1a5e29302c33fc055c1b200
+                           .group:0000000000000000 wm4.IEEE802154.h.2.38fb510ed33a23a9a0660164e6dfab69
+                           .group:0000000000000000 wm4.idmanager.h.2.8c0e2159b32ef3125cbb1e984805cbfe
+                           .group:0000000000000000 wm4.openserial.h.9.0a357d13b4113cc69ceb77572df48861
+                           .group:0000000000000000 wm4.schedule.h.2.5f1ce0fba8afc2f4b06da872a2bf3e7d
+                           .group:0000000000000000 wm4.processIE.h.2.f7e3ebe58176b1696c1c10947f24f68e
+                           .group:0000000000000000 wm4.IEEE802154E.h.25.67f34a05c141666eec3d609543338803
+
+UNDEFINED SYMBOLS
+memset
+icmpv6rpl_getPreferredParentIndex
+ieee154e_asnDiff
+packetfunctions_ip128bToMac64b
+openserial_printCritical
+icmpv6rpl_getMyDAGrank
+packetfunctions_isBroadcastMulticast
+icmpv6rpl_killPreferredParent
+icmpv6rpl_updateMyDAGrankAndParentSelection
+openserial_printStatus
+openserial_printError
+packetfunctions_sameAddress

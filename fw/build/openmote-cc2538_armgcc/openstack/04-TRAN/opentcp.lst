@@ -1,0 +1,3474 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"opentcp.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.rodata
+  19              		.align	2
+  22              	rreg_uriquery:
+  23 0000 683D7563 		.ascii	"h=ucb\000"
+  23      6200
+  24 0006 0000     		.align	2
+  27              	infoBoardname:
+  28 0008 43433235 		.ascii	"CC2538\000"
+  28      333800
+  29 000f 00       		.align	2
+  32              	infouCName:
+  33 0010 43433235 		.ascii	"CC2538\000"
+  33      333800
+  34 0017 00       		.align	2
+  37              	infoRadioName:
+  38 0018 43433235 		.ascii	"CC2538 SoC\000"
+  38      33382053 
+  38      6F4300
+  39 0023 00       		.align	2
+  42              	infoStackName:
+  43 0024 4F70656E 		.ascii	"OpenWSN \000"
+  43      57534E20 
+  43      00
+  44              		.comm	tcp_vars,48,4
+  45 002d 000000   		.text
+  46              		.align	2
+  47              		.global	opentcp_init
+  48              		.thumb
+  49              		.thumb_func
+  51              	opentcp_init:
+  52              	.LFB0:
+  53              		.file 1 "build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c"
+   1:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** #include "opendefs.h"
+   2:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** #include "opentcp.h"
+   3:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** #include "openserial.h"
+   4:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** #include "openqueue.h"
+   5:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** #include "forwarding.h"
+   6:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** #include "packetfunctions.h"
+   7:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** #include "bsp_timer.h"
+   8:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** #include "scheduler.h"
+   9:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** #include "opentimers.h"
+  10:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** // applications
+  11:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** #include "techo.h"
+  12:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** 
+  13:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** //=========================== variables =======================================
+  14:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** 
+  15:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** tcp_vars_t tcp_vars;
+  16:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** 
+  17:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** //=========================== prototypes ======================================
+  18:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** 
+  19:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** void prependTCPHeader(OpenQueueEntry_t* msg, bool ack, bool push, bool rst, bool syn, bool fin);
+  20:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** bool containsControlBits(OpenQueueEntry_t* msg, uint8_t ack, uint8_t rst, uint8_t syn, uint8_t fin)
+  21:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** void tcp_change_state(uint8_t new_state);
+  22:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** void opentcp_reset(void);
+  23:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** void opentcp_timer_cb(opentimer_id_t id);
+  24:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** 
+  25:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** //=========================== public ==========================================
+  26:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** 
+  27:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** void opentcp_init() {
+  54              		.loc 1 27 0
+  55              		.cfi_startproc
+  56              		@ args = 0, pretend = 0, frame = 0
+  57              		@ frame_needed = 1, uses_anonymous_args = 0
+  58 0000 80B5     		push	{r7, lr}
+  59              		.cfi_def_cfa_offset 8
+  60              		.cfi_offset 7, -8
+  61              		.cfi_offset 14, -4
+  62 0002 00AF     		add	r7, sp, #0
+  63              		.cfi_def_cfa_register 7
+  28:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    // reset local variables
+  29:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    memset(&tcp_vars,0,sizeof(tcp_vars_t));   
+  64              		.loc 1 29 0
+  65 0004 40F20000 		movw	r0, #:lower16:tcp_vars
+  66 0008 C0F20000 		movt	r0, #:upper16:tcp_vars
+  67 000c 0021     		movs	r1, #0
+  68 000e 3022     		movs	r2, #48
+  69 0010 FFF7FEFF 		bl	memset
+  30:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    // reset state machine
+  31:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    opentcp_reset();
+  70              		.loc 1 31 0
+  71 0014 FFF7FEFF 		bl	opentcp_reset
+  32:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** }
+  72              		.loc 1 32 0
+  73 0018 80BD     		pop	{r7, pc}
+  74              		.cfi_endproc
+  75              	.LFE0:
+  77 001a 00BF     		.align	2
+  78              		.global	opentcp_connect
+  79              		.thumb
+  80              		.thumb_func
+  82              	opentcp_connect:
+  83              	.LFB1:
+  33:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** 
+  34:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** owerror_t opentcp_connect(open_addr_t* dest, uint16_t param_tcp_hisPort, uint16_t param_tcp_myPort)
+  84              		.loc 1 34 0
+  85              		.cfi_startproc
+  86              		@ args = 0, pretend = 0, frame = 16
+  87              		@ frame_needed = 1, uses_anonymous_args = 0
+  88 001c B0B5     		push	{r4, r5, r7, lr}
+  89              		.cfi_def_cfa_offset 16
+  90              		.cfi_offset 4, -16
+  91              		.cfi_offset 5, -12
+  92              		.cfi_offset 7, -8
+  93              		.cfi_offset 14, -4
+  94 001e 86B0     		sub	sp, sp, #24
+  95              		.cfi_def_cfa_offset 40
+  96 0020 02AF     		add	r7, sp, #8
+  97              		.cfi_def_cfa 7, 32
+  98 0022 7860     		str	r0, [r7, #4]
+  99 0024 1346     		mov	r3, r2
+ 100 0026 0A46     		mov	r2, r1	@ movhi
+ 101 0028 7A80     		strh	r2, [r7, #2]	@ movhi
+ 102 002a 3B80     		strh	r3, [r7]	@ movhi
+  35:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    //[command] establishment
+  36:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    OpenQueueEntry_t* tempPkt;
+  37:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    if (tcp_vars.state!=TCP_STATE_CLOSED) {
+ 103              		.loc 1 37 0
+ 104 002c 40F20003 		movw	r3, #:lower16:tcp_vars
+ 105 0030 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 106 0034 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 107 0036 002B     		cmp	r3, #0
+ 108 0038 0CD0     		beq	.L3
+  38:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       openserial_printError(COMPONENT_OPENTCP,ERR_WRONG_TCP_STATE,
+  39:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                             (errorparameter_t)tcp_vars.state,
+ 109              		.loc 1 39 0
+ 110 003a 40F20003 		movw	r3, #:lower16:tcp_vars
+ 111 003e C0F20003 		movt	r3, #:upper16:tcp_vars
+ 112 0042 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+  38:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       openserial_printError(COMPONENT_OPENTCP,ERR_WRONG_TCP_STATE,
+ 113              		.loc 1 38 0
+ 114 0044 1720     		movs	r0, #23
+ 115 0046 0721     		movs	r1, #7
+ 116 0048 1A46     		mov	r2, r3
+ 117 004a 0023     		movs	r3, #0
+ 118 004c FFF7FEFF 		bl	openserial_printError
+  40:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                             (errorparameter_t)0);
+  41:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       return E_FAIL;
+ 119              		.loc 1 41 0
+ 120 0050 0123     		movs	r3, #1
+ 121 0052 58E0     		b	.L4
+ 122              	.L3:
+  42:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    }
+  43:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    tcp_vars.myPort  = param_tcp_myPort;
+ 123              		.loc 1 43 0
+ 124 0054 40F20003 		movw	r3, #:lower16:tcp_vars
+ 125 0058 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 126 005c 3A88     		ldrh	r2, [r7]	@ movhi
+ 127 005e 1A81     		strh	r2, [r3, #8]	@ movhi
+  44:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    tcp_vars.hisPort = param_tcp_hisPort;
+ 128              		.loc 1 44 0
+ 129 0060 40F20003 		movw	r3, #:lower16:tcp_vars
+ 130 0064 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 131 0068 7A88     		ldrh	r2, [r7, #2]	@ movhi
+ 132 006a 1A82     		strh	r2, [r3, #16]	@ movhi
+  45:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    memcpy(&tcp_vars.hisIPv6Address,dest,sizeof(open_addr_t));
+ 133              		.loc 1 45 0
+ 134 006c 40F20003 		movw	r3, #:lower16:tcp_vars
+ 135 0070 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 136 0074 7A68     		ldr	r2, [r7, #4]
+ 137 0076 1233     		adds	r3, r3, #18
+ 138 0078 1568     		ldr	r5, [r2]	@ unaligned
+ 139 007a 5468     		ldr	r4, [r2, #4]	@ unaligned
+ 140 007c 9068     		ldr	r0, [r2, #8]	@ unaligned
+ 141 007e D168     		ldr	r1, [r2, #12]	@ unaligned
+ 142 0080 1D60     		str	r5, [r3]	@ unaligned
+ 143 0082 5C60     		str	r4, [r3, #4]	@ unaligned
+ 144 0084 9860     		str	r0, [r3, #8]	@ unaligned
+ 145 0086 D960     		str	r1, [r3, #12]	@ unaligned
+ 146 0088 127C     		ldrb	r2, [r2, #16]
+ 147 008a 1A74     		strb	r2, [r3, #16]
+  46:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    //I receive command 'connect', I send SYNC
+  47:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    tempPkt = openqueue_getFreePacketBuffer(COMPONENT_OPENTCP);
+ 148              		.loc 1 47 0
+ 149 008c 1720     		movs	r0, #23
+ 150 008e FFF7FEFF 		bl	openqueue_getFreePacketBuffer
+ 151 0092 F860     		str	r0, [r7, #12]
+  48:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    if (tempPkt==NULL) {
+ 152              		.loc 1 48 0
+ 153 0094 FB68     		ldr	r3, [r7, #12]
+ 154 0096 002B     		cmp	r3, #0
+ 155 0098 07D1     		bne	.L5
+  49:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       openserial_printError(COMPONENT_OPENTCP,ERR_NO_FREE_PACKET_BUFFER,
+ 156              		.loc 1 49 0
+ 157 009a 1720     		movs	r0, #23
+ 158 009c 2C21     		movs	r1, #44
+ 159 009e 0022     		movs	r2, #0
+ 160 00a0 0023     		movs	r3, #0
+ 161 00a2 FFF7FEFF 		bl	openserial_printError
+  50:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                             (errorparameter_t)0,
+  51:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                             (errorparameter_t)0);
+  52:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       return E_FAIL;
+ 162              		.loc 1 52 0
+ 163 00a6 0123     		movs	r3, #1
+ 164 00a8 2DE0     		b	.L4
+ 165              	.L5:
+  53:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    }
+  54:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    tempPkt->creator                = COMPONENT_OPENTCP;
+ 166              		.loc 1 54 0
+ 167 00aa FB68     		ldr	r3, [r7, #12]
+ 168 00ac 1722     		movs	r2, #23
+ 169 00ae 1A70     		strb	r2, [r3]
+  55:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    tempPkt->owner                  = COMPONENT_OPENTCP;
+ 170              		.loc 1 55 0
+ 171 00b0 FB68     		ldr	r3, [r7, #12]
+ 172 00b2 1722     		movs	r2, #23
+ 173 00b4 5A70     		strb	r2, [r3, #1]
+  56:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    memcpy(&(tempPkt->l3_destinationAdd),&tcp_vars.hisIPv6Address,sizeof(open_addr_t));
+ 174              		.loc 1 56 0
+ 175 00b6 FB68     		ldr	r3, [r7, #12]
+ 176 00b8 1533     		adds	r3, r3, #21
+ 177 00ba 40F20002 		movw	r2, #:lower16:tcp_vars
+ 178 00be C0F20002 		movt	r2, #:upper16:tcp_vars
+ 179 00c2 1232     		adds	r2, r2, #18
+ 180 00c4 1568     		ldr	r5, [r2]	@ unaligned
+ 181 00c6 5468     		ldr	r4, [r2, #4]	@ unaligned
+ 182 00c8 9068     		ldr	r0, [r2, #8]	@ unaligned
+ 183 00ca D168     		ldr	r1, [r2, #12]	@ unaligned
+ 184 00cc 1D60     		str	r5, [r3]	@ unaligned
+ 185 00ce 5C60     		str	r4, [r3, #4]	@ unaligned
+ 186 00d0 9860     		str	r0, [r3, #8]	@ unaligned
+ 187 00d2 D960     		str	r1, [r3, #12]	@ unaligned
+ 188 00d4 127C     		ldrb	r2, [r2, #16]
+ 189 00d6 1A74     		strb	r2, [r3, #16]
+  57:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    tcp_vars.mySeqNum = TCP_INITIAL_SEQNUM;
+ 190              		.loc 1 57 0
+ 191 00d8 40F20003 		movw	r3, #:lower16:tcp_vars
+ 192 00dc C0F20003 		movt	r3, #:upper16:tcp_vars
+ 193 00e0 6422     		movs	r2, #100
+ 194 00e2 5A60     		str	r2, [r3, #4]
+  58:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    prependTCPHeader(tempPkt,
+ 195              		.loc 1 58 0
+ 196 00e4 0123     		movs	r3, #1
+ 197 00e6 0093     		str	r3, [sp]
+ 198 00e8 0023     		movs	r3, #0
+ 199 00ea 0193     		str	r3, [sp, #4]
+ 200 00ec F868     		ldr	r0, [r7, #12]
+ 201 00ee 0021     		movs	r1, #0
+ 202 00f0 0022     		movs	r2, #0
+ 203 00f2 0023     		movs	r3, #0
+ 204 00f4 FFF7FEFF 		bl	prependTCPHeader
+  59:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          TCP_ACK_NO,
+  60:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          TCP_PSH_NO,
+  61:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          TCP_RST_NO,
+  62:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          TCP_SYN_YES,
+  63:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          TCP_FIN_NO);
+  64:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    tcp_change_state(TCP_STATE_ALMOST_SYN_SENT);
+ 205              		.loc 1 64 0
+ 206 00f8 0320     		movs	r0, #3
+ 207 00fa FFF7FEFF 		bl	tcp_change_state
+  65:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    return forwarding_send(tempPkt);
+ 208              		.loc 1 65 0
+ 209 00fe F868     		ldr	r0, [r7, #12]
+ 210 0100 FFF7FEFF 		bl	forwarding_send
+ 211 0104 0346     		mov	r3, r0
+ 212              	.L4:
+  66:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** }
+ 213              		.loc 1 66 0
+ 214 0106 1846     		mov	r0, r3
+ 215 0108 1037     		adds	r7, r7, #16
+ 216 010a BD46     		mov	sp, r7
+ 217              		@ sp needed
+ 218 010c B0BD     		pop	{r4, r5, r7, pc}
+ 219              		.cfi_endproc
+ 220              	.LFE1:
+ 222 010e 00BF     		.align	2
+ 223              		.global	opentcp_send
+ 224              		.thumb
+ 225              		.thumb_func
+ 227              	opentcp_send:
+ 228              	.LFB2:
+  67:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** 
+  68:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** owerror_t opentcp_send(OpenQueueEntry_t* msg) {             //[command] data
+ 229              		.loc 1 68 0
+ 230              		.cfi_startproc
+ 231              		@ args = 0, pretend = 0, frame = 8
+ 232              		@ frame_needed = 1, uses_anonymous_args = 0
+ 233 0110 B0B5     		push	{r4, r5, r7, lr}
+ 234              		.cfi_def_cfa_offset 16
+ 235              		.cfi_offset 4, -16
+ 236              		.cfi_offset 5, -12
+ 237              		.cfi_offset 7, -8
+ 238              		.cfi_offset 14, -4
+ 239 0112 84B0     		sub	sp, sp, #16
+ 240              		.cfi_def_cfa_offset 32
+ 241 0114 02AF     		add	r7, sp, #8
+ 242              		.cfi_def_cfa 7, 24
+ 243 0116 7860     		str	r0, [r7, #4]
+  69:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    msg->owner = COMPONENT_OPENTCP;
+ 244              		.loc 1 69 0
+ 245 0118 7B68     		ldr	r3, [r7, #4]
+ 246 011a 1722     		movs	r2, #23
+ 247 011c 5A70     		strb	r2, [r3, #1]
+  70:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    if (tcp_vars.state!=TCP_STATE_ESTABLISHED) {
+ 248              		.loc 1 70 0
+ 249 011e 40F20003 		movw	r3, #:lower16:tcp_vars
+ 250 0122 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 251 0126 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 252 0128 062B     		cmp	r3, #6
+ 253 012a 0CD0     		beq	.L7
+  71:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       openserial_printError(COMPONENT_OPENTCP,ERR_WRONG_TCP_STATE,
+  72:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                             (errorparameter_t)tcp_vars.state,
+ 254              		.loc 1 72 0
+ 255 012c 40F20003 		movw	r3, #:lower16:tcp_vars
+ 256 0130 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 257 0134 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+  71:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       openserial_printError(COMPONENT_OPENTCP,ERR_WRONG_TCP_STATE,
+ 258              		.loc 1 71 0
+ 259 0136 1720     		movs	r0, #23
+ 260 0138 0721     		movs	r1, #7
+ 261 013a 1A46     		mov	r2, r3
+ 262 013c 0223     		movs	r3, #2
+ 263 013e FFF7FEFF 		bl	openserial_printError
+  73:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                             (errorparameter_t)2);
+  74:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       return E_FAIL;
+ 264              		.loc 1 74 0
+ 265 0142 0123     		movs	r3, #1
+ 266 0144 6AE0     		b	.L8
+ 267              	.L7:
+  75:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    }
+  76:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    if (tcp_vars.dataToSend!=NULL) {
+ 268              		.loc 1 76 0
+ 269 0146 40F20003 		movw	r3, #:lower16:tcp_vars
+ 270 014a C0F20003 		movt	r3, #:upper16:tcp_vars
+ 271 014e 5B6A     		ldr	r3, [r3, #36]
+ 272 0150 002B     		cmp	r3, #0
+ 273 0152 07D0     		beq	.L9
+  77:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       openserial_printError(COMPONENT_OPENTCP,ERR_BUSY_SENDING,
+ 274              		.loc 1 77 0
+ 275 0154 1720     		movs	r0, #23
+ 276 0156 2A21     		movs	r1, #42
+ 277 0158 0022     		movs	r2, #0
+ 278 015a 0023     		movs	r3, #0
+ 279 015c FFF7FEFF 		bl	openserial_printError
+  78:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                             (errorparameter_t)0,
+  79:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                             (errorparameter_t)0);
+  80:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       return E_FAIL;
+ 280              		.loc 1 80 0
+ 281 0160 0123     		movs	r3, #1
+ 282 0162 5BE0     		b	.L8
+ 283              	.L9:
+  81:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    }
+  82:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    //I receive command 'send', I send data
+  83:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    msg->l4_protocol          = IANA_TCP;
+ 284              		.loc 1 83 0
+ 285 0164 7B68     		ldr	r3, [r7, #4]
+ 286 0166 0622     		movs	r2, #6
+ 287 0168 5A72     		strb	r2, [r3, #9]
+  84:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    msg->l4_sourcePortORicmpv6Type       = tcp_vars.myPort;
+ 288              		.loc 1 84 0
+ 289 016a 40F20003 		movw	r3, #:lower16:tcp_vars
+ 290 016e C0F20003 		movt	r3, #:upper16:tcp_vars
+ 291 0172 1A89     		ldrh	r2, [r3, #8]
+ 292 0174 7B68     		ldr	r3, [r7, #4]
+ 293 0176 9A81     		strh	r2, [r3, #12]	@ movhi
+  85:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    msg->l4_destination_port  = tcp_vars.hisPort;
+ 294              		.loc 1 85 0
+ 295 0178 40F20003 		movw	r3, #:lower16:tcp_vars
+ 296 017c C0F20003 		movt	r3, #:upper16:tcp_vars
+ 297 0180 1A8A     		ldrh	r2, [r3, #16]
+ 298 0182 7B68     		ldr	r3, [r7, #4]
+ 299 0184 DA81     		strh	r2, [r3, #14]	@ movhi
+  86:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    msg->l4_payload           = msg->payload;
+ 300              		.loc 1 86 0
+ 301 0186 7B68     		ldr	r3, [r7, #4]
+ 302 0188 5A68     		ldr	r2, [r3, #4]
+ 303 018a 7B68     		ldr	r3, [r7, #4]
+ 304 018c 1A61     		str	r2, [r3, #16]
+  87:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    msg->l4_length            = msg->length;
+ 305              		.loc 1 87 0
+ 306 018e 7B68     		ldr	r3, [r7, #4]
+ 307 0190 1A7A     		ldrb	r2, [r3, #8]	@ zero_extendqisi2
+ 308 0192 7B68     		ldr	r3, [r7, #4]
+ 309 0194 1A75     		strb	r2, [r3, #20]
+  88:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    memcpy(&(msg->l3_destinationAdd),&tcp_vars.hisIPv6Address,sizeof(open_addr_t));
+ 310              		.loc 1 88 0
+ 311 0196 7B68     		ldr	r3, [r7, #4]
+ 312 0198 1533     		adds	r3, r3, #21
+ 313 019a 40F20002 		movw	r2, #:lower16:tcp_vars
+ 314 019e C0F20002 		movt	r2, #:upper16:tcp_vars
+ 315 01a2 1232     		adds	r2, r2, #18
+ 316 01a4 1568     		ldr	r5, [r2]	@ unaligned
+ 317 01a6 5468     		ldr	r4, [r2, #4]	@ unaligned
+ 318 01a8 9068     		ldr	r0, [r2, #8]	@ unaligned
+ 319 01aa D168     		ldr	r1, [r2, #12]	@ unaligned
+ 320 01ac 1D60     		str	r5, [r3]	@ unaligned
+ 321 01ae 5C60     		str	r4, [r3, #4]	@ unaligned
+ 322 01b0 9860     		str	r0, [r3, #8]	@ unaligned
+ 323 01b2 D960     		str	r1, [r3, #12]	@ unaligned
+ 324 01b4 127C     		ldrb	r2, [r2, #16]
+ 325 01b6 1A74     		strb	r2, [r3, #16]
+  89:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    tcp_vars.dataToSend = msg;
+ 326              		.loc 1 89 0
+ 327 01b8 40F20003 		movw	r3, #:lower16:tcp_vars
+ 328 01bc C0F20003 		movt	r3, #:upper16:tcp_vars
+ 329 01c0 7A68     		ldr	r2, [r7, #4]
+ 330 01c2 5A62     		str	r2, [r3, #36]
+  90:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    prependTCPHeader(tcp_vars.dataToSend,
+ 331              		.loc 1 90 0
+ 332 01c4 40F20003 		movw	r3, #:lower16:tcp_vars
+ 333 01c8 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 334 01cc 5B6A     		ldr	r3, [r3, #36]
+ 335 01ce 0022     		movs	r2, #0
+ 336 01d0 0092     		str	r2, [sp]
+ 337 01d2 0022     		movs	r2, #0
+ 338 01d4 0192     		str	r2, [sp, #4]
+ 339 01d6 1846     		mov	r0, r3
+ 340 01d8 0121     		movs	r1, #1
+ 341 01da 0122     		movs	r2, #1
+ 342 01dc 0023     		movs	r3, #0
+ 343 01de FFF7FEFF 		bl	prependTCPHeader
+  91:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          TCP_ACK_YES,
+  92:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          TCP_PSH_YES,
+  93:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          TCP_RST_NO,
+  94:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          TCP_SYN_NO,
+  95:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          TCP_FIN_NO);
+  96:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    tcp_vars.mySeqNum += tcp_vars.dataToSend->l4_length;
+ 344              		.loc 1 96 0
+ 345 01e2 40F20003 		movw	r3, #:lower16:tcp_vars
+ 346 01e6 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 347 01ea 5A68     		ldr	r2, [r3, #4]
+ 348 01ec 40F20003 		movw	r3, #:lower16:tcp_vars
+ 349 01f0 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 350 01f4 5B6A     		ldr	r3, [r3, #36]
+ 351 01f6 1B7D     		ldrb	r3, [r3, #20]	@ zero_extendqisi2
+ 352 01f8 1A44     		add	r2, r2, r3
+ 353 01fa 40F20003 		movw	r3, #:lower16:tcp_vars
+ 354 01fe C0F20003 		movt	r3, #:upper16:tcp_vars
+ 355 0202 5A60     		str	r2, [r3, #4]
+  97:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    tcp_change_state(TCP_STATE_ALMOST_DATA_SENT);
+ 356              		.loc 1 97 0
+ 357 0204 0720     		movs	r0, #7
+ 358 0206 FFF7FEFF 		bl	tcp_change_state
+  98:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    return forwarding_send(tcp_vars.dataToSend);
+ 359              		.loc 1 98 0
+ 360 020a 40F20003 		movw	r3, #:lower16:tcp_vars
+ 361 020e C0F20003 		movt	r3, #:upper16:tcp_vars
+ 362 0212 5B6A     		ldr	r3, [r3, #36]
+ 363 0214 1846     		mov	r0, r3
+ 364 0216 FFF7FEFF 		bl	forwarding_send
+ 365 021a 0346     		mov	r3, r0
+ 366              	.L8:
+  99:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** }
+ 367              		.loc 1 99 0
+ 368 021c 1846     		mov	r0, r3
+ 369 021e 0837     		adds	r7, r7, #8
+ 370 0220 BD46     		mov	sp, r7
+ 371              		@ sp needed
+ 372 0222 B0BD     		pop	{r4, r5, r7, pc}
+ 373              		.cfi_endproc
+ 374              	.LFE2:
+ 376              		.align	2
+ 377              		.global	opentcp_sendDone
+ 378              		.thumb
+ 379              		.thumb_func
+ 381              	opentcp_sendDone:
+ 382              	.LFB3:
+ 100:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** 
+ 101:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** void opentcp_sendDone(OpenQueueEntry_t* msg, owerror_t error) {
+ 383              		.loc 1 101 0
+ 384              		.cfi_startproc
+ 385              		@ args = 0, pretend = 0, frame = 16
+ 386              		@ frame_needed = 1, uses_anonymous_args = 0
+ 387 0224 B0B5     		push	{r4, r5, r7, lr}
+ 388              		.cfi_def_cfa_offset 16
+ 389              		.cfi_offset 4, -16
+ 390              		.cfi_offset 5, -12
+ 391              		.cfi_offset 7, -8
+ 392              		.cfi_offset 14, -4
+ 393 0226 86B0     		sub	sp, sp, #24
+ 394              		.cfi_def_cfa_offset 40
+ 395 0228 02AF     		add	r7, sp, #8
+ 396              		.cfi_def_cfa 7, 32
+ 397 022a 7860     		str	r0, [r7, #4]
+ 398 022c 0B46     		mov	r3, r1
+ 399 022e FB70     		strb	r3, [r7, #3]
+ 102:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    OpenQueueEntry_t* tempPkt;
+ 103:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    msg->owner = COMPONENT_OPENTCP;
+ 400              		.loc 1 103 0
+ 401 0230 7B68     		ldr	r3, [r7, #4]
+ 402 0232 1722     		movs	r2, #23
+ 403 0234 5A70     		strb	r2, [r3, #1]
+ 104:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    switch (tcp_vars.state) {
+ 404              		.loc 1 104 0
+ 405 0236 40F20003 		movw	r3, #:lower16:tcp_vars
+ 406 023a C0F20003 		movt	r3, #:upper16:tcp_vars
+ 407 023e 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 408 0240 013B     		subs	r3, r3, #1
+ 409 0242 122B     		cmp	r3, #18
+ 410 0244 00F2E380 		bhi	.L11
+ 411 0248 01A2     		adr	r2, .L13
+ 412 024a 52F823F0 		ldr	pc, [r2, r3, lsl #2]
+ 413 024e 00BF     		.p2align 2
+ 414              	.L13:
+ 415 0250 AB020000 		.word	.L12+1
+ 416 0254 0F040000 		.word	.L11+1
+ 417 0258 9D020000 		.word	.L14+1
+ 418 025c 0F040000 		.word	.L11+1
+ 419 0260 B9020000 		.word	.L15+1
+ 420 0264 0F040000 		.word	.L11+1
+ 421 0268 F5020000 		.word	.L16+1
+ 422 026c 0F040000 		.word	.L11+1
+ 423 0270 FD020000 		.word	.L17+1
+ 424 0274 55030000 		.word	.L18+1
+ 425 0278 0F040000 		.word	.L11+1
+ 426 027c 63030000 		.word	.L19+1
+ 427 0280 0F040000 		.word	.L11+1
+ 428 0284 0F040000 		.word	.L11+1
+ 429 0288 71030000 		.word	.L20+1
+ 430 028c 0F040000 		.word	.L11+1
+ 431 0290 83030000 		.word	.L21+1
+ 432 0294 0F040000 		.word	.L11+1
+ 433 0298 01040000 		.word	.L22+1
+ 434              	.L14:
+ 105:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       case TCP_STATE_ALMOST_SYN_SENT:                             //[sendDone] establishement
+ 106:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          openqueue_freePacketBuffer(msg);
+ 435              		.loc 1 106 0
+ 436 029c 7868     		ldr	r0, [r7, #4]
+ 437 029e FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 107:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          tcp_change_state(TCP_STATE_SYN_SENT);
+ 438              		.loc 1 107 0
+ 439 02a2 0420     		movs	r0, #4
+ 440 02a4 FFF7FEFF 		bl	tcp_change_state
+ 108:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          break;
+ 441              		.loc 1 108 0
+ 442 02a8 BDE0     		b	.L10
+ 443              	.L12:
+ 109:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** 
+ 110:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       case TCP_STATE_ALMOST_SYN_RECEIVED:                         //[sendDone] establishement
+ 111:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          openqueue_freePacketBuffer(msg);
+ 444              		.loc 1 111 0
+ 445 02aa 7868     		ldr	r0, [r7, #4]
+ 446 02ac FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 112:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          tcp_change_state(TCP_STATE_SYN_RECEIVED);
+ 447              		.loc 1 112 0
+ 448 02b0 0220     		movs	r0, #2
+ 449 02b2 FFF7FEFF 		bl	tcp_change_state
+ 113:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          break;
+ 450              		.loc 1 113 0
+ 451 02b6 B6E0     		b	.L10
+ 452              	.L15:
+ 114:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** 
+ 115:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       case TCP_STATE_ALMOST_ESTABLISHED:                          //[sendDone] establishement
+ 116:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          openqueue_freePacketBuffer(msg);
+ 453              		.loc 1 116 0
+ 454 02b8 7868     		ldr	r0, [r7, #4]
+ 455 02ba FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 117:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          tcp_change_state(TCP_STATE_ESTABLISHED);
+ 456              		.loc 1 117 0
+ 457 02be 0620     		movs	r0, #6
+ 458 02c0 FFF7FEFF 		bl	tcp_change_state
+ 118:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          switch(tcp_vars.myPort) {
+ 459              		.loc 1 118 0
+ 460 02c4 40F20003 		movw	r3, #:lower16:tcp_vars
+ 461 02c8 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 462 02cc 1B89     		ldrh	r3, [r3, #8]
+ 463 02ce 072B     		cmp	r3, #7
+ 464 02d0 03D1     		bne	.L31
+ 119:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             case WKP_TCP_ECHO:
+ 120:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                techo_connectDone(E_SUCCESS);
+ 465              		.loc 1 120 0
+ 466 02d2 0020     		movs	r0, #0
+ 467 02d4 FFF7FEFF 		bl	techo_connectDone
+ 121:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                break;
+ 468              		.loc 1 121 0
+ 469 02d8 0BE0     		b	.L26
+ 470              	.L31:
+ 122:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             default:
+ 123:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                openserial_printError(COMPONENT_OPENTCP,ERR_UNSUPPORTED_PORT_NUMBER,
+ 471              		.loc 1 123 0
+ 472 02da 40F20003 		movw	r3, #:lower16:tcp_vars
+ 473 02de C0F20003 		movt	r3, #:upper16:tcp_vars
+ 474 02e2 1B89     		ldrh	r3, [r3, #8]
+ 475 02e4 1720     		movs	r0, #23
+ 476 02e6 0921     		movs	r1, #9
+ 477 02e8 1A46     		mov	r2, r3
+ 478 02ea 0023     		movs	r3, #0
+ 479 02ec FFF7FEFF 		bl	openserial_printError
+ 124:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                      (errorparameter_t)tcp_vars.myPort,
+ 125:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                      (errorparameter_t)0);
+ 126:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                break;
+ 480              		.loc 1 126 0
+ 481 02f0 00BF     		nop
+ 482              	.L26:
+ 127:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          }
+ 128:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          break;
+ 483              		.loc 1 128 0
+ 484 02f2 98E0     		b	.L10
+ 485              	.L16:
+ 129:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** 
+ 130:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       case TCP_STATE_ALMOST_DATA_SENT:                            //[sendDone] data
+ 131:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          tcp_change_state(TCP_STATE_DATA_SENT);
+ 486              		.loc 1 131 0
+ 487 02f4 0820     		movs	r0, #8
+ 488 02f6 FFF7FEFF 		bl	tcp_change_state
+ 132:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          break;
+ 489              		.loc 1 132 0
+ 490 02fa 94E0     		b	.L10
+ 491              	.L17:
+ 133:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** 
+ 134:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       case TCP_STATE_ALMOST_DATA_RECEIVED:                        //[sendDone] data
+ 135:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          openqueue_freePacketBuffer(msg);
+ 492              		.loc 1 135 0
+ 493 02fc 7868     		ldr	r0, [r7, #4]
+ 494 02fe FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 136:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          tcp_change_state(TCP_STATE_ESTABLISHED);
+ 495              		.loc 1 136 0
+ 496 0302 0620     		movs	r0, #6
+ 497 0304 FFF7FEFF 		bl	tcp_change_state
+ 137:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          switch(tcp_vars.myPort) {
+ 498              		.loc 1 137 0
+ 499 0308 40F20003 		movw	r3, #:lower16:tcp_vars
+ 500 030c C0F20003 		movt	r3, #:upper16:tcp_vars
+ 501 0310 1B89     		ldrh	r3, [r3, #8]
+ 502 0312 072B     		cmp	r3, #7
+ 503 0314 08D1     		bne	.L32
+ 138:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             case WKP_TCP_ECHO:
+ 139:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                techo_receive(tcp_vars.dataReceived);
+ 504              		.loc 1 139 0
+ 505 0316 40F20003 		movw	r3, #:lower16:tcp_vars
+ 506 031a C0F20003 		movt	r3, #:upper16:tcp_vars
+ 507 031e 9B6A     		ldr	r3, [r3, #40]
+ 508 0320 1846     		mov	r0, r3
+ 509 0322 FFF7FEFF 		bl	techo_receive
+ 140:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                break;
+ 510              		.loc 1 140 0
+ 511 0326 14E0     		b	.L29
+ 512              	.L32:
+ 141:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             default:
+ 142:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                openserial_printError(COMPONENT_OPENTCP,ERR_UNSUPPORTED_PORT_NUMBER,
+ 513              		.loc 1 142 0
+ 514 0328 40F20003 		movw	r3, #:lower16:tcp_vars
+ 515 032c C0F20003 		movt	r3, #:upper16:tcp_vars
+ 516 0330 1B89     		ldrh	r3, [r3, #8]
+ 517 0332 1720     		movs	r0, #23
+ 518 0334 0921     		movs	r1, #9
+ 519 0336 1A46     		mov	r2, r3
+ 520 0338 0123     		movs	r3, #1
+ 521 033a FFF7FEFF 		bl	openserial_printError
+ 143:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                      (errorparameter_t)tcp_vars.myPort,
+ 144:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                      (errorparameter_t)1);
+ 145:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                openqueue_freePacketBuffer(msg);
+ 522              		.loc 1 145 0
+ 523 033e 7868     		ldr	r0, [r7, #4]
+ 524 0340 FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 146:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                tcp_vars.dataReceived = NULL;
+ 525              		.loc 1 146 0
+ 526 0344 40F20003 		movw	r3, #:lower16:tcp_vars
+ 527 0348 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 528 034c 0022     		movs	r2, #0
+ 529 034e 9A62     		str	r2, [r3, #40]
+ 147:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                break;
+ 530              		.loc 1 147 0
+ 531 0350 00BF     		nop
+ 532              	.L29:
+ 148:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          }
+ 149:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          break;
+ 533              		.loc 1 149 0
+ 534 0352 68E0     		b	.L10
+ 535              	.L18:
+ 150:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** 
+ 151:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       case TCP_STATE_ALMOST_FIN_WAIT_1:                           //[sendDone] teardown
+ 152:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          openqueue_freePacketBuffer(msg);
+ 536              		.loc 1 152 0
+ 537 0354 7868     		ldr	r0, [r7, #4]
+ 538 0356 FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 153:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          tcp_change_state(TCP_STATE_FIN_WAIT_1);
+ 539              		.loc 1 153 0
+ 540 035a 0B20     		movs	r0, #11
+ 541 035c FFF7FEFF 		bl	tcp_change_state
+ 154:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          break;
+ 542              		.loc 1 154 0
+ 543 0360 61E0     		b	.L10
+ 544              	.L19:
+ 155:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** 
+ 156:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       case TCP_STATE_ALMOST_CLOSING:                              //[sendDone] teardown
+ 157:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          openqueue_freePacketBuffer(msg);
+ 545              		.loc 1 157 0
+ 546 0362 7868     		ldr	r0, [r7, #4]
+ 547 0364 FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 158:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          tcp_change_state(TCP_STATE_CLOSING);
+ 548              		.loc 1 158 0
+ 549 0368 0D20     		movs	r0, #13
+ 550 036a FFF7FEFF 		bl	tcp_change_state
+ 159:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          break;
+ 551              		.loc 1 159 0
+ 552 036e 5AE0     		b	.L10
+ 553              	.L20:
+ 160:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** 
+ 161:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       case TCP_STATE_ALMOST_TIME_WAIT:                            //[sendDone] teardown
+ 162:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          openqueue_freePacketBuffer(msg);
+ 554              		.loc 1 162 0
+ 555 0370 7868     		ldr	r0, [r7, #4]
+ 556 0372 FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 163:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          tcp_change_state(TCP_STATE_TIME_WAIT);
+ 557              		.loc 1 163 0
+ 558 0376 1020     		movs	r0, #16
+ 559 0378 FFF7FEFF 		bl	tcp_change_state
+ 164:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          //TODO implement waiting timer
+ 165:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          opentcp_reset();
+ 560              		.loc 1 165 0
+ 561 037c FFF7FEFF 		bl	opentcp_reset
+ 166:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          break;
+ 562              		.loc 1 166 0
+ 563 0380 51E0     		b	.L10
+ 564              	.L21:
+ 167:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** 
+ 168:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       case TCP_STATE_ALMOST_CLOSE_WAIT:                           //[sendDone] teardown
+ 169:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          openqueue_freePacketBuffer(msg);
+ 565              		.loc 1 169 0
+ 566 0382 7868     		ldr	r0, [r7, #4]
+ 567 0384 FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 170:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          tcp_change_state(TCP_STATE_CLOSE_WAIT);
+ 568              		.loc 1 170 0
+ 569 0388 1220     		movs	r0, #18
+ 570 038a FFF7FEFF 		bl	tcp_change_state
+ 171:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          //I send FIN+ACK
+ 172:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          tempPkt = openqueue_getFreePacketBuffer(COMPONENT_OPENTCP);
+ 571              		.loc 1 172 0
+ 572 038e 1720     		movs	r0, #23
+ 573 0390 FFF7FEFF 		bl	openqueue_getFreePacketBuffer
+ 574 0394 F860     		str	r0, [r7, #12]
+ 173:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          if (tempPkt==NULL) {
+ 575              		.loc 1 173 0
+ 576 0396 FB68     		ldr	r3, [r7, #12]
+ 577 0398 002B     		cmp	r3, #0
+ 578 039a 09D1     		bne	.L30
+ 174:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             openserial_printError(COMPONENT_OPENTCP,ERR_NO_FREE_PACKET_BUFFER,
+ 579              		.loc 1 174 0
+ 580 039c 1720     		movs	r0, #23
+ 581 039e 2C21     		movs	r1, #44
+ 582 03a0 0022     		movs	r2, #0
+ 583 03a2 0023     		movs	r3, #0
+ 584 03a4 FFF7FEFF 		bl	openserial_printError
+ 175:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                   (errorparameter_t)0,
+ 176:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                   (errorparameter_t)0);
+ 177:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             openqueue_freePacketBuffer(msg);
+ 585              		.loc 1 177 0
+ 586 03a8 7868     		ldr	r0, [r7, #4]
+ 587 03aa FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 178:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             return;
+ 588              		.loc 1 178 0
+ 589 03ae 3AE0     		b	.L10
+ 590              	.L30:
+ 179:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          }
+ 180:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          tempPkt->creator       = COMPONENT_OPENTCP;
+ 591              		.loc 1 180 0
+ 592 03b0 FB68     		ldr	r3, [r7, #12]
+ 593 03b2 1722     		movs	r2, #23
+ 594 03b4 1A70     		strb	r2, [r3]
+ 181:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          tempPkt->owner         = COMPONENT_OPENTCP;
+ 595              		.loc 1 181 0
+ 596 03b6 FB68     		ldr	r3, [r7, #12]
+ 597 03b8 1722     		movs	r2, #23
+ 598 03ba 5A70     		strb	r2, [r3, #1]
+ 182:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          memcpy(&(tempPkt->l3_destinationAdd),&tcp_vars.hisIPv6Address,sizeof(open_addr_t));
+ 599              		.loc 1 182 0
+ 600 03bc FB68     		ldr	r3, [r7, #12]
+ 601 03be 1533     		adds	r3, r3, #21
+ 602 03c0 40F20002 		movw	r2, #:lower16:tcp_vars
+ 603 03c4 C0F20002 		movt	r2, #:upper16:tcp_vars
+ 604 03c8 1232     		adds	r2, r2, #18
+ 605 03ca 1568     		ldr	r5, [r2]	@ unaligned
+ 606 03cc 5468     		ldr	r4, [r2, #4]	@ unaligned
+ 607 03ce 9068     		ldr	r0, [r2, #8]	@ unaligned
+ 608 03d0 D168     		ldr	r1, [r2, #12]	@ unaligned
+ 609 03d2 1D60     		str	r5, [r3]	@ unaligned
+ 610 03d4 5C60     		str	r4, [r3, #4]	@ unaligned
+ 611 03d6 9860     		str	r0, [r3, #8]	@ unaligned
+ 612 03d8 D960     		str	r1, [r3, #12]	@ unaligned
+ 613 03da 127C     		ldrb	r2, [r2, #16]
+ 614 03dc 1A74     		strb	r2, [r3, #16]
+ 183:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          prependTCPHeader(tempPkt,
+ 615              		.loc 1 183 0
+ 616 03de 0023     		movs	r3, #0
+ 617 03e0 0093     		str	r3, [sp]
+ 618 03e2 0123     		movs	r3, #1
+ 619 03e4 0193     		str	r3, [sp, #4]
+ 620 03e6 F868     		ldr	r0, [r7, #12]
+ 621 03e8 0121     		movs	r1, #1
+ 622 03ea 0022     		movs	r2, #0
+ 623 03ec 0023     		movs	r3, #0
+ 624 03ee FFF7FEFF 		bl	prependTCPHeader
+ 184:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                TCP_ACK_YES,
+ 185:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                TCP_PSH_NO,
+ 186:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                TCP_RST_NO,
+ 187:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                TCP_SYN_NO,
+ 188:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                TCP_FIN_YES);
+ 189:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          forwarding_send(tempPkt);
+ 625              		.loc 1 189 0
+ 626 03f2 F868     		ldr	r0, [r7, #12]
+ 627 03f4 FFF7FEFF 		bl	forwarding_send
+ 190:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          tcp_change_state(TCP_STATE_ALMOST_LAST_ACK);
+ 628              		.loc 1 190 0
+ 629 03f8 1320     		movs	r0, #19
+ 630 03fa FFF7FEFF 		bl	tcp_change_state
+ 191:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          break;
+ 631              		.loc 1 191 0
+ 632 03fe 12E0     		b	.L10
+ 633              	.L22:
+ 192:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** 
+ 193:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       case TCP_STATE_ALMOST_LAST_ACK:                             //[sendDone] teardown
+ 194:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          openqueue_freePacketBuffer(msg);
+ 634              		.loc 1 194 0
+ 635 0400 7868     		ldr	r0, [r7, #4]
+ 636 0402 FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 195:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          tcp_change_state(TCP_STATE_LAST_ACK);
+ 637              		.loc 1 195 0
+ 638 0406 1420     		movs	r0, #20
+ 639 0408 FFF7FEFF 		bl	tcp_change_state
+ 196:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          break;
+ 640              		.loc 1 196 0
+ 641 040c 0BE0     		b	.L10
+ 642              	.L11:
+ 197:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** 
+ 198:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       default:
+ 199:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          openserial_printError(COMPONENT_OPENTCP,ERR_WRONG_TCP_STATE,
+ 200:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                (errorparameter_t)tcp_vars.state,
+ 643              		.loc 1 200 0
+ 644 040e 40F20003 		movw	r3, #:lower16:tcp_vars
+ 645 0412 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 646 0416 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 199:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                (errorparameter_t)tcp_vars.state,
+ 647              		.loc 1 199 0
+ 648 0418 1720     		movs	r0, #23
+ 649 041a 0721     		movs	r1, #7
+ 650 041c 1A46     		mov	r2, r3
+ 651 041e 0323     		movs	r3, #3
+ 652 0420 FFF7FEFF 		bl	openserial_printError
+ 201:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                (errorparameter_t)3);
+ 202:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          break;
+ 653              		.loc 1 202 0
+ 654 0424 00BF     		nop
+ 655              	.L10:
+ 203:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    }
+ 204:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** }
+ 656              		.loc 1 204 0
+ 657 0426 1037     		adds	r7, r7, #16
+ 658 0428 BD46     		mov	sp, r7
+ 659              		@ sp needed
+ 660 042a B0BD     		pop	{r4, r5, r7, pc}
+ 661              		.cfi_endproc
+ 662              	.LFE3:
+ 664              		.align	2
+ 665              		.global	opentcp_receive
+ 666              		.thumb
+ 667              		.thumb_func
+ 669              	opentcp_receive:
+ 670              	.LFB4:
+ 205:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** 
+ 206:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** void opentcp_receive(OpenQueueEntry_t* msg) {
+ 671              		.loc 1 206 0
+ 672              		.cfi_startproc
+ 673              		@ args = 0, pretend = 0, frame = 16
+ 674              		@ frame_needed = 1, uses_anonymous_args = 0
+ 675 042c B0B5     		push	{r4, r5, r7, lr}
+ 676              		.cfi_def_cfa_offset 16
+ 677              		.cfi_offset 4, -16
+ 678              		.cfi_offset 5, -12
+ 679              		.cfi_offset 7, -8
+ 680              		.cfi_offset 14, -4
+ 681 042e 86B0     		sub	sp, sp, #24
+ 682              		.cfi_def_cfa_offset 40
+ 683 0430 02AF     		add	r7, sp, #8
+ 684              		.cfi_def_cfa 7, 32
+ 685 0432 7860     		str	r0, [r7, #4]
+ 207:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    OpenQueueEntry_t* tempPkt;
+ 208:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    bool shouldIlisten;
+ 209:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    msg->owner                     = COMPONENT_OPENTCP;
+ 686              		.loc 1 209 0
+ 687 0434 7B68     		ldr	r3, [r7, #4]
+ 688 0436 1722     		movs	r2, #23
+ 689 0438 5A70     		strb	r2, [r3, #1]
+ 210:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    msg->l4_protocol               = IANA_TCP;
+ 690              		.loc 1 210 0
+ 691 043a 7B68     		ldr	r3, [r7, #4]
+ 692 043c 0622     		movs	r2, #6
+ 693 043e 5A72     		strb	r2, [r3, #9]
+ 211:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    msg->l4_payload                = msg->payload;
+ 694              		.loc 1 211 0
+ 695 0440 7B68     		ldr	r3, [r7, #4]
+ 696 0442 5A68     		ldr	r2, [r3, #4]
+ 697 0444 7B68     		ldr	r3, [r7, #4]
+ 698 0446 1A61     		str	r2, [r3, #16]
+ 212:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    msg->l4_length                 = msg->length;
+ 699              		.loc 1 212 0
+ 700 0448 7B68     		ldr	r3, [r7, #4]
+ 701 044a 1A7A     		ldrb	r2, [r3, #8]	@ zero_extendqisi2
+ 702 044c 7B68     		ldr	r3, [r7, #4]
+ 703 044e 1A75     		strb	r2, [r3, #20]
+ 213:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    msg->l4_sourcePortORicmpv6Type = packetfunctions_ntohs((uint8_t*)&(((tcp_ht*)msg->payload)->sour
+ 704              		.loc 1 213 0
+ 705 0450 7B68     		ldr	r3, [r7, #4]
+ 706 0452 5B68     		ldr	r3, [r3, #4]
+ 707 0454 1846     		mov	r0, r3
+ 708 0456 FFF7FEFF 		bl	packetfunctions_ntohs
+ 709 045a 0346     		mov	r3, r0
+ 710 045c 1A46     		mov	r2, r3
+ 711 045e 7B68     		ldr	r3, [r7, #4]
+ 712 0460 9A81     		strh	r2, [r3, #12]	@ movhi
+ 214:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    msg->l4_destination_port       = packetfunctions_ntohs((uint8_t*)&(((tcp_ht*)msg->payload)->dest
+ 713              		.loc 1 214 0
+ 714 0462 7B68     		ldr	r3, [r7, #4]
+ 715 0464 5B68     		ldr	r3, [r3, #4]
+ 716 0466 0233     		adds	r3, r3, #2
+ 717 0468 1846     		mov	r0, r3
+ 718 046a FFF7FEFF 		bl	packetfunctions_ntohs
+ 719 046e 0346     		mov	r3, r0
+ 720 0470 1A46     		mov	r2, r3
+ 721 0472 7B68     		ldr	r3, [r7, #4]
+ 722 0474 DA81     		strh	r2, [r3, #14]	@ movhi
+ 215:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    if ( 
+ 216:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          tcp_vars.state!=TCP_STATE_CLOSED &&
+ 723              		.loc 1 216 0
+ 724 0476 40F20003 		movw	r3, #:lower16:tcp_vars
+ 725 047a C0F20003 		movt	r3, #:upper16:tcp_vars
+ 726 047e 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 215:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    if ( 
+ 727              		.loc 1 215 0
+ 728 0480 002B     		cmp	r3, #0
+ 729 0482 22D0     		beq	.L34
+ 217:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          (
+ 218:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****           msg->l4_destination_port != tcp_vars.myPort  ||
+ 730              		.loc 1 218 0
+ 731 0484 7B68     		ldr	r3, [r7, #4]
+ 732 0486 DA89     		ldrh	r2, [r3, #14]
+ 733 0488 40F20003 		movw	r3, #:lower16:tcp_vars
+ 734 048c C0F20003 		movt	r3, #:upper16:tcp_vars
+ 735 0490 1B89     		ldrh	r3, [r3, #8]
+ 216:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          (
+ 736              		.loc 1 216 0
+ 737 0492 9A42     		cmp	r2, r3
+ 738 0494 14D1     		bne	.L35
+ 219:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****           msg->l4_sourcePortORicmpv6Type      != tcp_vars.hisPort ||
+ 739              		.loc 1 219 0
+ 740 0496 7B68     		ldr	r3, [r7, #4]
+ 741 0498 9A89     		ldrh	r2, [r3, #12]
+ 742 049a 40F20003 		movw	r3, #:lower16:tcp_vars
+ 743 049e C0F20003 		movt	r3, #:upper16:tcp_vars
+ 744 04a2 1B8A     		ldrh	r3, [r3, #16]
+ 218:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****           msg->l4_sourcePortORicmpv6Type      != tcp_vars.hisPort ||
+ 745              		.loc 1 218 0
+ 746 04a4 9A42     		cmp	r2, r3
+ 747 04a6 0BD1     		bne	.L35
+ 220:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****           packetfunctions_sameAddress(&(msg->l3_destinationAdd),&tcp_vars.hisIPv6Address)==FALSE
+ 748              		.loc 1 220 0
+ 749 04a8 7B68     		ldr	r3, [r7, #4]
+ 750 04aa 1533     		adds	r3, r3, #21
+ 751 04ac 1846     		mov	r0, r3
+ 752 04ae B849     		ldr	r1, .L90
+ 753 04b0 FFF7FEFF 		bl	packetfunctions_sameAddress
+ 754 04b4 0346     		mov	r3, r0
+ 755 04b6 83F00103 		eor	r3, r3, #1
+ 756 04ba DBB2     		uxtb	r3, r3
+ 219:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****           msg->l4_sourcePortORicmpv6Type      != tcp_vars.hisPort ||
+ 757              		.loc 1 219 0
+ 758 04bc 002B     		cmp	r3, #0
+ 759 04be 04D0     		beq	.L34
+ 760              	.L35:
+ 221:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          )
+ 222:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       ) {
+ 223:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       openqueue_freePacketBuffer(msg);
+ 761              		.loc 1 223 0
+ 762 04c0 7868     		ldr	r0, [r7, #4]
+ 763 04c2 FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 224:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       return;
+ 764              		.loc 1 224 0
+ 765 04c6 00F091BC 		b	.L33
+ 766              	.L34:
+ 225:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    }
+ 226:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    if (containsControlBits(msg,TCP_ACK_WHATEVER,TCP_RST_YES,TCP_SYN_WHATEVER,TCP_FIN_WHATEVER)) {
+ 767              		.loc 1 226 0
+ 768 04ca 0223     		movs	r3, #2
+ 769 04cc 0093     		str	r3, [sp]
+ 770 04ce 7868     		ldr	r0, [r7, #4]
+ 771 04d0 0221     		movs	r1, #2
+ 772 04d2 0122     		movs	r2, #1
+ 773 04d4 0223     		movs	r3, #2
+ 774 04d6 FFF7FEFF 		bl	containsControlBits
+ 775 04da 0346     		mov	r3, r0
+ 776 04dc 002B     		cmp	r3, #0
+ 777 04de 04D0     		beq	.L37
+ 227:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       //I receive RST[+*], I reset
+ 228:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       opentcp_reset();
+ 778              		.loc 1 228 0
+ 779 04e0 FFF7FEFF 		bl	opentcp_reset
+ 229:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       openqueue_freePacketBuffer(msg);
+ 780              		.loc 1 229 0
+ 781 04e4 7868     		ldr	r0, [r7, #4]
+ 782 04e6 FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 783              	.L37:
+ 230:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    }
+ 231:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    switch (tcp_vars.state) {
+ 784              		.loc 1 231 0
+ 785 04ea 40F20003 		movw	r3, #:lower16:tcp_vars
+ 786 04ee C0F20003 		movt	r3, #:upper16:tcp_vars
+ 787 04f2 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 788 04f4 142B     		cmp	r3, #20
+ 789 04f6 00F26D84 		bhi	.L38
+ 790 04fa 01A2     		adr	r2, .L40
+ 791 04fc 52F823F0 		ldr	pc, [r2, r3, lsl #2]
+ 792              		.p2align 2
+ 793              	.L40:
+ 794 0500 55050000 		.word	.L39+1
+ 795 0504 D50D0000 		.word	.L38+1
+ 796 0508 1D080000 		.word	.L41+1
+ 797 050c D50D0000 		.word	.L38+1
+ 798 0510 9B060000 		.word	.L42+1
+ 799 0514 D50D0000 		.word	.L38+1
+ 800 0518 5D080000 		.word	.L43+1
+ 801 051c D50D0000 		.word	.L38+1
+ 802 0520 E9090000 		.word	.L44+1
+ 803 0524 D50D0000 		.word	.L38+1
+ 804 0528 D50D0000 		.word	.L38+1
+ 805 052c 5F0B0000 		.word	.L45+1
+ 806 0530 D50D0000 		.word	.L38+1
+ 807 0534 8B0D0000 		.word	.L46+1
+ 808 0538 E30C0000 		.word	.L47+1
+ 809 053c D50D0000 		.word	.L38+1
+ 810 0540 D50D0000 		.word	.L38+1
+ 811 0544 D50D0000 		.word	.L38+1
+ 812 0548 D50D0000 		.word	.L38+1
+ 813 054c D50D0000 		.word	.L38+1
+ 814 0550 B30D0000 		.word	.L48+1
+ 815              	.L39:
+ 232:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       case TCP_STATE_CLOSED:                                      //[receive] establishement
+ 233:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          switch(msg->l4_destination_port) {
+ 816              		.loc 1 233 0
+ 817 0554 7B68     		ldr	r3, [r7, #4]
+ 818 0556 DB89     		ldrh	r3, [r3, #14]
+ 819 0558 072B     		cmp	r3, #7
+ 820 055a 04D1     		bne	.L87
+ 234:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             case WKP_TCP_ECHO:
+ 235:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                shouldIlisten = techo_shouldIlisten();
+ 821              		.loc 1 235 0
+ 822 055c FFF7FEFF 		bl	techo_shouldIlisten
+ 823 0560 0346     		mov	r3, r0
+ 824 0562 FB73     		strb	r3, [r7, #15]
+ 236:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                break;
+ 825              		.loc 1 236 0
+ 826 0564 0AE0     		b	.L51
+ 827              	.L87:
+ 237:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             default:
+ 238:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                openserial_printError(COMPONENT_OPENTCP,ERR_UNSUPPORTED_PORT_NUMBER,
+ 828              		.loc 1 238 0
+ 829 0566 7B68     		ldr	r3, [r7, #4]
+ 830 0568 9B89     		ldrh	r3, [r3, #12]
+ 831 056a 1720     		movs	r0, #23
+ 832 056c 0921     		movs	r1, #9
+ 833 056e 1A46     		mov	r2, r3
+ 834 0570 0223     		movs	r3, #2
+ 835 0572 FFF7FEFF 		bl	openserial_printError
+ 239:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                      (errorparameter_t)msg->l4_sourcePortORicmpv6Type,
+ 240:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                      (errorparameter_t)2);
+ 241:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                shouldIlisten = FALSE;
+ 836              		.loc 1 241 0
+ 837 0576 0023     		movs	r3, #0
+ 838 0578 FB73     		strb	r3, [r7, #15]
+ 242:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                break;
+ 839              		.loc 1 242 0
+ 840 057a 00BF     		nop
+ 841              	.L51:
+ 243:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          }
+ 244:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          if ( containsControlBits(msg,TCP_ACK_NO,TCP_RST_NO,TCP_SYN_YES,TCP_FIN_NO) && shouldIliste
+ 842              		.loc 1 244 0
+ 843 057c 0023     		movs	r3, #0
+ 844 057e 0093     		str	r3, [sp]
+ 845 0580 7868     		ldr	r0, [r7, #4]
+ 846 0582 0021     		movs	r1, #0
+ 847 0584 0022     		movs	r2, #0
+ 848 0586 0123     		movs	r3, #1
+ 849 0588 FFF7FEFF 		bl	containsControlBits
+ 850 058c 0346     		mov	r3, r0
+ 851 058e 002B     		cmp	r3, #0
+ 852 0590 72D0     		beq	.L52
+ 853              		.loc 1 244 0 is_stmt 0 discriminator 1
+ 854 0592 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 855 0594 002B     		cmp	r3, #0
+ 856 0596 6FD0     		beq	.L52
+ 245:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   tcp_vars.myPort = msg->l4_destination_port;
+ 857              		.loc 1 245 0 is_stmt 1
+ 858 0598 7B68     		ldr	r3, [r7, #4]
+ 859 059a DA89     		ldrh	r2, [r3, #14]
+ 860 059c 40F20003 		movw	r3, #:lower16:tcp_vars
+ 861 05a0 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 862 05a4 1A81     		strh	r2, [r3, #8]	@ movhi
+ 246:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   //I receive SYN, I send SYN+ACK
+ 247:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   tcp_vars.hisNextSeqNum = (packetfunctions_ntohl((uint8_t*)&(((tcp_ht*)msg->payloa
+ 863              		.loc 1 247 0
+ 864 05a6 7B68     		ldr	r3, [r7, #4]
+ 865 05a8 5B68     		ldr	r3, [r3, #4]
+ 866 05aa 0433     		adds	r3, r3, #4
+ 867 05ac 1846     		mov	r0, r3
+ 868 05ae FFF7FEFF 		bl	packetfunctions_ntohl
+ 869 05b2 0346     		mov	r3, r0
+ 870 05b4 5A1C     		adds	r2, r3, #1
+ 871 05b6 40F20003 		movw	r3, #:lower16:tcp_vars
+ 872 05ba C0F20003 		movt	r3, #:upper16:tcp_vars
+ 873 05be DA60     		str	r2, [r3, #12]
+ 248:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   tcp_vars.hisPort       = msg->l4_sourcePortORicmpv6Type;
+ 874              		.loc 1 248 0
+ 875 05c0 7B68     		ldr	r3, [r7, #4]
+ 876 05c2 9A89     		ldrh	r2, [r3, #12]
+ 877 05c4 40F20003 		movw	r3, #:lower16:tcp_vars
+ 878 05c8 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 879 05cc 1A82     		strh	r2, [r3, #16]	@ movhi
+ 249:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   memcpy(&tcp_vars.hisIPv6Address,&(msg->l3_destinationAdd),sizeof(open_addr_t));
+ 880              		.loc 1 249 0
+ 881 05ce 40F20003 		movw	r3, #:lower16:tcp_vars
+ 882 05d2 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 883 05d6 7A68     		ldr	r2, [r7, #4]
+ 884 05d8 1233     		adds	r3, r3, #18
+ 885 05da 1532     		adds	r2, r2, #21
+ 886 05dc 1568     		ldr	r5, [r2]	@ unaligned
+ 887 05de 5468     		ldr	r4, [r2, #4]	@ unaligned
+ 888 05e0 9068     		ldr	r0, [r2, #8]	@ unaligned
+ 889 05e2 D168     		ldr	r1, [r2, #12]	@ unaligned
+ 890 05e4 1D60     		str	r5, [r3]	@ unaligned
+ 891 05e6 5C60     		str	r4, [r3, #4]	@ unaligned
+ 892 05e8 9860     		str	r0, [r3, #8]	@ unaligned
+ 893 05ea D960     		str	r1, [r3, #12]	@ unaligned
+ 894 05ec 127C     		ldrb	r2, [r2, #16]
+ 895 05ee 1A74     		strb	r2, [r3, #16]
+ 250:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   tempPkt       = openqueue_getFreePacketBuffer(COMPONENT_OPENTCP);
+ 896              		.loc 1 250 0
+ 897 05f0 1720     		movs	r0, #23
+ 898 05f2 FFF7FEFF 		bl	openqueue_getFreePacketBuffer
+ 899 05f6 B860     		str	r0, [r7, #8]
+ 251:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   if (tempPkt==NULL) {
+ 900              		.loc 1 251 0
+ 901 05f8 BB68     		ldr	r3, [r7, #8]
+ 902 05fa 002B     		cmp	r3, #0
+ 903 05fc 09D1     		bne	.L53
+ 252:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                      openserial_printError(COMPONENT_OPENTCP,ERR_NO_FREE_PACKET_BUFFER,
+ 904              		.loc 1 252 0
+ 905 05fe 1720     		movs	r0, #23
+ 906 0600 2C21     		movs	r1, #44
+ 907 0602 0022     		movs	r2, #0
+ 908 0604 0023     		movs	r3, #0
+ 909 0606 FFF7FEFF 		bl	openserial_printError
+ 253:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                            (errorparameter_t)0,
+ 254:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                            (errorparameter_t)0);
+ 255:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                      openqueue_freePacketBuffer(msg);
+ 910              		.loc 1 255 0
+ 911 060a 7868     		ldr	r0, [r7, #4]
+ 912 060c FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 256:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                      return;
+ 913              		.loc 1 256 0
+ 914 0610 ECE3     		b	.L33
+ 915              	.L53:
+ 257:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   }
+ 258:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   tempPkt->creator       = COMPONENT_OPENTCP;
+ 916              		.loc 1 258 0
+ 917 0612 BB68     		ldr	r3, [r7, #8]
+ 918 0614 1722     		movs	r2, #23
+ 919 0616 1A70     		strb	r2, [r3]
+ 259:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   tempPkt->owner         = COMPONENT_OPENTCP;
+ 920              		.loc 1 259 0
+ 921 0618 BB68     		ldr	r3, [r7, #8]
+ 922 061a 1722     		movs	r2, #23
+ 923 061c 5A70     		strb	r2, [r3, #1]
+ 260:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   memcpy(&(tempPkt->l3_destinationAdd),&tcp_vars.hisIPv6Address,sizeof(open_addr_t)
+ 924              		.loc 1 260 0
+ 925 061e BB68     		ldr	r3, [r7, #8]
+ 926 0620 1533     		adds	r3, r3, #21
+ 927 0622 40F20002 		movw	r2, #:lower16:tcp_vars
+ 928 0626 C0F20002 		movt	r2, #:upper16:tcp_vars
+ 929 062a 1232     		adds	r2, r2, #18
+ 930 062c 1568     		ldr	r5, [r2]	@ unaligned
+ 931 062e 5468     		ldr	r4, [r2, #4]	@ unaligned
+ 932 0630 9068     		ldr	r0, [r2, #8]	@ unaligned
+ 933 0632 D168     		ldr	r1, [r2, #12]	@ unaligned
+ 934 0634 1D60     		str	r5, [r3]	@ unaligned
+ 935 0636 5C60     		str	r4, [r3, #4]	@ unaligned
+ 936 0638 9860     		str	r0, [r3, #8]	@ unaligned
+ 937 063a D960     		str	r1, [r3, #12]	@ unaligned
+ 938 063c 127C     		ldrb	r2, [r2, #16]
+ 939 063e 1A74     		strb	r2, [r3, #16]
+ 261:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   prependTCPHeader(tempPkt,
+ 940              		.loc 1 261 0
+ 941 0640 0123     		movs	r3, #1
+ 942 0642 0093     		str	r3, [sp]
+ 943 0644 0023     		movs	r3, #0
+ 944 0646 0193     		str	r3, [sp, #4]
+ 945 0648 B868     		ldr	r0, [r7, #8]
+ 946 064a 0121     		movs	r1, #1
+ 947 064c 0022     		movs	r2, #0
+ 948 064e 0023     		movs	r3, #0
+ 949 0650 FFF7FEFF 		bl	prependTCPHeader
+ 262:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                         TCP_ACK_YES,
+ 263:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                         TCP_PSH_NO,
+ 264:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                         TCP_RST_NO,
+ 265:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                         TCP_SYN_YES,
+ 266:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                         TCP_FIN_NO);
+ 267:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   tcp_vars.mySeqNum++;
+ 950              		.loc 1 267 0
+ 951 0654 40F20003 		movw	r3, #:lower16:tcp_vars
+ 952 0658 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 953 065c 5B68     		ldr	r3, [r3, #4]
+ 954 065e 5A1C     		adds	r2, r3, #1
+ 955 0660 40F20003 		movw	r3, #:lower16:tcp_vars
+ 956 0664 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 957 0668 5A60     		str	r2, [r3, #4]
+ 268:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   tcp_change_state(TCP_STATE_ALMOST_SYN_RECEIVED);
+ 958              		.loc 1 268 0
+ 959 066a 0120     		movs	r0, #1
+ 960 066c FFF7FEFF 		bl	tcp_change_state
+ 269:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   forwarding_send(tempPkt);
+ 961              		.loc 1 269 0
+ 962 0670 B868     		ldr	r0, [r7, #8]
+ 963 0672 FFF7FEFF 		bl	forwarding_send
+ 964 0676 0CE0     		b	.L54
+ 965              	.L52:
+ 270:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                } else {
+ 271:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   opentcp_reset();
+ 966              		.loc 1 271 0
+ 967 0678 FFF7FEFF 		bl	opentcp_reset
+ 272:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   openserial_printError(COMPONENT_OPENTCP,ERR_TCP_RESET,
+ 273:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                         (errorparameter_t)tcp_vars.state,
+ 968              		.loc 1 273 0
+ 969 067c 40F20003 		movw	r3, #:lower16:tcp_vars
+ 970 0680 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 971 0684 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 272:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   openserial_printError(COMPONENT_OPENTCP,ERR_TCP_RESET,
+ 972              		.loc 1 272 0
+ 973 0686 1720     		movs	r0, #23
+ 974 0688 0821     		movs	r1, #8
+ 975 068a 1A46     		mov	r2, r3
+ 976 068c 0023     		movs	r3, #0
+ 977 068e FFF7FEFF 		bl	openserial_printError
+ 978              	.L54:
+ 274:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                         (errorparameter_t)0);
+ 275:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                }
+ 276:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          openqueue_freePacketBuffer(msg);
+ 979              		.loc 1 276 0
+ 980 0692 7868     		ldr	r0, [r7, #4]
+ 981 0694 FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 277:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          break;
+ 982              		.loc 1 277 0
+ 983 0698 A8E3     		b	.L33
+ 984              	.L42:
+ 278:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** 
+ 279:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       case TCP_STATE_SYN_SENT:                                    //[receive] establishement
+ 280:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          if (containsControlBits(msg,TCP_ACK_YES,TCP_RST_NO,TCP_SYN_YES,TCP_FIN_NO)) {
+ 985              		.loc 1 280 0
+ 986 069a 0023     		movs	r3, #0
+ 987 069c 0093     		str	r3, [sp]
+ 988 069e 7868     		ldr	r0, [r7, #4]
+ 989 06a0 0121     		movs	r1, #1
+ 990 06a2 0022     		movs	r2, #0
+ 991 06a4 0123     		movs	r3, #1
+ 992 06a6 FFF7FEFF 		bl	containsControlBits
+ 993 06aa 0346     		mov	r3, r0
+ 994 06ac 002B     		cmp	r3, #0
+ 995 06ae 45D0     		beq	.L55
+ 281:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             //I receive SYN+ACK, I send ACK
+ 282:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tcp_vars.hisNextSeqNum = (packetfunctions_ntohl((uint8_t*)&(((tcp_ht*)msg->payload)->se
+ 996              		.loc 1 282 0
+ 997 06b0 7B68     		ldr	r3, [r7, #4]
+ 998 06b2 5B68     		ldr	r3, [r3, #4]
+ 999 06b4 0433     		adds	r3, r3, #4
+ 1000 06b6 1846     		mov	r0, r3
+ 1001 06b8 FFF7FEFF 		bl	packetfunctions_ntohl
+ 1002 06bc 0346     		mov	r3, r0
+ 1003 06be 5A1C     		adds	r2, r3, #1
+ 1004 06c0 40F20003 		movw	r3, #:lower16:tcp_vars
+ 1005 06c4 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 1006 06c8 DA60     		str	r2, [r3, #12]
+ 283:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tempPkt = openqueue_getFreePacketBuffer(COMPONENT_OPENTCP);
+ 1007              		.loc 1 283 0
+ 1008 06ca 1720     		movs	r0, #23
+ 1009 06cc FFF7FEFF 		bl	openqueue_getFreePacketBuffer
+ 1010 06d0 B860     		str	r0, [r7, #8]
+ 284:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             if (tempPkt==NULL) {
+ 1011              		.loc 1 284 0
+ 1012 06d2 BB68     		ldr	r3, [r7, #8]
+ 1013 06d4 002B     		cmp	r3, #0
+ 1014 06d6 09D1     		bne	.L56
+ 285:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                openserial_printError(COMPONENT_OPENTCP,ERR_NO_FREE_PACKET_BUFFER,
+ 1015              		.loc 1 285 0
+ 1016 06d8 1720     		movs	r0, #23
+ 1017 06da 2C21     		movs	r1, #44
+ 1018 06dc 0022     		movs	r2, #0
+ 1019 06de 0023     		movs	r3, #0
+ 1020 06e0 FFF7FEFF 		bl	openserial_printError
+ 286:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                      (errorparameter_t)0,
+ 287:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                      (errorparameter_t)0);
+ 288:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                openqueue_freePacketBuffer(msg);
+ 1021              		.loc 1 288 0
+ 1022 06e4 7868     		ldr	r0, [r7, #4]
+ 1023 06e6 FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 289:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                return;
+ 1024              		.loc 1 289 0
+ 1025 06ea 7FE3     		b	.L33
+ 1026              	.L56:
+ 290:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             }
+ 291:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tempPkt->creator       = COMPONENT_OPENTCP;
+ 1027              		.loc 1 291 0
+ 1028 06ec BB68     		ldr	r3, [r7, #8]
+ 1029 06ee 1722     		movs	r2, #23
+ 1030 06f0 1A70     		strb	r2, [r3]
+ 292:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tempPkt->owner         = COMPONENT_OPENTCP;
+ 1031              		.loc 1 292 0
+ 1032 06f2 BB68     		ldr	r3, [r7, #8]
+ 1033 06f4 1722     		movs	r2, #23
+ 1034 06f6 5A70     		strb	r2, [r3, #1]
+ 293:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             memcpy(&(tempPkt->l3_destinationAdd),&tcp_vars.hisIPv6Address,sizeof(open_addr_t));
+ 1035              		.loc 1 293 0
+ 1036 06f8 BB68     		ldr	r3, [r7, #8]
+ 1037 06fa 1533     		adds	r3, r3, #21
+ 1038 06fc 40F20002 		movw	r2, #:lower16:tcp_vars
+ 1039 0700 C0F20002 		movt	r2, #:upper16:tcp_vars
+ 1040 0704 1232     		adds	r2, r2, #18
+ 1041 0706 1568     		ldr	r5, [r2]	@ unaligned
+ 1042 0708 5468     		ldr	r4, [r2, #4]	@ unaligned
+ 1043 070a 9068     		ldr	r0, [r2, #8]	@ unaligned
+ 1044 070c D168     		ldr	r1, [r2, #12]	@ unaligned
+ 1045 070e 1D60     		str	r5, [r3]	@ unaligned
+ 1046 0710 5C60     		str	r4, [r3, #4]	@ unaligned
+ 1047 0712 9860     		str	r0, [r3, #8]	@ unaligned
+ 1048 0714 D960     		str	r1, [r3, #12]	@ unaligned
+ 1049 0716 127C     		ldrb	r2, [r2, #16]
+ 1050 0718 1A74     		strb	r2, [r3, #16]
+ 294:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             prependTCPHeader(tempPkt,
+ 1051              		.loc 1 294 0
+ 1052 071a 0023     		movs	r3, #0
+ 1053 071c 0093     		str	r3, [sp]
+ 1054 071e 0023     		movs	r3, #0
+ 1055 0720 0193     		str	r3, [sp, #4]
+ 1056 0722 B868     		ldr	r0, [r7, #8]
+ 1057 0724 0121     		movs	r1, #1
+ 1058 0726 0022     		movs	r2, #0
+ 1059 0728 0023     		movs	r3, #0
+ 1060 072a FFF7FEFF 		bl	prependTCPHeader
+ 295:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   TCP_ACK_YES,
+ 296:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   TCP_PSH_NO,
+ 297:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   TCP_RST_NO,
+ 298:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   TCP_SYN_NO,
+ 299:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   TCP_FIN_NO);
+ 300:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tcp_change_state(TCP_STATE_ALMOST_ESTABLISHED);
+ 1061              		.loc 1 300 0
+ 1062 072e 0520     		movs	r0, #5
+ 1063 0730 FFF7FEFF 		bl	tcp_change_state
+ 301:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             forwarding_send(tempPkt);
+ 1064              		.loc 1 301 0
+ 1065 0734 B868     		ldr	r0, [r7, #8]
+ 1066 0736 FFF7FEFF 		bl	forwarding_send
+ 1067 073a 6BE0     		b	.L57
+ 1068              	.L55:
+ 302:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          } else if (containsControlBits(msg,TCP_ACK_NO,TCP_RST_NO,TCP_SYN_YES,TCP_FIN_NO)) {
+ 1069              		.loc 1 302 0
+ 1070 073c 0023     		movs	r3, #0
+ 1071 073e 0093     		str	r3, [sp]
+ 1072 0740 7868     		ldr	r0, [r7, #4]
+ 1073 0742 0021     		movs	r1, #0
+ 1074 0744 0022     		movs	r2, #0
+ 1075 0746 0123     		movs	r3, #1
+ 1076 0748 FFF7FEFF 		bl	containsControlBits
+ 1077 074c 0346     		mov	r3, r0
+ 1078 074e 002B     		cmp	r3, #0
+ 1079 0750 53D0     		beq	.L58
+ 303:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             //I receive SYN, I send SYN+ACK
+ 304:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tcp_vars.hisNextSeqNum = (packetfunctions_ntohl((uint8_t*)&(((tcp_ht*)msg->payload)->se
+ 1080              		.loc 1 304 0
+ 1081 0752 7B68     		ldr	r3, [r7, #4]
+ 1082 0754 5B68     		ldr	r3, [r3, #4]
+ 1083 0756 0433     		adds	r3, r3, #4
+ 1084 0758 1846     		mov	r0, r3
+ 1085 075a FFF7FEFF 		bl	packetfunctions_ntohl
+ 1086 075e 0346     		mov	r3, r0
+ 1087 0760 5A1C     		adds	r2, r3, #1
+ 1088 0762 40F20003 		movw	r3, #:lower16:tcp_vars
+ 1089 0766 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 1090 076a DA60     		str	r2, [r3, #12]
+ 305:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tempPkt       = openqueue_getFreePacketBuffer(COMPONENT_OPENTCP);
+ 1091              		.loc 1 305 0
+ 1092 076c 1720     		movs	r0, #23
+ 1093 076e FFF7FEFF 		bl	openqueue_getFreePacketBuffer
+ 1094 0772 B860     		str	r0, [r7, #8]
+ 306:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             if (tempPkt==NULL) {
+ 1095              		.loc 1 306 0
+ 1096 0774 BB68     		ldr	r3, [r7, #8]
+ 1097 0776 002B     		cmp	r3, #0
+ 1098 0778 0CD1     		bne	.L59
+ 307:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                openserial_printError(COMPONENT_OPENTCP,ERR_NO_FREE_PACKET_BUFFER,
+ 1099              		.loc 1 307 0
+ 1100 077a 1720     		movs	r0, #23
+ 1101 077c 2C21     		movs	r1, #44
+ 1102 077e 0022     		movs	r2, #0
+ 1103 0780 0023     		movs	r3, #0
+ 1104 0782 FFF7FEFF 		bl	openserial_printError
+ 308:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                      (errorparameter_t)0,
+ 309:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                      (errorparameter_t)0);
+ 310:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                openqueue_freePacketBuffer(msg);
+ 1105              		.loc 1 310 0
+ 1106 0786 7868     		ldr	r0, [r7, #4]
+ 1107 0788 FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 311:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                return;
+ 1108              		.loc 1 311 0
+ 1109 078c 2EE3     		b	.L33
+ 1110              	.L91:
+ 1111 078e 00BF     		.align	2
+ 1112              	.L90:
+ 1113 0790 12000000 		.word	tcp_vars+18
+ 1114              	.L59:
+ 312:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             }
+ 313:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tempPkt->creator       = COMPONENT_OPENTCP;
+ 1115              		.loc 1 313 0
+ 1116 0794 BB68     		ldr	r3, [r7, #8]
+ 1117 0796 1722     		movs	r2, #23
+ 1118 0798 1A70     		strb	r2, [r3]
+ 314:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tempPkt->owner         = COMPONENT_OPENTCP;
+ 1119              		.loc 1 314 0
+ 1120 079a BB68     		ldr	r3, [r7, #8]
+ 1121 079c 1722     		movs	r2, #23
+ 1122 079e 5A70     		strb	r2, [r3, #1]
+ 315:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             memcpy(&(tempPkt->l3_destinationAdd),&tcp_vars.hisIPv6Address,sizeof(open_addr_t));
+ 1123              		.loc 1 315 0
+ 1124 07a0 BB68     		ldr	r3, [r7, #8]
+ 1125 07a2 1533     		adds	r3, r3, #21
+ 1126 07a4 40F20002 		movw	r2, #:lower16:tcp_vars
+ 1127 07a8 C0F20002 		movt	r2, #:upper16:tcp_vars
+ 1128 07ac 1232     		adds	r2, r2, #18
+ 1129 07ae 1568     		ldr	r5, [r2]	@ unaligned
+ 1130 07b0 5468     		ldr	r4, [r2, #4]	@ unaligned
+ 1131 07b2 9068     		ldr	r0, [r2, #8]	@ unaligned
+ 1132 07b4 D168     		ldr	r1, [r2, #12]	@ unaligned
+ 1133 07b6 1D60     		str	r5, [r3]	@ unaligned
+ 1134 07b8 5C60     		str	r4, [r3, #4]	@ unaligned
+ 1135 07ba 9860     		str	r0, [r3, #8]	@ unaligned
+ 1136 07bc D960     		str	r1, [r3, #12]	@ unaligned
+ 1137 07be 127C     		ldrb	r2, [r2, #16]
+ 1138 07c0 1A74     		strb	r2, [r3, #16]
+ 316:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             prependTCPHeader(tempPkt,
+ 1139              		.loc 1 316 0
+ 1140 07c2 0123     		movs	r3, #1
+ 1141 07c4 0093     		str	r3, [sp]
+ 1142 07c6 0023     		movs	r3, #0
+ 1143 07c8 0193     		str	r3, [sp, #4]
+ 1144 07ca B868     		ldr	r0, [r7, #8]
+ 1145 07cc 0121     		movs	r1, #1
+ 1146 07ce 0022     		movs	r2, #0
+ 1147 07d0 0023     		movs	r3, #0
+ 1148 07d2 FFF7FEFF 		bl	prependTCPHeader
+ 317:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   TCP_ACK_YES,
+ 318:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   TCP_PSH_NO,
+ 319:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   TCP_RST_NO,
+ 320:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   TCP_SYN_YES,
+ 321:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   TCP_FIN_NO);
+ 322:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tcp_vars.mySeqNum++;
+ 1149              		.loc 1 322 0
+ 1150 07d6 40F20003 		movw	r3, #:lower16:tcp_vars
+ 1151 07da C0F20003 		movt	r3, #:upper16:tcp_vars
+ 1152 07de 5B68     		ldr	r3, [r3, #4]
+ 1153 07e0 5A1C     		adds	r2, r3, #1
+ 1154 07e2 40F20003 		movw	r3, #:lower16:tcp_vars
+ 1155 07e6 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 1156 07ea 5A60     		str	r2, [r3, #4]
+ 323:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tcp_change_state(TCP_STATE_ALMOST_SYN_RECEIVED);
+ 1157              		.loc 1 323 0
+ 1158 07ec 0120     		movs	r0, #1
+ 1159 07ee FFF7FEFF 		bl	tcp_change_state
+ 324:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             forwarding_send(tempPkt);
+ 1160              		.loc 1 324 0
+ 1161 07f2 B868     		ldr	r0, [r7, #8]
+ 1162 07f4 FFF7FEFF 		bl	forwarding_send
+ 1163 07f8 0CE0     		b	.L57
+ 1164              	.L58:
+ 325:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          } else {
+ 326:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             opentcp_reset();
+ 1165              		.loc 1 326 0
+ 1166 07fa FFF7FEFF 		bl	opentcp_reset
+ 327:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             openserial_printError(COMPONENT_OPENTCP,ERR_TCP_RESET,
+ 328:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                   (errorparameter_t)tcp_vars.state,
+ 1167              		.loc 1 328 0
+ 1168 07fe 40F20003 		movw	r3, #:lower16:tcp_vars
+ 1169 0802 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 1170 0806 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 327:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             openserial_printError(COMPONENT_OPENTCP,ERR_TCP_RESET,
+ 1171              		.loc 1 327 0
+ 1172 0808 1720     		movs	r0, #23
+ 1173 080a 0821     		movs	r1, #8
+ 1174 080c 1A46     		mov	r2, r3
+ 1175 080e 0123     		movs	r3, #1
+ 1176 0810 FFF7FEFF 		bl	openserial_printError
+ 1177              	.L57:
+ 329:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                   (errorparameter_t)1);
+ 330:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          }
+ 331:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          openqueue_freePacketBuffer(msg);
+ 1178              		.loc 1 331 0
+ 1179 0814 7868     		ldr	r0, [r7, #4]
+ 1180 0816 FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 332:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          break;
+ 1181              		.loc 1 332 0
+ 1182 081a E7E2     		b	.L33
+ 1183              	.L41:
+ 333:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** 
+ 334:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       case TCP_STATE_SYN_RECEIVED:                                //[receive] establishement
+ 335:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          if (containsControlBits(msg,TCP_ACK_YES,TCP_RST_NO,TCP_SYN_NO,TCP_FIN_NO)) {
+ 1184              		.loc 1 335 0
+ 1185 081c 0023     		movs	r3, #0
+ 1186 081e 0093     		str	r3, [sp]
+ 1187 0820 7868     		ldr	r0, [r7, #4]
+ 1188 0822 0121     		movs	r1, #1
+ 1189 0824 0022     		movs	r2, #0
+ 1190 0826 0023     		movs	r3, #0
+ 1191 0828 FFF7FEFF 		bl	containsControlBits
+ 1192 082c 0346     		mov	r3, r0
+ 1193 082e 002B     		cmp	r3, #0
+ 1194 0830 03D0     		beq	.L60
+ 336:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             //I receive ACK, the virtual circuit is established
+ 337:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tcp_change_state(TCP_STATE_ESTABLISHED);
+ 1195              		.loc 1 337 0
+ 1196 0832 0620     		movs	r0, #6
+ 1197 0834 FFF7FEFF 		bl	tcp_change_state
+ 1198 0838 0CE0     		b	.L61
+ 1199              	.L60:
+ 338:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          } else {
+ 339:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             opentcp_reset();
+ 1200              		.loc 1 339 0
+ 1201 083a FFF7FEFF 		bl	opentcp_reset
+ 340:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             openserial_printError(COMPONENT_OPENTCP,ERR_TCP_RESET,
+ 341:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                   (errorparameter_t)tcp_vars.state,
+ 1202              		.loc 1 341 0
+ 1203 083e 40F20003 		movw	r3, #:lower16:tcp_vars
+ 1204 0842 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 1205 0846 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 340:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             openserial_printError(COMPONENT_OPENTCP,ERR_TCP_RESET,
+ 1206              		.loc 1 340 0
+ 1207 0848 1720     		movs	r0, #23
+ 1208 084a 0821     		movs	r1, #8
+ 1209 084c 1A46     		mov	r2, r3
+ 1210 084e 0223     		movs	r3, #2
+ 1211 0850 FFF7FEFF 		bl	openserial_printError
+ 1212              	.L61:
+ 342:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                   (errorparameter_t)2);
+ 343:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          }
+ 344:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          openqueue_freePacketBuffer(msg);
+ 1213              		.loc 1 344 0
+ 1214 0854 7868     		ldr	r0, [r7, #4]
+ 1215 0856 FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 345:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          break;
+ 1216              		.loc 1 345 0
+ 1217 085a C7E2     		b	.L33
+ 1218              	.L43:
+ 346:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** 
+ 347:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       case TCP_STATE_ESTABLISHED:                                 //[receive] data/teardown
+ 348:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          if (containsControlBits(msg,TCP_ACK_WHATEVER,TCP_RST_NO,TCP_SYN_NO,TCP_FIN_YES)) {
+ 1219              		.loc 1 348 0
+ 1220 085c 0123     		movs	r3, #1
+ 1221 085e 0093     		str	r3, [sp]
+ 1222 0860 7868     		ldr	r0, [r7, #4]
+ 1223 0862 0221     		movs	r1, #2
+ 1224 0864 0022     		movs	r2, #0
+ 1225 0866 0023     		movs	r3, #0
+ 1226 0868 FFF7FEFF 		bl	containsControlBits
+ 1227 086c 0346     		mov	r3, r0
+ 1228 086e 002B     		cmp	r3, #0
+ 1229 0870 49D0     		beq	.L62
+ 349:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             //I receive FIN[+ACK], I send ACK
+ 350:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tcp_vars.hisNextSeqNum = (packetfunctions_ntohl((uint8_t*)&(((tcp_ht*)msg->payload)->se
+ 1230              		.loc 1 350 0
+ 1231 0872 7B68     		ldr	r3, [r7, #4]
+ 1232 0874 5B68     		ldr	r3, [r3, #4]
+ 1233 0876 0433     		adds	r3, r3, #4
+ 1234 0878 1846     		mov	r0, r3
+ 1235 087a FFF7FEFF 		bl	packetfunctions_ntohl
+ 1236 087e 0246     		mov	r2, r0
+ 1237 0880 7B68     		ldr	r3, [r7, #4]
+ 1238 0882 1B7A     		ldrb	r3, [r3, #8]	@ zero_extendqisi2
+ 1239 0884 1344     		add	r3, r3, r2
+ 1240 0886 A3F11302 		sub	r2, r3, #19
+ 1241 088a 40F20003 		movw	r3, #:lower16:tcp_vars
+ 1242 088e C0F20003 		movt	r3, #:upper16:tcp_vars
+ 1243 0892 DA60     		str	r2, [r3, #12]
+ 351:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tempPkt = openqueue_getFreePacketBuffer(COMPONENT_OPENTCP);
+ 1244              		.loc 1 351 0
+ 1245 0894 1720     		movs	r0, #23
+ 1246 0896 FFF7FEFF 		bl	openqueue_getFreePacketBuffer
+ 1247 089a B860     		str	r0, [r7, #8]
+ 352:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             if (tempPkt==NULL) {
+ 1248              		.loc 1 352 0
+ 1249 089c BB68     		ldr	r3, [r7, #8]
+ 1250 089e 002B     		cmp	r3, #0
+ 1251 08a0 09D1     		bne	.L63
+ 353:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                openserial_printError(COMPONENT_OPENTCP,ERR_NO_FREE_PACKET_BUFFER,
+ 1252              		.loc 1 353 0
+ 1253 08a2 1720     		movs	r0, #23
+ 1254 08a4 2C21     		movs	r1, #44
+ 1255 08a6 0022     		movs	r2, #0
+ 1256 08a8 0023     		movs	r3, #0
+ 1257 08aa FFF7FEFF 		bl	openserial_printError
+ 354:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                      (errorparameter_t)0,
+ 355:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                      (errorparameter_t)0);
+ 356:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                openqueue_freePacketBuffer(msg);
+ 1258              		.loc 1 356 0
+ 1259 08ae 7868     		ldr	r0, [r7, #4]
+ 1260 08b0 FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 357:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                return;
+ 1261              		.loc 1 357 0
+ 1262 08b4 9AE2     		b	.L33
+ 1263              	.L63:
+ 358:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             }
+ 359:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tempPkt->creator       = COMPONENT_OPENTCP;
+ 1264              		.loc 1 359 0
+ 1265 08b6 BB68     		ldr	r3, [r7, #8]
+ 1266 08b8 1722     		movs	r2, #23
+ 1267 08ba 1A70     		strb	r2, [r3]
+ 360:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tempPkt->owner         = COMPONENT_OPENTCP;
+ 1268              		.loc 1 360 0
+ 1269 08bc BB68     		ldr	r3, [r7, #8]
+ 1270 08be 1722     		movs	r2, #23
+ 1271 08c0 5A70     		strb	r2, [r3, #1]
+ 361:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             memcpy(&(tempPkt->l3_destinationAdd),&tcp_vars.hisIPv6Address,sizeof(open_addr_t));
+ 1272              		.loc 1 361 0
+ 1273 08c2 BB68     		ldr	r3, [r7, #8]
+ 1274 08c4 1533     		adds	r3, r3, #21
+ 1275 08c6 40F20002 		movw	r2, #:lower16:tcp_vars
+ 1276 08ca C0F20002 		movt	r2, #:upper16:tcp_vars
+ 1277 08ce 1232     		adds	r2, r2, #18
+ 1278 08d0 1568     		ldr	r5, [r2]	@ unaligned
+ 1279 08d2 5468     		ldr	r4, [r2, #4]	@ unaligned
+ 1280 08d4 9068     		ldr	r0, [r2, #8]	@ unaligned
+ 1281 08d6 D168     		ldr	r1, [r2, #12]	@ unaligned
+ 1282 08d8 1D60     		str	r5, [r3]	@ unaligned
+ 1283 08da 5C60     		str	r4, [r3, #4]	@ unaligned
+ 1284 08dc 9860     		str	r0, [r3, #8]	@ unaligned
+ 1285 08de D960     		str	r1, [r3, #12]	@ unaligned
+ 1286 08e0 127C     		ldrb	r2, [r2, #16]
+ 1287 08e2 1A74     		strb	r2, [r3, #16]
+ 362:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             prependTCPHeader(tempPkt,
+ 1288              		.loc 1 362 0
+ 1289 08e4 0023     		movs	r3, #0
+ 1290 08e6 0093     		str	r3, [sp]
+ 1291 08e8 0023     		movs	r3, #0
+ 1292 08ea 0193     		str	r3, [sp, #4]
+ 1293 08ec B868     		ldr	r0, [r7, #8]
+ 1294 08ee 0121     		movs	r1, #1
+ 1295 08f0 0022     		movs	r2, #0
+ 1296 08f2 0023     		movs	r3, #0
+ 1297 08f4 FFF7FEFF 		bl	prependTCPHeader
+ 363:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   TCP_ACK_YES,
+ 364:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   TCP_PSH_NO,
+ 365:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   TCP_RST_NO,
+ 366:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   TCP_SYN_NO,
+ 367:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   TCP_FIN_NO);
+ 368:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             forwarding_send(tempPkt);
+ 1298              		.loc 1 368 0
+ 1299 08f8 B868     		ldr	r0, [r7, #8]
+ 1300 08fa FFF7FEFF 		bl	forwarding_send
+ 369:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tcp_change_state(TCP_STATE_ALMOST_CLOSE_WAIT);
+ 1301              		.loc 1 369 0
+ 1302 08fe 1120     		movs	r0, #17
+ 1303 0900 FFF7FEFF 		bl	tcp_change_state
+ 1304 0904 6FE0     		b	.L64
+ 1305              	.L62:
+ 370:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          } else if (containsControlBits(msg,TCP_ACK_WHATEVER,TCP_RST_NO,TCP_SYN_NO,TCP_FIN_NO)) {
+ 1306              		.loc 1 370 0
+ 1307 0906 0023     		movs	r3, #0
+ 1308 0908 0093     		str	r3, [sp]
+ 1309 090a 7868     		ldr	r0, [r7, #4]
+ 1310 090c 0221     		movs	r1, #2
+ 1311 090e 0022     		movs	r2, #0
+ 1312 0910 0023     		movs	r3, #0
+ 1313 0912 FFF7FEFF 		bl	containsControlBits
+ 1314 0916 0346     		mov	r3, r0
+ 1315 0918 002B     		cmp	r3, #0
+ 1316 091a 53D0     		beq	.L65
+ 371:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             //I receive data, I send ACK
+ 372:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tcp_vars.hisNextSeqNum = (packetfunctions_ntohl((uint8_t*)&(((tcp_ht*)msg->payload)->se
+ 1317              		.loc 1 372 0
+ 1318 091c 7B68     		ldr	r3, [r7, #4]
+ 1319 091e 5B68     		ldr	r3, [r3, #4]
+ 1320 0920 0433     		adds	r3, r3, #4
+ 1321 0922 1846     		mov	r0, r3
+ 1322 0924 FFF7FEFF 		bl	packetfunctions_ntohl
+ 1323 0928 0246     		mov	r2, r0
+ 1324 092a 7B68     		ldr	r3, [r7, #4]
+ 1325 092c 1B7A     		ldrb	r3, [r3, #8]	@ zero_extendqisi2
+ 1326 092e 1344     		add	r3, r3, r2
+ 1327 0930 A3F11402 		sub	r2, r3, #20
+ 1328 0934 40F20003 		movw	r3, #:lower16:tcp_vars
+ 1329 0938 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 1330 093c DA60     		str	r2, [r3, #12]
+ 373:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tempPkt = openqueue_getFreePacketBuffer(COMPONENT_OPENTCP);
+ 1331              		.loc 1 373 0
+ 1332 093e 1720     		movs	r0, #23
+ 1333 0940 FFF7FEFF 		bl	openqueue_getFreePacketBuffer
+ 1334 0944 B860     		str	r0, [r7, #8]
+ 374:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             if (tempPkt==NULL) {
+ 1335              		.loc 1 374 0
+ 1336 0946 BB68     		ldr	r3, [r7, #8]
+ 1337 0948 002B     		cmp	r3, #0
+ 1338 094a 09D1     		bne	.L66
+ 375:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                openserial_printError(COMPONENT_OPENTCP,ERR_NO_FREE_PACKET_BUFFER,
+ 1339              		.loc 1 375 0
+ 1340 094c 1720     		movs	r0, #23
+ 1341 094e 2C21     		movs	r1, #44
+ 1342 0950 0022     		movs	r2, #0
+ 1343 0952 0023     		movs	r3, #0
+ 1344 0954 FFF7FEFF 		bl	openserial_printError
+ 376:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                      (errorparameter_t)0,
+ 377:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                      (errorparameter_t)0);
+ 378:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                openqueue_freePacketBuffer(msg);
+ 1345              		.loc 1 378 0
+ 1346 0958 7868     		ldr	r0, [r7, #4]
+ 1347 095a FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 379:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                return;
+ 1348              		.loc 1 379 0
+ 1349 095e 45E2     		b	.L33
+ 1350              	.L66:
+ 380:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             }
+ 381:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tempPkt->creator       = COMPONENT_OPENTCP;
+ 1351              		.loc 1 381 0
+ 1352 0960 BB68     		ldr	r3, [r7, #8]
+ 1353 0962 1722     		movs	r2, #23
+ 1354 0964 1A70     		strb	r2, [r3]
+ 382:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tempPkt->owner         = COMPONENT_OPENTCP;
+ 1355              		.loc 1 382 0
+ 1356 0966 BB68     		ldr	r3, [r7, #8]
+ 1357 0968 1722     		movs	r2, #23
+ 1358 096a 5A70     		strb	r2, [r3, #1]
+ 383:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             memcpy(&(tempPkt->l3_destinationAdd),&tcp_vars.hisIPv6Address,sizeof(open_addr_t));
+ 1359              		.loc 1 383 0
+ 1360 096c BB68     		ldr	r3, [r7, #8]
+ 1361 096e 1533     		adds	r3, r3, #21
+ 1362 0970 40F20002 		movw	r2, #:lower16:tcp_vars
+ 1363 0974 C0F20002 		movt	r2, #:upper16:tcp_vars
+ 1364 0978 1232     		adds	r2, r2, #18
+ 1365 097a 1568     		ldr	r5, [r2]	@ unaligned
+ 1366 097c 5468     		ldr	r4, [r2, #4]	@ unaligned
+ 1367 097e 9068     		ldr	r0, [r2, #8]	@ unaligned
+ 1368 0980 D168     		ldr	r1, [r2, #12]	@ unaligned
+ 1369 0982 1D60     		str	r5, [r3]	@ unaligned
+ 1370 0984 5C60     		str	r4, [r3, #4]	@ unaligned
+ 1371 0986 9860     		str	r0, [r3, #8]	@ unaligned
+ 1372 0988 D960     		str	r1, [r3, #12]	@ unaligned
+ 1373 098a 127C     		ldrb	r2, [r2, #16]
+ 1374 098c 1A74     		strb	r2, [r3, #16]
+ 384:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             prependTCPHeader(tempPkt,
+ 1375              		.loc 1 384 0
+ 1376 098e 0023     		movs	r3, #0
+ 1377 0990 0093     		str	r3, [sp]
+ 1378 0992 0023     		movs	r3, #0
+ 1379 0994 0193     		str	r3, [sp, #4]
+ 1380 0996 B868     		ldr	r0, [r7, #8]
+ 1381 0998 0121     		movs	r1, #1
+ 1382 099a 0022     		movs	r2, #0
+ 1383 099c 0023     		movs	r3, #0
+ 1384 099e FFF7FEFF 		bl	prependTCPHeader
+ 385:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   TCP_ACK_YES,
+ 386:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   TCP_PSH_NO,
+ 387:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   TCP_RST_NO,
+ 388:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   TCP_SYN_NO,
+ 389:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   TCP_FIN_NO);
+ 390:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             forwarding_send(tempPkt);
+ 1385              		.loc 1 390 0
+ 1386 09a2 B868     		ldr	r0, [r7, #8]
+ 1387 09a4 FFF7FEFF 		bl	forwarding_send
+ 391:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             packetfunctions_tossHeader(msg,sizeof(tcp_ht));
+ 1388              		.loc 1 391 0
+ 1389 09a8 7868     		ldr	r0, [r7, #4]
+ 1390 09aa 1421     		movs	r1, #20
+ 1391 09ac FFF7FEFF 		bl	packetfunctions_tossHeader
+ 392:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tcp_vars.dataReceived = msg;
+ 1392              		.loc 1 392 0
+ 1393 09b0 40F20003 		movw	r3, #:lower16:tcp_vars
+ 1394 09b4 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 1395 09b8 7A68     		ldr	r2, [r7, #4]
+ 1396 09ba 9A62     		str	r2, [r3, #40]
+ 393:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tcp_change_state(TCP_STATE_ALMOST_DATA_RECEIVED);
+ 1397              		.loc 1 393 0
+ 1398 09bc 0920     		movs	r0, #9
+ 1399 09be FFF7FEFF 		bl	tcp_change_state
+ 1400 09c2 10E0     		b	.L64
+ 1401              	.L65:
+ 394:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          } else {
+ 395:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             opentcp_reset();
+ 1402              		.loc 1 395 0
+ 1403 09c4 FFF7FEFF 		bl	opentcp_reset
+ 396:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             openserial_printError(COMPONENT_OPENTCP,ERR_TCP_RESET,
+ 397:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                   (errorparameter_t)tcp_vars.state,
+ 1404              		.loc 1 397 0
+ 1405 09c8 40F20003 		movw	r3, #:lower16:tcp_vars
+ 1406 09cc C0F20003 		movt	r3, #:upper16:tcp_vars
+ 1407 09d0 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 396:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             openserial_printError(COMPONENT_OPENTCP,ERR_TCP_RESET,
+ 1408              		.loc 1 396 0
+ 1409 09d2 1720     		movs	r0, #23
+ 1410 09d4 0821     		movs	r1, #8
+ 1411 09d6 1A46     		mov	r2, r3
+ 1412 09d8 0323     		movs	r3, #3
+ 1413 09da FFF7FEFF 		bl	openserial_printError
+ 398:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                   (errorparameter_t)3);
+ 399:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             openqueue_freePacketBuffer(msg);
+ 1414              		.loc 1 399 0
+ 1415 09de 7868     		ldr	r0, [r7, #4]
+ 1416 09e0 FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 400:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          }
+ 401:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          break;
+ 1417              		.loc 1 401 0
+ 1418 09e4 02E2     		b	.L33
+ 1419              	.L64:
+ 1420 09e6 01E2     		b	.L33
+ 1421              	.L44:
+ 402:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** 
+ 403:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       case TCP_STATE_DATA_SENT:                                   //[receive] data
+ 404:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          if (containsControlBits(msg,TCP_ACK_YES,TCP_RST_NO,TCP_SYN_NO,TCP_FIN_NO)) {
+ 1422              		.loc 1 404 0
+ 1423 09e8 0023     		movs	r3, #0
+ 1424 09ea 0093     		str	r3, [sp]
+ 1425 09ec 7868     		ldr	r0, [r7, #4]
+ 1426 09ee 0121     		movs	r1, #1
+ 1427 09f0 0022     		movs	r2, #0
+ 1428 09f2 0023     		movs	r3, #0
+ 1429 09f4 FFF7FEFF 		bl	containsControlBits
+ 1430 09f8 0346     		mov	r3, r0
+ 1431 09fa 002B     		cmp	r3, #0
+ 1432 09fc 26D0     		beq	.L67
+ 405:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             //I receive ACK, data message sent
+ 406:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             switch(tcp_vars.myPort) {
+ 1433              		.loc 1 406 0
+ 1434 09fe 40F20003 		movw	r3, #:lower16:tcp_vars
+ 1435 0a02 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 1436 0a06 1B89     		ldrh	r3, [r3, #8]
+ 1437 0a08 072B     		cmp	r3, #7
+ 1438 0a0a 09D1     		bne	.L88
+ 407:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                case WKP_TCP_ECHO:
+ 408:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   techo_sendDone(tcp_vars.dataToSend,E_SUCCESS);
+ 1439              		.loc 1 408 0
+ 1440 0a0c 40F20003 		movw	r3, #:lower16:tcp_vars
+ 1441 0a10 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 1442 0a14 5B6A     		ldr	r3, [r3, #36]
+ 1443 0a16 1846     		mov	r0, r3
+ 1444 0a18 0021     		movs	r1, #0
+ 1445 0a1a FFF7FEFF 		bl	techo_sendDone
+ 409:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   break;
+ 1446              		.loc 1 409 0
+ 1447 0a1e 0BE0     		b	.L70
+ 1448              	.L88:
+ 410:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                default:
+ 411:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   openserial_printError(COMPONENT_OPENTCP,ERR_UNSUPPORTED_PORT_NUMBER,
+ 1449              		.loc 1 411 0
+ 1450 0a20 40F20003 		movw	r3, #:lower16:tcp_vars
+ 1451 0a24 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 1452 0a28 1B89     		ldrh	r3, [r3, #8]
+ 1453 0a2a 1720     		movs	r0, #23
+ 1454 0a2c 0921     		movs	r1, #9
+ 1455 0a2e 1A46     		mov	r2, r3
+ 1456 0a30 0323     		movs	r3, #3
+ 1457 0a32 FFF7FEFF 		bl	openserial_printError
+ 412:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                         (errorparameter_t)tcp_vars.myPort,
+ 413:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                         (errorparameter_t)3);
+ 414:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   break;
+ 1458              		.loc 1 414 0
+ 1459 0a36 00BF     		nop
+ 1460              	.L70:
+ 415:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             }
+ 416:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tcp_vars.dataToSend = NULL;
+ 1461              		.loc 1 416 0
+ 1462 0a38 40F20003 		movw	r3, #:lower16:tcp_vars
+ 1463 0a3c C0F20003 		movt	r3, #:upper16:tcp_vars
+ 1464 0a40 0022     		movs	r2, #0
+ 1465 0a42 5A62     		str	r2, [r3, #36]
+ 417:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tcp_change_state(TCP_STATE_ESTABLISHED);
+ 1466              		.loc 1 417 0
+ 1467 0a44 0620     		movs	r0, #6
+ 1468 0a46 FFF7FEFF 		bl	tcp_change_state
+ 1469 0a4a 84E0     		b	.L71
+ 1470              	.L67:
+ 418:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          } else if (containsControlBits(msg,TCP_ACK_WHATEVER,TCP_RST_NO,TCP_SYN_NO,TCP_FIN_YES)) {
+ 1471              		.loc 1 418 0
+ 1472 0a4c 0123     		movs	r3, #1
+ 1473 0a4e 0093     		str	r3, [sp]
+ 1474 0a50 7868     		ldr	r0, [r7, #4]
+ 1475 0a52 0221     		movs	r1, #2
+ 1476 0a54 0022     		movs	r2, #0
+ 1477 0a56 0023     		movs	r3, #0
+ 1478 0a58 FFF7FEFF 		bl	containsControlBits
+ 1479 0a5c 0346     		mov	r3, r0
+ 1480 0a5e 002B     		cmp	r3, #0
+ 1481 0a60 6CD0     		beq	.L72
+ 419:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             //I receive FIN[+ACK], I send ACK
+ 420:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             switch(tcp_vars.myPort) {
+ 1482              		.loc 1 420 0
+ 1483 0a62 40F20003 		movw	r3, #:lower16:tcp_vars
+ 1484 0a66 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 1485 0a6a 1B89     		ldrh	r3, [r3, #8]
+ 1486 0a6c 072B     		cmp	r3, #7
+ 1487 0a6e 09D1     		bne	.L89
+ 421:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                case WKP_TCP_ECHO:
+ 422:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   techo_sendDone(tcp_vars.dataToSend,E_SUCCESS);
+ 1488              		.loc 1 422 0
+ 1489 0a70 40F20003 		movw	r3, #:lower16:tcp_vars
+ 1490 0a74 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 1491 0a78 5B6A     		ldr	r3, [r3, #36]
+ 1492 0a7a 1846     		mov	r0, r3
+ 1493 0a7c 0021     		movs	r1, #0
+ 1494 0a7e FFF7FEFF 		bl	techo_sendDone
+ 423:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   break;
+ 1495              		.loc 1 423 0
+ 1496 0a82 0BE0     		b	.L75
+ 1497              	.L89:
+ 424:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                default:
+ 425:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   openserial_printError(COMPONENT_OPENTCP,ERR_UNSUPPORTED_PORT_NUMBER,
+ 1498              		.loc 1 425 0
+ 1499 0a84 40F20003 		movw	r3, #:lower16:tcp_vars
+ 1500 0a88 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 1501 0a8c 1B89     		ldrh	r3, [r3, #8]
+ 1502 0a8e 1720     		movs	r0, #23
+ 1503 0a90 0921     		movs	r1, #9
+ 1504 0a92 1A46     		mov	r2, r3
+ 1505 0a94 0423     		movs	r3, #4
+ 1506 0a96 FFF7FEFF 		bl	openserial_printError
+ 426:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                         (errorparameter_t)tcp_vars.myPort,
+ 427:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                         (errorparameter_t)4);
+ 428:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   break;
+ 1507              		.loc 1 428 0
+ 1508 0a9a 00BF     		nop
+ 1509              	.L75:
+ 429:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             }
+ 430:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tcp_vars.dataToSend = NULL;
+ 1510              		.loc 1 430 0
+ 1511 0a9c 40F20003 		movw	r3, #:lower16:tcp_vars
+ 1512 0aa0 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 1513 0aa4 0022     		movs	r2, #0
+ 1514 0aa6 5A62     		str	r2, [r3, #36]
+ 431:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tcp_vars.hisNextSeqNum = (packetfunctions_ntohl((uint8_t*)&(((tcp_ht*)msg->payload)->se
+ 1515              		.loc 1 431 0
+ 1516 0aa8 7B68     		ldr	r3, [r7, #4]
+ 1517 0aaa 5B68     		ldr	r3, [r3, #4]
+ 1518 0aac 0433     		adds	r3, r3, #4
+ 1519 0aae 1846     		mov	r0, r3
+ 1520 0ab0 FFF7FEFF 		bl	packetfunctions_ntohl
+ 1521 0ab4 0246     		mov	r2, r0
+ 1522 0ab6 7B68     		ldr	r3, [r7, #4]
+ 1523 0ab8 1B7A     		ldrb	r3, [r3, #8]	@ zero_extendqisi2
+ 1524 0aba 1344     		add	r3, r3, r2
+ 1525 0abc A3F11302 		sub	r2, r3, #19
+ 1526 0ac0 40F20003 		movw	r3, #:lower16:tcp_vars
+ 1527 0ac4 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 1528 0ac8 DA60     		str	r2, [r3, #12]
+ 432:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tempPkt = openqueue_getFreePacketBuffer(COMPONENT_OPENTCP);
+ 1529              		.loc 1 432 0
+ 1530 0aca 1720     		movs	r0, #23
+ 1531 0acc FFF7FEFF 		bl	openqueue_getFreePacketBuffer
+ 1532 0ad0 B860     		str	r0, [r7, #8]
+ 433:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             if (tempPkt==NULL) {
+ 1533              		.loc 1 433 0
+ 1534 0ad2 BB68     		ldr	r3, [r7, #8]
+ 1535 0ad4 002B     		cmp	r3, #0
+ 1536 0ad6 09D1     		bne	.L76
+ 434:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                openserial_printError(COMPONENT_OPENTCP,ERR_NO_FREE_PACKET_BUFFER,
+ 1537              		.loc 1 434 0
+ 1538 0ad8 1720     		movs	r0, #23
+ 1539 0ada 2C21     		movs	r1, #44
+ 1540 0adc 0022     		movs	r2, #0
+ 1541 0ade 0023     		movs	r3, #0
+ 1542 0ae0 FFF7FEFF 		bl	openserial_printError
+ 435:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                      (errorparameter_t)0,
+ 436:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                      (errorparameter_t)0);
+ 437:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                openqueue_freePacketBuffer(msg);
+ 1543              		.loc 1 437 0
+ 1544 0ae4 7868     		ldr	r0, [r7, #4]
+ 1545 0ae6 FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 438:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                return;
+ 1546              		.loc 1 438 0
+ 1547 0aea 7FE1     		b	.L33
+ 1548              	.L76:
+ 439:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             }
+ 440:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tempPkt->creator       = COMPONENT_OPENTCP;
+ 1549              		.loc 1 440 0
+ 1550 0aec BB68     		ldr	r3, [r7, #8]
+ 1551 0aee 1722     		movs	r2, #23
+ 1552 0af0 1A70     		strb	r2, [r3]
+ 441:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tempPkt->owner         = COMPONENT_OPENTCP;
+ 1553              		.loc 1 441 0
+ 1554 0af2 BB68     		ldr	r3, [r7, #8]
+ 1555 0af4 1722     		movs	r2, #23
+ 1556 0af6 5A70     		strb	r2, [r3, #1]
+ 442:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             memcpy(&(tempPkt->l3_destinationAdd),&tcp_vars.hisIPv6Address,sizeof(open_addr_t));
+ 1557              		.loc 1 442 0
+ 1558 0af8 BB68     		ldr	r3, [r7, #8]
+ 1559 0afa 1533     		adds	r3, r3, #21
+ 1560 0afc 40F20002 		movw	r2, #:lower16:tcp_vars
+ 1561 0b00 C0F20002 		movt	r2, #:upper16:tcp_vars
+ 1562 0b04 1232     		adds	r2, r2, #18
+ 1563 0b06 1568     		ldr	r5, [r2]	@ unaligned
+ 1564 0b08 5468     		ldr	r4, [r2, #4]	@ unaligned
+ 1565 0b0a 9068     		ldr	r0, [r2, #8]	@ unaligned
+ 1566 0b0c D168     		ldr	r1, [r2, #12]	@ unaligned
+ 1567 0b0e 1D60     		str	r5, [r3]	@ unaligned
+ 1568 0b10 5C60     		str	r4, [r3, #4]	@ unaligned
+ 1569 0b12 9860     		str	r0, [r3, #8]	@ unaligned
+ 1570 0b14 D960     		str	r1, [r3, #12]	@ unaligned
+ 1571 0b16 127C     		ldrb	r2, [r2, #16]
+ 1572 0b18 1A74     		strb	r2, [r3, #16]
+ 443:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             prependTCPHeader(tempPkt,
+ 1573              		.loc 1 443 0
+ 1574 0b1a 0023     		movs	r3, #0
+ 1575 0b1c 0093     		str	r3, [sp]
+ 1576 0b1e 0023     		movs	r3, #0
+ 1577 0b20 0193     		str	r3, [sp, #4]
+ 1578 0b22 B868     		ldr	r0, [r7, #8]
+ 1579 0b24 0121     		movs	r1, #1
+ 1580 0b26 0022     		movs	r2, #0
+ 1581 0b28 0023     		movs	r3, #0
+ 1582 0b2a FFF7FEFF 		bl	prependTCPHeader
+ 444:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   TCP_ACK_YES,
+ 445:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   TCP_PSH_NO,
+ 446:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   TCP_RST_NO,
+ 447:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   TCP_SYN_NO,
+ 448:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   TCP_FIN_NO);
+ 449:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             forwarding_send(tempPkt);
+ 1583              		.loc 1 449 0
+ 1584 0b2e B868     		ldr	r0, [r7, #8]
+ 1585 0b30 FFF7FEFF 		bl	forwarding_send
+ 450:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tcp_change_state(TCP_STATE_ALMOST_CLOSE_WAIT);
+ 1586              		.loc 1 450 0
+ 1587 0b34 1120     		movs	r0, #17
+ 1588 0b36 FFF7FEFF 		bl	tcp_change_state
+ 1589 0b3a 0CE0     		b	.L71
+ 1590              	.L72:
+ 451:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          } else {
+ 452:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             opentcp_reset();
+ 1591              		.loc 1 452 0
+ 1592 0b3c FFF7FEFF 		bl	opentcp_reset
+ 453:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             openserial_printError(COMPONENT_OPENTCP,ERR_TCP_RESET,
+ 454:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                   (errorparameter_t)tcp_vars.state,
+ 1593              		.loc 1 454 0
+ 1594 0b40 40F20003 		movw	r3, #:lower16:tcp_vars
+ 1595 0b44 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 1596 0b48 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 453:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             openserial_printError(COMPONENT_OPENTCP,ERR_TCP_RESET,
+ 1597              		.loc 1 453 0
+ 1598 0b4a 1720     		movs	r0, #23
+ 1599 0b4c 0821     		movs	r1, #8
+ 1600 0b4e 1A46     		mov	r2, r3
+ 1601 0b50 0423     		movs	r3, #4
+ 1602 0b52 FFF7FEFF 		bl	openserial_printError
+ 1603              	.L71:
+ 455:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                   (errorparameter_t)4);
+ 456:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          }
+ 457:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          openqueue_freePacketBuffer(msg);
+ 1604              		.loc 1 457 0
+ 1605 0b56 7868     		ldr	r0, [r7, #4]
+ 1606 0b58 FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 458:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          break;
+ 1607              		.loc 1 458 0
+ 1608 0b5c 46E1     		b	.L33
+ 1609              	.L45:
+ 459:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** 
+ 460:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       case TCP_STATE_FIN_WAIT_1:                                  //[receive] teardown
+ 461:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          if (containsControlBits(msg,TCP_ACK_NO,TCP_RST_NO,TCP_SYN_NO,TCP_FIN_YES)) {
+ 1610              		.loc 1 461 0
+ 1611 0b5e 0123     		movs	r3, #1
+ 1612 0b60 0093     		str	r3, [sp]
+ 1613 0b62 7868     		ldr	r0, [r7, #4]
+ 1614 0b64 0021     		movs	r1, #0
+ 1615 0b66 0022     		movs	r2, #0
+ 1616 0b68 0023     		movs	r3, #0
+ 1617 0b6a FFF7FEFF 		bl	containsControlBits
+ 1618 0b6e 0346     		mov	r3, r0
+ 1619 0b70 002B     		cmp	r3, #0
+ 1620 0b72 45D0     		beq	.L77
+ 462:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             //I receive FIN, I send ACK
+ 463:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tcp_vars.hisNextSeqNum = (packetfunctions_ntohl((uint8_t*)&(((tcp_ht*)msg->payload)->se
+ 1621              		.loc 1 463 0
+ 1622 0b74 7B68     		ldr	r3, [r7, #4]
+ 1623 0b76 5B68     		ldr	r3, [r3, #4]
+ 1624 0b78 0433     		adds	r3, r3, #4
+ 1625 0b7a 1846     		mov	r0, r3
+ 1626 0b7c FFF7FEFF 		bl	packetfunctions_ntohl
+ 1627 0b80 0346     		mov	r3, r0
+ 1628 0b82 5A1C     		adds	r2, r3, #1
+ 1629 0b84 40F20003 		movw	r3, #:lower16:tcp_vars
+ 1630 0b88 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 1631 0b8c DA60     		str	r2, [r3, #12]
+ 464:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tempPkt = openqueue_getFreePacketBuffer(COMPONENT_OPENTCP);
+ 1632              		.loc 1 464 0
+ 1633 0b8e 1720     		movs	r0, #23
+ 1634 0b90 FFF7FEFF 		bl	openqueue_getFreePacketBuffer
+ 1635 0b94 B860     		str	r0, [r7, #8]
+ 465:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             if (tempPkt==NULL) {
+ 1636              		.loc 1 465 0
+ 1637 0b96 BB68     		ldr	r3, [r7, #8]
+ 1638 0b98 002B     		cmp	r3, #0
+ 1639 0b9a 09D1     		bne	.L78
+ 466:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                openserial_printError(COMPONENT_OPENTCP,ERR_NO_FREE_PACKET_BUFFER,
+ 1640              		.loc 1 466 0
+ 1641 0b9c 1720     		movs	r0, #23
+ 1642 0b9e 2C21     		movs	r1, #44
+ 1643 0ba0 0022     		movs	r2, #0
+ 1644 0ba2 0023     		movs	r3, #0
+ 1645 0ba4 FFF7FEFF 		bl	openserial_printError
+ 467:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                      (errorparameter_t)0,
+ 468:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                      (errorparameter_t)0);
+ 469:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                openqueue_freePacketBuffer(msg);
+ 1646              		.loc 1 469 0
+ 1647 0ba8 7868     		ldr	r0, [r7, #4]
+ 1648 0baa FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 470:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                return;
+ 1649              		.loc 1 470 0
+ 1650 0bae 1DE1     		b	.L33
+ 1651              	.L78:
+ 471:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             }
+ 472:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tempPkt->creator       = COMPONENT_OPENTCP;
+ 1652              		.loc 1 472 0
+ 1653 0bb0 BB68     		ldr	r3, [r7, #8]
+ 1654 0bb2 1722     		movs	r2, #23
+ 1655 0bb4 1A70     		strb	r2, [r3]
+ 473:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tempPkt->owner         = COMPONENT_OPENTCP;
+ 1656              		.loc 1 473 0
+ 1657 0bb6 BB68     		ldr	r3, [r7, #8]
+ 1658 0bb8 1722     		movs	r2, #23
+ 1659 0bba 5A70     		strb	r2, [r3, #1]
+ 474:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             memcpy(&(tempPkt->l3_destinationAdd),&tcp_vars.hisIPv6Address,sizeof(open_addr_t));
+ 1660              		.loc 1 474 0
+ 1661 0bbc BB68     		ldr	r3, [r7, #8]
+ 1662 0bbe 1533     		adds	r3, r3, #21
+ 1663 0bc0 40F20002 		movw	r2, #:lower16:tcp_vars
+ 1664 0bc4 C0F20002 		movt	r2, #:upper16:tcp_vars
+ 1665 0bc8 1232     		adds	r2, r2, #18
+ 1666 0bca 1568     		ldr	r5, [r2]	@ unaligned
+ 1667 0bcc 5468     		ldr	r4, [r2, #4]	@ unaligned
+ 1668 0bce 9068     		ldr	r0, [r2, #8]	@ unaligned
+ 1669 0bd0 D168     		ldr	r1, [r2, #12]	@ unaligned
+ 1670 0bd2 1D60     		str	r5, [r3]	@ unaligned
+ 1671 0bd4 5C60     		str	r4, [r3, #4]	@ unaligned
+ 1672 0bd6 9860     		str	r0, [r3, #8]	@ unaligned
+ 1673 0bd8 D960     		str	r1, [r3, #12]	@ unaligned
+ 1674 0bda 127C     		ldrb	r2, [r2, #16]
+ 1675 0bdc 1A74     		strb	r2, [r3, #16]
+ 475:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             prependTCPHeader(tempPkt,
+ 1676              		.loc 1 475 0
+ 1677 0bde 0023     		movs	r3, #0
+ 1678 0be0 0093     		str	r3, [sp]
+ 1679 0be2 0023     		movs	r3, #0
+ 1680 0be4 0193     		str	r3, [sp, #4]
+ 1681 0be6 B868     		ldr	r0, [r7, #8]
+ 1682 0be8 0121     		movs	r1, #1
+ 1683 0bea 0022     		movs	r2, #0
+ 1684 0bec 0023     		movs	r3, #0
+ 1685 0bee FFF7FEFF 		bl	prependTCPHeader
+ 476:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   TCP_ACK_YES,
+ 477:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   TCP_PSH_NO,
+ 478:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   TCP_RST_NO,
+ 479:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   TCP_SYN_NO,
+ 480:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   TCP_FIN_NO);
+ 481:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             forwarding_send(tempPkt);
+ 1686              		.loc 1 481 0
+ 1687 0bf2 B868     		ldr	r0, [r7, #8]
+ 1688 0bf4 FFF7FEFF 		bl	forwarding_send
+ 482:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tcp_change_state(TCP_STATE_ALMOST_CLOSING);
+ 1689              		.loc 1 482 0
+ 1690 0bf8 0C20     		movs	r0, #12
+ 1691 0bfa FFF7FEFF 		bl	tcp_change_state
+ 1692 0bfe 6CE0     		b	.L79
+ 1693              	.L77:
+ 483:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          } else if (containsControlBits(msg,TCP_ACK_YES,TCP_RST_NO,TCP_SYN_NO,TCP_FIN_YES)) {
+ 1694              		.loc 1 483 0
+ 1695 0c00 0123     		movs	r3, #1
+ 1696 0c02 0093     		str	r3, [sp]
+ 1697 0c04 7868     		ldr	r0, [r7, #4]
+ 1698 0c06 0121     		movs	r1, #1
+ 1699 0c08 0022     		movs	r2, #0
+ 1700 0c0a 0023     		movs	r3, #0
+ 1701 0c0c FFF7FEFF 		bl	containsControlBits
+ 1702 0c10 0346     		mov	r3, r0
+ 1703 0c12 002B     		cmp	r3, #0
+ 1704 0c14 45D0     		beq	.L80
+ 484:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             //I receive FIN+ACK, I send ACK
+ 485:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tcp_vars.hisNextSeqNum = (packetfunctions_ntohl((uint8_t*)&(((tcp_ht*)msg->payload)->se
+ 1705              		.loc 1 485 0
+ 1706 0c16 7B68     		ldr	r3, [r7, #4]
+ 1707 0c18 5B68     		ldr	r3, [r3, #4]
+ 1708 0c1a 0433     		adds	r3, r3, #4
+ 1709 0c1c 1846     		mov	r0, r3
+ 1710 0c1e FFF7FEFF 		bl	packetfunctions_ntohl
+ 1711 0c22 0346     		mov	r3, r0
+ 1712 0c24 5A1C     		adds	r2, r3, #1
+ 1713 0c26 40F20003 		movw	r3, #:lower16:tcp_vars
+ 1714 0c2a C0F20003 		movt	r3, #:upper16:tcp_vars
+ 1715 0c2e DA60     		str	r2, [r3, #12]
+ 486:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tempPkt = openqueue_getFreePacketBuffer(COMPONENT_OPENTCP);
+ 1716              		.loc 1 486 0
+ 1717 0c30 1720     		movs	r0, #23
+ 1718 0c32 FFF7FEFF 		bl	openqueue_getFreePacketBuffer
+ 1719 0c36 B860     		str	r0, [r7, #8]
+ 487:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             if (tempPkt==NULL) {
+ 1720              		.loc 1 487 0
+ 1721 0c38 BB68     		ldr	r3, [r7, #8]
+ 1722 0c3a 002B     		cmp	r3, #0
+ 1723 0c3c 09D1     		bne	.L81
+ 488:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                openserial_printError(COMPONENT_OPENTCP,ERR_NO_FREE_PACKET_BUFFER,
+ 1724              		.loc 1 488 0
+ 1725 0c3e 1720     		movs	r0, #23
+ 1726 0c40 2C21     		movs	r1, #44
+ 1727 0c42 0022     		movs	r2, #0
+ 1728 0c44 0023     		movs	r3, #0
+ 1729 0c46 FFF7FEFF 		bl	openserial_printError
+ 489:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                      (errorparameter_t)0,
+ 490:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                      (errorparameter_t)0);
+ 491:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                openqueue_freePacketBuffer(msg);
+ 1730              		.loc 1 491 0
+ 1731 0c4a 7868     		ldr	r0, [r7, #4]
+ 1732 0c4c FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 492:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                return;
+ 1733              		.loc 1 492 0
+ 1734 0c50 CCE0     		b	.L33
+ 1735              	.L81:
+ 493:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             }
+ 494:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tempPkt->creator       = COMPONENT_OPENTCP;
+ 1736              		.loc 1 494 0
+ 1737 0c52 BB68     		ldr	r3, [r7, #8]
+ 1738 0c54 1722     		movs	r2, #23
+ 1739 0c56 1A70     		strb	r2, [r3]
+ 495:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tempPkt->owner         = COMPONENT_OPENTCP;
+ 1740              		.loc 1 495 0
+ 1741 0c58 BB68     		ldr	r3, [r7, #8]
+ 1742 0c5a 1722     		movs	r2, #23
+ 1743 0c5c 5A70     		strb	r2, [r3, #1]
+ 496:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             memcpy(&(tempPkt->l3_destinationAdd),&tcp_vars.hisIPv6Address,sizeof(open_addr_t));
+ 1744              		.loc 1 496 0
+ 1745 0c5e BB68     		ldr	r3, [r7, #8]
+ 1746 0c60 1533     		adds	r3, r3, #21
+ 1747 0c62 40F20002 		movw	r2, #:lower16:tcp_vars
+ 1748 0c66 C0F20002 		movt	r2, #:upper16:tcp_vars
+ 1749 0c6a 1232     		adds	r2, r2, #18
+ 1750 0c6c 1568     		ldr	r5, [r2]	@ unaligned
+ 1751 0c6e 5468     		ldr	r4, [r2, #4]	@ unaligned
+ 1752 0c70 9068     		ldr	r0, [r2, #8]	@ unaligned
+ 1753 0c72 D168     		ldr	r1, [r2, #12]	@ unaligned
+ 1754 0c74 1D60     		str	r5, [r3]	@ unaligned
+ 1755 0c76 5C60     		str	r4, [r3, #4]	@ unaligned
+ 1756 0c78 9860     		str	r0, [r3, #8]	@ unaligned
+ 1757 0c7a D960     		str	r1, [r3, #12]	@ unaligned
+ 1758 0c7c 127C     		ldrb	r2, [r2, #16]
+ 1759 0c7e 1A74     		strb	r2, [r3, #16]
+ 497:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             prependTCPHeader(tempPkt,
+ 1760              		.loc 1 497 0
+ 1761 0c80 0023     		movs	r3, #0
+ 1762 0c82 0093     		str	r3, [sp]
+ 1763 0c84 0023     		movs	r3, #0
+ 1764 0c86 0193     		str	r3, [sp, #4]
+ 1765 0c88 B868     		ldr	r0, [r7, #8]
+ 1766 0c8a 0121     		movs	r1, #1
+ 1767 0c8c 0022     		movs	r2, #0
+ 1768 0c8e 0023     		movs	r3, #0
+ 1769 0c90 FFF7FEFF 		bl	prependTCPHeader
+ 498:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   TCP_ACK_YES,
+ 499:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   TCP_PSH_NO,
+ 500:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   TCP_RST_NO,
+ 501:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   TCP_SYN_NO,
+ 502:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   TCP_FIN_NO);
+ 503:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             forwarding_send(tempPkt);
+ 1770              		.loc 1 503 0
+ 1771 0c94 B868     		ldr	r0, [r7, #8]
+ 1772 0c96 FFF7FEFF 		bl	forwarding_send
+ 504:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tcp_change_state(TCP_STATE_ALMOST_TIME_WAIT);
+ 1773              		.loc 1 504 0
+ 1774 0c9a 0F20     		movs	r0, #15
+ 1775 0c9c FFF7FEFF 		bl	tcp_change_state
+ 1776 0ca0 1BE0     		b	.L79
+ 1777              	.L80:
+ 505:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          } else if  (containsControlBits(msg,TCP_ACK_YES,TCP_RST_NO,TCP_SYN_NO,TCP_FIN_NO)) {
+ 1778              		.loc 1 505 0
+ 1779 0ca2 0023     		movs	r3, #0
+ 1780 0ca4 0093     		str	r3, [sp]
+ 1781 0ca6 7868     		ldr	r0, [r7, #4]
+ 1782 0ca8 0121     		movs	r1, #1
+ 1783 0caa 0022     		movs	r2, #0
+ 1784 0cac 0023     		movs	r3, #0
+ 1785 0cae FFF7FEFF 		bl	containsControlBits
+ 1786 0cb2 0346     		mov	r3, r0
+ 1787 0cb4 002B     		cmp	r3, #0
+ 1788 0cb6 03D0     		beq	.L82
+ 506:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             //I receive ACK, I will receive FIN later
+ 507:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tcp_change_state(TCP_STATE_FIN_WAIT_2);
+ 1789              		.loc 1 507 0
+ 1790 0cb8 0E20     		movs	r0, #14
+ 1791 0cba FFF7FEFF 		bl	tcp_change_state
+ 1792 0cbe 0CE0     		b	.L79
+ 1793              	.L82:
+ 508:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          } else {
+ 509:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             opentcp_reset();
+ 1794              		.loc 1 509 0
+ 1795 0cc0 FFF7FEFF 		bl	opentcp_reset
+ 510:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             openserial_printError(COMPONENT_OPENTCP,ERR_TCP_RESET,
+ 511:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                   (errorparameter_t)tcp_vars.state,
+ 1796              		.loc 1 511 0
+ 1797 0cc4 40F20003 		movw	r3, #:lower16:tcp_vars
+ 1798 0cc8 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 1799 0ccc 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 510:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             openserial_printError(COMPONENT_OPENTCP,ERR_TCP_RESET,
+ 1800              		.loc 1 510 0
+ 1801 0cce 1720     		movs	r0, #23
+ 1802 0cd0 0821     		movs	r1, #8
+ 1803 0cd2 1A46     		mov	r2, r3
+ 1804 0cd4 0523     		movs	r3, #5
+ 1805 0cd6 FFF7FEFF 		bl	openserial_printError
+ 1806              	.L79:
+ 512:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                   (errorparameter_t)5);
+ 513:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          }
+ 514:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          openqueue_freePacketBuffer(msg);
+ 1807              		.loc 1 514 0
+ 1808 0cda 7868     		ldr	r0, [r7, #4]
+ 1809 0cdc FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 515:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          break;
+ 1810              		.loc 1 515 0
+ 1811 0ce0 84E0     		b	.L33
+ 1812              	.L47:
+ 516:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** 
+ 517:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       case TCP_STATE_FIN_WAIT_2:                                  //[receive] teardown
+ 518:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          if (containsControlBits(msg,TCP_ACK_WHATEVER,TCP_RST_NO,TCP_SYN_NO,TCP_FIN_YES)) {
+ 1813              		.loc 1 518 0
+ 1814 0ce2 0123     		movs	r3, #1
+ 1815 0ce4 0093     		str	r3, [sp]
+ 1816 0ce6 7868     		ldr	r0, [r7, #4]
+ 1817 0ce8 0221     		movs	r1, #2
+ 1818 0cea 0022     		movs	r2, #0
+ 1819 0cec 0023     		movs	r3, #0
+ 1820 0cee FFF7FEFF 		bl	containsControlBits
+ 1821 0cf2 0346     		mov	r3, r0
+ 1822 0cf4 002B     		cmp	r3, #0
+ 1823 0cf6 44D0     		beq	.L83
+ 519:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             //I receive FIN[+ACK], I send ACK
+ 520:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tcp_vars.hisNextSeqNum = (packetfunctions_ntohl((uint8_t*)&(((tcp_ht*)msg->payload)->se
+ 1824              		.loc 1 520 0
+ 1825 0cf8 7B68     		ldr	r3, [r7, #4]
+ 1826 0cfa 5B68     		ldr	r3, [r3, #4]
+ 1827 0cfc 0433     		adds	r3, r3, #4
+ 1828 0cfe 1846     		mov	r0, r3
+ 1829 0d00 FFF7FEFF 		bl	packetfunctions_ntohl
+ 1830 0d04 0346     		mov	r3, r0
+ 1831 0d06 5A1C     		adds	r2, r3, #1
+ 1832 0d08 40F20003 		movw	r3, #:lower16:tcp_vars
+ 1833 0d0c C0F20003 		movt	r3, #:upper16:tcp_vars
+ 1834 0d10 DA60     		str	r2, [r3, #12]
+ 521:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tempPkt = openqueue_getFreePacketBuffer(COMPONENT_OPENTCP);
+ 1835              		.loc 1 521 0
+ 1836 0d12 1720     		movs	r0, #23
+ 1837 0d14 FFF7FEFF 		bl	openqueue_getFreePacketBuffer
+ 1838 0d18 B860     		str	r0, [r7, #8]
+ 522:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             if (tempPkt==NULL) {
+ 1839              		.loc 1 522 0
+ 1840 0d1a BB68     		ldr	r3, [r7, #8]
+ 1841 0d1c 002B     		cmp	r3, #0
+ 1842 0d1e 09D1     		bne	.L84
+ 523:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                openserial_printError(COMPONENT_OPENTCP,ERR_NO_FREE_PACKET_BUFFER,
+ 1843              		.loc 1 523 0
+ 1844 0d20 1720     		movs	r0, #23
+ 1845 0d22 2C21     		movs	r1, #44
+ 1846 0d24 0022     		movs	r2, #0
+ 1847 0d26 0023     		movs	r3, #0
+ 1848 0d28 FFF7FEFF 		bl	openserial_printError
+ 524:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                      (errorparameter_t)0,
+ 525:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                      (errorparameter_t)0);
+ 526:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                openqueue_freePacketBuffer(msg);
+ 1849              		.loc 1 526 0
+ 1850 0d2c 7868     		ldr	r0, [r7, #4]
+ 1851 0d2e FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 527:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                return;
+ 1852              		.loc 1 527 0
+ 1853 0d32 5BE0     		b	.L33
+ 1854              	.L84:
+ 528:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             }
+ 529:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tempPkt->creator       = COMPONENT_OPENTCP;
+ 1855              		.loc 1 529 0
+ 1856 0d34 BB68     		ldr	r3, [r7, #8]
+ 1857 0d36 1722     		movs	r2, #23
+ 1858 0d38 1A70     		strb	r2, [r3]
+ 530:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tempPkt->owner         = COMPONENT_OPENTCP;
+ 1859              		.loc 1 530 0
+ 1860 0d3a BB68     		ldr	r3, [r7, #8]
+ 1861 0d3c 1722     		movs	r2, #23
+ 1862 0d3e 5A70     		strb	r2, [r3, #1]
+ 531:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             memcpy(&(tempPkt->l3_destinationAdd),&tcp_vars.hisIPv6Address,sizeof(open_addr_t));
+ 1863              		.loc 1 531 0
+ 1864 0d40 BB68     		ldr	r3, [r7, #8]
+ 1865 0d42 1533     		adds	r3, r3, #21
+ 1866 0d44 40F20002 		movw	r2, #:lower16:tcp_vars
+ 1867 0d48 C0F20002 		movt	r2, #:upper16:tcp_vars
+ 1868 0d4c 1232     		adds	r2, r2, #18
+ 1869 0d4e 1568     		ldr	r5, [r2]	@ unaligned
+ 1870 0d50 5468     		ldr	r4, [r2, #4]	@ unaligned
+ 1871 0d52 9068     		ldr	r0, [r2, #8]	@ unaligned
+ 1872 0d54 D168     		ldr	r1, [r2, #12]	@ unaligned
+ 1873 0d56 1D60     		str	r5, [r3]	@ unaligned
+ 1874 0d58 5C60     		str	r4, [r3, #4]	@ unaligned
+ 1875 0d5a 9860     		str	r0, [r3, #8]	@ unaligned
+ 1876 0d5c D960     		str	r1, [r3, #12]	@ unaligned
+ 1877 0d5e 127C     		ldrb	r2, [r2, #16]
+ 1878 0d60 1A74     		strb	r2, [r3, #16]
+ 532:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             prependTCPHeader(tempPkt,
+ 1879              		.loc 1 532 0
+ 1880 0d62 0023     		movs	r3, #0
+ 1881 0d64 0093     		str	r3, [sp]
+ 1882 0d66 0023     		movs	r3, #0
+ 1883 0d68 0193     		str	r3, [sp, #4]
+ 1884 0d6a B868     		ldr	r0, [r7, #8]
+ 1885 0d6c 0121     		movs	r1, #1
+ 1886 0d6e 0022     		movs	r2, #0
+ 1887 0d70 0023     		movs	r3, #0
+ 1888 0d72 FFF7FEFF 		bl	prependTCPHeader
+ 533:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   TCP_ACK_YES,
+ 534:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   TCP_PSH_NO,
+ 535:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   TCP_RST_NO,
+ 536:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   TCP_SYN_NO,
+ 537:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                   TCP_FIN_NO);
+ 538:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             forwarding_send(tempPkt);
+ 1889              		.loc 1 538 0
+ 1890 0d76 B868     		ldr	r0, [r7, #8]
+ 1891 0d78 FFF7FEFF 		bl	forwarding_send
+ 539:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tcp_change_state(TCP_STATE_ALMOST_TIME_WAIT);
+ 1892              		.loc 1 539 0
+ 1893 0d7c 0F20     		movs	r0, #15
+ 1894 0d7e FFF7FEFF 		bl	tcp_change_state
+ 1895              	.L83:
+ 540:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          }
+ 541:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          openqueue_freePacketBuffer(msg);
+ 1896              		.loc 1 541 0
+ 1897 0d82 7868     		ldr	r0, [r7, #4]
+ 1898 0d84 FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 542:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          break;
+ 1899              		.loc 1 542 0
+ 1900 0d88 30E0     		b	.L33
+ 1901              	.L46:
+ 543:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** 
+ 544:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       case TCP_STATE_CLOSING:                                     //[receive] teardown
+ 545:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          if (containsControlBits(msg,TCP_ACK_YES,TCP_RST_NO,TCP_SYN_NO,TCP_FIN_NO)) {
+ 1902              		.loc 1 545 0
+ 1903 0d8a 0023     		movs	r3, #0
+ 1904 0d8c 0093     		str	r3, [sp]
+ 1905 0d8e 7868     		ldr	r0, [r7, #4]
+ 1906 0d90 0121     		movs	r1, #1
+ 1907 0d92 0022     		movs	r2, #0
+ 1908 0d94 0023     		movs	r3, #0
+ 1909 0d96 FFF7FEFF 		bl	containsControlBits
+ 1910 0d9a 0346     		mov	r3, r0
+ 1911 0d9c 002B     		cmp	r3, #0
+ 1912 0d9e 04D0     		beq	.L85
+ 546:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             //I receive ACK, I do nothing
+ 547:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             tcp_change_state(TCP_STATE_TIME_WAIT);
+ 1913              		.loc 1 547 0
+ 1914 0da0 1020     		movs	r0, #16
+ 1915 0da2 FFF7FEFF 		bl	tcp_change_state
+ 548:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             //TODO implement waiting timer
+ 549:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             opentcp_reset();
+ 1916              		.loc 1 549 0
+ 1917 0da6 FFF7FEFF 		bl	opentcp_reset
+ 1918              	.L85:
+ 550:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          }
+ 551:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          openqueue_freePacketBuffer(msg);
+ 1919              		.loc 1 551 0
+ 1920 0daa 7868     		ldr	r0, [r7, #4]
+ 1921 0dac FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 552:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          break;
+ 1922              		.loc 1 552 0
+ 1923 0db0 1CE0     		b	.L33
+ 1924              	.L48:
+ 553:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** 
+ 554:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       case TCP_STATE_LAST_ACK:                                    //[receive] teardown
+ 555:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          if (containsControlBits(msg,TCP_ACK_YES,TCP_RST_NO,TCP_SYN_NO,TCP_FIN_NO)) {
+ 1925              		.loc 1 555 0
+ 1926 0db2 0023     		movs	r3, #0
+ 1927 0db4 0093     		str	r3, [sp]
+ 1928 0db6 7868     		ldr	r0, [r7, #4]
+ 1929 0db8 0121     		movs	r1, #1
+ 1930 0dba 0022     		movs	r2, #0
+ 1931 0dbc 0023     		movs	r3, #0
+ 1932 0dbe FFF7FEFF 		bl	containsControlBits
+ 1933 0dc2 0346     		mov	r3, r0
+ 1934 0dc4 002B     		cmp	r3, #0
+ 1935 0dc6 01D0     		beq	.L86
+ 556:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             //I receive ACK, I reset
+ 557:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****             opentcp_reset();
+ 1936              		.loc 1 557 0
+ 1937 0dc8 FFF7FEFF 		bl	opentcp_reset
+ 1938              	.L86:
+ 558:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          }
+ 559:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          openqueue_freePacketBuffer(msg);
+ 1939              		.loc 1 559 0
+ 1940 0dcc 7868     		ldr	r0, [r7, #4]
+ 1941 0dce FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 560:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          break;
+ 1942              		.loc 1 560 0
+ 1943 0dd2 0BE0     		b	.L33
+ 1944              	.L38:
+ 561:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** 
+ 562:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       default:
+ 563:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          openserial_printError(COMPONENT_OPENTCP,ERR_WRONG_TCP_STATE,
+ 564:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                (errorparameter_t)tcp_vars.state,
+ 1945              		.loc 1 564 0
+ 1946 0dd4 40F20003 		movw	r3, #:lower16:tcp_vars
+ 1947 0dd8 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 1948 0ddc 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 563:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                (errorparameter_t)tcp_vars.state,
+ 1949              		.loc 1 563 0
+ 1950 0dde 1720     		movs	r0, #23
+ 1951 0de0 0721     		movs	r1, #7
+ 1952 0de2 1A46     		mov	r2, r3
+ 1953 0de4 0423     		movs	r3, #4
+ 1954 0de6 FFF7FEFF 		bl	openserial_printError
+ 565:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                (errorparameter_t)4);
+ 566:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          break;
+ 1955              		.loc 1 566 0
+ 1956 0dea 00BF     		nop
+ 1957              	.L33:
+ 567:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    }
+ 568:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** }
+ 1958              		.loc 1 568 0
+ 1959 0dec 1037     		adds	r7, r7, #16
+ 1960 0dee BD46     		mov	sp, r7
+ 1961              		@ sp needed
+ 1962 0df0 B0BD     		pop	{r4, r5, r7, pc}
+ 1963              		.cfi_endproc
+ 1964              	.LFE4:
+ 1966 0df2 00BF     		.align	2
+ 1967              		.global	opentcp_close
+ 1968              		.thumb
+ 1969              		.thumb_func
+ 1971              	opentcp_close:
+ 1972              	.LFB5:
+ 569:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** 
+ 570:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** owerror_t opentcp_close() {    //[command] teardown
+ 1973              		.loc 1 570 0
+ 1974              		.cfi_startproc
+ 1975              		@ args = 0, pretend = 0, frame = 8
+ 1976              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1977 0df4 B0B5     		push	{r4, r5, r7, lr}
+ 1978              		.cfi_def_cfa_offset 16
+ 1979              		.cfi_offset 4, -16
+ 1980              		.cfi_offset 5, -12
+ 1981              		.cfi_offset 7, -8
+ 1982              		.cfi_offset 14, -4
+ 1983 0df6 84B0     		sub	sp, sp, #16
+ 1984              		.cfi_def_cfa_offset 32
+ 1985 0df8 02AF     		add	r7, sp, #8
+ 1986              		.cfi_def_cfa 7, 24
+ 571:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    OpenQueueEntry_t* tempPkt;
+ 572:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    if (  tcp_vars.state==TCP_STATE_ALMOST_CLOSE_WAIT ||
+ 1987              		.loc 1 572 0
+ 1988 0dfa 40F20003 		movw	r3, #:lower16:tcp_vars
+ 1989 0dfe C0F20003 		movt	r3, #:upper16:tcp_vars
+ 1990 0e02 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1991 0e04 112B     		cmp	r3, #17
+ 1992 0e06 1BD0     		beq	.L93
+ 573:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          tcp_vars.state==TCP_STATE_CLOSE_WAIT        ||
+ 1993              		.loc 1 573 0 discriminator 1
+ 1994 0e08 40F20003 		movw	r3, #:lower16:tcp_vars
+ 1995 0e0c C0F20003 		movt	r3, #:upper16:tcp_vars
+ 1996 0e10 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 572:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          tcp_vars.state==TCP_STATE_CLOSE_WAIT        ||
+ 1997              		.loc 1 572 0 discriminator 1
+ 1998 0e12 122B     		cmp	r3, #18
+ 1999 0e14 14D0     		beq	.L93
+ 574:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          tcp_vars.state==TCP_STATE_ALMOST_LAST_ACK   ||
+ 2000              		.loc 1 574 0
+ 2001 0e16 40F20003 		movw	r3, #:lower16:tcp_vars
+ 2002 0e1a C0F20003 		movt	r3, #:upper16:tcp_vars
+ 2003 0e1e 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 573:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          tcp_vars.state==TCP_STATE_CLOSE_WAIT        ||
+ 2004              		.loc 1 573 0
+ 2005 0e20 132B     		cmp	r3, #19
+ 2006 0e22 0DD0     		beq	.L93
+ 575:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          tcp_vars.state==TCP_STATE_LAST_ACK          ||
+ 2007              		.loc 1 575 0
+ 2008 0e24 40F20003 		movw	r3, #:lower16:tcp_vars
+ 2009 0e28 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 2010 0e2c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 574:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          tcp_vars.state==TCP_STATE_ALMOST_LAST_ACK   ||
+ 2011              		.loc 1 574 0
+ 2012 0e2e 142B     		cmp	r3, #20
+ 2013 0e30 06D0     		beq	.L93
+ 576:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          tcp_vars.state==TCP_STATE_CLOSED) {
+ 2014              		.loc 1 576 0
+ 2015 0e32 40F20003 		movw	r3, #:lower16:tcp_vars
+ 2016 0e36 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 2017 0e3a 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 575:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          tcp_vars.state==TCP_STATE_LAST_ACK          ||
+ 2018              		.loc 1 575 0
+ 2019 0e3c 002B     		cmp	r3, #0
+ 2020 0e3e 01D1     		bne	.L94
+ 2021              	.L93:
+ 577:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       //not an error, can happen when distant node has already started tearing down
+ 578:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       return E_SUCCESS;
+ 2022              		.loc 1 578 0
+ 2023 0e40 0023     		movs	r3, #0
+ 2024 0e42 41E0     		b	.L95
+ 2025              	.L94:
+ 579:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    }
+ 580:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    //I receive command 'close', I send FIN+ACK
+ 581:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    tempPkt = openqueue_getFreePacketBuffer(COMPONENT_OPENTCP);
+ 2026              		.loc 1 581 0
+ 2027 0e44 1720     		movs	r0, #23
+ 2028 0e46 FFF7FEFF 		bl	openqueue_getFreePacketBuffer
+ 2029 0e4a 7860     		str	r0, [r7, #4]
+ 582:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    if (tempPkt==NULL) {
+ 2030              		.loc 1 582 0
+ 2031 0e4c 7B68     		ldr	r3, [r7, #4]
+ 2032 0e4e 002B     		cmp	r3, #0
+ 2033 0e50 07D1     		bne	.L96
+ 583:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       openserial_printError(COMPONENT_OPENTCP,ERR_NO_FREE_PACKET_BUFFER,
+ 2034              		.loc 1 583 0
+ 2035 0e52 1720     		movs	r0, #23
+ 2036 0e54 2C21     		movs	r1, #44
+ 2037 0e56 0022     		movs	r2, #0
+ 2038 0e58 0023     		movs	r3, #0
+ 2039 0e5a FFF7FEFF 		bl	openserial_printError
+ 584:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                             (errorparameter_t)0,
+ 585:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                             (errorparameter_t)0);
+ 586:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       return E_FAIL;
+ 2040              		.loc 1 586 0
+ 2041 0e5e 0123     		movs	r3, #1
+ 2042 0e60 32E0     		b	.L95
+ 2043              	.L96:
+ 587:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    }
+ 588:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    tempPkt->creator       = COMPONENT_OPENTCP;
+ 2044              		.loc 1 588 0
+ 2045 0e62 7B68     		ldr	r3, [r7, #4]
+ 2046 0e64 1722     		movs	r2, #23
+ 2047 0e66 1A70     		strb	r2, [r3]
+ 589:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    tempPkt->owner         = COMPONENT_OPENTCP;
+ 2048              		.loc 1 589 0
+ 2049 0e68 7B68     		ldr	r3, [r7, #4]
+ 2050 0e6a 1722     		movs	r2, #23
+ 2051 0e6c 5A70     		strb	r2, [r3, #1]
+ 590:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    memcpy(&(tempPkt->l3_destinationAdd),&tcp_vars.hisIPv6Address,sizeof(open_addr_t));
+ 2052              		.loc 1 590 0
+ 2053 0e6e 7B68     		ldr	r3, [r7, #4]
+ 2054 0e70 1533     		adds	r3, r3, #21
+ 2055 0e72 40F20002 		movw	r2, #:lower16:tcp_vars
+ 2056 0e76 C0F20002 		movt	r2, #:upper16:tcp_vars
+ 2057 0e7a 1232     		adds	r2, r2, #18
+ 2058 0e7c 1568     		ldr	r5, [r2]	@ unaligned
+ 2059 0e7e 5468     		ldr	r4, [r2, #4]	@ unaligned
+ 2060 0e80 9068     		ldr	r0, [r2, #8]	@ unaligned
+ 2061 0e82 D168     		ldr	r1, [r2, #12]	@ unaligned
+ 2062 0e84 1D60     		str	r5, [r3]	@ unaligned
+ 2063 0e86 5C60     		str	r4, [r3, #4]	@ unaligned
+ 2064 0e88 9860     		str	r0, [r3, #8]	@ unaligned
+ 2065 0e8a D960     		str	r1, [r3, #12]	@ unaligned
+ 2066 0e8c 127C     		ldrb	r2, [r2, #16]
+ 2067 0e8e 1A74     		strb	r2, [r3, #16]
+ 591:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    prependTCPHeader(tempPkt,
+ 2068              		.loc 1 591 0
+ 2069 0e90 0023     		movs	r3, #0
+ 2070 0e92 0093     		str	r3, [sp]
+ 2071 0e94 0123     		movs	r3, #1
+ 2072 0e96 0193     		str	r3, [sp, #4]
+ 2073 0e98 7868     		ldr	r0, [r7, #4]
+ 2074 0e9a 0121     		movs	r1, #1
+ 2075 0e9c 0022     		movs	r2, #0
+ 2076 0e9e 0023     		movs	r3, #0
+ 2077 0ea0 FFF7FEFF 		bl	prependTCPHeader
+ 592:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          TCP_ACK_YES,
+ 593:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          TCP_PSH_NO,
+ 594:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          TCP_RST_NO,
+ 595:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          TCP_SYN_NO,
+ 596:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          TCP_FIN_YES);
+ 597:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    tcp_vars.mySeqNum++;
+ 2078              		.loc 1 597 0
+ 2079 0ea4 40F20003 		movw	r3, #:lower16:tcp_vars
+ 2080 0ea8 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 2081 0eac 5B68     		ldr	r3, [r3, #4]
+ 2082 0eae 5A1C     		adds	r2, r3, #1
+ 2083 0eb0 40F20003 		movw	r3, #:lower16:tcp_vars
+ 2084 0eb4 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 2085 0eb8 5A60     		str	r2, [r3, #4]
+ 598:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    tcp_change_state(TCP_STATE_ALMOST_FIN_WAIT_1);
+ 2086              		.loc 1 598 0
+ 2087 0eba 0A20     		movs	r0, #10
+ 2088 0ebc FFF7FEFF 		bl	tcp_change_state
+ 599:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    return forwarding_send(tempPkt);
+ 2089              		.loc 1 599 0
+ 2090 0ec0 7868     		ldr	r0, [r7, #4]
+ 2091 0ec2 FFF7FEFF 		bl	forwarding_send
+ 2092 0ec6 0346     		mov	r3, r0
+ 2093              	.L95:
+ 600:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** }
+ 2094              		.loc 1 600 0
+ 2095 0ec8 1846     		mov	r0, r3
+ 2096 0eca 0837     		adds	r7, r7, #8
+ 2097 0ecc BD46     		mov	sp, r7
+ 2098              		@ sp needed
+ 2099 0ece B0BD     		pop	{r4, r5, r7, pc}
+ 2100              		.cfi_endproc
+ 2101              	.LFE5:
+ 2103              		.align	2
+ 2104              		.global	tcp_debugPrint
+ 2105              		.thumb
+ 2106              		.thumb_func
+ 2108              	tcp_debugPrint:
+ 2109              	.LFB6:
+ 601:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** 
+ 602:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** bool tcp_debugPrint(void) {
+ 2110              		.loc 1 602 0
+ 2111              		.cfi_startproc
+ 2112              		@ args = 0, pretend = 0, frame = 0
+ 2113              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2114              		@ link register save eliminated.
+ 2115 0ed0 80B4     		push	{r7}
+ 2116              		.cfi_def_cfa_offset 4
+ 2117              		.cfi_offset 7, -4
+ 2118 0ed2 00AF     		add	r7, sp, #0
+ 2119              		.cfi_def_cfa_register 7
+ 603:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    return FALSE;
+ 2120              		.loc 1 603 0
+ 2121 0ed4 0023     		movs	r3, #0
+ 604:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** }
+ 2122              		.loc 1 604 0
+ 2123 0ed6 1846     		mov	r0, r3
+ 2124 0ed8 BD46     		mov	sp, r7
+ 2125              		@ sp needed
+ 2126 0eda 5DF8047B 		ldr	r7, [sp], #4
+ 2127 0ede 7047     		bx	lr
+ 2128              		.cfi_endproc
+ 2129              	.LFE6:
+ 2131              		.align	2
+ 2132              		.global	timers_tcp_fired
+ 2133              		.thumb
+ 2134              		.thumb_func
+ 2136              	timers_tcp_fired:
+ 2137              	.LFB7:
+ 605:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** 
+ 606:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** //======= timer
+ 607:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** 
+ 608:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** //timer used to reset state when TCP state machine is stuck
+ 609:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** void timers_tcp_fired(void) {
+ 2138              		.loc 1 609 0
+ 2139              		.cfi_startproc
+ 2140              		@ args = 0, pretend = 0, frame = 0
+ 2141              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2142 0ee0 80B5     		push	{r7, lr}
+ 2143              		.cfi_def_cfa_offset 8
+ 2144              		.cfi_offset 7, -8
+ 2145              		.cfi_offset 14, -4
+ 2146 0ee2 00AF     		add	r7, sp, #0
+ 2147              		.cfi_def_cfa_register 7
+ 610:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    opentcp_reset();
+ 2148              		.loc 1 610 0
+ 2149 0ee4 FFF7FEFF 		bl	opentcp_reset
+ 611:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** }
+ 2150              		.loc 1 611 0
+ 2151 0ee8 80BD     		pop	{r7, pc}
+ 2152              		.cfi_endproc
+ 2153              	.LFE7:
+ 2155 0eea 00BF     		.align	2
+ 2156              		.global	prependTCPHeader
+ 2157              		.thumb
+ 2158              		.thumb_func
+ 2160              	prependTCPHeader:
+ 2161              	.LFB8:
+ 612:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** 
+ 613:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** //=========================== private =========================================
+ 614:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** 
+ 615:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** void prependTCPHeader(OpenQueueEntry_t* msg,
+ 616:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       bool ack,
+ 617:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       bool push,
+ 618:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       bool rst,
+ 619:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       bool syn,
+ 620:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       bool fin) {
+ 2162              		.loc 1 620 0
+ 2163              		.cfi_startproc
+ 2164              		@ args = 8, pretend = 0, frame = 8
+ 2165              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2166 0eec 80B5     		push	{r7, lr}
+ 2167              		.cfi_def_cfa_offset 8
+ 2168              		.cfi_offset 7, -8
+ 2169              		.cfi_offset 14, -4
+ 2170 0eee 82B0     		sub	sp, sp, #8
+ 2171              		.cfi_def_cfa_offset 16
+ 2172 0ef0 00AF     		add	r7, sp, #0
+ 2173              		.cfi_def_cfa_register 7
+ 2174 0ef2 7860     		str	r0, [r7, #4]
+ 2175 0ef4 F970     		strb	r1, [r7, #3]
+ 2176 0ef6 BA70     		strb	r2, [r7, #2]
+ 2177 0ef8 7B70     		strb	r3, [r7, #1]
+ 621:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    msg->l4_protocol = IANA_TCP;
+ 2178              		.loc 1 621 0
+ 2179 0efa 7B68     		ldr	r3, [r7, #4]
+ 2180 0efc 0622     		movs	r2, #6
+ 2181 0efe 5A72     		strb	r2, [r3, #9]
+ 622:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    packetfunctions_reserveHeaderSize(msg,sizeof(tcp_ht));
+ 2182              		.loc 1 622 0
+ 2183 0f00 7868     		ldr	r0, [r7, #4]
+ 2184 0f02 1421     		movs	r1, #20
+ 2185 0f04 FFF7FEFF 		bl	packetfunctions_reserveHeaderSize
+ 623:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    packetfunctions_htons(tcp_vars.myPort        ,(uint8_t*)&(((tcp_ht*)msg->payload)->source_port))
+ 2186              		.loc 1 623 0
+ 2187 0f08 40F20003 		movw	r3, #:lower16:tcp_vars
+ 2188 0f0c C0F20003 		movt	r3, #:upper16:tcp_vars
+ 2189 0f10 1A89     		ldrh	r2, [r3, #8]
+ 2190 0f12 7B68     		ldr	r3, [r7, #4]
+ 2191 0f14 5B68     		ldr	r3, [r3, #4]
+ 2192 0f16 1046     		mov	r0, r2
+ 2193 0f18 1946     		mov	r1, r3
+ 2194 0f1a FFF7FEFF 		bl	packetfunctions_htons
+ 624:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    packetfunctions_htons(tcp_vars.hisPort       ,(uint8_t*)&(((tcp_ht*)msg->payload)->destination_p
+ 2195              		.loc 1 624 0
+ 2196 0f1e 40F20003 		movw	r3, #:lower16:tcp_vars
+ 2197 0f22 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 2198 0f26 1A8A     		ldrh	r2, [r3, #16]
+ 2199 0f28 7B68     		ldr	r3, [r7, #4]
+ 2200 0f2a 5B68     		ldr	r3, [r3, #4]
+ 2201 0f2c 0233     		adds	r3, r3, #2
+ 2202 0f2e 1046     		mov	r0, r2
+ 2203 0f30 1946     		mov	r1, r3
+ 2204 0f32 FFF7FEFF 		bl	packetfunctions_htons
+ 625:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    packetfunctions_htonl(tcp_vars.mySeqNum      ,(uint8_t*)&(((tcp_ht*)msg->payload)->sequence_numb
+ 2205              		.loc 1 625 0
+ 2206 0f36 40F20003 		movw	r3, #:lower16:tcp_vars
+ 2207 0f3a C0F20003 		movt	r3, #:upper16:tcp_vars
+ 2208 0f3e 5A68     		ldr	r2, [r3, #4]
+ 2209 0f40 7B68     		ldr	r3, [r7, #4]
+ 2210 0f42 5B68     		ldr	r3, [r3, #4]
+ 2211 0f44 0433     		adds	r3, r3, #4
+ 2212 0f46 1046     		mov	r0, r2
+ 2213 0f48 1946     		mov	r1, r3
+ 2214 0f4a FFF7FEFF 		bl	packetfunctions_htonl
+ 626:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    packetfunctions_htonl(tcp_vars.hisNextSeqNum ,(uint8_t*)&(((tcp_ht*)msg->payload)->ack_number));
+ 2215              		.loc 1 626 0
+ 2216 0f4e 40F20003 		movw	r3, #:lower16:tcp_vars
+ 2217 0f52 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 2218 0f56 DA68     		ldr	r2, [r3, #12]
+ 2219 0f58 7B68     		ldr	r3, [r7, #4]
+ 2220 0f5a 5B68     		ldr	r3, [r3, #4]
+ 2221 0f5c 0833     		adds	r3, r3, #8
+ 2222 0f5e 1046     		mov	r0, r2
+ 2223 0f60 1946     		mov	r1, r3
+ 2224 0f62 FFF7FEFF 		bl	packetfunctions_htonl
+ 627:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    ((tcp_ht*)msg->payload)->data_offset      = TCP_DEFAULT_DATA_OFFSET;
+ 2225              		.loc 1 627 0
+ 2226 0f66 7B68     		ldr	r3, [r7, #4]
+ 2227 0f68 5B68     		ldr	r3, [r3, #4]
+ 2228 0f6a 5022     		movs	r2, #80
+ 2229 0f6c 1A73     		strb	r2, [r3, #12]
+ 628:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    ((tcp_ht*)msg->payload)->control_bits     = 0;
+ 2230              		.loc 1 628 0
+ 2231 0f6e 7B68     		ldr	r3, [r7, #4]
+ 2232 0f70 5B68     		ldr	r3, [r3, #4]
+ 2233 0f72 0022     		movs	r2, #0
+ 2234 0f74 5A73     		strb	r2, [r3, #13]
+ 629:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    if (ack==TCP_ACK_YES) {
+ 2235              		.loc 1 629 0
+ 2236 0f76 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 2237 0f78 002B     		cmp	r3, #0
+ 2238 0f7a 09D0     		beq	.L101
+ 630:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       ((tcp_ht*)msg->payload)->control_bits |= 1 << TCP_ACK;
+ 2239              		.loc 1 630 0
+ 2240 0f7c 7B68     		ldr	r3, [r7, #4]
+ 2241 0f7e 5B68     		ldr	r3, [r3, #4]
+ 2242 0f80 7A68     		ldr	r2, [r7, #4]
+ 2243 0f82 5268     		ldr	r2, [r2, #4]
+ 2244 0f84 527B     		ldrb	r2, [r2, #13]	@ zero_extendqisi2
+ 2245 0f86 42F01002 		orr	r2, r2, #16
+ 2246 0f8a D2B2     		uxtb	r2, r2
+ 2247 0f8c 5A73     		strb	r2, [r3, #13]
+ 2248 0f8e 06E0     		b	.L102
+ 2249              	.L101:
+ 631:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    } else {
+ 632:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       packetfunctions_htonl(0,(uint8_t*)&(((tcp_ht*)msg->payload)->ack_number));
+ 2250              		.loc 1 632 0
+ 2251 0f90 7B68     		ldr	r3, [r7, #4]
+ 2252 0f92 5B68     		ldr	r3, [r3, #4]
+ 2253 0f94 0833     		adds	r3, r3, #8
+ 2254 0f96 0020     		movs	r0, #0
+ 2255 0f98 1946     		mov	r1, r3
+ 2256 0f9a FFF7FEFF 		bl	packetfunctions_htonl
+ 2257              	.L102:
+ 633:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    }
+ 634:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    if (push==TCP_PSH_YES) {
+ 2258              		.loc 1 634 0
+ 2259 0f9e BB78     		ldrb	r3, [r7, #2]	@ zero_extendqisi2
+ 2260 0fa0 002B     		cmp	r3, #0
+ 2261 0fa2 08D0     		beq	.L103
+ 635:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       ((tcp_ht*)msg->payload)->control_bits |= 1 << TCP_PSH;
+ 2262              		.loc 1 635 0
+ 2263 0fa4 7B68     		ldr	r3, [r7, #4]
+ 2264 0fa6 5B68     		ldr	r3, [r3, #4]
+ 2265 0fa8 7A68     		ldr	r2, [r7, #4]
+ 2266 0faa 5268     		ldr	r2, [r2, #4]
+ 2267 0fac 527B     		ldrb	r2, [r2, #13]	@ zero_extendqisi2
+ 2268 0fae 42F00802 		orr	r2, r2, #8
+ 2269 0fb2 D2B2     		uxtb	r2, r2
+ 2270 0fb4 5A73     		strb	r2, [r3, #13]
+ 2271              	.L103:
+ 636:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    }
+ 637:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    if (rst==TCP_RST_YES) {
+ 2272              		.loc 1 637 0
+ 2273 0fb6 7B78     		ldrb	r3, [r7, #1]	@ zero_extendqisi2
+ 2274 0fb8 002B     		cmp	r3, #0
+ 2275 0fba 08D0     		beq	.L104
+ 638:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       ((tcp_ht*)msg->payload)->control_bits |= 1 << TCP_RST;
+ 2276              		.loc 1 638 0
+ 2277 0fbc 7B68     		ldr	r3, [r7, #4]
+ 2278 0fbe 5B68     		ldr	r3, [r3, #4]
+ 2279 0fc0 7A68     		ldr	r2, [r7, #4]
+ 2280 0fc2 5268     		ldr	r2, [r2, #4]
+ 2281 0fc4 527B     		ldrb	r2, [r2, #13]	@ zero_extendqisi2
+ 2282 0fc6 42F00402 		orr	r2, r2, #4
+ 2283 0fca D2B2     		uxtb	r2, r2
+ 2284 0fcc 5A73     		strb	r2, [r3, #13]
+ 2285              	.L104:
+ 639:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    }
+ 640:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    if (syn==TCP_SYN_YES) {
+ 2286              		.loc 1 640 0
+ 2287 0fce 3B7C     		ldrb	r3, [r7, #16]	@ zero_extendqisi2
+ 2288 0fd0 002B     		cmp	r3, #0
+ 2289 0fd2 08D0     		beq	.L105
+ 641:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       ((tcp_ht*)msg->payload)->control_bits |= 1 << TCP_SYN;
+ 2290              		.loc 1 641 0
+ 2291 0fd4 7B68     		ldr	r3, [r7, #4]
+ 2292 0fd6 5B68     		ldr	r3, [r3, #4]
+ 2293 0fd8 7A68     		ldr	r2, [r7, #4]
+ 2294 0fda 5268     		ldr	r2, [r2, #4]
+ 2295 0fdc 527B     		ldrb	r2, [r2, #13]	@ zero_extendqisi2
+ 2296 0fde 42F00202 		orr	r2, r2, #2
+ 2297 0fe2 D2B2     		uxtb	r2, r2
+ 2298 0fe4 5A73     		strb	r2, [r3, #13]
+ 2299              	.L105:
+ 642:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    }
+ 643:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    if (fin==TCP_FIN_YES) {
+ 2300              		.loc 1 643 0
+ 2301 0fe6 3B7D     		ldrb	r3, [r7, #20]	@ zero_extendqisi2
+ 2302 0fe8 002B     		cmp	r3, #0
+ 2303 0fea 08D0     		beq	.L106
+ 644:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       ((tcp_ht*)msg->payload)->control_bits |= 1 << TCP_FIN;
+ 2304              		.loc 1 644 0
+ 2305 0fec 7B68     		ldr	r3, [r7, #4]
+ 2306 0fee 5B68     		ldr	r3, [r3, #4]
+ 2307 0ff0 7A68     		ldr	r2, [r7, #4]
+ 2308 0ff2 5268     		ldr	r2, [r2, #4]
+ 2309 0ff4 527B     		ldrb	r2, [r2, #13]	@ zero_extendqisi2
+ 2310 0ff6 42F00102 		orr	r2, r2, #1
+ 2311 0ffa D2B2     		uxtb	r2, r2
+ 2312 0ffc 5A73     		strb	r2, [r3, #13]
+ 2313              	.L106:
+ 645:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    }
+ 646:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    packetfunctions_htons(TCP_DEFAULT_WINDOW_SIZE    ,(uint8_t*)&(((tcp_ht*)msg->payload)->window_si
+ 2314              		.loc 1 646 0
+ 2315 0ffe 7B68     		ldr	r3, [r7, #4]
+ 2316 1000 5B68     		ldr	r3, [r3, #4]
+ 2317 1002 0E33     		adds	r3, r3, #14
+ 2318 1004 3020     		movs	r0, #48
+ 2319 1006 1946     		mov	r1, r3
+ 2320 1008 FFF7FEFF 		bl	packetfunctions_htons
+ 647:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    packetfunctions_htons(TCP_DEFAULT_URGENT_POINTER ,(uint8_t*)&(((tcp_ht*)msg->payload)->urgent_po
+ 2321              		.loc 1 647 0
+ 2322 100c 7B68     		ldr	r3, [r7, #4]
+ 2323 100e 5B68     		ldr	r3, [r3, #4]
+ 2324 1010 1233     		adds	r3, r3, #18
+ 2325 1012 0020     		movs	r0, #0
+ 2326 1014 1946     		mov	r1, r3
+ 2327 1016 FFF7FEFF 		bl	packetfunctions_htons
+ 648:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    //calculate checksum last to take all header fields into account
+ 649:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    packetfunctions_calculateChecksum(msg,(uint8_t*)&(((tcp_ht*)msg->payload)->checksum));
+ 2328              		.loc 1 649 0
+ 2329 101a 7B68     		ldr	r3, [r7, #4]
+ 2330 101c 5B68     		ldr	r3, [r3, #4]
+ 2331 101e 1033     		adds	r3, r3, #16
+ 2332 1020 7868     		ldr	r0, [r7, #4]
+ 2333 1022 1946     		mov	r1, r3
+ 2334 1024 FFF7FEFF 		bl	packetfunctions_calculateChecksum
+ 650:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** }
+ 2335              		.loc 1 650 0
+ 2336 1028 0837     		adds	r7, r7, #8
+ 2337 102a BD46     		mov	sp, r7
+ 2338              		@ sp needed
+ 2339 102c 80BD     		pop	{r7, pc}
+ 2340              		.cfi_endproc
+ 2341              	.LFE8:
+ 2343 102e 00BF     		.align	2
+ 2344              		.global	containsControlBits
+ 2345              		.thumb
+ 2346              		.thumb_func
+ 2348              	containsControlBits:
+ 2349              	.LFB9:
+ 651:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** 
+ 652:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** bool containsControlBits(OpenQueueEntry_t* msg, uint8_t ack, uint8_t rst, uint8_t syn, uint8_t fin)
+ 2350              		.loc 1 652 0
+ 2351              		.cfi_startproc
+ 2352              		@ args = 4, pretend = 0, frame = 16
+ 2353              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2354              		@ link register save eliminated.
+ 2355 1030 80B4     		push	{r7}
+ 2356              		.cfi_def_cfa_offset 4
+ 2357              		.cfi_offset 7, -4
+ 2358 1032 85B0     		sub	sp, sp, #20
+ 2359              		.cfi_def_cfa_offset 24
+ 2360 1034 00AF     		add	r7, sp, #0
+ 2361              		.cfi_def_cfa_register 7
+ 2362 1036 7860     		str	r0, [r7, #4]
+ 2363 1038 F970     		strb	r1, [r7, #3]
+ 2364 103a BA70     		strb	r2, [r7, #2]
+ 2365 103c 7B70     		strb	r3, [r7, #1]
+ 653:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    bool return_value = TRUE;
+ 2366              		.loc 1 653 0
+ 2367 103e 0123     		movs	r3, #1
+ 2368 1040 FB73     		strb	r3, [r7, #15]
+ 654:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    if (ack!=TCP_ACK_WHATEVER){
+ 2369              		.loc 1 654 0
+ 2370 1042 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 2371 1044 022B     		cmp	r3, #2
+ 2372 1046 1AD0     		beq	.L108
+ 655:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       return_value = return_value && ((bool)( (((tcp_ht*)msg->payload)->control_bits >> TCP_ACK) & 
+ 2373              		.loc 1 655 0
+ 2374 1048 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 2375 104a 002B     		cmp	r3, #0
+ 2376 104c 11D0     		beq	.L109
+ 2377              		.loc 1 655 0 is_stmt 0 discriminator 1
+ 2378 104e 7B68     		ldr	r3, [r7, #4]
+ 2379 1050 5B68     		ldr	r3, [r3, #4]
+ 2380 1052 5B7B     		ldrb	r3, [r3, #13]	@ zero_extendqisi2
+ 2381 1054 1B09     		lsrs	r3, r3, #4
+ 2382 1056 DBB2     		uxtb	r3, r3
+ 2383 1058 03F00103 		and	r3, r3, #1
+ 2384 105c 002B     		cmp	r3, #0
+ 2385 105e 0CBF     		ite	eq
+ 2386 1060 0023     		moveq	r3, #0
+ 2387 1062 0123     		movne	r3, #1
+ 2388 1064 DBB2     		uxtb	r3, r3
+ 2389 1066 1A46     		mov	r2, r3
+ 2390 1068 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 2391 106a 9A42     		cmp	r2, r3
+ 2392 106c 01D1     		bne	.L109
+ 2393              		.loc 1 655 0 discriminator 3
+ 2394 106e 0123     		movs	r3, #1
+ 2395 1070 00E0     		b	.L110
+ 2396              	.L109:
+ 2397              		.loc 1 655 0 discriminator 2
+ 2398 1072 0023     		movs	r3, #0
+ 2399              	.L110:
+ 2400              		.loc 1 655 0 discriminator 4
+ 2401 1074 FB73     		strb	r3, [r7, #15]
+ 2402 1076 FB7B     		ldrb	r3, [r7, #15]
+ 2403 1078 03F00103 		and	r3, r3, #1
+ 2404 107c FB73     		strb	r3, [r7, #15]
+ 2405              	.L108:
+ 656:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    }
+ 657:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    if (rst!=TCP_RST_WHATEVER){
+ 2406              		.loc 1 657 0 is_stmt 1
+ 2407 107e BB78     		ldrb	r3, [r7, #2]	@ zero_extendqisi2
+ 2408 1080 022B     		cmp	r3, #2
+ 2409 1082 1AD0     		beq	.L111
+ 658:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       return_value = return_value && ((bool)( (((tcp_ht*)msg->payload)->control_bits >> TCP_RST) & 
+ 2410              		.loc 1 658 0
+ 2411 1084 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 2412 1086 002B     		cmp	r3, #0
+ 2413 1088 11D0     		beq	.L112
+ 2414              		.loc 1 658 0 is_stmt 0 discriminator 1
+ 2415 108a 7B68     		ldr	r3, [r7, #4]
+ 2416 108c 5B68     		ldr	r3, [r3, #4]
+ 2417 108e 5B7B     		ldrb	r3, [r3, #13]	@ zero_extendqisi2
+ 2418 1090 9B08     		lsrs	r3, r3, #2
+ 2419 1092 DBB2     		uxtb	r3, r3
+ 2420 1094 03F00103 		and	r3, r3, #1
+ 2421 1098 002B     		cmp	r3, #0
+ 2422 109a 0CBF     		ite	eq
+ 2423 109c 0023     		moveq	r3, #0
+ 2424 109e 0123     		movne	r3, #1
+ 2425 10a0 DBB2     		uxtb	r3, r3
+ 2426 10a2 1A46     		mov	r2, r3
+ 2427 10a4 BB78     		ldrb	r3, [r7, #2]	@ zero_extendqisi2
+ 2428 10a6 9A42     		cmp	r2, r3
+ 2429 10a8 01D1     		bne	.L112
+ 2430              		.loc 1 658 0 discriminator 3
+ 2431 10aa 0123     		movs	r3, #1
+ 2432 10ac 00E0     		b	.L113
+ 2433              	.L112:
+ 2434              		.loc 1 658 0 discriminator 2
+ 2435 10ae 0023     		movs	r3, #0
+ 2436              	.L113:
+ 2437              		.loc 1 658 0 discriminator 4
+ 2438 10b0 FB73     		strb	r3, [r7, #15]
+ 2439 10b2 FB7B     		ldrb	r3, [r7, #15]
+ 2440 10b4 03F00103 		and	r3, r3, #1
+ 2441 10b8 FB73     		strb	r3, [r7, #15]
+ 2442              	.L111:
+ 659:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    }
+ 660:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    if (syn!=TCP_SYN_WHATEVER){
+ 2443              		.loc 1 660 0 is_stmt 1
+ 2444 10ba 7B78     		ldrb	r3, [r7, #1]	@ zero_extendqisi2
+ 2445 10bc 022B     		cmp	r3, #2
+ 2446 10be 1AD0     		beq	.L114
+ 661:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       return_value = return_value && ((bool)( (((tcp_ht*)msg->payload)->control_bits >> TCP_SYN) & 
+ 2447              		.loc 1 661 0
+ 2448 10c0 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 2449 10c2 002B     		cmp	r3, #0
+ 2450 10c4 11D0     		beq	.L115
+ 2451              		.loc 1 661 0 is_stmt 0 discriminator 1
+ 2452 10c6 7B68     		ldr	r3, [r7, #4]
+ 2453 10c8 5B68     		ldr	r3, [r3, #4]
+ 2454 10ca 5B7B     		ldrb	r3, [r3, #13]	@ zero_extendqisi2
+ 2455 10cc 5B08     		lsrs	r3, r3, #1
+ 2456 10ce DBB2     		uxtb	r3, r3
+ 2457 10d0 03F00103 		and	r3, r3, #1
+ 2458 10d4 002B     		cmp	r3, #0
+ 2459 10d6 0CBF     		ite	eq
+ 2460 10d8 0023     		moveq	r3, #0
+ 2461 10da 0123     		movne	r3, #1
+ 2462 10dc DBB2     		uxtb	r3, r3
+ 2463 10de 1A46     		mov	r2, r3
+ 2464 10e0 7B78     		ldrb	r3, [r7, #1]	@ zero_extendqisi2
+ 2465 10e2 9A42     		cmp	r2, r3
+ 2466 10e4 01D1     		bne	.L115
+ 2467              		.loc 1 661 0 discriminator 3
+ 2468 10e6 0123     		movs	r3, #1
+ 2469 10e8 00E0     		b	.L116
+ 2470              	.L115:
+ 2471              		.loc 1 661 0 discriminator 2
+ 2472 10ea 0023     		movs	r3, #0
+ 2473              	.L116:
+ 2474              		.loc 1 661 0 discriminator 4
+ 2475 10ec FB73     		strb	r3, [r7, #15]
+ 2476 10ee FB7B     		ldrb	r3, [r7, #15]
+ 2477 10f0 03F00103 		and	r3, r3, #1
+ 2478 10f4 FB73     		strb	r3, [r7, #15]
+ 2479              	.L114:
+ 662:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    }
+ 663:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    if (fin!=TCP_FIN_WHATEVER){
+ 2480              		.loc 1 663 0 is_stmt 1
+ 2481 10f6 3B7E     		ldrb	r3, [r7, #24]	@ zero_extendqisi2
+ 2482 10f8 022B     		cmp	r3, #2
+ 2483 10fa 18D0     		beq	.L117
+ 664:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       return_value = return_value && ((bool)( (((tcp_ht*)msg->payload)->control_bits >> TCP_FIN) & 
+ 2484              		.loc 1 664 0
+ 2485 10fc FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 2486 10fe 002B     		cmp	r3, #0
+ 2487 1100 0FD0     		beq	.L118
+ 2488              		.loc 1 664 0 is_stmt 0 discriminator 1
+ 2489 1102 7B68     		ldr	r3, [r7, #4]
+ 2490 1104 5B68     		ldr	r3, [r3, #4]
+ 2491 1106 5B7B     		ldrb	r3, [r3, #13]	@ zero_extendqisi2
+ 2492 1108 03F00103 		and	r3, r3, #1
+ 2493 110c 002B     		cmp	r3, #0
+ 2494 110e 0CBF     		ite	eq
+ 2495 1110 0023     		moveq	r3, #0
+ 2496 1112 0123     		movne	r3, #1
+ 2497 1114 DBB2     		uxtb	r3, r3
+ 2498 1116 1A46     		mov	r2, r3
+ 2499 1118 3B7E     		ldrb	r3, [r7, #24]	@ zero_extendqisi2
+ 2500 111a 9A42     		cmp	r2, r3
+ 2501 111c 01D1     		bne	.L118
+ 2502              		.loc 1 664 0 discriminator 3
+ 2503 111e 0123     		movs	r3, #1
+ 2504 1120 00E0     		b	.L119
+ 2505              	.L118:
+ 2506              		.loc 1 664 0 discriminator 2
+ 2507 1122 0023     		movs	r3, #0
+ 2508              	.L119:
+ 2509              		.loc 1 664 0 discriminator 4
+ 2510 1124 FB73     		strb	r3, [r7, #15]
+ 2511 1126 FB7B     		ldrb	r3, [r7, #15]
+ 2512 1128 03F00103 		and	r3, r3, #1
+ 2513 112c FB73     		strb	r3, [r7, #15]
+ 2514              	.L117:
+ 665:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    }
+ 666:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    return return_value;
+ 2515              		.loc 1 666 0 is_stmt 1
+ 2516 112e FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 667:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** }
+ 2517              		.loc 1 667 0
+ 2518 1130 1846     		mov	r0, r3
+ 2519 1132 1437     		adds	r7, r7, #20
+ 2520 1134 BD46     		mov	sp, r7
+ 2521              		@ sp needed
+ 2522 1136 5DF8047B 		ldr	r7, [sp], #4
+ 2523 113a 7047     		bx	lr
+ 2524              		.cfi_endproc
+ 2525              	.LFE9:
+ 2527              		.align	2
+ 2528              		.global	opentcp_reset
+ 2529              		.thumb
+ 2530              		.thumb_func
+ 2532              	opentcp_reset:
+ 2533              	.LFB10:
+ 668:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** 
+ 669:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** void opentcp_reset() {
+ 2534              		.loc 1 669 0
+ 2535              		.cfi_startproc
+ 2536              		@ args = 0, pretend = 0, frame = 0
+ 2537              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2538 113c 80B5     		push	{r7, lr}
+ 2539              		.cfi_def_cfa_offset 8
+ 2540              		.cfi_offset 7, -8
+ 2541              		.cfi_offset 14, -4
+ 2542 113e 00AF     		add	r7, sp, #0
+ 2543              		.cfi_def_cfa_register 7
+ 670:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    tcp_change_state(TCP_STATE_CLOSED);
+ 2544              		.loc 1 670 0
+ 2545 1140 0020     		movs	r0, #0
+ 2546 1142 FFF7FEFF 		bl	tcp_change_state
+ 671:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    tcp_vars.mySeqNum            = TCP_INITIAL_SEQNUM; 
+ 2547              		.loc 1 671 0
+ 2548 1146 40F20003 		movw	r3, #:lower16:tcp_vars
+ 2549 114a C0F20003 		movt	r3, #:upper16:tcp_vars
+ 2550 114e 6422     		movs	r2, #100
+ 2551 1150 5A60     		str	r2, [r3, #4]
+ 672:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    tcp_vars.hisNextSeqNum       = 0;
+ 2552              		.loc 1 672 0
+ 2553 1152 40F20003 		movw	r3, #:lower16:tcp_vars
+ 2554 1156 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 2555 115a 0022     		movs	r2, #0
+ 2556 115c DA60     		str	r2, [r3, #12]
+ 673:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    tcp_vars.hisPort             = 0;
+ 2557              		.loc 1 673 0
+ 2558 115e 40F20003 		movw	r3, #:lower16:tcp_vars
+ 2559 1162 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 2560 1166 0022     		movs	r2, #0
+ 2561 1168 1A82     		strh	r2, [r3, #16]	@ movhi
+ 674:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    tcp_vars.hisIPv6Address.type = ADDR_NONE;
+ 2562              		.loc 1 674 0
+ 2563 116a 40F20003 		movw	r3, #:lower16:tcp_vars
+ 2564 116e C0F20003 		movt	r3, #:upper16:tcp_vars
+ 2565 1172 0022     		movs	r2, #0
+ 2566 1174 9A74     		strb	r2, [r3, #18]
+ 675:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    tcp_vars.dataToSend          = NULL;
+ 2567              		.loc 1 675 0
+ 2568 1176 40F20003 		movw	r3, #:lower16:tcp_vars
+ 2569 117a C0F20003 		movt	r3, #:upper16:tcp_vars
+ 2570 117e 0022     		movs	r2, #0
+ 2571 1180 5A62     		str	r2, [r3, #36]
+ 676:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    tcp_vars.dataReceived        = NULL;
+ 2572              		.loc 1 676 0
+ 2573 1182 40F20003 		movw	r3, #:lower16:tcp_vars
+ 2574 1186 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 2575 118a 0022     		movs	r2, #0
+ 2576 118c 9A62     		str	r2, [r3, #40]
+ 677:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    openqueue_removeAllOwnedBy(COMPONENT_OPENTCP);
+ 2577              		.loc 1 677 0
+ 2578 118e 1720     		movs	r0, #23
+ 2579 1190 FFF7FEFF 		bl	openqueue_removeAllOwnedBy
+ 678:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** }
+ 2580              		.loc 1 678 0
+ 2581 1194 80BD     		pop	{r7, pc}
+ 2582              		.cfi_endproc
+ 2583              	.LFE10:
+ 2585 1196 00BF     		.align	2
+ 2586              		.global	tcp_change_state
+ 2587              		.thumb
+ 2588              		.thumb_func
+ 2590              	tcp_change_state:
+ 2591              	.LFB11:
+ 679:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** 
+ 680:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** void tcp_change_state(uint8_t new_tcp_state) {
+ 2592              		.loc 1 680 0
+ 2593              		.cfi_startproc
+ 2594              		@ args = 0, pretend = 0, frame = 8
+ 2595              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2596 1198 80B5     		push	{r7, lr}
+ 2597              		.cfi_def_cfa_offset 8
+ 2598              		.cfi_offset 7, -8
+ 2599              		.cfi_offset 14, -4
+ 2600 119a 82B0     		sub	sp, sp, #8
+ 2601              		.cfi_def_cfa_offset 16
+ 2602 119c 00AF     		add	r7, sp, #0
+ 2603              		.cfi_def_cfa_register 7
+ 2604 119e 0346     		mov	r3, r0
+ 2605 11a0 FB71     		strb	r3, [r7, #7]
+ 681:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    tcp_vars.state = new_tcp_state;
+ 2606              		.loc 1 681 0
+ 2607 11a2 40F20003 		movw	r3, #:lower16:tcp_vars
+ 2608 11a6 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 2609 11aa FA79     		ldrb	r2, [r7, #7]
+ 2610 11ac 1A70     		strb	r2, [r3]
+ 682:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    if (tcp_vars.state==TCP_STATE_CLOSED) {
+ 2611              		.loc 1 682 0
+ 2612 11ae 40F20003 		movw	r3, #:lower16:tcp_vars
+ 2613 11b2 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 2614 11b6 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 2615 11b8 002B     		cmp	r3, #0
+ 2616 11ba 11D1     		bne	.L123
+ 683:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       if (tcp_vars.timerStarted==TRUE) {
+ 2617              		.loc 1 683 0
+ 2618 11bc 40F20003 		movw	r3, #:lower16:tcp_vars
+ 2619 11c0 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 2620 11c4 93F82C30 		ldrb	r3, [r3, #44]	@ zero_extendqisi2
+ 2621 11c8 002B     		cmp	r3, #0
+ 2622 11ca 2DD0     		beq	.L122
+ 684:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          opentimers_stop(tcp_vars.timerId);
+ 2623              		.loc 1 684 0
+ 2624 11cc 40F20003 		movw	r3, #:lower16:tcp_vars
+ 2625 11d0 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 2626 11d4 93F82D30 		ldrb	r3, [r3, #45]	@ zero_extendqisi2
+ 2627 11d8 1846     		mov	r0, r3
+ 2628 11da FFF7FEFF 		bl	opentimers_stop
+ 2629 11de 23E0     		b	.L122
+ 2630              	.L123:
+ 685:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       }
+ 686:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    } else {
+ 687:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       if (tcp_vars.timerStarted==FALSE) {
+ 2631              		.loc 1 687 0
+ 2632 11e0 40F20003 		movw	r3, #:lower16:tcp_vars
+ 2633 11e4 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 2634 11e8 93F82C30 		ldrb	r3, [r3, #44]	@ zero_extendqisi2
+ 2635 11ec 83F00103 		eor	r3, r3, #1
+ 2636 11f0 DBB2     		uxtb	r3, r3
+ 2637 11f2 002B     		cmp	r3, #0
+ 2638 11f4 18D0     		beq	.L122
+ 688:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          tcp_vars.timerId = opentimers_start(TCP_TIMEOUT,
+ 2639              		.loc 1 688 0
+ 2640 11f6 40F2DC50 		movw	r0, #1500
+ 2641 11fa 0121     		movs	r1, #1
+ 2642 11fc 0022     		movs	r2, #0
+ 2643 11fe 40F20003 		movw	r3, #:lower16:opentcp_timer_cb
+ 2644 1202 C0F20003 		movt	r3, #:upper16:opentcp_timer_cb
+ 2645 1206 FFF7FEFF 		bl	opentimers_start
+ 2646 120a 0346     		mov	r3, r0
+ 2647 120c 1A46     		mov	r2, r3
+ 2648 120e 40F20003 		movw	r3, #:lower16:tcp_vars
+ 2649 1212 C0F20003 		movt	r3, #:upper16:tcp_vars
+ 2650 1216 83F82D20 		strb	r2, [r3, #45]
+ 689:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                              TIMER_ONESHOT,TIME_MS,
+ 690:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****                                              opentcp_timer_cb);
+ 691:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****          tcp_vars.timerStarted=TRUE;
+ 2651              		.loc 1 691 0
+ 2652 121a 40F20003 		movw	r3, #:lower16:tcp_vars
+ 2653 121e C0F20003 		movt	r3, #:upper16:tcp_vars
+ 2654 1222 0122     		movs	r2, #1
+ 2655 1224 83F82C20 		strb	r2, [r3, #44]
+ 2656              	.L122:
+ 692:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       }
+ 693:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****       
+ 694:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    }
+ 695:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** }
+ 2657              		.loc 1 695 0
+ 2658 1228 0837     		adds	r7, r7, #8
+ 2659 122a BD46     		mov	sp, r7
+ 2660              		@ sp needed
+ 2661 122c 80BD     		pop	{r7, pc}
+ 2662              		.cfi_endproc
+ 2663              	.LFE11:
+ 2665 122e 00BF     		.align	2
+ 2666              		.global	opentcp_timer_cb
+ 2667              		.thumb
+ 2668              		.thumb_func
+ 2670              	opentcp_timer_cb:
+ 2671              	.LFB12:
+ 696:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** 
+ 697:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** void opentcp_timer_cb(opentimer_id_t id) {
+ 2672              		.loc 1 697 0
+ 2673              		.cfi_startproc
+ 2674              		@ args = 0, pretend = 0, frame = 8
+ 2675              		@ frame_needed = 1, uses_anonymous_args = 0
+ 2676 1230 80B5     		push	{r7, lr}
+ 2677              		.cfi_def_cfa_offset 8
+ 2678              		.cfi_offset 7, -8
+ 2679              		.cfi_offset 14, -4
+ 2680 1232 82B0     		sub	sp, sp, #8
+ 2681              		.cfi_def_cfa_offset 16
+ 2682 1234 00AF     		add	r7, sp, #0
+ 2683              		.cfi_def_cfa_register 7
+ 2684 1236 0346     		mov	r3, r0
+ 2685 1238 FB71     		strb	r3, [r7, #7]
+ 698:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c ****    scheduler_push_task(timers_tcp_fired,TASKPRIO_TCP_TIMEOUT);
+ 2686              		.loc 1 698 0
+ 2687 123a 40F20000 		movw	r0, #:lower16:timers_tcp_fired
+ 2688 123e C0F20000 		movt	r0, #:upper16:timers_tcp_fired
+ 2689 1242 0521     		movs	r1, #5
+ 2690 1244 FFF7FEFF 		bl	scheduler_push_task
+ 699:build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.c **** }
+ 2691              		.loc 1 699 0
+ 2692 1248 0837     		adds	r7, r7, #8
+ 2693 124a BD46     		mov	sp, r7
+ 2694              		@ sp needed
+ 2695 124c 80BD     		pop	{r7, pc}
+ 2696              		.cfi_endproc
+ 2697              	.LFE12:
+ 2699              	.Letext0:
+ 2700              		.file 2 "/usr/include/newlib/machine/_default_types.h"
+ 2701              		.file 3 "/usr/include/newlib/stdint.h"
+ 2702              		.file 4 "inc/opendefs.h"
+ 2703              		.file 5 "drivers/common/opentimers.h"
+ 2704              		.file 6 "build/openmote-cc2538_armgcc/openstack/04-TRAN/opentcp.h"
+ 2705              		.file 7 "kernel/scheduler.h"
+ 2706              		.file 8 "bsp/boards/openmote-cc2538/board_info.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 opentcp.c
+     /tmp/ccYS4NH1.s:19     .rodata:0000000000000000 $d
+     /tmp/ccYS4NH1.s:22     .rodata:0000000000000000 rreg_uriquery
+     /tmp/ccYS4NH1.s:27     .rodata:0000000000000008 infoBoardname
+     /tmp/ccYS4NH1.s:32     .rodata:0000000000000010 infouCName
+     /tmp/ccYS4NH1.s:37     .rodata:0000000000000018 infoRadioName
+     /tmp/ccYS4NH1.s:42     .rodata:0000000000000024 infoStackName
+                            *COM*:0000000000000030 tcp_vars
+     /tmp/ccYS4NH1.s:46     .text:0000000000000000 $t
+     /tmp/ccYS4NH1.s:51     .text:0000000000000000 opentcp_init
+     /tmp/ccYS4NH1.s:2532   .text:000000000000113c opentcp_reset
+     /tmp/ccYS4NH1.s:82     .text:000000000000001c opentcp_connect
+     /tmp/ccYS4NH1.s:2160   .text:0000000000000eec prependTCPHeader
+     /tmp/ccYS4NH1.s:2590   .text:0000000000001198 tcp_change_state
+     /tmp/ccYS4NH1.s:227    .text:0000000000000110 opentcp_send
+     /tmp/ccYS4NH1.s:381    .text:0000000000000224 opentcp_sendDone
+     /tmp/ccYS4NH1.s:415    .text:0000000000000250 $d
+     /tmp/ccYS4NH1.s:436    .text:000000000000029c $t
+     /tmp/ccYS4NH1.s:669    .text:000000000000042c opentcp_receive
+     /tmp/ccYS4NH1.s:2348   .text:0000000000001030 containsControlBits
+     /tmp/ccYS4NH1.s:794    .text:0000000000000500 $d
+     /tmp/ccYS4NH1.s:817    .text:0000000000000554 $t
+     /tmp/ccYS4NH1.s:1113   .text:0000000000000790 $d
+     /tmp/ccYS4NH1.s:1116   .text:0000000000000794 $t
+     /tmp/ccYS4NH1.s:1971   .text:0000000000000df4 opentcp_close
+     /tmp/ccYS4NH1.s:2108   .text:0000000000000ed0 tcp_debugPrint
+     /tmp/ccYS4NH1.s:2136   .text:0000000000000ee0 timers_tcp_fired
+     /tmp/ccYS4NH1.s:2670   .text:0000000000001230 opentcp_timer_cb
+                     .debug_frame:0000000000000010 $d
+                           .group:0000000000000000 wm4.1.08074afb2ccc9da754fae8e3ee0f577b
+                           .group:0000000000000000 wm4.features.h.22.6a4ca7cd053637cc1d0db6c16f39b2d7
+                           .group:0000000000000000 wm4._default_types.h.15.8b2cb27e528498f8ff711db085d6e489
+                           .group:0000000000000000 wm4.stdint.h.20.796e373797e732130a803d4c0338fa1b
+                           .group:0000000000000000 wm4.toolchain_defs.h.2.e5fd326231d01413e5361944b26cde07
+                           .group:0000000000000000 wm4.newlib.h.8.fec018e441fee7bfa1923812ad010f97
+                           .group:0000000000000000 wm4.config.h.212.4163ef2871a828c674038d036b081cfd
+                           .group:0000000000000000 wm4._ansi.h.23.5644b60c990a4800b02a6e654e88f93a
+                           .group:0000000000000000 wm4.stddef.h.39.daafd3d79fe2f3a84d2d73d7d4e706f8
+                           .group:0000000000000000 wm4.lock.h.2.9bc98482741e5e2a9450b12934a684ea
+                           .group:0000000000000000 wm4._types.h.54.d3d34a3b7f3cc230cd159baf022b4b08
+                           .group:0000000000000000 wm4.stddef.h.158.61317cdbfb4026324507d123a50b0fd6
+                           .group:0000000000000000 wm4.reent.h.17.8bd9e4098e0428508c282cad794fae43
+                           .group:0000000000000000 wm4.cdefs.h.47.339223046f475c9f2d5db3a9118d7c65
+                           .group:0000000000000000 wm4.string.h.15.dab3980bf35408a4c507182805e2de3a
+                           .group:0000000000000000 wm4.stddef.h.158.a7efb00f6cbc6f43213b50e183c9830c
+                           .group:0000000000000000 wm4.string.h.126.6ff3aa59129e7f66b2c273baf353e066
+                           .group:0000000000000000 wm4.stdbool.h.29.1c9ee6859ce8145f7838a4f2549ccec2
+                           .group:0000000000000000 wm4.hw_types.h.67.b10589a0806dcc2d274d6fab6b736519
+                           .group:0000000000000000 wm4.interrupt.h.41.272fc4ec0e276feb439e7974d0f77eaf
+                           .group:0000000000000000 wm4.board_info.h.22.aeb00002354a4949fff54190040e37af
+                           .group:0000000000000000 wm4.opendefs.h.23.16dafe2a30b31097968a5d4db894173a
+                           .group:0000000000000000 wm4.opentimers.h.8.044f2d040a134cdb0ddb58adfc2508be
+                           .group:0000000000000000 wm4.openserial.h.9.0a357d13b4113cc69ceb77572df48861
+                           .group:0000000000000000 wm4.IEEE802154.h.2.38fb510ed33a23a9a0660164e6dfab69
+                           .group:0000000000000000 wm4.iphc.h.2.9e7d9d56ac728a3c0b3014283a59854e
+                           .group:0000000000000000 wm4.scheduler.h.2.d8d85f436d0d4b3991926a15b8490cf4
+
+UNDEFINED SYMBOLS
+memset
+openserial_printError
+openqueue_getFreePacketBuffer
+forwarding_send
+openqueue_freePacketBuffer
+techo_connectDone
+techo_receive
+packetfunctions_ntohs
+packetfunctions_sameAddress
+techo_shouldIlisten
+packetfunctions_ntohl
+packetfunctions_tossHeader
+techo_sendDone
+packetfunctions_reserveHeaderSize
+packetfunctions_htons
+packetfunctions_htonl
+packetfunctions_calculateChecksum
+openqueue_removeAllOwnedBy
+opentimers_stop
+opentimers_start
+scheduler_push_task

@@ -1,0 +1,668 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"c6t.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.rodata
+  19              		.align	2
+  22              	rreg_uriquery:
+  23 0000 683D7563 		.ascii	"h=ucb\000"
+  23      6200
+  24 0006 0000     		.align	2
+  27              	infoBoardname:
+  28 0008 43433235 		.ascii	"CC2538\000"
+  28      333800
+  29 000f 00       		.align	2
+  32              	infouCName:
+  33 0010 43433235 		.ascii	"CC2538\000"
+  33      333800
+  34 0017 00       		.align	2
+  37              	infoRadioName:
+  38 0018 43433235 		.ascii	"CC2538 SoC\000"
+  38      33382053 
+  38      6F4300
+  39 0023 00       		.align	2
+  42              	infoStackName:
+  43 0024 4F70656E 		.ascii	"OpenWSN \000"
+  43      57534E20 
+  43      00
+  44 002d 000000   		.align	2
+  47              	ipAddr_ipsoRD:
+  48 0030 26       		.byte	38
+  49 0031 07       		.byte	7
+  50 0032 F7       		.byte	-9
+  51 0033 40       		.byte	64
+  52 0034 00       		.byte	0
+  53 0035 00       		.byte	0
+  54 0036 00       		.byte	0
+  55 0037 3F       		.byte	63
+  56 0038 00       		.byte	0
+  57 0039 00       		.byte	0
+  58 003a 00       		.byte	0
+  59 003b 00       		.byte	0
+  60 003c 00       		.byte	0
+  61 003d 00       		.byte	0
+  62 003e 0E       		.byte	14
+  63 003f 29       		.byte	41
+  64              		.align	2
+  67              	ipAddr_motesEecs:
+  68 0040 20       		.byte	32
+  69 0041 01       		.byte	1
+  70 0042 04       		.byte	4
+  71 0043 70       		.byte	112
+  72 0044 00       		.byte	0
+  73 0045 66       		.byte	102
+  74 0046 00       		.byte	0
+  75 0047 19       		.byte	25
+  76 0048 00       		.byte	0
+  77 0049 00       		.byte	0
+  78 004a 00       		.byte	0
+  79 004b 00       		.byte	0
+  80 004c 00       		.byte	0
+  81 004d 00       		.byte	0
+  82 004e 00       		.byte	0
+  83 004f 02       		.byte	2
+  84              		.align	2
+  87              	ipAddr_local:
+  88 0050 26       		.byte	38
+  89 0051 07       		.byte	7
+  90 0052 F1       		.byte	-15
+  91 0053 40       		.byte	64
+  92 0054 04       		.byte	4
+  93 0055 00       		.byte	0
+  94 0056 10       		.byte	16
+  95 0057 36       		.byte	54
+  96 0058 4D       		.byte	77
+  97 0059 CD       		.byte	-51
+  98 005a AB       		.byte	-85
+  99 005b 54       		.byte	84
+ 100 005c 81       		.byte	-127
+ 101 005d 99       		.byte	-103
+ 102 005e C1       		.byte	-63
+ 103 005f F7       		.byte	-9
+ 104              		.align	2
+ 107              	ipAddr_motedata:
+ 108 0060 20       		.byte	32
+ 109 0061 01       		.byte	1
+ 110 0062 04       		.byte	4
+ 111 0063 70       		.byte	112
+ 112 0064 00       		.byte	0
+ 113 0065 66       		.byte	102
+ 114 0066 00       		.byte	0
+ 115 0067 17       		.byte	23
+ 116 0068 00       		.byte	0
+ 117 0069 00       		.byte	0
+ 118 006a 00       		.byte	0
+ 119 006b 00       		.byte	0
+ 120 006c 00       		.byte	0
+ 121 006d 00       		.byte	0
+ 122 006e 00       		.byte	0
+ 123 006f 02       		.byte	2
+ 124              		.align	2
+ 127              	ipAddr_ringmaster:
+ 128 0070 BB       		.byte	-69
+ 129 0071 BB       		.byte	-69
+ 130 0072 00       		.byte	0
+ 131 0073 00       		.byte	0
+ 132 0074 00       		.byte	0
+ 133 0075 00       		.byte	0
+ 134 0076 00       		.byte	0
+ 135 0077 00       		.byte	0
+ 136 0078 00       		.byte	0
+ 137 0079 00       		.byte	0
+ 138 007a 00       		.byte	0
+ 139 007b 00       		.byte	0
+ 140 007c 00       		.byte	0
+ 141 007d 00       		.byte	0
+ 142 007e 00       		.byte	0
+ 143 007f 01       		.byte	1
+ 144              		.align	2
+ 147              	all_routers_multicast:
+ 148 0080 FF       		.byte	-1
+ 149 0081 02       		.byte	2
+ 150 0082 00       		.byte	0
+ 151 0083 00       		.byte	0
+ 152 0084 00       		.byte	0
+ 153 0085 00       		.byte	0
+ 154 0086 00       		.byte	0
+ 155 0087 00       		.byte	0
+ 156 0088 00       		.byte	0
+ 157 0089 00       		.byte	0
+ 158 008a 00       		.byte	0
+ 159 008b 00       		.byte	0
+ 160 008c 00       		.byte	0
+ 161 008d 00       		.byte	0
+ 162 008e 00       		.byte	0
+ 163 008f 1A       		.byte	26
+ 164              		.global	c6t_path0
+ 165              		.align	2
+ 168              	c6t_path0:
+ 169 0090 367400   		.ascii	"6t\000"
+ 170              		.comm	c6t_vars,48,4
+ 171 0093 00       		.text
+ 172              		.align	2
+ 173              		.global	c6t_init
+ 174              		.thumb
+ 175              		.thumb_func
+ 177              	c6t_init:
+ 178              	.LFB0:
+ 179              		.file 1 "build/openmote-cc2538_armgcc/openapps/c6t/c6t.c"
+   1:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** /**
+   2:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** \brief CoAP 6top application.
+   3:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** 
+   4:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** \author Xavi Vilajosana <xvilajosana@eecs.berkeley.edu>, February 2013.
+   5:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** \author Thomas Watteyne <watteyne@eecs.berkeley.edu>, July 2014
+   6:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** */
+   7:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** 
+   8:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** #include "opendefs.h"
+   9:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** #include "c6t.h"
+  10:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** #include "sixtop.h"
+  11:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** #include "idmanager.h"
+  12:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** #include "openqueue.h"
+  13:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** #include "neighbors.h"
+  14:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** 
+  15:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** //=========================== defines =========================================
+  16:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** 
+  17:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** const uint8_t c6t_path0[] = "6t";
+  18:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** 
+  19:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** //=========================== variables =======================================
+  20:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** 
+  21:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** c6t_vars_t c6t_vars;
+  22:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** 
+  23:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** //=========================== prototypes ======================================
+  24:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** 
+  25:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** owerror_t c6t_receive(
+  26:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****    OpenQueueEntry_t* msg,
+  27:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****    coap_header_iht*  coap_header,
+  28:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****    coap_option_iht*  coap_options
+  29:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** );
+  30:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** void    c6t_sendDone(
+  31:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****    OpenQueueEntry_t* msg,
+  32:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****    owerror_t         error
+  33:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** );
+  34:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** 
+  35:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** //=========================== public ==========================================
+  36:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** 
+  37:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** void c6t_init() {
+ 180              		.loc 1 37 0
+ 181              		.cfi_startproc
+ 182              		@ args = 0, pretend = 0, frame = 0
+ 183              		@ frame_needed = 1, uses_anonymous_args = 0
+ 184 0000 80B5     		push	{r7, lr}
+ 185              		.cfi_def_cfa_offset 8
+ 186              		.cfi_offset 7, -8
+ 187              		.cfi_offset 14, -4
+ 188 0002 00AF     		add	r7, sp, #0
+ 189              		.cfi_def_cfa_register 7
+  38:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****    if(idmanager_getIsDAGroot()==TRUE) return; 
+ 190              		.loc 1 38 0
+ 191 0004 FFF7FEFF 		bl	idmanager_getIsDAGroot
+ 192 0008 0346     		mov	r3, r0
+ 193 000a 002B     		cmp	r3, #0
+ 194 000c 00D0     		beq	.L2
+ 195              		.loc 1 38 0 is_stmt 0 discriminator 1
+ 196 000e 3EE0     		b	.L1
+ 197              	.L2:
+  39:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****    
+  40:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****    // prepare the resource descriptor for the /6t path
+  41:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****    c6t_vars.desc.path0len            = sizeof(c6t_path0)-1;
+ 198              		.loc 1 41 0 is_stmt 1
+ 199 0010 40F20003 		movw	r3, #:lower16:c6t_vars
+ 200 0014 C0F20003 		movt	r3, #:upper16:c6t_vars
+ 201 0018 0222     		movs	r2, #2
+ 202 001a 1A70     		strb	r2, [r3]
+  42:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****    c6t_vars.desc.path0val            = (uint8_t*)(&c6t_path0);
+ 203              		.loc 1 42 0
+ 204 001c 40F20003 		movw	r3, #:lower16:c6t_vars
+ 205 0020 C0F20003 		movt	r3, #:upper16:c6t_vars
+ 206 0024 40F20002 		movw	r2, #:lower16:c6t_path0
+ 207 0028 C0F20002 		movt	r2, #:upper16:c6t_path0
+ 208 002c 5A60     		str	r2, [r3, #4]
+  43:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****    c6t_vars.desc.path1len            = 0;
+ 209              		.loc 1 43 0
+ 210 002e 40F20003 		movw	r3, #:lower16:c6t_vars
+ 211 0032 C0F20003 		movt	r3, #:upper16:c6t_vars
+ 212 0036 0022     		movs	r2, #0
+ 213 0038 1A72     		strb	r2, [r3, #8]
+  44:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****    c6t_vars.desc.path1val            = NULL;
+ 214              		.loc 1 44 0
+ 215 003a 40F20003 		movw	r3, #:lower16:c6t_vars
+ 216 003e C0F20003 		movt	r3, #:upper16:c6t_vars
+ 217 0042 0022     		movs	r2, #0
+ 218 0044 DA60     		str	r2, [r3, #12]
+  45:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****    c6t_vars.desc.componentID         = COMPONENT_C6T;
+ 219              		.loc 1 45 0
+ 220 0046 40F20003 		movw	r3, #:lower16:c6t_vars
+ 221 004a C0F20003 		movt	r3, #:upper16:c6t_vars
+ 222 004e 1A22     		movs	r2, #26
+ 223 0050 1A74     		strb	r2, [r3, #16]
+  46:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****    c6t_vars.desc.discoverable        = TRUE;
+ 224              		.loc 1 46 0
+ 225 0052 40F20003 		movw	r3, #:lower16:c6t_vars
+ 226 0056 C0F20003 		movt	r3, #:upper16:c6t_vars
+ 227 005a 0122     		movs	r2, #1
+ 228 005c 5A74     		strb	r2, [r3, #17]
+  47:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****    c6t_vars.desc.callbackRx          = &c6t_receive;
+ 229              		.loc 1 47 0
+ 230 005e 40F20003 		movw	r3, #:lower16:c6t_vars
+ 231 0062 C0F20003 		movt	r3, #:upper16:c6t_vars
+ 232 0066 40F20002 		movw	r2, #:lower16:c6t_receive
+ 233 006a C0F20002 		movt	r2, #:upper16:c6t_receive
+ 234 006e 5A61     		str	r2, [r3, #20]
+  48:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****    c6t_vars.desc.callbackSendDone    = &c6t_sendDone;
+ 235              		.loc 1 48 0
+ 236 0070 40F20003 		movw	r3, #:lower16:c6t_vars
+ 237 0074 C0F20003 		movt	r3, #:upper16:c6t_vars
+ 238 0078 40F20002 		movw	r2, #:lower16:c6t_sendDone
+ 239 007c C0F20002 		movt	r2, #:upper16:c6t_sendDone
+ 240 0080 9A61     		str	r2, [r3, #24]
+  49:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****    
+  50:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****    opencoap_register(&c6t_vars.desc);
+ 241              		.loc 1 50 0
+ 242 0082 40F20000 		movw	r0, #:lower16:c6t_vars
+ 243 0086 C0F20000 		movt	r0, #:upper16:c6t_vars
+ 244 008a FFF7FEFF 		bl	opencoap_register
+ 245              	.L1:
+  51:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** }
+ 246              		.loc 1 51 0
+ 247 008e 80BD     		pop	{r7, pc}
+ 248              		.cfi_endproc
+ 249              	.LFE0:
+ 251              		.align	2
+ 252              		.global	c6t_receive
+ 253              		.thumb
+ 254              		.thumb_func
+ 256              	c6t_receive:
+ 257              	.LFB1:
+  52:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** 
+  53:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** //=========================== private =========================================
+  54:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** 
+  55:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** /**
+  56:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** \brief Receives a command and a list of items to be used by the command.
+  57:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** 
+  58:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** \param[in] msg          The received message. CoAP header and options already
+  59:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****    parsed.
+  60:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** \param[in] coap_header  The CoAP header contained in the message.
+  61:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** \param[in] coap_options The CoAP options contained in the message.
+  62:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** 
+  63:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** \return Whether the response is prepared successfully.
+  64:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** */
+  65:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** owerror_t c6t_receive(
+  66:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****       OpenQueueEntry_t* msg,
+  67:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****       coap_header_iht*  coap_header,
+  68:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****       coap_option_iht*  coap_options
+  69:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****    ) {
+ 258              		.loc 1 69 0
+ 259              		.cfi_startproc
+ 260              		@ args = 0, pretend = 0, frame = 40
+ 261              		@ frame_needed = 1, uses_anonymous_args = 0
+ 262 0090 80B5     		push	{r7, lr}
+ 263              		.cfi_def_cfa_offset 8
+ 264              		.cfi_offset 7, -8
+ 265              		.cfi_offset 14, -4
+ 266 0092 8AB0     		sub	sp, sp, #40
+ 267              		.cfi_def_cfa_offset 48
+ 268 0094 00AF     		add	r7, sp, #0
+ 269              		.cfi_def_cfa_register 7
+ 270 0096 F860     		str	r0, [r7, #12]
+ 271 0098 B960     		str	r1, [r7, #8]
+ 272 009a 7A60     		str	r2, [r7, #4]
+  70:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****    
+  71:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****    owerror_t            outcome;
+  72:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****    open_addr_t          neighbor;
+  73:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****    bool                 foundNeighbor;
+  74:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****    
+  75:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****    switch (coap_header->Code) {
+ 273              		.loc 1 75 0
+ 274 009c BB68     		ldr	r3, [r7, #8]
+ 275 009e DB78     		ldrb	r3, [r3, #3]	@ zero_extendqisi2
+ 276 00a0 032B     		cmp	r3, #3
+ 277 00a2 02D0     		beq	.L6
+ 278 00a4 042B     		cmp	r3, #4
+ 279 00a6 3CD0     		beq	.L7
+ 280 00a8 77E0     		b	.L14
+ 281              	.L6:
+  76:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****       
+  77:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****       case COAP_CODE_REQ_PUT:
+  78:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          // add a slot
+  79:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          
+  80:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          // reset packet payload
+  81:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          msg->payload                  = &(msg->packet[127]);
+ 282              		.loc 1 81 0
+ 283 00aa FB68     		ldr	r3, [r7, #12]
+ 284 00ac 03F20B12 		addw	r2, r3, #267
+ 285 00b0 FB68     		ldr	r3, [r7, #12]
+ 286 00b2 5A60     		str	r2, [r3, #4]
+  82:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          msg->length                   = 0;
+ 287              		.loc 1 82 0
+ 288 00b4 FB68     		ldr	r3, [r7, #12]
+ 289 00b6 0022     		movs	r2, #0
+ 290 00b8 1A72     		strb	r2, [r3, #8]
+  83:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          
+  84:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          // get preferred parent
+  85:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          foundNeighbor = icmpv6rpl_getPreferredParentEui64(&neighbor);
+ 291              		.loc 1 85 0
+ 292 00ba 07F11403 		add	r3, r7, #20
+ 293 00be 1846     		mov	r0, r3
+ 294 00c0 FFF7FEFF 		bl	icmpv6rpl_getPreferredParentEui64
+ 295 00c4 0346     		mov	r3, r0
+ 296 00c6 87F82630 		strb	r3, [r7, #38]
+  86:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          if (foundNeighbor==FALSE) {
+ 297              		.loc 1 86 0
+ 298 00ca 97F82630 		ldrb	r3, [r7, #38]
+ 299 00ce 83F00103 		eor	r3, r3, #1
+ 300 00d2 DBB2     		uxtb	r3, r3
+ 301 00d4 002B     		cmp	r3, #0
+ 302 00d6 06D0     		beq	.L8
+  87:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****             outcome                    = E_FAIL;
+ 303              		.loc 1 87 0
+ 304 00d8 0123     		movs	r3, #1
+ 305 00da 87F82730 		strb	r3, [r7, #39]
+  88:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****             coap_header->Code          = COAP_CODE_RESP_PRECONDFAILED;
+ 306              		.loc 1 88 0
+ 307 00de BB68     		ldr	r3, [r7, #8]
+ 308 00e0 8C22     		movs	r2, #140
+ 309 00e2 DA70     		strb	r2, [r3, #3]
+  89:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****             break;
+ 310              		.loc 1 89 0
+ 311 00e4 5DE0     		b	.L9
+ 312              	.L8:
+  90:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          }
+  91:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          
+  92:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          if (sixtop_setHandler(SIX_HANDLER_SF0)==FALSE){
+ 313              		.loc 1 92 0
+ 314 00e6 0220     		movs	r0, #2
+ 315 00e8 FFF7FEFF 		bl	sixtop_setHandler
+ 316 00ec 0346     		mov	r3, r0
+ 317 00ee 83F00103 		eor	r3, r3, #1
+ 318 00f2 DBB2     		uxtb	r3, r3
+ 319 00f4 002B     		cmp	r3, #0
+ 320 00f6 06D0     		beq	.L10
+  93:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****             // one sixtop transcation is happening, only one instance at one time
+  94:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****             
+  95:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****             // set the CoAP header
+  96:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****             coap_header->Code             = COAP_CODE_RESP_CHANGED;
+ 321              		.loc 1 96 0
+ 322 00f8 BB68     		ldr	r3, [r7, #8]
+ 323 00fa 4422     		movs	r2, #68
+ 324 00fc DA70     		strb	r2, [r3, #3]
+  97:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****            
+  98:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****             outcome                       = E_FAIL;
+ 325              		.loc 1 98 0
+ 326 00fe 0123     		movs	r3, #1
+ 327 0100 87F82730 		strb	r3, [r7, #39]
+  99:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****             break;
+ 328              		.loc 1 99 0
+ 329 0104 4DE0     		b	.L9
+ 330              	.L10:
+ 100:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          }
+ 101:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          // call sixtop
+ 102:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          sixtop_request(
+ 331              		.loc 1 102 0
+ 332 0106 07F11403 		add	r3, r7, #20
+ 333 010a 0120     		movs	r0, #1
+ 334 010c 1946     		mov	r1, r3
+ 335 010e 0122     		movs	r2, #1
+ 336 0110 FFF7FEFF 		bl	sixtop_request
+ 103:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****             IANA_6TOP_CMD_ADD,
+ 104:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****             &neighbor,
+ 105:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****             1
+ 106:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          );
+ 107:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          
+ 108:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          // set the CoAP header
+ 109:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          coap_header->Code             = COAP_CODE_RESP_CHANGED;
+ 337              		.loc 1 109 0
+ 338 0114 BB68     		ldr	r3, [r7, #8]
+ 339 0116 4422     		movs	r2, #68
+ 340 0118 DA70     		strb	r2, [r3, #3]
+ 110:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          
+ 111:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          outcome                       = E_SUCCESS;
+ 341              		.loc 1 111 0
+ 342 011a 0023     		movs	r3, #0
+ 343 011c 87F82730 		strb	r3, [r7, #39]
+ 112:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          break;
+ 344              		.loc 1 112 0
+ 345 0120 3FE0     		b	.L9
+ 346              	.L7:
+ 113:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****       
+ 114:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****       case COAP_CODE_REQ_DELETE:
+ 115:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          // delete a slot
+ 116:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          
+ 117:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          // reset packet payload
+ 118:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          msg->payload                  = &(msg->packet[127]);
+ 347              		.loc 1 118 0
+ 348 0122 FB68     		ldr	r3, [r7, #12]
+ 349 0124 03F20B12 		addw	r2, r3, #267
+ 350 0128 FB68     		ldr	r3, [r7, #12]
+ 351 012a 5A60     		str	r2, [r3, #4]
+ 119:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          msg->length                   = 0;
+ 352              		.loc 1 119 0
+ 353 012c FB68     		ldr	r3, [r7, #12]
+ 354 012e 0022     		movs	r2, #0
+ 355 0130 1A72     		strb	r2, [r3, #8]
+ 120:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          
+ 121:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          // get preferred parent
+ 122:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          foundNeighbor = icmpv6rpl_getPreferredParentEui64(&neighbor);
+ 356              		.loc 1 122 0
+ 357 0132 07F11403 		add	r3, r7, #20
+ 358 0136 1846     		mov	r0, r3
+ 359 0138 FFF7FEFF 		bl	icmpv6rpl_getPreferredParentEui64
+ 360 013c 0346     		mov	r3, r0
+ 361 013e 87F82630 		strb	r3, [r7, #38]
+ 123:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          if (foundNeighbor==FALSE) {
+ 362              		.loc 1 123 0
+ 363 0142 97F82630 		ldrb	r3, [r7, #38]
+ 364 0146 83F00103 		eor	r3, r3, #1
+ 365 014a DBB2     		uxtb	r3, r3
+ 366 014c 002B     		cmp	r3, #0
+ 367 014e 06D0     		beq	.L11
+ 124:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****             outcome                    = E_FAIL;
+ 368              		.loc 1 124 0
+ 369 0150 0123     		movs	r3, #1
+ 370 0152 87F82730 		strb	r3, [r7, #39]
+ 125:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****             coap_header->Code          = COAP_CODE_RESP_PRECONDFAILED;
+ 371              		.loc 1 125 0
+ 372 0156 BB68     		ldr	r3, [r7, #8]
+ 373 0158 8C22     		movs	r2, #140
+ 374 015a DA70     		strb	r2, [r3, #3]
+ 126:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****             break;
+ 375              		.loc 1 126 0
+ 376 015c 21E0     		b	.L9
+ 377              	.L11:
+ 127:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          }
+ 128:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          
+ 129:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          if (sixtop_setHandler(SIX_HANDLER_SF0)==FALSE){
+ 378              		.loc 1 129 0
+ 379 015e 0220     		movs	r0, #2
+ 380 0160 FFF7FEFF 		bl	sixtop_setHandler
+ 381 0164 0346     		mov	r3, r0
+ 382 0166 83F00103 		eor	r3, r3, #1
+ 383 016a DBB2     		uxtb	r3, r3
+ 384 016c 002B     		cmp	r3, #0
+ 385 016e 06D0     		beq	.L12
+ 130:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****             // one sixtop transcation is happening, only one instance at one time
+ 131:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****             
+ 132:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****             // set the CoAP header
+ 133:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****             coap_header->Code             = COAP_CODE_RESP_CHANGED;
+ 386              		.loc 1 133 0
+ 387 0170 BB68     		ldr	r3, [r7, #8]
+ 388 0172 4422     		movs	r2, #68
+ 389 0174 DA70     		strb	r2, [r3, #3]
+ 134:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****            
+ 135:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****             outcome                       = E_FAIL;
+ 390              		.loc 1 135 0
+ 391 0176 0123     		movs	r3, #1
+ 392 0178 87F82730 		strb	r3, [r7, #39]
+ 136:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****             break;
+ 393              		.loc 1 136 0
+ 394 017c 11E0     		b	.L9
+ 395              	.L12:
+ 137:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          }
+ 138:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          // call sixtop
+ 139:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          sixtop_request(
+ 396              		.loc 1 139 0
+ 397 017e 07F11403 		add	r3, r7, #20
+ 398 0182 0220     		movs	r0, #2
+ 399 0184 1946     		mov	r1, r3
+ 400 0186 0122     		movs	r2, #1
+ 401 0188 FFF7FEFF 		bl	sixtop_request
+ 140:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****             IANA_6TOP_CMD_DELETE,
+ 141:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****             &neighbor,
+ 142:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****             1
+ 143:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          );
+ 144:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          
+ 145:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          // set the CoAP header
+ 146:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          coap_header->Code             = COAP_CODE_RESP_CHANGED;
+ 402              		.loc 1 146 0
+ 403 018c BB68     		ldr	r3, [r7, #8]
+ 404 018e 4422     		movs	r2, #68
+ 405 0190 DA70     		strb	r2, [r3, #3]
+ 147:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          
+ 148:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          outcome                       = E_SUCCESS;
+ 406              		.loc 1 148 0
+ 407 0192 0023     		movs	r3, #0
+ 408 0194 87F82730 		strb	r3, [r7, #39]
+ 149:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          break;
+ 409              		.loc 1 149 0
+ 410 0198 03E0     		b	.L9
+ 411              	.L14:
+ 150:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          
+ 151:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****       default:
+ 152:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          outcome = E_FAIL;
+ 412              		.loc 1 152 0
+ 413 019a 0123     		movs	r3, #1
+ 414 019c 87F82730 		strb	r3, [r7, #39]
+ 153:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****          break;
+ 415              		.loc 1 153 0
+ 416 01a0 00BF     		nop
+ 417              	.L9:
+ 154:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****    }
+ 155:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****    
+ 156:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****    return outcome;
+ 418              		.loc 1 156 0
+ 419 01a2 97F82730 		ldrb	r3, [r7, #39]	@ zero_extendqisi2
+ 157:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** }
+ 420              		.loc 1 157 0
+ 421 01a6 1846     		mov	r0, r3
+ 422 01a8 2837     		adds	r7, r7, #40
+ 423 01aa BD46     		mov	sp, r7
+ 424              		@ sp needed
+ 425 01ac 80BD     		pop	{r7, pc}
+ 426              		.cfi_endproc
+ 427              	.LFE1:
+ 429 01ae 00BF     		.align	2
+ 430              		.global	c6t_sendDone
+ 431              		.thumb
+ 432              		.thumb_func
+ 434              	c6t_sendDone:
+ 435              	.LFB2:
+ 158:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** 
+ 159:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** void c6t_sendDone(OpenQueueEntry_t* msg, owerror_t error) {
+ 436              		.loc 1 159 0
+ 437              		.cfi_startproc
+ 438              		@ args = 0, pretend = 0, frame = 8
+ 439              		@ frame_needed = 1, uses_anonymous_args = 0
+ 440 01b0 80B5     		push	{r7, lr}
+ 441              		.cfi_def_cfa_offset 8
+ 442              		.cfi_offset 7, -8
+ 443              		.cfi_offset 14, -4
+ 444 01b2 82B0     		sub	sp, sp, #8
+ 445              		.cfi_def_cfa_offset 16
+ 446 01b4 00AF     		add	r7, sp, #0
+ 447              		.cfi_def_cfa_register 7
+ 448 01b6 7860     		str	r0, [r7, #4]
+ 449 01b8 0B46     		mov	r3, r1
+ 450 01ba FB70     		strb	r3, [r7, #3]
+ 160:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c ****    openqueue_freePacketBuffer(msg);
+ 451              		.loc 1 160 0
+ 452 01bc 7868     		ldr	r0, [r7, #4]
+ 453 01be FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 161:build/openmote-cc2538_armgcc/openapps/c6t/c6t.c **** }
+ 454              		.loc 1 161 0
+ 455 01c2 0837     		adds	r7, r7, #8
+ 456 01c4 BD46     		mov	sp, r7
+ 457              		@ sp needed
+ 458 01c6 80BD     		pop	{r7, pc}
+ 459              		.cfi_endproc
+ 460              	.LFE2:
+ 462              	.Letext0:
+ 463              		.file 2 "/usr/include/newlib/machine/_default_types.h"
+ 464              		.file 3 "/usr/include/newlib/stdint.h"
+ 465              		.file 4 "inc/opendefs.h"
+ 466              		.file 5 "openapps/opencoap/opencoap.h"
+ 467              		.file 6 "build/openmote-cc2538_armgcc/openapps/c6t/c6t.h"
+ 468              		.file 7 "openstack/02b-MAChigh/sixtop.h"
+ 469              		.file 8 "bsp/boards/openmote-cc2538/board_info.h"
+ 470              		.file 9 "openstack/03b-IPv6/icmpv6rpl.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 c6t.c
+     /tmp/cc6G5ojZ.s:19     .rodata:0000000000000000 $d
+     /tmp/cc6G5ojZ.s:22     .rodata:0000000000000000 rreg_uriquery
+     /tmp/cc6G5ojZ.s:27     .rodata:0000000000000008 infoBoardname
+     /tmp/cc6G5ojZ.s:32     .rodata:0000000000000010 infouCName
+     /tmp/cc6G5ojZ.s:37     .rodata:0000000000000018 infoRadioName
+     /tmp/cc6G5ojZ.s:42     .rodata:0000000000000024 infoStackName
+     /tmp/cc6G5ojZ.s:47     .rodata:0000000000000030 ipAddr_ipsoRD
+     /tmp/cc6G5ojZ.s:67     .rodata:0000000000000040 ipAddr_motesEecs
+     /tmp/cc6G5ojZ.s:87     .rodata:0000000000000050 ipAddr_local
+     /tmp/cc6G5ojZ.s:107    .rodata:0000000000000060 ipAddr_motedata
+     /tmp/cc6G5ojZ.s:127    .rodata:0000000000000070 ipAddr_ringmaster
+     /tmp/cc6G5ojZ.s:147    .rodata:0000000000000080 all_routers_multicast
+     /tmp/cc6G5ojZ.s:168    .rodata:0000000000000090 c6t_path0
+                            *COM*:0000000000000030 c6t_vars
+     /tmp/cc6G5ojZ.s:172    .text:0000000000000000 $t
+     /tmp/cc6G5ojZ.s:177    .text:0000000000000000 c6t_init
+     /tmp/cc6G5ojZ.s:256    .text:0000000000000090 c6t_receive
+     /tmp/cc6G5ojZ.s:434    .text:00000000000001b0 c6t_sendDone
+                     .debug_frame:0000000000000010 $d
+                           .group:0000000000000000 wm4.1.08074afb2ccc9da754fae8e3ee0f577b
+                           .group:0000000000000000 wm4.features.h.22.6a4ca7cd053637cc1d0db6c16f39b2d7
+                           .group:0000000000000000 wm4._default_types.h.15.8b2cb27e528498f8ff711db085d6e489
+                           .group:0000000000000000 wm4.stdint.h.20.796e373797e732130a803d4c0338fa1b
+                           .group:0000000000000000 wm4.toolchain_defs.h.2.e5fd326231d01413e5361944b26cde07
+                           .group:0000000000000000 wm4.newlib.h.8.fec018e441fee7bfa1923812ad010f97
+                           .group:0000000000000000 wm4.config.h.212.4163ef2871a828c674038d036b081cfd
+                           .group:0000000000000000 wm4._ansi.h.23.5644b60c990a4800b02a6e654e88f93a
+                           .group:0000000000000000 wm4.stddef.h.39.daafd3d79fe2f3a84d2d73d7d4e706f8
+                           .group:0000000000000000 wm4.lock.h.2.9bc98482741e5e2a9450b12934a684ea
+                           .group:0000000000000000 wm4._types.h.54.d3d34a3b7f3cc230cd159baf022b4b08
+                           .group:0000000000000000 wm4.stddef.h.158.61317cdbfb4026324507d123a50b0fd6
+                           .group:0000000000000000 wm4.reent.h.17.8bd9e4098e0428508c282cad794fae43
+                           .group:0000000000000000 wm4.cdefs.h.47.339223046f475c9f2d5db3a9118d7c65
+                           .group:0000000000000000 wm4.string.h.15.dab3980bf35408a4c507182805e2de3a
+                           .group:0000000000000000 wm4.stddef.h.158.a7efb00f6cbc6f43213b50e183c9830c
+                           .group:0000000000000000 wm4.string.h.126.6ff3aa59129e7f66b2c273baf353e066
+                           .group:0000000000000000 wm4.stdbool.h.29.1c9ee6859ce8145f7838a4f2549ccec2
+                           .group:0000000000000000 wm4.hw_types.h.67.b10589a0806dcc2d274d6fab6b736519
+                           .group:0000000000000000 wm4.interrupt.h.41.272fc4ec0e276feb439e7974d0f77eaf
+                           .group:0000000000000000 wm4.board_info.h.22.aeb00002354a4949fff54190040e37af
+                           .group:0000000000000000 wm4.opendefs.h.23.16dafe2a30b31097968a5d4db894173a
+                           .group:0000000000000000 wm4.opentimers.h.8.044f2d040a134cdb0ddb58adfc2508be
+                           .group:0000000000000000 wm4.opencoap.h.32.54fb4d751dc200645403fc22b4aec840
+                           .group:0000000000000000 wm4.schedule.h.2.5f1ce0fba8afc2f4b06da872a2bf3e7d
+                           .group:0000000000000000 wm4.processIE.h.2.f7e3ebe58176b1696c1c10947f24f68e
+                           .group:0000000000000000 wm4.sixtop.h.16.9a560ceacc5efd96bdee707dc9b8cf3b
+                           .group:0000000000000000 wm4.idmanager.h.2.8c0e2159b32ef3125cbb1e984805cbfe
+                           .group:0000000000000000 wm4.IEEE802154.h.2.38fb510ed33a23a9a0660164e6dfab69
+                           .group:0000000000000000 wm4.icmpv6rpl.h.2.1b9b0c3d4c338cb1d7d7805fa59cf215
+                           .group:0000000000000000 wm4.neighbors.h.15.6d6181cbf1a5e29302c33fc055c1b200
+
+UNDEFINED SYMBOLS
+idmanager_getIsDAGroot
+opencoap_register
+icmpv6rpl_getPreferredParentEui64
+sixtop_setHandler
+sixtop_request
+openqueue_freePacketBuffer

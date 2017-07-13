@@ -1,0 +1,1975 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"ioc.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.rodata
+  19              		.align	2
+  22              	g_pui32IOCPortAOverrideReg:
+  23 0000 80400D40 		.word	1074610304
+  24 0004 84400D40 		.word	1074610308
+  25 0008 88400D40 		.word	1074610312
+  26 000c 8C400D40 		.word	1074610316
+  27 0010 90400D40 		.word	1074610320
+  28 0014 94400D40 		.word	1074610324
+  29 0018 98400D40 		.word	1074610328
+  30 001c 9C400D40 		.word	1074610332
+  31              		.align	2
+  34              	g_pui32IOCPortBOverrideReg:
+  35 0020 A0400D40 		.word	1074610336
+  36 0024 A4400D40 		.word	1074610340
+  37 0028 A8400D40 		.word	1074610344
+  38 002c AC400D40 		.word	1074610348
+  39 0030 B0400D40 		.word	1074610352
+  40 0034 B4400D40 		.word	1074610356
+  41 0038 B8400D40 		.word	1074610360
+  42 003c BC400D40 		.word	1074610364
+  43              		.align	2
+  46              	g_pui32IOCPortCOverrideReg:
+  47 0040 C0400D40 		.word	1074610368
+  48 0044 C4400D40 		.word	1074610372
+  49 0048 C8400D40 		.word	1074610376
+  50 004c CC400D40 		.word	1074610380
+  51 0050 D0400D40 		.word	1074610384
+  52 0054 D4400D40 		.word	1074610388
+  53 0058 D8400D40 		.word	1074610392
+  54 005c DC400D40 		.word	1074610396
+  55              		.align	2
+  58              	g_pui32IOCPortDOverrideReg:
+  59 0060 E0400D40 		.word	1074610400
+  60 0064 E4400D40 		.word	1074610404
+  61 0068 E8400D40 		.word	1074610408
+  62 006c EC400D40 		.word	1074610412
+  63 0070 F0400D40 		.word	1074610416
+  64 0074 F4400D40 		.word	1074610420
+  65 0078 F8400D40 		.word	1074610424
+  66 007c FC400D40 		.word	1074610428
+  67              		.align	2
+  70              	g_pui32IOCPortASignSelectReg:
+  71 0080 00400D40 		.word	1074610176
+  72 0084 04400D40 		.word	1074610180
+  73 0088 08400D40 		.word	1074610184
+  74 008c 0C400D40 		.word	1074610188
+  75 0090 10400D40 		.word	1074610192
+  76 0094 14400D40 		.word	1074610196
+  77 0098 18400D40 		.word	1074610200
+  78 009c 1C400D40 		.word	1074610204
+  79              		.align	2
+  82              	g_pui32IOCPortBSignSelectReg:
+  83 00a0 20400D40 		.word	1074610208
+  84 00a4 24400D40 		.word	1074610212
+  85 00a8 28400D40 		.word	1074610216
+  86 00ac 2C400D40 		.word	1074610220
+  87 00b0 30400D40 		.word	1074610224
+  88 00b4 34400D40 		.word	1074610228
+  89 00b8 38400D40 		.word	1074610232
+  90 00bc 3C400D40 		.word	1074610236
+  91              		.align	2
+  94              	g_pui32IOCPortCSignSelectReg:
+  95 00c0 40400D40 		.word	1074610240
+  96 00c4 44400D40 		.word	1074610244
+  97 00c8 48400D40 		.word	1074610248
+  98 00cc 4C400D40 		.word	1074610252
+  99 00d0 50400D40 		.word	1074610256
+ 100 00d4 54400D40 		.word	1074610260
+ 101 00d8 58400D40 		.word	1074610264
+ 102 00dc 5C400D40 		.word	1074610268
+ 103              		.align	2
+ 106              	g_pui32IOCPortDSignSelectReg:
+ 107 00e0 60400D40 		.word	1074610272
+ 108 00e4 64400D40 		.word	1074610276
+ 109 00e8 68400D40 		.word	1074610280
+ 110 00ec 6C400D40 		.word	1074610284
+ 111 00f0 70400D40 		.word	1074610288
+ 112 00f4 74400D40 		.word	1074610292
+ 113 00f8 78400D40 		.word	1074610296
+ 114 00fc 7C400D40 		.word	1074610300
+ 115              		.text
+ 116              		.align	2
+ 117              		.global	IOCPinConfigPeriphOutput
+ 118              		.thumb
+ 119              		.thumb_func
+ 121              	IOCPinConfigPeriphOutput:
+ 122              	.LFB0:
+ 123              		.file 1 "build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c"
+   1:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** /******************************************************************************
+   2:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** *  Filename:       ioc.c
+   3:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** *  Revised:        $Date: 2013-03-22 15:36:20 +0100 (Fri, 22 Mar 2013) $
+   4:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** *  Revision:       $Revision: 9511 $
+   5:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** *
+   6:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** *  Description:    Driver for the I/O controller.
+   7:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** *
+   8:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** *  Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
+   9:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** *
+  10:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** *
+  11:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** *  Redistribution and use in source and binary forms, with or without
+  12:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** *  modification, are permitted provided that the following conditions
+  13:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** *  are met:
+  14:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** *
+  15:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** *    Redistributions of source code must retain the above copyright
+  16:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** *    notice, this list of conditions and the following disclaimer.
+  17:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** *
+  18:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** *    Redistributions in binary form must reproduce the above copyright
+  19:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** *    notice, this list of conditions and the following disclaimer in the
+  20:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** *    documentation and/or other materials provided with the distribution.
+  21:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** *
+  22:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** *    Neither the name of Texas Instruments Incorporated nor the names of
+  23:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** *    its contributors may be used to endorse or promote products derived
+  24:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** *    from this software without specific prior written permission.
+  25:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** *
+  26:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  27:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  28:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  29:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** *  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  30:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** *  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  31:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** *  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  32:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** *  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  33:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** *  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+  34:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  35:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  36:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** *  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  37:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** *
+  38:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** ******************************************************************************/
+  39:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+  40:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //*****************************************************************************
+  41:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //
+  42:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! \addtogroup ioc_api
+  43:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! @{
+  44:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //
+  45:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //*****************************************************************************
+  46:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+  47:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** #include <headers/hw_gpio.h>
+  48:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** #include <headers/hw_ioc.h>
+  49:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** #include <headers/hw_memmap.h>
+  50:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** #include "debug.h"
+  51:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** #include "ioc.h"
+  52:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** #include "gpio.h"
+  53:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+  54:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //*****************************************************************************
+  55:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //
+  56:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** // This is the mapping between a pin number within port A and the corresponding
+  57:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** // override register.
+  58:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //
+  59:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //*****************************************************************************
+  60:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** static const uint32_t g_pui32IOCPortAOverrideReg[] =
+  61:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** {
+  62:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     IOC_PA0_OVER, IOC_PA1_OVER, IOC_PA2_OVER, IOC_PA3_OVER,
+  63:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     IOC_PA4_OVER, IOC_PA5_OVER, IOC_PA6_OVER, IOC_PA7_OVER
+  64:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** };
+  65:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+  66:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //*****************************************************************************
+  67:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //
+  68:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** // This is the mapping between a pin number within port B and the corresponding
+  69:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** // override register.
+  70:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //
+  71:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //*****************************************************************************
+  72:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** static const uint32_t g_pui32IOCPortBOverrideReg[] =
+  73:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** {
+  74:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     IOC_PB0_OVER, IOC_PB1_OVER, IOC_PB2_OVER, IOC_PB3_OVER,
+  75:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     IOC_PB4_OVER, IOC_PB5_OVER, IOC_PB6_OVER, IOC_PB7_OVER
+  76:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** };
+  77:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+  78:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //*****************************************************************************
+  79:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //
+  80:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** // This is the mapping between a pin number within port C and the corresponding
+  81:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** // override register.
+  82:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //
+  83:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //*****************************************************************************
+  84:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** static const uint32_t g_pui32IOCPortCOverrideReg[] =
+  85:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** {
+  86:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     IOC_PC0_OVER, IOC_PC1_OVER, IOC_PC2_OVER, IOC_PC3_OVER,
+  87:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     IOC_PC4_OVER, IOC_PC5_OVER, IOC_PC6_OVER, IOC_PC7_OVER
+  88:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** };
+  89:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+  90:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //*****************************************************************************
+  91:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //
+  92:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** // This is the mapping between a pin number within port D and the corresponding
+  93:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** // override register.
+  94:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //
+  95:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //*****************************************************************************
+  96:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** static const uint32_t g_pui32IOCPortDOverrideReg[] =
+  97:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** {
+  98:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     IOC_PD0_OVER, IOC_PD1_OVER, IOC_PD2_OVER, IOC_PD3_OVER,
+  99:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     IOC_PD4_OVER, IOC_PD5_OVER, IOC_PD6_OVER, IOC_PD7_OVER
+ 100:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** };
+ 101:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+ 102:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //*****************************************************************************
+ 103:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //
+ 104:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** // This is the mapping between a pin number within port A and the corresponding
+ 105:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** // signal select register.
+ 106:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //
+ 107:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //*****************************************************************************
+ 108:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** static const uint32_t g_pui32IOCPortASignSelectReg[] =
+ 109:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** {
+ 110:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     IOC_PA0_SEL, IOC_PA1_SEL, IOC_PA2_SEL, IOC_PA3_SEL,
+ 111:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     IOC_PA4_SEL, IOC_PA5_SEL, IOC_PA6_SEL, IOC_PA7_SEL
+ 112:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** };
+ 113:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+ 114:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //*****************************************************************************
+ 115:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //
+ 116:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** // This is the mapping between a pin number within port B and the corresponding
+ 117:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** // signal select register.
+ 118:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //
+ 119:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //*****************************************************************************
+ 120:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** static const uint32_t g_pui32IOCPortBSignSelectReg[] =
+ 121:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** {
+ 122:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     IOC_PB0_SEL, IOC_PB1_SEL, IOC_PB2_SEL, IOC_PB3_SEL,
+ 123:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     IOC_PB4_SEL, IOC_PB5_SEL, IOC_PB6_SEL, IOC_PB7_SEL
+ 124:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** };
+ 125:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+ 126:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //*****************************************************************************
+ 127:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //
+ 128:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** // This is the mapping between a pin number within port C and the corresponding
+ 129:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** // signal select register.
+ 130:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //
+ 131:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //*****************************************************************************
+ 132:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** static const uint32_t g_pui32IOCPortCSignSelectReg[] =
+ 133:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** {
+ 134:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     IOC_PC0_SEL, IOC_PC1_SEL, IOC_PC2_SEL, IOC_PC3_SEL,
+ 135:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     IOC_PC4_SEL, IOC_PC5_SEL, IOC_PC6_SEL, IOC_PC7_SEL
+ 136:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** };
+ 137:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+ 138:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //*****************************************************************************
+ 139:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //
+ 140:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** // This is the mapping between a pin number within port D and the corresponding
+ 141:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** // signal select register.
+ 142:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //
+ 143:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //*****************************************************************************
+ 144:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** static const uint32_t g_pui32IOCPortDSignSelectReg[] =
+ 145:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** {
+ 146:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     IOC_PD0_SEL, IOC_PD1_SEL, IOC_PD2_SEL, IOC_PD3_SEL,
+ 147:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     IOC_PD4_SEL, IOC_PD5_SEL, IOC_PD6_SEL, IOC_PD7_SEL
+ 148:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** };
+ 149:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+ 150:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //*****************************************************************************
+ 151:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //
+ 152:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** // Defined values for the port select registers.
+ 153:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** // (The registers are in the addr range: IOC_UARTRXD_UART0 - IOC_GPT3OCP2).
+ 154:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //
+ 155:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //*****************************************************************************
+ 156:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** #define IOC_PAD_IN_SEL_PA0      0x00000000  // PA0
+ 157:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** #define IOC_PAD_IN_SEL_PA1      0x00000001  // PA1
+ 158:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** #define IOC_PAD_IN_SEL_PA2      0x00000002  // PA2
+ 159:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** #define IOC_PAD_IN_SEL_PA3      0x00000003  // PA3
+ 160:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** #define IOC_PAD_IN_SEL_PA4      0x00000004  // PA4
+ 161:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** #define IOC_PAD_IN_SEL_PA5      0x00000005  // PA5
+ 162:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** #define IOC_PAD_IN_SEL_PA6      0x00000006  // PA6
+ 163:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** #define IOC_PAD_IN_SEL_PA7      0x00000007  // PA7
+ 164:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** #define IOC_PAD_IN_SEL_PB0      0x00000008  // PB0
+ 165:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** #define IOC_PAD_IN_SEL_PB1      0x00000009  // PB1
+ 166:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** #define IOC_PAD_IN_SEL_PB2      0x0000000A  // PB2
+ 167:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** #define IOC_PAD_IN_SEL_PB3      0x0000000B  // PB3
+ 168:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** #define IOC_PAD_IN_SEL_PB4      0x0000000C  // PB4
+ 169:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** #define IOC_PAD_IN_SEL_PB5      0x0000000D  // PB5
+ 170:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** #define IOC_PAD_IN_SEL_PB6      0x0000000E  // PB6
+ 171:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** #define IOC_PAD_IN_SEL_PB7      0x0000000F  // PB7
+ 172:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** #define IOC_PAD_IN_SEL_PC0      0x00000010  // PC0
+ 173:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** #define IOC_PAD_IN_SEL_PC1      0x00000011  // PC1
+ 174:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** #define IOC_PAD_IN_SEL_PC2      0x00000012  // PC2
+ 175:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** #define IOC_PAD_IN_SEL_PC3      0x00000013  // PC3
+ 176:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** #define IOC_PAD_IN_SEL_PC4      0x00000014  // PC4
+ 177:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** #define IOC_PAD_IN_SEL_PC5      0x00000015  // PC5
+ 178:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** #define IOC_PAD_IN_SEL_PC6      0x00000016  // PC6
+ 179:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** #define IOC_PAD_IN_SEL_PC7      0x00000017  // PC7
+ 180:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** #define IOC_PAD_IN_SEL_PD0      0x00000018  // PD0
+ 181:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** #define IOC_PAD_IN_SEL_PD1      0x00000019  // PD1
+ 182:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** #define IOC_PAD_IN_SEL_PD2      0x0000001A  // PD2
+ 183:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** #define IOC_PAD_IN_SEL_PD3      0x0000001B  // PD3
+ 184:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** #define IOC_PAD_IN_SEL_PD4      0x0000001C  // PD4
+ 185:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** #define IOC_PAD_IN_SEL_PD5      0x0000001D  // PD5
+ 186:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** #define IOC_PAD_IN_SEL_PD6      0x0000001E  // PD6
+ 187:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** #define IOC_PAD_IN_SEL_PD7      0x0000001F   // PD7
+ 188:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+ 189:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+ 190:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //*****************************************************************************
+ 191:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //
+ 192:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! Mux desired on-chip peripheral output signal to the desired port pin(s).
+ 193:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //!
+ 194:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! \param ui32Port is the base address of the GPIO port.
+ 195:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! \param ui8Pins is the bit-packed representation of the port pin(s).
+ 196:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! \param ui32OutputSignal is the desired peripheral output signal to drive the
+ 197:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! desired port pin(s).
+ 198:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //!
+ 199:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! This function routes the desired on-chip peripheral signal to the
+ 200:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! desired pin(s) on the selected GPIO port.  Functions are available within
+ 201:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! the GPIO device driver that can set the peripheral signal to be under
+ 202:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! hardware control. The IOCPadConfigSet() function can be used to set the pin
+ 203:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! drive type on the desired port pin.
+ 204:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //!
+ 205:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! The \e ui32OutputSignal parameter is an enumerated type that controls which
+ 206:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! peripheral output signal to route to the desired port pin(s).
+ 207:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! This parameter can have any of the following values:
+ 208:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //!
+ 209:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_MUX_OUT_SEL_UART0_TXD
+ 210:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_MUX_OUT_SEL_UART1_RTS
+ 211:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_MUX_OUT_SEL_UART1_TXD
+ 212:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_MUX_OUT_SEL_SSI0_TXD
+ 213:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_MUX_OUT_SEL_SSI0_CLKOUT
+ 214:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_MUX_OUT_SEL_SSI0_FSSOUT
+ 215:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_MUX_OUT_SEL_SSI0_STXSER_EN
+ 216:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_MUX_OUT_SEL_SSI1_TXD
+ 217:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_MUX_OUT_SEL_SSI1_CLKOUT
+ 218:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_MUX_OUT_SEL_SSI1_FSSOUT
+ 219:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_MUX_OUT_SEL_SSI1_STXSER_EN
+ 220:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_MUX_OUT_SEL_I2C_CMSSDA
+ 221:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_MUX_OUT_SEL_I2C_CMSSCL
+ 222:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_MUX_OUT_SEL_GPT0_ICP1
+ 223:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_MUX_OUT_SEL_GPT0_ICP2
+ 224:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_MUX_OUT_SEL_GPT1_ICP1
+ 225:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_MUX_OUT_SEL_GPT1_ICP2
+ 226:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_MUX_OUT_SEL_GPT2_ICP1
+ 227:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_MUX_OUT_SEL_GPT2_ICP2
+ 228:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_MUX_OUT_SEL_GPT3_ICP1
+ 229:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_MUX_OUT_SEL_GPT3_ICP2
+ 230:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //!
+ 231:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! The pin(s) in \e ui8Pins are specified using a bit-packed byte, where each
+ 232:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! bit that is set identifies the pin to be accessed, and where bit 0 of the
+ 233:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! byte represents GPIO port pin 0, bit 1 represents GPIO port pin 1, and so
+ 234:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! on.
+ 235:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! 
+ 236:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! \return None
+ 237:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //
+ 238:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //*****************************************************************************
+ 239:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** void
+ 240:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** IOCPinConfigPeriphOutput(uint32_t ui32Port, uint8_t ui8Pins,
+ 241:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****                          uint32_t ui32OutputSignal)
+ 242:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** {
+ 124              		.loc 1 242 0
+ 125              		.cfi_startproc
+ 126              		@ args = 0, pretend = 0, frame = 32
+ 127              		@ frame_needed = 1, uses_anonymous_args = 0
+ 128              		@ link register save eliminated.
+ 129 0000 80B4     		push	{r7}
+ 130              		.cfi_def_cfa_offset 4
+ 131              		.cfi_offset 7, -4
+ 132 0002 89B0     		sub	sp, sp, #36
+ 133              		.cfi_def_cfa_offset 40
+ 134 0004 00AF     		add	r7, sp, #0
+ 135              		.cfi_def_cfa_register 7
+ 136 0006 F860     		str	r0, [r7, #12]
+ 137 0008 0B46     		mov	r3, r1
+ 138 000a 7A60     		str	r2, [r7, #4]
+ 139 000c FB72     		strb	r3, [r7, #11]
+ 243:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     uint32_t ui32PortAddr;
+ 244:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     uint32_t ui32PinNo;
+ 245:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     uint32_t ui32PinBit;
+ 246:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+ 247:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     //
+ 248:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     // Check the arguments
+ 249:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     //
+ 250:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     ASSERT((ui32Port == GPIO_A_BASE) || (ui32Port == GPIO_B_BASE) ||
+ 251:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****            (ui32Port == GPIO_C_BASE) || (ui32Port == GPIO_D_BASE));
+ 252:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     ASSERT(ui8Pins != 0);
+ 253:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+ 254:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     //
+ 255:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     // Initialize to default value
+ 256:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     //
+ 257:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     ui32PortAddr = IOC_PA0_SEL;
+ 140              		.loc 1 257 0
+ 141 000e 4FF48043 		mov	r3, #16384
+ 142 0012 C4F20D03 		movt	r3, 16397
+ 143 0016 FB61     		str	r3, [r7, #28]
+ 258:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+ 259:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     //
+ 260:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     // Look for specified port pins to be configured, multiple pins are allowed
+ 261:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     //
+ 262:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     for(ui32PinNo = 0; ui32PinNo < 8; ui32PinNo++)
+ 144              		.loc 1 262 0
+ 145 0018 0023     		movs	r3, #0
+ 146 001a BB61     		str	r3, [r7, #24]
+ 147 001c 5AE0     		b	.L2
+ 148              	.L11:
+ 263:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     {
+ 264:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         ui32PinBit = (ui8Pins >> ui32PinNo) & 0x00000001;
+ 149              		.loc 1 264 0
+ 150 001e FA7A     		ldrb	r2, [r7, #11]	@ zero_extendqisi2
+ 151 0020 BB69     		ldr	r3, [r7, #24]
+ 152 0022 42FA03F3 		asr	r3, r2, r3
+ 153 0026 03F00103 		and	r3, r3, #1
+ 154 002a 7B61     		str	r3, [r7, #20]
+ 265:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui32PinBit != 0)
+ 155              		.loc 1 265 0
+ 156 002c 7B69     		ldr	r3, [r7, #20]
+ 157 002e 002B     		cmp	r3, #0
+ 158 0030 4DD0     		beq	.L3
+ 266:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 267:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             //
+ 268:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             // Find register addresses for configuring specified port pin
+ 269:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             //
+ 270:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             switch(ui32Port)
+ 159              		.loc 1 270 0
+ 160 0032 FB68     		ldr	r3, [r7, #12]
+ 161 0034 4FF42042 		mov	r2, #40960
+ 162 0038 C4F20D02 		movt	r2, 16397
+ 163 003c 9342     		cmp	r3, r2
+ 164 003e 22D0     		beq	.L5
+ 165 0040 4FF42042 		mov	r2, #40960
+ 166 0044 C4F20D02 		movt	r2, 16397
+ 167 0048 9342     		cmp	r3, r2
+ 168 004a 06D8     		bhi	.L6
+ 169 004c 4FF41042 		mov	r2, #36864
+ 170 0050 C4F20D02 		movt	r2, 16397
+ 171 0054 9342     		cmp	r3, r2
+ 172 0056 0DD0     		beq	.L7
+ 173 0058 30E0     		b	.L4
+ 174              	.L6:
+ 175 005a 4FF43042 		mov	r2, #45056
+ 176 005e C4F20D02 		movt	r2, 16397
+ 177 0062 9342     		cmp	r3, r2
+ 178 0064 18D0     		beq	.L8
+ 179 0066 4FF44042 		mov	r2, #49152
+ 180 006a C4F20D02 		movt	r2, 16397
+ 181 006e 9342     		cmp	r3, r2
+ 182 0070 1BD0     		beq	.L9
+ 183 0072 23E0     		b	.L4
+ 184              	.L7:
+ 271:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             {
+ 272:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             case GPIO_A_BASE:
+ 273:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****                 ui32PortAddr = g_pui32IOCPortASignSelectReg[ui32PinNo];
+ 185              		.loc 1 273 0
+ 186 0074 40F20003 		movw	r3, #:lower16:g_pui32IOCPortASignSelectReg
+ 187 0078 C0F20003 		movt	r3, #:upper16:g_pui32IOCPortASignSelectReg
+ 188 007c BA69     		ldr	r2, [r7, #24]
+ 189 007e 53F82230 		ldr	r3, [r3, r2, lsl #2]
+ 190 0082 FB61     		str	r3, [r7, #28]
+ 274:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****                 break;
+ 191              		.loc 1 274 0
+ 192 0084 20E0     		b	.L10
+ 193              	.L5:
+ 275:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+ 276:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             case GPIO_B_BASE:
+ 277:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****                 ui32PortAddr = g_pui32IOCPortBSignSelectReg[ui32PinNo];
+ 194              		.loc 1 277 0
+ 195 0086 40F20003 		movw	r3, #:lower16:g_pui32IOCPortBSignSelectReg
+ 196 008a C0F20003 		movt	r3, #:upper16:g_pui32IOCPortBSignSelectReg
+ 197 008e BA69     		ldr	r2, [r7, #24]
+ 198 0090 53F82230 		ldr	r3, [r3, r2, lsl #2]
+ 199 0094 FB61     		str	r3, [r7, #28]
+ 278:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****                 break;
+ 200              		.loc 1 278 0
+ 201 0096 17E0     		b	.L10
+ 202              	.L8:
+ 279:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+ 280:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             case GPIO_C_BASE:
+ 281:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****                 ui32PortAddr = g_pui32IOCPortCSignSelectReg[ui32PinNo];
+ 203              		.loc 1 281 0
+ 204 0098 40F20003 		movw	r3, #:lower16:g_pui32IOCPortCSignSelectReg
+ 205 009c C0F20003 		movt	r3, #:upper16:g_pui32IOCPortCSignSelectReg
+ 206 00a0 BA69     		ldr	r2, [r7, #24]
+ 207 00a2 53F82230 		ldr	r3, [r3, r2, lsl #2]
+ 208 00a6 FB61     		str	r3, [r7, #28]
+ 282:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****                 break;
+ 209              		.loc 1 282 0
+ 210 00a8 0EE0     		b	.L10
+ 211              	.L9:
+ 283:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+ 284:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             case GPIO_D_BASE:
+ 285:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****                 ui32PortAddr = g_pui32IOCPortDSignSelectReg[ui32PinNo];
+ 212              		.loc 1 285 0
+ 213 00aa 40F20003 		movw	r3, #:lower16:g_pui32IOCPortDSignSelectReg
+ 214 00ae C0F20003 		movt	r3, #:upper16:g_pui32IOCPortDSignSelectReg
+ 215 00b2 BA69     		ldr	r2, [r7, #24]
+ 216 00b4 53F82230 		ldr	r3, [r3, r2, lsl #2]
+ 217 00b8 FB61     		str	r3, [r7, #28]
+ 286:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****                 break;
+ 218              		.loc 1 286 0
+ 219 00ba 05E0     		b	.L10
+ 220              	.L4:
+ 287:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+ 288:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             default:
+ 289:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****                 // Default to port A pin 0
+ 290:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****                 ui32PortAddr = IOC_PA0_SEL;
+ 221              		.loc 1 290 0
+ 222 00bc 4FF48043 		mov	r3, #16384
+ 223 00c0 C4F20D03 		movt	r3, 16397
+ 224 00c4 FB61     		str	r3, [r7, #28]
+ 291:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****                 break;
+ 225              		.loc 1 291 0
+ 226 00c6 00BF     		nop
+ 227              	.L10:
+ 292:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             }
+ 293:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+ 294:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             //
+ 295:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             // Set the mux for the desired port pin to select the desired
+ 296:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             // peripheral output signal
+ 297:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             //
+ 298:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             HWREG(ui32PortAddr) = ui32OutputSignal;
+ 228              		.loc 1 298 0
+ 229 00c8 FB69     		ldr	r3, [r7, #28]
+ 230 00ca 7A68     		ldr	r2, [r7, #4]
+ 231 00cc 1A60     		str	r2, [r3]
+ 232              	.L3:
+ 262:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     {
+ 233              		.loc 1 262 0
+ 234 00ce BB69     		ldr	r3, [r7, #24]
+ 235 00d0 0133     		adds	r3, r3, #1
+ 236 00d2 BB61     		str	r3, [r7, #24]
+ 237              	.L2:
+ 262:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     {
+ 238              		.loc 1 262 0 is_stmt 0 discriminator 1
+ 239 00d4 BB69     		ldr	r3, [r7, #24]
+ 240 00d6 072B     		cmp	r3, #7
+ 241 00d8 A1D9     		bls	.L11
+ 299:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 300:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     }
+ 301:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** }
+ 242              		.loc 1 301 0 is_stmt 1
+ 243 00da 2437     		adds	r7, r7, #36
+ 244 00dc BD46     		mov	sp, r7
+ 245              		@ sp needed
+ 246 00de 5DF8047B 		ldr	r7, [sp], #4
+ 247 00e2 7047     		bx	lr
+ 248              		.cfi_endproc
+ 249              	.LFE0:
+ 251              		.align	2
+ 252              		.global	IOCPinConfigPeriphInput
+ 253              		.thumb
+ 254              		.thumb_func
+ 256              	IOCPinConfigPeriphInput:
+ 257              	.LFB1:
+ 302:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+ 303:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //*****************************************************************************
+ 304:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //
+ 305:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! Mux the desired port pin to the desired on-chip peripheral input signal
+ 306:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //!
+ 307:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! \param ui32Port is the base address of the GPIO port.
+ 308:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! \param ui8Pin is the bit-packed representation of the desired port pin.
+ 309:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! \param ui32PinSelectReg is the address of the IOC mux-register for the
+ 310:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! desired peripheral input signal to which the desired port pin shall be
+ 311:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! routed.
+ 312:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //!
+ 313:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! This function routes the desired port pin to the desired on-chip
+ 314:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! peripheral input signal.  Functions are available within the GPIO device
+ 315:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! driver that set the peripheral signal to be under hardware control and
+ 316:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! configures the pin drive type on the desired port pin.
+ 317:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //!
+ 318:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! The parameter \e ui32PinSelectReg is an enumerated data type that can be one
+ 319:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! of the following values:
+ 320:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //!
+ 321:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_UARTRXD_UART0
+ 322:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_UARTCTS_UART1
+ 323:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_UARTRXD_UART1
+ 324:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_CLK_SSI_SSI0
+ 325:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_SSIRXD_SSI0
+ 326:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_SSIFSSIN_SSI0
+ 327:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_CLK_SSIIN_SSI0
+ 328:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_CLK_SSI_SSI1
+ 329:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_SSIRXD_SSI1
+ 330:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_SSIFSSIN_SSI1
+ 331:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_CLK_SSIIN_SSI1
+ 332:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_I2CMSSDA
+ 333:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_I2CMSSCL
+ 334:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_GPT0OCP1
+ 335:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_GPT0OCP2
+ 336:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_GPT1OCP1
+ 337:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_GPT1OCP2
+ 338:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_GPT2OCP1
+ 339:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_GPT2OCP2
+ 340:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_GPT3OCP1
+ 341:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_GPT3OCP2
+ 342:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //!
+ 343:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! The pin in ui8Pin is specified using a bit-packed byte, where the bit that
+ 344:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! is set identifies the pin to be accessed, and where bit 0 of the byte
+ 345:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! represents GPIO port pin 0, bit 1 represents GPIO port pin 1, and so on.
+ 346:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //!
+ 347:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! \return None
+ 348:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //
+ 349:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //*****************************************************************************
+ 350:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** void
+ 351:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** IOCPinConfigPeriphInput(uint32_t ui32Port, uint8_t ui8Pin,
+ 352:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****                         uint32_t ui32PinSelectReg)
+ 353:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** {
+ 258              		.loc 1 353 0
+ 259              		.cfi_startproc
+ 260              		@ args = 0, pretend = 0, frame = 24
+ 261              		@ frame_needed = 1, uses_anonymous_args = 0
+ 262              		@ link register save eliminated.
+ 263 00e4 80B4     		push	{r7}
+ 264              		.cfi_def_cfa_offset 4
+ 265              		.cfi_offset 7, -4
+ 266 00e6 87B0     		sub	sp, sp, #28
+ 267              		.cfi_def_cfa_offset 32
+ 268 00e8 00AF     		add	r7, sp, #0
+ 269              		.cfi_def_cfa_register 7
+ 270 00ea F860     		str	r0, [r7, #12]
+ 271 00ec 0B46     		mov	r3, r1
+ 272 00ee 7A60     		str	r2, [r7, #4]
+ 273 00f0 FB72     		strb	r3, [r7, #11]
+ 354:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     uint32_t ui32PortPin;
+ 355:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+ 356:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     //
+ 357:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     //Set initial values
+ 358:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     //
+ 359:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     ui32PortPin = IOC_PAD_IN_SEL_PA0;
+ 274              		.loc 1 359 0
+ 275 00f2 0023     		movs	r3, #0
+ 276 00f4 7B61     		str	r3, [r7, #20]
+ 360:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+ 361:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     //
+ 362:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     // Check the arguments
+ 363:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     //
+ 364:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     ASSERT((ui32Port == GPIO_A_BASE) || (ui32Port == GPIO_B_BASE) ||
+ 365:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****            (ui32Port == GPIO_C_BASE) || (ui32Port == GPIO_D_BASE));
+ 366:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     ASSERT((ui8Pin == GPIO_PIN_0) || (ui8Pin == GPIO_PIN_1) ||
+ 367:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****            (ui8Pin == GPIO_PIN_2) || (ui8Pin == GPIO_PIN_3) ||
+ 368:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****            (ui8Pin == GPIO_PIN_4) || (ui8Pin == GPIO_PIN_5) ||
+ 369:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****            (ui8Pin == GPIO_PIN_6) || (ui8Pin == GPIO_PIN_7));
+ 370:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     ASSERT((ui32PinSelectReg == IOC_UARTRXD_UART0)  ||
+ 371:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****            (ui32PinSelectReg == IOC_UARTCTS_UART1)  ||
+ 372:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****            (ui32PinSelectReg == IOC_UARTRXD_UART1)  ||
+ 373:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****            (ui32PinSelectReg == IOC_CLK_SSI_SSI0)   ||
+ 374:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****            (ui32PinSelectReg == IOC_SSIRXD_SSI0)    ||
+ 375:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****            (ui32PinSelectReg == IOC_SSIFSSIN_SSI0)  ||
+ 376:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****            (ui32PinSelectReg == IOC_CLK_SSIIN_SSI0) ||
+ 377:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****            (ui32PinSelectReg == IOC_CLK_SSI_SSI1)   ||
+ 378:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****            (ui32PinSelectReg == IOC_SSIRXD_SSI1)    ||
+ 379:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****            (ui32PinSelectReg == IOC_SSIFSSIN_SSI1)  ||
+ 380:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****            (ui32PinSelectReg == IOC_CLK_SSIIN_SSI1) ||
+ 381:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****            (ui32PinSelectReg == IOC_I2CMSSDA)       ||
+ 382:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****            (ui32PinSelectReg == IOC_I2CMSSCL)       ||
+ 383:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****            (ui32PinSelectReg == IOC_GPT0OCP1)       ||
+ 384:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****            (ui32PinSelectReg == IOC_GPT0OCP2)       ||
+ 385:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****            (ui32PinSelectReg == IOC_GPT1OCP1)       ||
+ 386:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****            (ui32PinSelectReg == IOC_GPT1OCP2)       ||
+ 387:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****            (ui32PinSelectReg == IOC_GPT2OCP1)       ||
+ 388:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****            (ui32PinSelectReg == IOC_GPT2OCP2)       ||
+ 389:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****            (ui32PinSelectReg == IOC_GPT3OCP1)       ||
+ 390:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****            (ui32PinSelectReg == IOC_GPT3OCP2));
+ 391:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+ 392:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     switch(ui32Port)
+ 277              		.loc 1 392 0
+ 278 00f6 FB68     		ldr	r3, [r7, #12]
+ 279 00f8 4FF42042 		mov	r2, #40960
+ 280 00fc C4F20D02 		movt	r2, 16397
+ 281 0100 9342     		cmp	r3, r2
+ 282 0102 43D0     		beq	.L14
+ 283 0104 4FF42042 		mov	r2, #40960
+ 284 0108 C4F20D02 		movt	r2, 16397
+ 285 010c 9342     		cmp	r3, r2
+ 286 010e 06D8     		bhi	.L15
+ 287 0110 4FF41042 		mov	r2, #36864
+ 288 0114 C4F20D02 		movt	r2, 16397
+ 289 0118 9342     		cmp	r3, r2
+ 290 011a 0DD0     		beq	.L16
+ 291 011c B4E0     		b	.L13
+ 292              	.L15:
+ 293 011e 4FF43042 		mov	r2, #45056
+ 294 0122 C4F20D02 		movt	r2, 16397
+ 295 0126 9342     		cmp	r3, r2
+ 296 0128 5AD0     		beq	.L17
+ 297 012a 4FF44042 		mov	r2, #49152
+ 298 012e C4F20D02 		movt	r2, 16397
+ 299 0132 9342     		cmp	r3, r2
+ 300 0134 7ED0     		beq	.L18
+ 301 0136 A7E0     		b	.L13
+ 302              	.L16:
+ 393:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     {
+ 394:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     case GPIO_A_BASE:
+ 395:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_0)
+ 303              		.loc 1 395 0
+ 304 0138 FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 305 013a 012B     		cmp	r3, #1
+ 306 013c 01D1     		bne	.L19
+ 396:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 397:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32PortPin = IOC_PAD_IN_SEL_PA0;
+ 307              		.loc 1 397 0
+ 308 013e 0023     		movs	r3, #0
+ 309 0140 7B61     		str	r3, [r7, #20]
+ 310              	.L19:
+ 398:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 399:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_1)
+ 311              		.loc 1 399 0
+ 312 0142 FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 313 0144 022B     		cmp	r3, #2
+ 314 0146 01D1     		bne	.L20
+ 400:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 401:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32PortPin = IOC_PAD_IN_SEL_PA1;
+ 315              		.loc 1 401 0
+ 316 0148 0123     		movs	r3, #1
+ 317 014a 7B61     		str	r3, [r7, #20]
+ 318              	.L20:
+ 402:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 403:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_2)
+ 319              		.loc 1 403 0
+ 320 014c FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 321 014e 042B     		cmp	r3, #4
+ 322 0150 01D1     		bne	.L21
+ 404:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 405:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32PortPin = IOC_PAD_IN_SEL_PA2;
+ 323              		.loc 1 405 0
+ 324 0152 0223     		movs	r3, #2
+ 325 0154 7B61     		str	r3, [r7, #20]
+ 326              	.L21:
+ 406:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 407:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_3)
+ 327              		.loc 1 407 0
+ 328 0156 FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 329 0158 082B     		cmp	r3, #8
+ 330 015a 01D1     		bne	.L22
+ 408:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 409:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32PortPin = IOC_PAD_IN_SEL_PA3;
+ 331              		.loc 1 409 0
+ 332 015c 0323     		movs	r3, #3
+ 333 015e 7B61     		str	r3, [r7, #20]
+ 334              	.L22:
+ 410:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 411:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_4)
+ 335              		.loc 1 411 0
+ 336 0160 FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 337 0162 102B     		cmp	r3, #16
+ 338 0164 01D1     		bne	.L23
+ 412:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 413:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32PortPin = IOC_PAD_IN_SEL_PA4;
+ 339              		.loc 1 413 0
+ 340 0166 0423     		movs	r3, #4
+ 341 0168 7B61     		str	r3, [r7, #20]
+ 342              	.L23:
+ 414:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 415:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_5)
+ 343              		.loc 1 415 0
+ 344 016a FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 345 016c 202B     		cmp	r3, #32
+ 346 016e 01D1     		bne	.L24
+ 416:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 417:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32PortPin = IOC_PAD_IN_SEL_PA5;
+ 347              		.loc 1 417 0
+ 348 0170 0523     		movs	r3, #5
+ 349 0172 7B61     		str	r3, [r7, #20]
+ 350              	.L24:
+ 418:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 419:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_6)
+ 351              		.loc 1 419 0
+ 352 0174 FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 353 0176 402B     		cmp	r3, #64
+ 354 0178 01D1     		bne	.L25
+ 420:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 421:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32PortPin = IOC_PAD_IN_SEL_PA6;
+ 355              		.loc 1 421 0
+ 356 017a 0623     		movs	r3, #6
+ 357 017c 7B61     		str	r3, [r7, #20]
+ 358              	.L25:
+ 422:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 423:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_7)
+ 359              		.loc 1 423 0
+ 360 017e FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 361 0180 802B     		cmp	r3, #128
+ 362 0182 02D1     		bne	.L26
+ 424:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 425:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32PortPin = IOC_PAD_IN_SEL_PA7;
+ 363              		.loc 1 425 0
+ 364 0184 0723     		movs	r3, #7
+ 365 0186 7B61     		str	r3, [r7, #20]
+ 426:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 427:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         break;
+ 366              		.loc 1 427 0
+ 367 0188 81E0     		b	.L27
+ 368              	.L26:
+ 369 018a 80E0     		b	.L27
+ 370              	.L14:
+ 428:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+ 429:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     case GPIO_B_BASE:
+ 430:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_0)
+ 371              		.loc 1 430 0
+ 372 018c FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 373 018e 012B     		cmp	r3, #1
+ 374 0190 01D1     		bne	.L28
+ 431:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 432:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32PortPin = IOC_PAD_IN_SEL_PB0;
+ 375              		.loc 1 432 0
+ 376 0192 0823     		movs	r3, #8
+ 377 0194 7B61     		str	r3, [r7, #20]
+ 378              	.L28:
+ 433:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 434:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_1)
+ 379              		.loc 1 434 0
+ 380 0196 FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 381 0198 022B     		cmp	r3, #2
+ 382 019a 01D1     		bne	.L29
+ 435:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 436:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32PortPin = IOC_PAD_IN_SEL_PB1;
+ 383              		.loc 1 436 0
+ 384 019c 0923     		movs	r3, #9
+ 385 019e 7B61     		str	r3, [r7, #20]
+ 386              	.L29:
+ 437:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 438:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_2)
+ 387              		.loc 1 438 0
+ 388 01a0 FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 389 01a2 042B     		cmp	r3, #4
+ 390 01a4 01D1     		bne	.L30
+ 439:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 440:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32PortPin = IOC_PAD_IN_SEL_PB2;
+ 391              		.loc 1 440 0
+ 392 01a6 0A23     		movs	r3, #10
+ 393 01a8 7B61     		str	r3, [r7, #20]
+ 394              	.L30:
+ 441:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 442:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_3)
+ 395              		.loc 1 442 0
+ 396 01aa FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 397 01ac 082B     		cmp	r3, #8
+ 398 01ae 01D1     		bne	.L31
+ 443:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 444:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32PortPin = IOC_PAD_IN_SEL_PB3;
+ 399              		.loc 1 444 0
+ 400 01b0 0B23     		movs	r3, #11
+ 401 01b2 7B61     		str	r3, [r7, #20]
+ 402              	.L31:
+ 445:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 446:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_4)
+ 403              		.loc 1 446 0
+ 404 01b4 FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 405 01b6 102B     		cmp	r3, #16
+ 406 01b8 01D1     		bne	.L32
+ 447:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 448:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32PortPin = IOC_PAD_IN_SEL_PB4;
+ 407              		.loc 1 448 0
+ 408 01ba 0C23     		movs	r3, #12
+ 409 01bc 7B61     		str	r3, [r7, #20]
+ 410              	.L32:
+ 449:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 450:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_5)
+ 411              		.loc 1 450 0
+ 412 01be FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 413 01c0 202B     		cmp	r3, #32
+ 414 01c2 01D1     		bne	.L33
+ 451:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 452:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32PortPin = IOC_PAD_IN_SEL_PB5;
+ 415              		.loc 1 452 0
+ 416 01c4 0D23     		movs	r3, #13
+ 417 01c6 7B61     		str	r3, [r7, #20]
+ 418              	.L33:
+ 453:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 454:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_6)
+ 419              		.loc 1 454 0
+ 420 01c8 FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 421 01ca 402B     		cmp	r3, #64
+ 422 01cc 01D1     		bne	.L34
+ 455:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 456:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32PortPin = IOC_PAD_IN_SEL_PB6;
+ 423              		.loc 1 456 0
+ 424 01ce 0E23     		movs	r3, #14
+ 425 01d0 7B61     		str	r3, [r7, #20]
+ 426              	.L34:
+ 457:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 458:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_7)
+ 427              		.loc 1 458 0
+ 428 01d2 FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 429 01d4 802B     		cmp	r3, #128
+ 430 01d6 02D1     		bne	.L35
+ 459:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 460:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32PortPin = IOC_PAD_IN_SEL_PB7;
+ 431              		.loc 1 460 0
+ 432 01d8 0F23     		movs	r3, #15
+ 433 01da 7B61     		str	r3, [r7, #20]
+ 461:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 462:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         break;
+ 434              		.loc 1 462 0
+ 435 01dc 57E0     		b	.L27
+ 436              	.L35:
+ 437 01de 56E0     		b	.L27
+ 438              	.L17:
+ 463:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+ 464:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     case GPIO_C_BASE:
+ 465:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_0)
+ 439              		.loc 1 465 0
+ 440 01e0 FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 441 01e2 012B     		cmp	r3, #1
+ 442 01e4 01D1     		bne	.L36
+ 466:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 467:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32PortPin = IOC_PAD_IN_SEL_PC0;
+ 443              		.loc 1 467 0
+ 444 01e6 1023     		movs	r3, #16
+ 445 01e8 7B61     		str	r3, [r7, #20]
+ 446              	.L36:
+ 468:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 469:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_1)
+ 447              		.loc 1 469 0
+ 448 01ea FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 449 01ec 022B     		cmp	r3, #2
+ 450 01ee 01D1     		bne	.L37
+ 470:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 471:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32PortPin = IOC_PAD_IN_SEL_PC1;
+ 451              		.loc 1 471 0
+ 452 01f0 1123     		movs	r3, #17
+ 453 01f2 7B61     		str	r3, [r7, #20]
+ 454              	.L37:
+ 472:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 473:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_2)
+ 455              		.loc 1 473 0
+ 456 01f4 FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 457 01f6 042B     		cmp	r3, #4
+ 458 01f8 01D1     		bne	.L38
+ 474:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 475:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32PortPin = IOC_PAD_IN_SEL_PC2;
+ 459              		.loc 1 475 0
+ 460 01fa 1223     		movs	r3, #18
+ 461 01fc 7B61     		str	r3, [r7, #20]
+ 462              	.L38:
+ 476:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 477:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_3)
+ 463              		.loc 1 477 0
+ 464 01fe FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 465 0200 082B     		cmp	r3, #8
+ 466 0202 01D1     		bne	.L39
+ 478:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 479:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32PortPin = IOC_PAD_IN_SEL_PC3;
+ 467              		.loc 1 479 0
+ 468 0204 1323     		movs	r3, #19
+ 469 0206 7B61     		str	r3, [r7, #20]
+ 470              	.L39:
+ 480:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 481:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_4)
+ 471              		.loc 1 481 0
+ 472 0208 FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 473 020a 102B     		cmp	r3, #16
+ 474 020c 01D1     		bne	.L40
+ 482:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 483:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32PortPin = IOC_PAD_IN_SEL_PC4;
+ 475              		.loc 1 483 0
+ 476 020e 1423     		movs	r3, #20
+ 477 0210 7B61     		str	r3, [r7, #20]
+ 478              	.L40:
+ 484:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 485:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_5)
+ 479              		.loc 1 485 0
+ 480 0212 FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 481 0214 202B     		cmp	r3, #32
+ 482 0216 01D1     		bne	.L41
+ 486:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 487:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32PortPin = IOC_PAD_IN_SEL_PC5;
+ 483              		.loc 1 487 0
+ 484 0218 1523     		movs	r3, #21
+ 485 021a 7B61     		str	r3, [r7, #20]
+ 486              	.L41:
+ 488:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 489:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_6)
+ 487              		.loc 1 489 0
+ 488 021c FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 489 021e 402B     		cmp	r3, #64
+ 490 0220 01D1     		bne	.L42
+ 490:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 491:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32PortPin = IOC_PAD_IN_SEL_PC6;
+ 491              		.loc 1 491 0
+ 492 0222 1623     		movs	r3, #22
+ 493 0224 7B61     		str	r3, [r7, #20]
+ 494              	.L42:
+ 492:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 493:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_7)
+ 495              		.loc 1 493 0
+ 496 0226 FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 497 0228 802B     		cmp	r3, #128
+ 498 022a 02D1     		bne	.L43
+ 494:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 495:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32PortPin = IOC_PAD_IN_SEL_PC7;
+ 499              		.loc 1 495 0
+ 500 022c 1723     		movs	r3, #23
+ 501 022e 7B61     		str	r3, [r7, #20]
+ 496:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 497:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         break;
+ 502              		.loc 1 497 0
+ 503 0230 2DE0     		b	.L27
+ 504              	.L43:
+ 505 0232 2CE0     		b	.L27
+ 506              	.L18:
+ 498:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+ 499:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     case GPIO_D_BASE:
+ 500:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_0)
+ 507              		.loc 1 500 0
+ 508 0234 FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 509 0236 012B     		cmp	r3, #1
+ 510 0238 01D1     		bne	.L44
+ 501:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 502:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32PortPin = IOC_PAD_IN_SEL_PD0;
+ 511              		.loc 1 502 0
+ 512 023a 1823     		movs	r3, #24
+ 513 023c 7B61     		str	r3, [r7, #20]
+ 514              	.L44:
+ 503:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 504:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_1)
+ 515              		.loc 1 504 0
+ 516 023e FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 517 0240 022B     		cmp	r3, #2
+ 518 0242 01D1     		bne	.L45
+ 505:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 506:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32PortPin = IOC_PAD_IN_SEL_PD1;
+ 519              		.loc 1 506 0
+ 520 0244 1923     		movs	r3, #25
+ 521 0246 7B61     		str	r3, [r7, #20]
+ 522              	.L45:
+ 507:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 508:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_2)
+ 523              		.loc 1 508 0
+ 524 0248 FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 525 024a 042B     		cmp	r3, #4
+ 526 024c 01D1     		bne	.L46
+ 509:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 510:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32PortPin = IOC_PAD_IN_SEL_PD2;
+ 527              		.loc 1 510 0
+ 528 024e 1A23     		movs	r3, #26
+ 529 0250 7B61     		str	r3, [r7, #20]
+ 530              	.L46:
+ 511:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 512:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_3)
+ 531              		.loc 1 512 0
+ 532 0252 FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 533 0254 082B     		cmp	r3, #8
+ 534 0256 01D1     		bne	.L47
+ 513:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 514:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32PortPin = IOC_PAD_IN_SEL_PD3;
+ 535              		.loc 1 514 0
+ 536 0258 1B23     		movs	r3, #27
+ 537 025a 7B61     		str	r3, [r7, #20]
+ 538              	.L47:
+ 515:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 516:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_4)
+ 539              		.loc 1 516 0
+ 540 025c FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 541 025e 102B     		cmp	r3, #16
+ 542 0260 01D1     		bne	.L48
+ 517:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 518:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32PortPin = IOC_PAD_IN_SEL_PD4;
+ 543              		.loc 1 518 0
+ 544 0262 1C23     		movs	r3, #28
+ 545 0264 7B61     		str	r3, [r7, #20]
+ 546              	.L48:
+ 519:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 520:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_5)
+ 547              		.loc 1 520 0
+ 548 0266 FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 549 0268 202B     		cmp	r3, #32
+ 550 026a 01D1     		bne	.L49
+ 521:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 522:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32PortPin = IOC_PAD_IN_SEL_PD5;
+ 551              		.loc 1 522 0
+ 552 026c 1D23     		movs	r3, #29
+ 553 026e 7B61     		str	r3, [r7, #20]
+ 554              	.L49:
+ 523:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 524:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_6)
+ 555              		.loc 1 524 0
+ 556 0270 FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 557 0272 402B     		cmp	r3, #64
+ 558 0274 01D1     		bne	.L50
+ 525:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 526:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32PortPin = IOC_PAD_IN_SEL_PD6;
+ 559              		.loc 1 526 0
+ 560 0276 1E23     		movs	r3, #30
+ 561 0278 7B61     		str	r3, [r7, #20]
+ 562              	.L50:
+ 527:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 528:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_7)
+ 563              		.loc 1 528 0
+ 564 027a FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 565 027c 802B     		cmp	r3, #128
+ 566 027e 02D1     		bne	.L51
+ 529:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 530:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32PortPin = IOC_PAD_IN_SEL_PD7;
+ 567              		.loc 1 530 0
+ 568 0280 1F23     		movs	r3, #31
+ 569 0282 7B61     		str	r3, [r7, #20]
+ 531:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 532:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         break;
+ 570              		.loc 1 532 0
+ 571 0284 03E0     		b	.L27
+ 572              	.L51:
+ 573 0286 02E0     		b	.L27
+ 574              	.L13:
+ 533:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+ 534:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     default:
+ 535:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         // Default to port A pin 0
+ 536:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         ui32PortPin = IOC_PAD_IN_SEL_PA0;
+ 575              		.loc 1 536 0
+ 576 0288 0023     		movs	r3, #0
+ 577 028a 7B61     		str	r3, [r7, #20]
+ 537:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         break;
+ 578              		.loc 1 537 0
+ 579 028c 00BF     		nop
+ 580              	.L27:
+ 538:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     }
+ 539:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+ 540:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     //
+ 541:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     // Set the mux for the desired peripheral inputsignal to select the
+ 542:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     // the desired port pin.
+ 543:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     //
+ 544:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     HWREG(ui32PinSelectReg) = ui32PortPin;
+ 581              		.loc 1 544 0
+ 582 028e 7B68     		ldr	r3, [r7, #4]
+ 583 0290 7A69     		ldr	r2, [r7, #20]
+ 584 0292 1A60     		str	r2, [r3]
+ 545:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** }
+ 585              		.loc 1 545 0
+ 586 0294 1C37     		adds	r7, r7, #28
+ 587 0296 BD46     		mov	sp, r7
+ 588              		@ sp needed
+ 589 0298 5DF8047B 		ldr	r7, [sp], #4
+ 590 029c 7047     		bx	lr
+ 591              		.cfi_endproc
+ 592              	.LFE1:
+ 594 029e 00BF     		.align	2
+ 595              		.global	IOCPadConfigSet
+ 596              		.thumb
+ 597              		.thumb_func
+ 599              	IOCPadConfigSet:
+ 600              	.LFB2:
+ 546:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+ 547:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //*****************************************************************************
+ 548:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //
+ 549:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! Set desired drive type on the pad for the desired port pin(s).
+ 550:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //!
+ 551:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! \param ui32Port is the base address of the GPIO port.
+ 552:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! \param ui8Pins is the bit-packed representation of the port pin(s).
+ 553:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! \param ui32PinDrive is the drive configuration of the desired port
+ 554:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! pin.
+ 555:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //!
+ 556:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! This function sets the desired pin drive type for the desired pin(s)
+ 557:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! on the selected GPIO port.
+ 558:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //!
+ 559:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! The \e ui32PinDrive parameter controls the configuration of the pin drive on
+ 560:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! the pad for the desired pin(s). The parameter is the logical OR of any of
+ 561:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! the following:
+ 562:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //!
+ 563:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_OVERRIDE_OE
+ 564:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_OVERRIDE_PUE
+ 565:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_OVERRIDE_PDE
+ 566:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_OVERRIDE_ANA
+ 567:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! - \b IOC_OVERRIDE_DIS
+ 568:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //!
+ 569:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! where \b IOC_OVERRIDE_OE is the output enable bit connected directly
+ 570:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! to the output enable pin for the IO driver cell, after it is ORed
+ 571:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! with any OE signal from the desired peripheral.  The OE is driven from the
+ 572:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! SSI, I2C and GPT peripherals.  \b IOC_OVERRIDE_PUE is the enable bit for
+ 573:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! the pull-up.  \b IOC_OVERRIDE_PDE is the enable bit for the pull-down.
+ 574:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! \b IOC_OVERRIDE_ANA must be set for the analog signal.
+ 575:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //!
+ 576:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! The pin(s) in \e ui8Pins are specified using a bit-packed byte, where each
+ 577:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! bit that is set identifies the pin to be accessed, and where bit 0 of the
+ 578:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! byte represents GPIO port pin 0, bit 1 represents GPIO port pin 1, and so
+ 579:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! on.
+ 580:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //!
+ 581:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! \note PC0 through PC3 are bidirectional high-drive pad-cells. They do not
+ 582:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! support on-die pullup or pulldown resistors or analog connectivity.
+ 583:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! For these four pins the \e ui32PinDrive parameter must be set to either
+ 584:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! \b IOC_OVERRIDE_OE or IOC_OVERRIDE_DIS.
+ 585:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //!
+ 586:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! \return None
+ 587:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //
+ 588:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //*****************************************************************************
+ 589:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** void
+ 590:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** IOCPadConfigSet(uint32_t ui32Port, uint8_t ui8Pins,
+ 591:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****                 uint32_t ui32PinDrive)
+ 592:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** {
+ 601              		.loc 1 592 0
+ 602              		.cfi_startproc
+ 603              		@ args = 0, pretend = 0, frame = 32
+ 604              		@ frame_needed = 1, uses_anonymous_args = 0
+ 605              		@ link register save eliminated.
+ 606 02a0 80B4     		push	{r7}
+ 607              		.cfi_def_cfa_offset 4
+ 608              		.cfi_offset 7, -4
+ 609 02a2 89B0     		sub	sp, sp, #36
+ 610              		.cfi_def_cfa_offset 40
+ 611 02a4 00AF     		add	r7, sp, #0
+ 612              		.cfi_def_cfa_register 7
+ 613 02a6 F860     		str	r0, [r7, #12]
+ 614 02a8 0B46     		mov	r3, r1
+ 615 02aa 7A60     		str	r2, [r7, #4]
+ 616 02ac FB72     		strb	r3, [r7, #11]
+ 593:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     uint32_t ui32OverrideRegAddr;
+ 594:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     uint32_t ui32PinNo;
+ 595:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     uint32_t ui32PinBit;
+ 596:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+ 597:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     //
+ 598:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     // Check the arguments
+ 599:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     //
+ 600:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     ASSERT((ui32Port == GPIO_A_BASE) || (ui32Port == GPIO_B_BASE) ||
+ 601:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****            (ui32Port == GPIO_C_BASE) || (ui32Port == GPIO_D_BASE));
+ 602:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     ASSERT(ui8Pins != 0);
+ 603:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     ASSERT((ui32PinDrive == IOC_OVERRIDE_OE)  ||
+ 604:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****            (ui32PinDrive == IOC_OVERRIDE_PUE) ||
+ 605:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****            (ui32PinDrive == IOC_OVERRIDE_PDE) ||
+ 606:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****            (ui32PinDrive == IOC_OVERRIDE_ANA) ||
+ 607:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****            (ui32PinDrive == IOC_OVERRIDE_DIS));
+ 608:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     //
+ 609:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     // PC0-PC3 does not support on-die pullup, pulldown or analog connectivity.
+ 610:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     //
+ 611:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     ASSERT(!((ui32Port == GPIO_C_BASE) && ((ui8Pins & 0xf) > 0) &&
+ 612:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****              ((ui32PinDrive == IOC_OVERRIDE_PUE) ||
+ 613:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****               (ui32PinDrive == IOC_OVERRIDE_PDE) ||
+ 614:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****               (ui32PinDrive == IOC_OVERRIDE_ANA))));
+ 615:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+ 616:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     //
+ 617:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     // Initialize to default value
+ 618:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     //
+ 619:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     ui32OverrideRegAddr = IOC_PA0_SEL;
+ 617              		.loc 1 619 0
+ 618 02ae 4FF48043 		mov	r3, #16384
+ 619 02b2 C4F20D03 		movt	r3, 16397
+ 620 02b6 FB61     		str	r3, [r7, #28]
+ 620:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+ 621:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     //
+ 622:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     // Look for specified port pins to be configured, multiple pins are allowed
+ 623:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     //
+ 624:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     for(ui32PinNo = 0; ui32PinNo < 8; ui32PinNo++)
+ 621              		.loc 1 624 0
+ 622 02b8 0023     		movs	r3, #0
+ 623 02ba BB61     		str	r3, [r7, #24]
+ 624 02bc 5AE0     		b	.L53
+ 625              	.L62:
+ 625:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     {
+ 626:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         ui32PinBit = (ui8Pins >> ui32PinNo) & 0x00000001;
+ 626              		.loc 1 626 0
+ 627 02be FA7A     		ldrb	r2, [r7, #11]	@ zero_extendqisi2
+ 628 02c0 BB69     		ldr	r3, [r7, #24]
+ 629 02c2 42FA03F3 		asr	r3, r2, r3
+ 630 02c6 03F00103 		and	r3, r3, #1
+ 631 02ca 7B61     		str	r3, [r7, #20]
+ 627:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui32PinBit != 0)
+ 632              		.loc 1 627 0
+ 633 02cc 7B69     		ldr	r3, [r7, #20]
+ 634 02ce 002B     		cmp	r3, #0
+ 635 02d0 4DD0     		beq	.L54
+ 628:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 629:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             //
+ 630:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             // Find register addresses for configuring specified port pin
+ 631:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             //
+ 632:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             switch(ui32Port)
+ 636              		.loc 1 632 0
+ 637 02d2 FB68     		ldr	r3, [r7, #12]
+ 638 02d4 4FF42042 		mov	r2, #40960
+ 639 02d8 C4F20D02 		movt	r2, 16397
+ 640 02dc 9342     		cmp	r3, r2
+ 641 02de 22D0     		beq	.L56
+ 642 02e0 4FF42042 		mov	r2, #40960
+ 643 02e4 C4F20D02 		movt	r2, 16397
+ 644 02e8 9342     		cmp	r3, r2
+ 645 02ea 06D8     		bhi	.L57
+ 646 02ec 4FF41042 		mov	r2, #36864
+ 647 02f0 C4F20D02 		movt	r2, 16397
+ 648 02f4 9342     		cmp	r3, r2
+ 649 02f6 0DD0     		beq	.L58
+ 650 02f8 30E0     		b	.L55
+ 651              	.L57:
+ 652 02fa 4FF43042 		mov	r2, #45056
+ 653 02fe C4F20D02 		movt	r2, 16397
+ 654 0302 9342     		cmp	r3, r2
+ 655 0304 18D0     		beq	.L59
+ 656 0306 4FF44042 		mov	r2, #49152
+ 657 030a C4F20D02 		movt	r2, 16397
+ 658 030e 9342     		cmp	r3, r2
+ 659 0310 1BD0     		beq	.L60
+ 660 0312 23E0     		b	.L55
+ 661              	.L58:
+ 633:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             {
+ 634:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             case GPIO_A_BASE:
+ 635:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****                 ui32OverrideRegAddr = g_pui32IOCPortAOverrideReg[ui32PinNo];
+ 662              		.loc 1 635 0
+ 663 0314 40F20003 		movw	r3, #:lower16:g_pui32IOCPortAOverrideReg
+ 664 0318 C0F20003 		movt	r3, #:upper16:g_pui32IOCPortAOverrideReg
+ 665 031c BA69     		ldr	r2, [r7, #24]
+ 666 031e 53F82230 		ldr	r3, [r3, r2, lsl #2]
+ 667 0322 FB61     		str	r3, [r7, #28]
+ 636:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****                 break;
+ 668              		.loc 1 636 0
+ 669 0324 20E0     		b	.L61
+ 670              	.L56:
+ 637:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+ 638:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             case GPIO_B_BASE:
+ 639:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****                 ui32OverrideRegAddr = g_pui32IOCPortBOverrideReg[ui32PinNo];
+ 671              		.loc 1 639 0
+ 672 0326 40F20003 		movw	r3, #:lower16:g_pui32IOCPortBOverrideReg
+ 673 032a C0F20003 		movt	r3, #:upper16:g_pui32IOCPortBOverrideReg
+ 674 032e BA69     		ldr	r2, [r7, #24]
+ 675 0330 53F82230 		ldr	r3, [r3, r2, lsl #2]
+ 676 0334 FB61     		str	r3, [r7, #28]
+ 640:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****                 break;
+ 677              		.loc 1 640 0
+ 678 0336 17E0     		b	.L61
+ 679              	.L59:
+ 641:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+ 642:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             case GPIO_C_BASE:
+ 643:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****                 ui32OverrideRegAddr = g_pui32IOCPortCOverrideReg[ui32PinNo];
+ 680              		.loc 1 643 0
+ 681 0338 40F20003 		movw	r3, #:lower16:g_pui32IOCPortCOverrideReg
+ 682 033c C0F20003 		movt	r3, #:upper16:g_pui32IOCPortCOverrideReg
+ 683 0340 BA69     		ldr	r2, [r7, #24]
+ 684 0342 53F82230 		ldr	r3, [r3, r2, lsl #2]
+ 685 0346 FB61     		str	r3, [r7, #28]
+ 644:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****                 break;
+ 686              		.loc 1 644 0
+ 687 0348 0EE0     		b	.L61
+ 688              	.L60:
+ 645:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+ 646:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             case GPIO_D_BASE:
+ 647:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****                 ui32OverrideRegAddr = g_pui32IOCPortDOverrideReg[ui32PinNo];
+ 689              		.loc 1 647 0
+ 690 034a 40F20003 		movw	r3, #:lower16:g_pui32IOCPortDOverrideReg
+ 691 034e C0F20003 		movt	r3, #:upper16:g_pui32IOCPortDOverrideReg
+ 692 0352 BA69     		ldr	r2, [r7, #24]
+ 693 0354 53F82230 		ldr	r3, [r3, r2, lsl #2]
+ 694 0358 FB61     		str	r3, [r7, #28]
+ 648:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****                 break;
+ 695              		.loc 1 648 0
+ 696 035a 05E0     		b	.L61
+ 697              	.L55:
+ 649:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+ 650:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             default:
+ 651:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****                 // Default to port A pin 0
+ 652:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****                 ui32OverrideRegAddr = IOC_PA0_OVER;
+ 698              		.loc 1 652 0
+ 699 035c 4FF48143 		mov	r3, #16512
+ 700 0360 C4F20D03 		movt	r3, 16397
+ 701 0364 FB61     		str	r3, [r7, #28]
+ 653:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****                 break;
+ 702              		.loc 1 653 0
+ 703 0366 00BF     		nop
+ 704              	.L61:
+ 654:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             }
+ 655:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+ 656:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             //
+ 657:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             // Set desired pin drive for the desired port pin
+ 658:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             //
+ 659:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             HWREG(ui32OverrideRegAddr) = ui32PinDrive;
+ 705              		.loc 1 659 0
+ 706 0368 FB69     		ldr	r3, [r7, #28]
+ 707 036a 7A68     		ldr	r2, [r7, #4]
+ 708 036c 1A60     		str	r2, [r3]
+ 709              	.L54:
+ 624:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     {
+ 710              		.loc 1 624 0
+ 711 036e BB69     		ldr	r3, [r7, #24]
+ 712 0370 0133     		adds	r3, r3, #1
+ 713 0372 BB61     		str	r3, [r7, #24]
+ 714              	.L53:
+ 624:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     {
+ 715              		.loc 1 624 0 is_stmt 0 discriminator 1
+ 716 0374 BB69     		ldr	r3, [r7, #24]
+ 717 0376 072B     		cmp	r3, #7
+ 718 0378 A1D9     		bls	.L62
+ 660:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 661:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     }
+ 662:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** }
+ 719              		.loc 1 662 0 is_stmt 1
+ 720 037a 2437     		adds	r7, r7, #36
+ 721 037c BD46     		mov	sp, r7
+ 722              		@ sp needed
+ 723 037e 5DF8047B 		ldr	r7, [sp], #4
+ 724 0382 7047     		bx	lr
+ 725              		.cfi_endproc
+ 726              	.LFE2:
+ 728              		.align	2
+ 729              		.global	IOCPadConfigGet
+ 730              		.thumb
+ 731              		.thumb_func
+ 733              	IOCPadConfigGet:
+ 734              	.LFB3:
+ 663:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+ 664:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //*****************************************************************************
+ 665:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //
+ 666:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! Get drive type on the pad for the desired port pin.
+ 667:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //!
+ 668:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! \param ui32Port is the base address of the GPIO port.
+ 669:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! \param ui8Pin is the bit-packed representation of the port pin.
+ 670:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //!
+ 671:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! This function returns the configured pin drive type for the desired
+ 672:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! pin on the selected GPIO port.
+ 673:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //!
+ 674:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! The pin in \e ui8Pin is specified using a bit-packed byte, where the bit
+ 675:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! that is set identifies the pin to be accessed, and where bit 0 of the byte
+ 676:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! represents GPIO port pin 0, bit 1 represents GPIO port pin 1, and so on.
+ 677:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //!
+ 678:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! \return Returns the logical OR of the enumerated data types described for
+ 679:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! \e ui32PinDrive parameter in IOCPadConfigSet().
+ 680:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! 
+ 681:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //! \sa IOCPadConfigSet()
+ 682:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //
+ 683:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** //*****************************************************************************
+ 684:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** uint32_t
+ 685:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** IOCPadConfigGet(uint32_t ui32Port, uint8_t ui8Pin)
+ 686:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** {
+ 735              		.loc 1 686 0
+ 736              		.cfi_startproc
+ 737              		@ args = 0, pretend = 0, frame = 16
+ 738              		@ frame_needed = 1, uses_anonymous_args = 0
+ 739              		@ link register save eliminated.
+ 740 0384 80B4     		push	{r7}
+ 741              		.cfi_def_cfa_offset 4
+ 742              		.cfi_offset 7, -4
+ 743 0386 85B0     		sub	sp, sp, #20
+ 744              		.cfi_def_cfa_offset 24
+ 745 0388 00AF     		add	r7, sp, #0
+ 746              		.cfi_def_cfa_register 7
+ 747 038a 7860     		str	r0, [r7, #4]
+ 748 038c 0B46     		mov	r3, r1
+ 749 038e FB70     		strb	r3, [r7, #3]
+ 687:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     uint32_t ui32OverrideRegAddr;
+ 688:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+ 689:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     //
+ 690:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     //Set initial values
+ 691:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     //
+ 692:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     ui32OverrideRegAddr = IOC_PA0_OVER;
+ 750              		.loc 1 692 0
+ 751 0390 4FF48143 		mov	r3, #16512
+ 752 0394 C4F20D03 		movt	r3, 16397
+ 753 0398 FB60     		str	r3, [r7, #12]
+ 693:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+ 694:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     //
+ 695:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     // Check the arguments
+ 696:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     //
+ 697:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     ASSERT((ui32Port == GPIO_A_BASE) || (ui32Port == GPIO_B_BASE) ||
+ 698:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****            (ui32Port == GPIO_C_BASE) || (ui32Port == GPIO_D_BASE));
+ 699:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     ASSERT((ui8Pin == GPIO_PIN_0) || (ui8Pin == GPIO_PIN_1) ||
+ 700:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****            (ui8Pin == GPIO_PIN_2) || (ui8Pin == GPIO_PIN_3) ||
+ 701:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****            (ui8Pin == GPIO_PIN_4) || (ui8Pin == GPIO_PIN_5) ||
+ 702:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****            (ui8Pin == GPIO_PIN_6) || (ui8Pin == GPIO_PIN_7));
+ 703:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+ 704:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     //
+ 705:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     // Find the address of the override register for the desired pin
+ 706:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     //
+ 707:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     switch(ui32Port)
+ 754              		.loc 1 707 0
+ 755 039a 7B68     		ldr	r3, [r7, #4]
+ 756 039c 4FF42042 		mov	r2, #40960
+ 757 03a0 C4F20D02 		movt	r2, 16397
+ 758 03a4 9342     		cmp	r3, r2
+ 759 03a6 5DD0     		beq	.L65
+ 760 03a8 4FF42042 		mov	r2, #40960
+ 761 03ac C4F20D02 		movt	r2, 16397
+ 762 03b0 9342     		cmp	r3, r2
+ 763 03b2 06D8     		bhi	.L66
+ 764 03b4 4FF41042 		mov	r2, #36864
+ 765 03b8 C4F20D02 		movt	r2, 16397
+ 766 03bc 9342     		cmp	r3, r2
+ 767 03be 0FD0     		beq	.L67
+ 768 03c0 16E1     		b	.L64
+ 769              	.L66:
+ 770 03c2 4FF43042 		mov	r2, #45056
+ 771 03c6 C4F20D02 		movt	r2, 16397
+ 772 03ca 9342     		cmp	r3, r2
+ 773 03cc 00F08C80 		beq	.L68
+ 774 03d0 4FF44042 		mov	r2, #49152
+ 775 03d4 C4F20D02 		movt	r2, 16397
+ 776 03d8 9342     		cmp	r3, r2
+ 777 03da 00F0C780 		beq	.L69
+ 778 03de 07E1     		b	.L64
+ 779              	.L67:
+ 708:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     {
+ 709:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     case GPIO_A_BASE:
+ 710:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_0)
+ 780              		.loc 1 710 0
+ 781 03e0 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 782 03e2 012B     		cmp	r3, #1
+ 783 03e4 04D1     		bne	.L70
+ 711:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 712:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32OverrideRegAddr = IOC_PA0_OVER;
+ 784              		.loc 1 712 0
+ 785 03e6 4FF48143 		mov	r3, #16512
+ 786 03ea C4F20D03 		movt	r3, 16397
+ 787 03ee FB60     		str	r3, [r7, #12]
+ 788              	.L70:
+ 713:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 714:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_1)
+ 789              		.loc 1 714 0
+ 790 03f0 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 791 03f2 022B     		cmp	r3, #2
+ 792 03f4 04D1     		bne	.L71
+ 715:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 716:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32OverrideRegAddr = IOC_PA1_OVER;
+ 793              		.loc 1 716 0
+ 794 03f6 44F28403 		movw	r3, #16516
+ 795 03fa C4F20D03 		movt	r3, 16397
+ 796 03fe FB60     		str	r3, [r7, #12]
+ 797              	.L71:
+ 717:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 718:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_2)
+ 798              		.loc 1 718 0
+ 799 0400 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 800 0402 042B     		cmp	r3, #4
+ 801 0404 04D1     		bne	.L72
+ 719:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 720:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32OverrideRegAddr = IOC_PA2_OVER;
+ 802              		.loc 1 720 0
+ 803 0406 44F28803 		movw	r3, #16520
+ 804 040a C4F20D03 		movt	r3, 16397
+ 805 040e FB60     		str	r3, [r7, #12]
+ 806              	.L72:
+ 721:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 722:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_3)
+ 807              		.loc 1 722 0
+ 808 0410 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 809 0412 082B     		cmp	r3, #8
+ 810 0414 04D1     		bne	.L73
+ 723:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 724:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32OverrideRegAddr = IOC_PA3_OVER;
+ 811              		.loc 1 724 0
+ 812 0416 44F28C03 		movw	r3, #16524
+ 813 041a C4F20D03 		movt	r3, 16397
+ 814 041e FB60     		str	r3, [r7, #12]
+ 815              	.L73:
+ 725:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 726:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_4)
+ 816              		.loc 1 726 0
+ 817 0420 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 818 0422 102B     		cmp	r3, #16
+ 819 0424 04D1     		bne	.L74
+ 727:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 728:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32OverrideRegAddr = IOC_PA4_OVER;
+ 820              		.loc 1 728 0
+ 821 0426 44F29003 		movw	r3, #16528
+ 822 042a C4F20D03 		movt	r3, 16397
+ 823 042e FB60     		str	r3, [r7, #12]
+ 824              	.L74:
+ 729:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 730:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_5)
+ 825              		.loc 1 730 0
+ 826 0430 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 827 0432 202B     		cmp	r3, #32
+ 828 0434 04D1     		bne	.L75
+ 731:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 732:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32OverrideRegAddr = IOC_PA5_OVER;
+ 829              		.loc 1 732 0
+ 830 0436 44F29403 		movw	r3, #16532
+ 831 043a C4F20D03 		movt	r3, 16397
+ 832 043e FB60     		str	r3, [r7, #12]
+ 833              	.L75:
+ 733:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 734:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_6)
+ 834              		.loc 1 734 0
+ 835 0440 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 836 0442 402B     		cmp	r3, #64
+ 837 0444 04D1     		bne	.L76
+ 735:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 736:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32OverrideRegAddr = IOC_PA6_OVER;
+ 838              		.loc 1 736 0
+ 839 0446 44F29803 		movw	r3, #16536
+ 840 044a C4F20D03 		movt	r3, 16397
+ 841 044e FB60     		str	r3, [r7, #12]
+ 842              	.L76:
+ 737:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 738:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_7)
+ 843              		.loc 1 738 0
+ 844 0450 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 845 0452 802B     		cmp	r3, #128
+ 846 0454 05D1     		bne	.L77
+ 739:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 740:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32OverrideRegAddr = IOC_PA7_OVER;
+ 847              		.loc 1 740 0
+ 848 0456 44F29C03 		movw	r3, #16540
+ 849 045a C4F20D03 		movt	r3, 16397
+ 850 045e FB60     		str	r3, [r7, #12]
+ 741:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 742:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         break;
+ 851              		.loc 1 742 0
+ 852 0460 CCE0     		b	.L78
+ 853              	.L77:
+ 854 0462 CBE0     		b	.L78
+ 855              	.L65:
+ 743:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+ 744:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     case GPIO_B_BASE:
+ 745:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_0)
+ 856              		.loc 1 745 0
+ 857 0464 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 858 0466 012B     		cmp	r3, #1
+ 859 0468 04D1     		bne	.L79
+ 746:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 747:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32OverrideRegAddr = IOC_PB0_OVER;
+ 860              		.loc 1 747 0
+ 861 046a 44F2A003 		movw	r3, #16544
+ 862 046e C4F20D03 		movt	r3, 16397
+ 863 0472 FB60     		str	r3, [r7, #12]
+ 864              	.L79:
+ 748:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 749:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_1)
+ 865              		.loc 1 749 0
+ 866 0474 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 867 0476 022B     		cmp	r3, #2
+ 868 0478 04D1     		bne	.L80
+ 750:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 751:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32OverrideRegAddr = IOC_PB1_OVER;
+ 869              		.loc 1 751 0
+ 870 047a 44F2A403 		movw	r3, #16548
+ 871 047e C4F20D03 		movt	r3, 16397
+ 872 0482 FB60     		str	r3, [r7, #12]
+ 873              	.L80:
+ 752:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 753:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_2)
+ 874              		.loc 1 753 0
+ 875 0484 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 876 0486 042B     		cmp	r3, #4
+ 877 0488 04D1     		bne	.L81
+ 754:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 755:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32OverrideRegAddr = IOC_PB2_OVER;
+ 878              		.loc 1 755 0
+ 879 048a 44F2A803 		movw	r3, #16552
+ 880 048e C4F20D03 		movt	r3, 16397
+ 881 0492 FB60     		str	r3, [r7, #12]
+ 882              	.L81:
+ 756:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 757:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_3)
+ 883              		.loc 1 757 0
+ 884 0494 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 885 0496 082B     		cmp	r3, #8
+ 886 0498 04D1     		bne	.L82
+ 758:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 759:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32OverrideRegAddr = IOC_PB3_OVER;
+ 887              		.loc 1 759 0
+ 888 049a 44F2AC03 		movw	r3, #16556
+ 889 049e C4F20D03 		movt	r3, 16397
+ 890 04a2 FB60     		str	r3, [r7, #12]
+ 891              	.L82:
+ 760:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 761:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_4)
+ 892              		.loc 1 761 0
+ 893 04a4 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 894 04a6 102B     		cmp	r3, #16
+ 895 04a8 04D1     		bne	.L83
+ 762:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 763:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32OverrideRegAddr = IOC_PB4_OVER;
+ 896              		.loc 1 763 0
+ 897 04aa 44F2B003 		movw	r3, #16560
+ 898 04ae C4F20D03 		movt	r3, 16397
+ 899 04b2 FB60     		str	r3, [r7, #12]
+ 900              	.L83:
+ 764:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 765:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_5)
+ 901              		.loc 1 765 0
+ 902 04b4 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 903 04b6 202B     		cmp	r3, #32
+ 904 04b8 04D1     		bne	.L84
+ 766:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 767:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32OverrideRegAddr = IOC_PB5_OVER;
+ 905              		.loc 1 767 0
+ 906 04ba 44F2B403 		movw	r3, #16564
+ 907 04be C4F20D03 		movt	r3, 16397
+ 908 04c2 FB60     		str	r3, [r7, #12]
+ 909              	.L84:
+ 768:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 769:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_6)
+ 910              		.loc 1 769 0
+ 911 04c4 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 912 04c6 402B     		cmp	r3, #64
+ 913 04c8 04D1     		bne	.L85
+ 770:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 771:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32OverrideRegAddr = IOC_PB6_OVER;
+ 914              		.loc 1 771 0
+ 915 04ca 44F2B803 		movw	r3, #16568
+ 916 04ce C4F20D03 		movt	r3, 16397
+ 917 04d2 FB60     		str	r3, [r7, #12]
+ 918              	.L85:
+ 772:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 773:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_7)
+ 919              		.loc 1 773 0
+ 920 04d4 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 921 04d6 802B     		cmp	r3, #128
+ 922 04d8 05D1     		bne	.L86
+ 774:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 775:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32OverrideRegAddr = IOC_PB7_OVER;
+ 923              		.loc 1 775 0
+ 924 04da 44F2BC03 		movw	r3, #16572
+ 925 04de C4F20D03 		movt	r3, 16397
+ 926 04e2 FB60     		str	r3, [r7, #12]
+ 776:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 777:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         break;
+ 927              		.loc 1 777 0
+ 928 04e4 8AE0     		b	.L78
+ 929              	.L86:
+ 930 04e6 89E0     		b	.L78
+ 931              	.L68:
+ 778:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+ 779:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     case GPIO_C_BASE:
+ 780:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_0)
+ 932              		.loc 1 780 0
+ 933 04e8 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 934 04ea 012B     		cmp	r3, #1
+ 935 04ec 04D1     		bne	.L87
+ 781:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 782:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32OverrideRegAddr = IOC_PC0_OVER;
+ 936              		.loc 1 782 0
+ 937 04ee 44F2C003 		movw	r3, #16576
+ 938 04f2 C4F20D03 		movt	r3, 16397
+ 939 04f6 FB60     		str	r3, [r7, #12]
+ 940              	.L87:
+ 783:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 784:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_1)
+ 941              		.loc 1 784 0
+ 942 04f8 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 943 04fa 022B     		cmp	r3, #2
+ 944 04fc 04D1     		bne	.L88
+ 785:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 786:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32OverrideRegAddr = IOC_PC1_OVER;
+ 945              		.loc 1 786 0
+ 946 04fe 44F2C403 		movw	r3, #16580
+ 947 0502 C4F20D03 		movt	r3, 16397
+ 948 0506 FB60     		str	r3, [r7, #12]
+ 949              	.L88:
+ 787:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 788:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_2)
+ 950              		.loc 1 788 0
+ 951 0508 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 952 050a 042B     		cmp	r3, #4
+ 953 050c 04D1     		bne	.L89
+ 789:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 790:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32OverrideRegAddr = IOC_PC2_OVER;
+ 954              		.loc 1 790 0
+ 955 050e 44F2C803 		movw	r3, #16584
+ 956 0512 C4F20D03 		movt	r3, 16397
+ 957 0516 FB60     		str	r3, [r7, #12]
+ 958              	.L89:
+ 791:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 792:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_3)
+ 959              		.loc 1 792 0
+ 960 0518 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 961 051a 082B     		cmp	r3, #8
+ 962 051c 04D1     		bne	.L90
+ 793:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 794:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32OverrideRegAddr = IOC_PC3_OVER;
+ 963              		.loc 1 794 0
+ 964 051e 44F2CC03 		movw	r3, #16588
+ 965 0522 C4F20D03 		movt	r3, 16397
+ 966 0526 FB60     		str	r3, [r7, #12]
+ 967              	.L90:
+ 795:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 796:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_4)
+ 968              		.loc 1 796 0
+ 969 0528 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 970 052a 102B     		cmp	r3, #16
+ 971 052c 04D1     		bne	.L91
+ 797:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 798:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32OverrideRegAddr = IOC_PC4_OVER;
+ 972              		.loc 1 798 0
+ 973 052e 44F2D003 		movw	r3, #16592
+ 974 0532 C4F20D03 		movt	r3, 16397
+ 975 0536 FB60     		str	r3, [r7, #12]
+ 976              	.L91:
+ 799:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 800:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_5)
+ 977              		.loc 1 800 0
+ 978 0538 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 979 053a 202B     		cmp	r3, #32
+ 980 053c 04D1     		bne	.L92
+ 801:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 802:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32OverrideRegAddr = IOC_PC5_OVER;
+ 981              		.loc 1 802 0
+ 982 053e 44F2D403 		movw	r3, #16596
+ 983 0542 C4F20D03 		movt	r3, 16397
+ 984 0546 FB60     		str	r3, [r7, #12]
+ 985              	.L92:
+ 803:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 804:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_6)
+ 986              		.loc 1 804 0
+ 987 0548 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 988 054a 402B     		cmp	r3, #64
+ 989 054c 04D1     		bne	.L93
+ 805:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 806:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32OverrideRegAddr = IOC_PC6_OVER;
+ 990              		.loc 1 806 0
+ 991 054e 44F2D803 		movw	r3, #16600
+ 992 0552 C4F20D03 		movt	r3, 16397
+ 993 0556 FB60     		str	r3, [r7, #12]
+ 994              	.L93:
+ 807:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 808:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_7)
+ 995              		.loc 1 808 0
+ 996 0558 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 997 055a 802B     		cmp	r3, #128
+ 998 055c 05D1     		bne	.L94
+ 809:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 810:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32OverrideRegAddr = IOC_PC7_OVER;
+ 999              		.loc 1 810 0
+ 1000 055e 44F2DC03 		movw	r3, #16604
+ 1001 0562 C4F20D03 		movt	r3, 16397
+ 1002 0566 FB60     		str	r3, [r7, #12]
+ 811:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 812:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         break;
+ 1003              		.loc 1 812 0
+ 1004 0568 48E0     		b	.L78
+ 1005              	.L94:
+ 1006 056a 47E0     		b	.L78
+ 1007              	.L69:
+ 813:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+ 814:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     case GPIO_D_BASE:
+ 815:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_0)
+ 1008              		.loc 1 815 0
+ 1009 056c FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 1010 056e 012B     		cmp	r3, #1
+ 1011 0570 04D1     		bne	.L95
+ 816:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 817:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32OverrideRegAddr = IOC_PD0_OVER;
+ 1012              		.loc 1 817 0
+ 1013 0572 44F2E003 		movw	r3, #16608
+ 1014 0576 C4F20D03 		movt	r3, 16397
+ 1015 057a FB60     		str	r3, [r7, #12]
+ 1016              	.L95:
+ 818:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 819:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_1)
+ 1017              		.loc 1 819 0
+ 1018 057c FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 1019 057e 022B     		cmp	r3, #2
+ 1020 0580 04D1     		bne	.L96
+ 820:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 821:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32OverrideRegAddr = IOC_PD1_OVER;
+ 1021              		.loc 1 821 0
+ 1022 0582 44F2E403 		movw	r3, #16612
+ 1023 0586 C4F20D03 		movt	r3, 16397
+ 1024 058a FB60     		str	r3, [r7, #12]
+ 1025              	.L96:
+ 822:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 823:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_2)
+ 1026              		.loc 1 823 0
+ 1027 058c FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 1028 058e 042B     		cmp	r3, #4
+ 1029 0590 04D1     		bne	.L97
+ 824:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 825:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32OverrideRegAddr = IOC_PD2_OVER;
+ 1030              		.loc 1 825 0
+ 1031 0592 44F2E803 		movw	r3, #16616
+ 1032 0596 C4F20D03 		movt	r3, 16397
+ 1033 059a FB60     		str	r3, [r7, #12]
+ 1034              	.L97:
+ 826:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 827:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_3)
+ 1035              		.loc 1 827 0
+ 1036 059c FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 1037 059e 082B     		cmp	r3, #8
+ 1038 05a0 04D1     		bne	.L98
+ 828:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 829:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32OverrideRegAddr = IOC_PD3_OVER;
+ 1039              		.loc 1 829 0
+ 1040 05a2 44F2EC03 		movw	r3, #16620
+ 1041 05a6 C4F20D03 		movt	r3, 16397
+ 1042 05aa FB60     		str	r3, [r7, #12]
+ 1043              	.L98:
+ 830:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 831:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_4)
+ 1044              		.loc 1 831 0
+ 1045 05ac FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 1046 05ae 102B     		cmp	r3, #16
+ 1047 05b0 04D1     		bne	.L99
+ 832:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 833:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32OverrideRegAddr = IOC_PD4_OVER;
+ 1048              		.loc 1 833 0
+ 1049 05b2 44F2F003 		movw	r3, #16624
+ 1050 05b6 C4F20D03 		movt	r3, 16397
+ 1051 05ba FB60     		str	r3, [r7, #12]
+ 1052              	.L99:
+ 834:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 835:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_5)
+ 1053              		.loc 1 835 0
+ 1054 05bc FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 1055 05be 202B     		cmp	r3, #32
+ 1056 05c0 04D1     		bne	.L100
+ 836:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 837:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32OverrideRegAddr = IOC_PD5_OVER;
+ 1057              		.loc 1 837 0
+ 1058 05c2 44F2F403 		movw	r3, #16628
+ 1059 05c6 C4F20D03 		movt	r3, 16397
+ 1060 05ca FB60     		str	r3, [r7, #12]
+ 1061              	.L100:
+ 838:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 839:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_6)
+ 1062              		.loc 1 839 0
+ 1063 05cc FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 1064 05ce 402B     		cmp	r3, #64
+ 1065 05d0 04D1     		bne	.L101
+ 840:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 841:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32OverrideRegAddr = IOC_PD6_OVER;
+ 1066              		.loc 1 841 0
+ 1067 05d2 44F2F803 		movw	r3, #16632
+ 1068 05d6 C4F20D03 		movt	r3, 16397
+ 1069 05da FB60     		str	r3, [r7, #12]
+ 1070              	.L101:
+ 842:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 843:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         if(ui8Pin == GPIO_PIN_7)
+ 1071              		.loc 1 843 0
+ 1072 05dc FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 1073 05de 802B     		cmp	r3, #128
+ 1074 05e0 05D1     		bne	.L102
+ 844:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         {
+ 845:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****             ui32OverrideRegAddr = IOC_PD7_OVER;
+ 1075              		.loc 1 845 0
+ 1076 05e2 44F2FC03 		movw	r3, #16636
+ 1077 05e6 C4F20D03 		movt	r3, 16397
+ 1078 05ea FB60     		str	r3, [r7, #12]
+ 846:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         }
+ 847:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         break;
+ 1079              		.loc 1 847 0
+ 1080 05ec 06E0     		b	.L78
+ 1081              	.L102:
+ 1082 05ee 05E0     		b	.L78
+ 1083              	.L64:
+ 848:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+ 849:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     default:
+ 850:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         // Default to port A pin 0
+ 851:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         ui32OverrideRegAddr = IOC_PA0_OVER;
+ 1084              		.loc 1 851 0
+ 1085 05f0 4FF48143 		mov	r3, #16512
+ 1086 05f4 C4F20D03 		movt	r3, 16397
+ 1087 05f8 FB60     		str	r3, [r7, #12]
+ 852:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****         break;
+ 1088              		.loc 1 852 0
+ 1089 05fa 00BF     		nop
+ 1090              	.L78:
+ 853:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     }
+ 854:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** 
+ 855:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     //
+ 856:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     // Return pin drive type
+ 857:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     //
+ 858:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c ****     return(HWREG(ui32OverrideRegAddr));
+ 1091              		.loc 1 858 0
+ 1092 05fc FB68     		ldr	r3, [r7, #12]
+ 1093 05fe 1B68     		ldr	r3, [r3]
+ 859:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/ioc.c **** }
+ 1094              		.loc 1 859 0
+ 1095 0600 1846     		mov	r0, r3
+ 1096 0602 1437     		adds	r7, r7, #20
+ 1097 0604 BD46     		mov	sp, r7
+ 1098              		@ sp needed
+ 1099 0606 5DF8047B 		ldr	r7, [sp], #4
+ 1100 060a 7047     		bx	lr
+ 1101              		.cfi_endproc
+ 1102              	.LFE3:
+ 1104              	.Letext0:
+ 1105              		.file 2 "/usr/include/newlib/machine/_default_types.h"
+ 1106              		.file 3 "/usr/include/newlib/stdint.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 ioc.c
+     /tmp/cclvaI9M.s:19     .rodata:0000000000000000 $d
+     /tmp/cclvaI9M.s:22     .rodata:0000000000000000 g_pui32IOCPortAOverrideReg
+     /tmp/cclvaI9M.s:34     .rodata:0000000000000020 g_pui32IOCPortBOverrideReg
+     /tmp/cclvaI9M.s:46     .rodata:0000000000000040 g_pui32IOCPortCOverrideReg
+     /tmp/cclvaI9M.s:58     .rodata:0000000000000060 g_pui32IOCPortDOverrideReg
+     /tmp/cclvaI9M.s:70     .rodata:0000000000000080 g_pui32IOCPortASignSelectReg
+     /tmp/cclvaI9M.s:82     .rodata:00000000000000a0 g_pui32IOCPortBSignSelectReg
+     /tmp/cclvaI9M.s:94     .rodata:00000000000000c0 g_pui32IOCPortCSignSelectReg
+     /tmp/cclvaI9M.s:106    .rodata:00000000000000e0 g_pui32IOCPortDSignSelectReg
+     /tmp/cclvaI9M.s:116    .text:0000000000000000 $t
+     /tmp/cclvaI9M.s:121    .text:0000000000000000 IOCPinConfigPeriphOutput
+     /tmp/cclvaI9M.s:256    .text:00000000000000e4 IOCPinConfigPeriphInput
+     /tmp/cclvaI9M.s:599    .text:00000000000002a0 IOCPadConfigSet
+     /tmp/cclvaI9M.s:733    .text:0000000000000384 IOCPadConfigGet
+                     .debug_frame:0000000000000010 $d
+                           .group:0000000000000000 wm4.1.08074afb2ccc9da754fae8e3ee0f577b
+                           .group:0000000000000000 wm4.hw_gpio.h.39.abbe53cff9a4c1fb5f1c34960fe1e7aa
+                           .group:0000000000000000 wm4.hw_ioc.h.39.7722cce4a3cc0e3380c3cd135aee3b21
+                           .group:0000000000000000 wm4.hw_memmap.h.39.19283c377d449c9bca5fdd8ccb62628c
+                           .group:0000000000000000 wm4.features.h.22.6a4ca7cd053637cc1d0db6c16f39b2d7
+                           .group:0000000000000000 wm4._default_types.h.15.8b2cb27e528498f8ff711db085d6e489
+                           .group:0000000000000000 wm4.stdint.h.20.796e373797e732130a803d4c0338fa1b
+                           .group:0000000000000000 wm4.stdbool.h.29.1c9ee6859ce8145f7838a4f2549ccec2
+                           .group:0000000000000000 wm4.hw_types.h.67.b10589a0806dcc2d274d6fab6b736519
+                           .group:0000000000000000 wm4.ioc.h.41.7444fe7016a1d045dd9fea497d615b28
+                           .group:0000000000000000 wm4.gpio.h.41.604fa3d9f70fb140a75ada50bffeaeff
+
+NO UNDEFINED SYMBOLS

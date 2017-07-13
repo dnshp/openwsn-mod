@@ -1,0 +1,358 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"techo.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.rodata
+  19              		.align	2
+  22              	rreg_uriquery:
+  23 0000 683D7563 		.ascii	"h=ucb\000"
+  23      6200
+  24 0006 0000     		.align	2
+  27              	infoBoardname:
+  28 0008 43433235 		.ascii	"CC2538\000"
+  28      333800
+  29 000f 00       		.align	2
+  32              	infouCName:
+  33 0010 43433235 		.ascii	"CC2538\000"
+  33      333800
+  34 0017 00       		.align	2
+  37              	infoRadioName:
+  38 0018 43433235 		.ascii	"CC2538 SoC\000"
+  38      33382053 
+  38      6F4300
+  39 0023 00       		.align	2
+  42              	infoStackName:
+  43 0024 4F70656E 		.ascii	"OpenWSN \000"
+  43      57534E20 
+  43      00
+  44 002d 000000   		.text
+  45              		.align	2
+  46              		.global	techo_init
+  47              		.thumb
+  48              		.thumb_func
+  50              	techo_init:
+  51              	.LFB0:
+  52              		.file 1 "build/openmote-cc2538_armgcc/openapps/techo/techo.c"
+   1:build/openmote-cc2538_armgcc/openapps/techo/techo.c **** #include "opendefs.h"
+   2:build/openmote-cc2538_armgcc/openapps/techo/techo.c **** #include "techo.h"
+   3:build/openmote-cc2538_armgcc/openapps/techo/techo.c **** #include "openqueue.h"
+   4:build/openmote-cc2538_armgcc/openapps/techo/techo.c **** #include "openserial.h"
+   5:build/openmote-cc2538_armgcc/openapps/techo/techo.c **** #include "opentcp.h"
+   6:build/openmote-cc2538_armgcc/openapps/techo/techo.c **** 
+   7:build/openmote-cc2538_armgcc/openapps/techo/techo.c **** //=========================== variables =======================================
+   8:build/openmote-cc2538_armgcc/openapps/techo/techo.c **** 
+   9:build/openmote-cc2538_armgcc/openapps/techo/techo.c **** //=========================== prototypes ======================================
+  10:build/openmote-cc2538_armgcc/openapps/techo/techo.c **** 
+  11:build/openmote-cc2538_armgcc/openapps/techo/techo.c **** //=========================== public ==========================================
+  12:build/openmote-cc2538_armgcc/openapps/techo/techo.c **** 
+  13:build/openmote-cc2538_armgcc/openapps/techo/techo.c **** void techo_init() {
+  53              		.loc 1 13 0
+  54              		.cfi_startproc
+  55              		@ args = 0, pretend = 0, frame = 0
+  56              		@ frame_needed = 1, uses_anonymous_args = 0
+  57              		@ link register save eliminated.
+  58 0000 80B4     		push	{r7}
+  59              		.cfi_def_cfa_offset 4
+  60              		.cfi_offset 7, -4
+  61 0002 00AF     		add	r7, sp, #0
+  62              		.cfi_def_cfa_register 7
+  14:build/openmote-cc2538_armgcc/openapps/techo/techo.c **** }
+  63              		.loc 1 14 0
+  64 0004 BD46     		mov	sp, r7
+  65              		@ sp needed
+  66 0006 5DF8047B 		ldr	r7, [sp], #4
+  67 000a 7047     		bx	lr
+  68              		.cfi_endproc
+  69              	.LFE0:
+  71              		.align	2
+  72              		.global	techo_shouldIlisten
+  73              		.thumb
+  74              		.thumb_func
+  76              	techo_shouldIlisten:
+  77              	.LFB1:
+  15:build/openmote-cc2538_armgcc/openapps/techo/techo.c **** 
+  16:build/openmote-cc2538_armgcc/openapps/techo/techo.c **** bool techo_shouldIlisten() {
+  78              		.loc 1 16 0
+  79              		.cfi_startproc
+  80              		@ args = 0, pretend = 0, frame = 0
+  81              		@ frame_needed = 1, uses_anonymous_args = 0
+  82              		@ link register save eliminated.
+  83 000c 80B4     		push	{r7}
+  84              		.cfi_def_cfa_offset 4
+  85              		.cfi_offset 7, -4
+  86 000e 00AF     		add	r7, sp, #0
+  87              		.cfi_def_cfa_register 7
+  17:build/openmote-cc2538_armgcc/openapps/techo/techo.c ****    return TRUE;
+  88              		.loc 1 17 0
+  89 0010 0123     		movs	r3, #1
+  18:build/openmote-cc2538_armgcc/openapps/techo/techo.c **** }
+  90              		.loc 1 18 0
+  91 0012 1846     		mov	r0, r3
+  92 0014 BD46     		mov	sp, r7
+  93              		@ sp needed
+  94 0016 5DF8047B 		ldr	r7, [sp], #4
+  95 001a 7047     		bx	lr
+  96              		.cfi_endproc
+  97              	.LFE1:
+  99              		.align	2
+ 100              		.global	techo_receive
+ 101              		.thumb
+ 102              		.thumb_func
+ 104              	techo_receive:
+ 105              	.LFB2:
+  19:build/openmote-cc2538_armgcc/openapps/techo/techo.c **** 
+  20:build/openmote-cc2538_armgcc/openapps/techo/techo.c **** void techo_receive(OpenQueueEntry_t* msg) {
+ 106              		.loc 1 20 0
+ 107              		.cfi_startproc
+ 108              		@ args = 0, pretend = 0, frame = 16
+ 109              		@ frame_needed = 1, uses_anonymous_args = 0
+ 110 001c 80B5     		push	{r7, lr}
+ 111              		.cfi_def_cfa_offset 8
+ 112              		.cfi_offset 7, -8
+ 113              		.cfi_offset 14, -4
+ 114 001e 84B0     		sub	sp, sp, #16
+ 115              		.cfi_def_cfa_offset 24
+ 116 0020 00AF     		add	r7, sp, #0
+ 117              		.cfi_def_cfa_register 7
+ 118 0022 7860     		str	r0, [r7, #4]
+  21:build/openmote-cc2538_armgcc/openapps/techo/techo.c ****    uint16_t temp_l4_destination_port;
+  22:build/openmote-cc2538_armgcc/openapps/techo/techo.c ****    msg->owner                     = COMPONENT_TECHO;
+ 119              		.loc 1 22 0
+ 120 0024 7B68     		ldr	r3, [r7, #4]
+ 121 0026 2122     		movs	r2, #33
+ 122 0028 5A70     		strb	r2, [r3, #1]
+  23:build/openmote-cc2538_armgcc/openapps/techo/techo.c ****    //reply with the same OpenQueueEntry_t
+  24:build/openmote-cc2538_armgcc/openapps/techo/techo.c ****    msg->creator                   = COMPONENT_TECHO;
+ 123              		.loc 1 24 0
+ 124 002a 7B68     		ldr	r3, [r7, #4]
+ 125 002c 2122     		movs	r2, #33
+ 126 002e 1A70     		strb	r2, [r3]
+  25:build/openmote-cc2538_armgcc/openapps/techo/techo.c ****    msg->l4_protocol               = IANA_TCP;
+ 127              		.loc 1 25 0
+ 128 0030 7B68     		ldr	r3, [r7, #4]
+ 129 0032 0622     		movs	r2, #6
+ 130 0034 5A72     		strb	r2, [r3, #9]
+  26:build/openmote-cc2538_armgcc/openapps/techo/techo.c ****    temp_l4_destination_port       = msg->l4_destination_port;
+ 131              		.loc 1 26 0
+ 132 0036 7B68     		ldr	r3, [r7, #4]
+ 133 0038 DB89     		ldrh	r3, [r3, #14]	@ movhi
+ 134 003a FB81     		strh	r3, [r7, #14]	@ movhi
+  27:build/openmote-cc2538_armgcc/openapps/techo/techo.c ****    msg->l4_destination_port       = msg->l4_sourcePortORicmpv6Type;
+ 135              		.loc 1 27 0
+ 136 003c 7B68     		ldr	r3, [r7, #4]
+ 137 003e 9A89     		ldrh	r2, [r3, #12]
+ 138 0040 7B68     		ldr	r3, [r7, #4]
+ 139 0042 DA81     		strh	r2, [r3, #14]	@ movhi
+  28:build/openmote-cc2538_armgcc/openapps/techo/techo.c ****    msg->l4_sourcePortORicmpv6Type = temp_l4_destination_port;
+ 140              		.loc 1 28 0
+ 141 0044 7B68     		ldr	r3, [r7, #4]
+ 142 0046 FA89     		ldrh	r2, [r7, #14]	@ movhi
+ 143 0048 9A81     		strh	r2, [r3, #12]	@ movhi
+  29:build/openmote-cc2538_armgcc/openapps/techo/techo.c ****    if (opentcp_send(msg)==E_FAIL) {
+ 144              		.loc 1 29 0
+ 145 004a 7868     		ldr	r0, [r7, #4]
+ 146 004c FFF7FEFF 		bl	opentcp_send
+ 147 0050 0346     		mov	r3, r0
+ 148 0052 012B     		cmp	r3, #1
+ 149 0054 02D1     		bne	.L4
+  30:build/openmote-cc2538_armgcc/openapps/techo/techo.c ****       openqueue_freePacketBuffer(msg);
+ 150              		.loc 1 30 0
+ 151 0056 7868     		ldr	r0, [r7, #4]
+ 152 0058 FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 153              	.L4:
+  31:build/openmote-cc2538_armgcc/openapps/techo/techo.c ****    }
+  32:build/openmote-cc2538_armgcc/openapps/techo/techo.c **** }
+ 154              		.loc 1 32 0
+ 155 005c 1037     		adds	r7, r7, #16
+ 156 005e BD46     		mov	sp, r7
+ 157              		@ sp needed
+ 158 0060 80BD     		pop	{r7, pc}
+ 159              		.cfi_endproc
+ 160              	.LFE2:
+ 162 0062 00BF     		.align	2
+ 163              		.global	techo_sendDone
+ 164              		.thumb
+ 165              		.thumb_func
+ 167              	techo_sendDone:
+ 168              	.LFB3:
+  33:build/openmote-cc2538_armgcc/openapps/techo/techo.c **** 
+  34:build/openmote-cc2538_armgcc/openapps/techo/techo.c **** void techo_sendDone(OpenQueueEntry_t* msg, owerror_t error) {
+ 169              		.loc 1 34 0
+ 170              		.cfi_startproc
+ 171              		@ args = 0, pretend = 0, frame = 8
+ 172              		@ frame_needed = 1, uses_anonymous_args = 0
+ 173 0064 80B5     		push	{r7, lr}
+ 174              		.cfi_def_cfa_offset 8
+ 175              		.cfi_offset 7, -8
+ 176              		.cfi_offset 14, -4
+ 177 0066 82B0     		sub	sp, sp, #8
+ 178              		.cfi_def_cfa_offset 16
+ 179 0068 00AF     		add	r7, sp, #0
+ 180              		.cfi_def_cfa_register 7
+ 181 006a 7860     		str	r0, [r7, #4]
+ 182 006c 0B46     		mov	r3, r1
+ 183 006e FB70     		strb	r3, [r7, #3]
+  35:build/openmote-cc2538_armgcc/openapps/techo/techo.c ****    msg->owner = COMPONENT_TECHO;
+ 184              		.loc 1 35 0
+ 185 0070 7B68     		ldr	r3, [r7, #4]
+ 186 0072 2122     		movs	r2, #33
+ 187 0074 5A70     		strb	r2, [r3, #1]
+  36:build/openmote-cc2538_armgcc/openapps/techo/techo.c ****    if (msg->creator!=COMPONENT_TECHO) {
+ 188              		.loc 1 36 0
+ 189 0076 7B68     		ldr	r3, [r7, #4]
+ 190 0078 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 191 007a 212B     		cmp	r3, #33
+ 192 007c 05D0     		beq	.L7
+  37:build/openmote-cc2538_armgcc/openapps/techo/techo.c ****       openserial_printError(COMPONENT_TECHO,ERR_UNEXPECTED_SENDDONE,
+ 193              		.loc 1 37 0
+ 194 007e 2120     		movs	r0, #33
+ 195 0080 2B21     		movs	r1, #43
+ 196 0082 0022     		movs	r2, #0
+ 197 0084 0023     		movs	r3, #0
+ 198 0086 FFF7FEFF 		bl	openserial_printError
+ 199              	.L7:
+  38:build/openmote-cc2538_armgcc/openapps/techo/techo.c ****                             (errorparameter_t)0,
+  39:build/openmote-cc2538_armgcc/openapps/techo/techo.c ****                             (errorparameter_t)0);
+  40:build/openmote-cc2538_armgcc/openapps/techo/techo.c ****    }
+  41:build/openmote-cc2538_armgcc/openapps/techo/techo.c ****    //close TCP session, but keep listening
+  42:build/openmote-cc2538_armgcc/openapps/techo/techo.c ****    opentcp_close();
+ 200              		.loc 1 42 0
+ 201 008a FFF7FEFF 		bl	opentcp_close
+  43:build/openmote-cc2538_armgcc/openapps/techo/techo.c ****    openqueue_freePacketBuffer(msg);
+ 202              		.loc 1 43 0
+ 203 008e 7868     		ldr	r0, [r7, #4]
+ 204 0090 FFF7FEFF 		bl	openqueue_freePacketBuffer
+  44:build/openmote-cc2538_armgcc/openapps/techo/techo.c **** }
+ 205              		.loc 1 44 0
+ 206 0094 0837     		adds	r7, r7, #8
+ 207 0096 BD46     		mov	sp, r7
+ 208              		@ sp needed
+ 209 0098 80BD     		pop	{r7, pc}
+ 210              		.cfi_endproc
+ 211              	.LFE3:
+ 213 009a 00BF     		.align	2
+ 214              		.global	techo_connectDone
+ 215              		.thumb
+ 216              		.thumb_func
+ 218              	techo_connectDone:
+ 219              	.LFB4:
+  45:build/openmote-cc2538_armgcc/openapps/techo/techo.c **** 
+  46:build/openmote-cc2538_armgcc/openapps/techo/techo.c **** void techo_connectDone(owerror_t error) {
+ 220              		.loc 1 46 0
+ 221              		.cfi_startproc
+ 222              		@ args = 0, pretend = 0, frame = 8
+ 223              		@ frame_needed = 1, uses_anonymous_args = 0
+ 224              		@ link register save eliminated.
+ 225 009c 80B4     		push	{r7}
+ 226              		.cfi_def_cfa_offset 4
+ 227              		.cfi_offset 7, -4
+ 228 009e 83B0     		sub	sp, sp, #12
+ 229              		.cfi_def_cfa_offset 16
+ 230 00a0 00AF     		add	r7, sp, #0
+ 231              		.cfi_def_cfa_register 7
+ 232 00a2 0346     		mov	r3, r0
+ 233 00a4 FB71     		strb	r3, [r7, #7]
+  47:build/openmote-cc2538_armgcc/openapps/techo/techo.c **** }
+ 234              		.loc 1 47 0
+ 235 00a6 0C37     		adds	r7, r7, #12
+ 236 00a8 BD46     		mov	sp, r7
+ 237              		@ sp needed
+ 238 00aa 5DF8047B 		ldr	r7, [sp], #4
+ 239 00ae 7047     		bx	lr
+ 240              		.cfi_endproc
+ 241              	.LFE4:
+ 243              		.align	2
+ 244              		.global	techo_debugPrint
+ 245              		.thumb
+ 246              		.thumb_func
+ 248              	techo_debugPrint:
+ 249              	.LFB5:
+  48:build/openmote-cc2538_armgcc/openapps/techo/techo.c **** 
+  49:build/openmote-cc2538_armgcc/openapps/techo/techo.c **** bool techo_debugPrint() {
+ 250              		.loc 1 49 0
+ 251              		.cfi_startproc
+ 252              		@ args = 0, pretend = 0, frame = 0
+ 253              		@ frame_needed = 1, uses_anonymous_args = 0
+ 254              		@ link register save eliminated.
+ 255 00b0 80B4     		push	{r7}
+ 256              		.cfi_def_cfa_offset 4
+ 257              		.cfi_offset 7, -4
+ 258 00b2 00AF     		add	r7, sp, #0
+ 259              		.cfi_def_cfa_register 7
+  50:build/openmote-cc2538_armgcc/openapps/techo/techo.c ****    return FALSE;
+ 260              		.loc 1 50 0
+ 261 00b4 0023     		movs	r3, #0
+  51:build/openmote-cc2538_armgcc/openapps/techo/techo.c **** }
+ 262              		.loc 1 51 0
+ 263 00b6 1846     		mov	r0, r3
+ 264 00b8 BD46     		mov	sp, r7
+ 265              		@ sp needed
+ 266 00ba 5DF8047B 		ldr	r7, [sp], #4
+ 267 00be 7047     		bx	lr
+ 268              		.cfi_endproc
+ 269              	.LFE5:
+ 271              	.Letext0:
+ 272              		.file 2 "/usr/include/newlib/machine/_default_types.h"
+ 273              		.file 3 "/usr/include/newlib/stdint.h"
+ 274              		.file 4 "inc/opendefs.h"
+ 275              		.file 5 "bsp/boards/openmote-cc2538/board_info.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 techo.c
+     /tmp/ccfQizdE.s:19     .rodata:0000000000000000 $d
+     /tmp/ccfQizdE.s:22     .rodata:0000000000000000 rreg_uriquery
+     /tmp/ccfQizdE.s:27     .rodata:0000000000000008 infoBoardname
+     /tmp/ccfQizdE.s:32     .rodata:0000000000000010 infouCName
+     /tmp/ccfQizdE.s:37     .rodata:0000000000000018 infoRadioName
+     /tmp/ccfQizdE.s:42     .rodata:0000000000000024 infoStackName
+     /tmp/ccfQizdE.s:45     .text:0000000000000000 $t
+     /tmp/ccfQizdE.s:50     .text:0000000000000000 techo_init
+     /tmp/ccfQizdE.s:76     .text:000000000000000c techo_shouldIlisten
+     /tmp/ccfQizdE.s:104    .text:000000000000001c techo_receive
+     /tmp/ccfQizdE.s:167    .text:0000000000000064 techo_sendDone
+     /tmp/ccfQizdE.s:218    .text:000000000000009c techo_connectDone
+     /tmp/ccfQizdE.s:248    .text:00000000000000b0 techo_debugPrint
+                     .debug_frame:0000000000000010 $d
+                           .group:0000000000000000 wm4.1.08074afb2ccc9da754fae8e3ee0f577b
+                           .group:0000000000000000 wm4.features.h.22.6a4ca7cd053637cc1d0db6c16f39b2d7
+                           .group:0000000000000000 wm4._default_types.h.15.8b2cb27e528498f8ff711db085d6e489
+                           .group:0000000000000000 wm4.stdint.h.20.796e373797e732130a803d4c0338fa1b
+                           .group:0000000000000000 wm4.toolchain_defs.h.2.e5fd326231d01413e5361944b26cde07
+                           .group:0000000000000000 wm4.newlib.h.8.fec018e441fee7bfa1923812ad010f97
+                           .group:0000000000000000 wm4.config.h.212.4163ef2871a828c674038d036b081cfd
+                           .group:0000000000000000 wm4._ansi.h.23.5644b60c990a4800b02a6e654e88f93a
+                           .group:0000000000000000 wm4.stddef.h.39.daafd3d79fe2f3a84d2d73d7d4e706f8
+                           .group:0000000000000000 wm4.lock.h.2.9bc98482741e5e2a9450b12934a684ea
+                           .group:0000000000000000 wm4._types.h.54.d3d34a3b7f3cc230cd159baf022b4b08
+                           .group:0000000000000000 wm4.stddef.h.158.61317cdbfb4026324507d123a50b0fd6
+                           .group:0000000000000000 wm4.reent.h.17.8bd9e4098e0428508c282cad794fae43
+                           .group:0000000000000000 wm4.cdefs.h.47.339223046f475c9f2d5db3a9118d7c65
+                           .group:0000000000000000 wm4.string.h.15.dab3980bf35408a4c507182805e2de3a
+                           .group:0000000000000000 wm4.stddef.h.158.a7efb00f6cbc6f43213b50e183c9830c
+                           .group:0000000000000000 wm4.string.h.126.6ff3aa59129e7f66b2c273baf353e066
+                           .group:0000000000000000 wm4.stdbool.h.29.1c9ee6859ce8145f7838a4f2549ccec2
+                           .group:0000000000000000 wm4.hw_types.h.67.b10589a0806dcc2d274d6fab6b736519
+                           .group:0000000000000000 wm4.interrupt.h.41.272fc4ec0e276feb439e7974d0f77eaf
+                           .group:0000000000000000 wm4.board_info.h.22.aeb00002354a4949fff54190040e37af
+                           .group:0000000000000000 wm4.opendefs.h.23.16dafe2a30b31097968a5d4db894173a
+                           .group:0000000000000000 wm4.IEEE802154.h.2.38fb510ed33a23a9a0660164e6dfab69
+                           .group:0000000000000000 wm4.openserial.h.9.0a357d13b4113cc69ceb77572df48861
+                           .group:0000000000000000 wm4.opentimers.h.8.044f2d040a134cdb0ddb58adfc2508be
+
+UNDEFINED SYMBOLS
+opentcp_send
+openqueue_freePacketBuffer
+openserial_printError
+opentcp_close

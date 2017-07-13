@@ -1,0 +1,1003 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"aes.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.global	g_ui8CurrentAESOp
+  19              		.bss
+  22              	g_ui8CurrentAESOp:
+  23 0000 00       		.space	1
+  24              		.text
+  25              		.align	2
+  26              		.global	AESLoadKey
+  27              		.thumb
+  28              		.thumb_func
+  30              	AESLoadKey:
+  31              	.LFB0:
+  32              		.file 1 "build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c"
+   1:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** /******************************************************************************
+   2:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** *  Filename:       aes.c
+   3:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** *  Revised:        $Date: 2013-03-22 16:13:31 +0100 (Fri, 22 Mar 2013) $
+   4:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** *  Revision:       $Revision: 9513 $
+   5:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** *
+   6:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** *  Description:    Support for Hardware AES encryption.
+   7:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** *
+   8:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** *  Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
+   9:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** *
+  10:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** *
+  11:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** *  Redistribution and use in source and binary forms, with or without
+  12:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** *  modification, are permitted provided that the following conditions
+  13:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** *  are met:
+  14:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** *
+  15:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** *    Redistributions of source code must retain the above copyright
+  16:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** *    notice, this list of conditions and the following disclaimer.
+  17:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** *
+  18:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** *    Redistributions in binary form must reproduce the above copyright
+  19:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** *    notice, this list of conditions and the following disclaimer in the
+  20:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** *    documentation and/or other materials provided with the distribution.
+  21:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** *
+  22:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** *    Neither the name of Texas Instruments Incorporated nor the names of
+  23:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** *    its contributors may be used to endorse or promote products derived
+  24:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** *    from this software without specific prior written permission.
+  25:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** *
+  26:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  27:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  28:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  29:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** *  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  30:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** *  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  31:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** *  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  32:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** *  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  33:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** *  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+  34:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  35:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  36:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** *  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  37:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** *
+  38:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** ******************************************************************************/
+  39:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** 
+  40:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //*****************************************************************************
+  41:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //
+  42:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //! \addtogroup aes_api
+  43:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //! @{
+  44:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //
+  45:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //*****************************************************************************
+  46:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** 
+  47:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** #include "aes.h"
+  48:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** 
+  49:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //*****************************************************************************
+  50:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //
+  51:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** // Length of AES ECB block in bytes
+  52:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //
+  53:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //*****************************************************************************
+  54:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** #define AES_ECB_LENGTH  16
+  55:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** 
+  56:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //*****************************************************************************
+  57:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //
+  58:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** // Current AES operation initialized to None
+  59:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //
+  60:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //*****************************************************************************
+  61:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** volatile uint8_t g_ui8CurrentAESOp = AES_NONE;
+  62:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** 
+  63:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** 
+  64:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //*****************************************************************************
+  65:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //
+  66:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //! AESLoadKey writes the key into the Key Ram. Key Ram location must be
+  67:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //! specified.
+  68:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //!
+  69:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //! \param   pui8Key is pointer to AES Key.
+  70:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //! \param   ui8KeyLocation is location in Key RAM.
+  71:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //!
+  72:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //! The \e ui8KeyLocation parameter is an enumerated type which specifies
+  73:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //! the Key Ram locationin which the key is stored.
+  74:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //! This parameter can have any of the following values:
+  75:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //!
+  76:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //! - \b KEY_AREA_0
+  77:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //! - \b KEY_AREA_1
+  78:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //! - \b KEY_AREA_2,
+  79:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //! - \b KEY_AREA_3,
+  80:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //! - \b KEY_AREA_4,
+  81:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //! - \b KEY_AREA_5,
+  82:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //! - \b KEY_AREA_6,
+  83:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //! - \b KEY_AREA_7
+  84:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //!
+  85:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //! The pointer \e pui8Key has the address where the Key is stored.
+  86:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //!
+  87:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //! \return  AES_SUCCESS if successful.
+  88:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //
+  89:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //*****************************************************************************
+  90:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** uint8_t AESLoadKey(uint8_t *pui8Key , uint8_t ui8KeyLocation)
+  91:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** {
+  33              		.loc 1 91 0
+  34              		.cfi_startproc
+  35              		@ args = 0, pretend = 0, frame = 16
+  36              		@ frame_needed = 1, uses_anonymous_args = 0
+  37 0000 80B5     		push	{r7, lr}
+  38              		.cfi_def_cfa_offset 8
+  39              		.cfi_offset 7, -8
+  40              		.cfi_offset 14, -4
+  41 0002 84B0     		sub	sp, sp, #16
+  42              		.cfi_def_cfa_offset 24
+  43 0004 00AF     		add	r7, sp, #0
+  44              		.cfi_def_cfa_register 7
+  45 0006 7860     		str	r0, [r7, #4]
+  46 0008 0B46     		mov	r3, r1
+  47 000a FB70     		strb	r3, [r7, #3]
+  92:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     static uint32_t ui32temp[4];
+  93:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     uint8_t * pui8temp = (uint8_t *)ui32temp;
+  48              		.loc 1 93 0
+  49 000c 40F20003 		movw	r3, #:lower16:ui32temp.4176
+  50 0010 C0F20003 		movt	r3, #:upper16:ui32temp.4176
+  51 0014 BB60     		str	r3, [r7, #8]
+  94:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     uint8_t i;
+  95:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** 
+  96:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     g_ui8CurrentAESOp = AES_KEYL0AD;
+  52              		.loc 1 96 0
+  53 0016 40F20003 		movw	r3, #:lower16:g_ui8CurrentAESOp
+  54 001a C0F20003 		movt	r3, #:upper16:g_ui8CurrentAESOp
+  55 001e 0122     		movs	r2, #1
+  56 0020 1A70     		strb	r2, [r3]
+  97:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     // The key address needs  to be 4 byte aligned
+  98:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     for(i = 0; i < KEY_BLENGTH; i++)
+  57              		.loc 1 98 0
+  58 0022 0023     		movs	r3, #0
+  59 0024 FB73     		strb	r3, [r7, #15]
+  60 0026 0AE0     		b	.L2
+  61              	.L3:
+  99:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     {
+ 100:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****         pui8temp[i] = pui8Key[i];
+  62              		.loc 1 100 0 discriminator 2
+  63 0028 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+  64 002a BA68     		ldr	r2, [r7, #8]
+  65 002c 1344     		add	r3, r3, r2
+  66 002e FA7B     		ldrb	r2, [r7, #15]	@ zero_extendqisi2
+  67 0030 7968     		ldr	r1, [r7, #4]
+  68 0032 0A44     		add	r2, r2, r1
+  69 0034 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+  70 0036 1A70     		strb	r2, [r3]
+  98:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     {
+  71              		.loc 1 98 0 discriminator 2
+  72 0038 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+  73 003a 0133     		adds	r3, r3, #1
+  74 003c FB73     		strb	r3, [r7, #15]
+  75              	.L2:
+  98:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     {
+  76              		.loc 1 98 0 is_stmt 0 discriminator 1
+  77 003e FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+  78 0040 0F2B     		cmp	r3, #15
+  79 0042 F1D9     		bls	.L3
+ 101:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     }
+ 102:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     IntDisable(INT_AES);
+  80              		.loc 1 102 0 is_stmt 1
+  81 0044 9F20     		movs	r0, #159
+  82 0046 FFF7FEFF 		bl	IntDisable
+ 103:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** 
+ 104:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     // workaround for AES registers not retained after PM2
+ 105:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     HWREG(AES_CTRL_INT_CFG) |= AES_CTRL_INT_CFG_LEVEL;
+  83              		.loc 1 105 0
+  84 004a 4BF28073 		movw	r3, #46976
+  85 004e C4F20803 		movt	r3, 16392
+  86 0052 4BF28072 		movw	r2, #46976
+  87 0056 C4F20802 		movt	r2, 16392
+  88 005a 1268     		ldr	r2, [r2]
+  89 005c 42F00102 		orr	r2, r2, #1
+  90 0060 1A60     		str	r2, [r3]
+ 106:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     HWREG(AES_CTRL_INT_EN) |= (AES_CTRL_INT_EN_DMA_IN_DONE |
+  91              		.loc 1 106 0
+  92 0062 4BF28473 		movw	r3, #46980
+  93 0066 C4F20803 		movt	r3, 16392
+  94 006a 4BF28472 		movw	r2, #46980
+  95 006e C4F20802 		movt	r2, 16392
+  96 0072 1268     		ldr	r2, [r2]
+  97 0074 42F00302 		orr	r2, r2, #3
+  98 0078 1A60     		str	r2, [r3]
+ 107:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****                                AES_CTRL_INT_EN_RESULT_AV);
+ 108:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** 
+ 109:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     // configure master control module
+ 110:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     HWREG(AES_CTRL_ALG_SEL) &= (~AES_CTRL_ALG_SEL_KEYSTORE);
+  99              		.loc 1 110 0
+ 100 007a 4FF43743 		mov	r3, #46848
+ 101 007e C4F20803 		movt	r3, 16392
+ 102 0082 4FF43742 		mov	r2, #46848
+ 103 0086 C4F20802 		movt	r2, 16392
+ 104 008a 1268     		ldr	r2, [r2]
+ 105 008c 22F00102 		bic	r2, r2, #1
+ 106 0090 1A60     		str	r2, [r3]
+ 111:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     HWREG(AES_CTRL_ALG_SEL) |= AES_CTRL_ALG_SEL_KEYSTORE;
+ 107              		.loc 1 111 0
+ 108 0092 4FF43743 		mov	r3, #46848
+ 109 0096 C4F20803 		movt	r3, 16392
+ 110 009a 4FF43742 		mov	r2, #46848
+ 111 009e C4F20802 		movt	r2, 16392
+ 112 00a2 1268     		ldr	r2, [r2]
+ 113 00a4 42F00102 		orr	r2, r2, #1
+ 114 00a8 1A60     		str	r2, [r3]
+ 112:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** 
+ 113:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     // clear any outstanding events
+ 114:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     HWREG(AES_CTRL_INT_CLR) |= (AES_CTRL_INT_CLR_DMA_IN_DONE |
+ 115              		.loc 1 114 0
+ 116 00aa 4BF28873 		movw	r3, #46984
+ 117 00ae C4F20803 		movt	r3, 16392
+ 118 00b2 4BF28872 		movw	r2, #46984
+ 119 00b6 C4F20802 		movt	r2, 16392
+ 120 00ba 1268     		ldr	r2, [r2]
+ 121 00bc 42F00302 		orr	r2, r2, #3
+ 122 00c0 1A60     		str	r2, [r3]
+ 115:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****                                 AES_CTRL_INT_CLR_RESULT_AV);
+ 116:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** 
+ 117:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     //configure key store module (area, size)
+ 118:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     HWREG(AES_KEY_STORE_SIZE) &= KEY_STORE_SIZE_BITS;
+ 123              		.loc 1 118 0
+ 124 00c2 4BF20843 		movw	r3, #46088
+ 125 00c6 C4F20803 		movt	r3, 16392
+ 126 00ca 4BF20842 		movw	r2, #46088
+ 127 00ce C4F20802 		movt	r2, 16392
+ 128 00d2 1268     		ldr	r2, [r2]
+ 129 00d4 02F00302 		and	r2, r2, #3
+ 130 00d8 1A60     		str	r2, [r3]
+ 119:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** 
+ 120:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     // 128-bit key size
+ 121:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     HWREG(AES_KEY_STORE_SIZE) |= KEY_STORE_SIZE_128;
+ 131              		.loc 1 121 0
+ 132 00da 4BF20843 		movw	r3, #46088
+ 133 00de C4F20803 		movt	r3, 16392
+ 134 00e2 4BF20842 		movw	r2, #46088
+ 135 00e6 C4F20802 		movt	r2, 16392
+ 136 00ea 1268     		ldr	r2, [r2]
+ 137 00ec 42F00102 		orr	r2, r2, #1
+ 138 00f0 1A60     		str	r2, [r3]
+ 122:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** 
+ 123:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     // enable keys to write (e.g. Key 0)
+ 124:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     HWREG(AES_KEY_STORE_WRITE_AREA) = (0x00000001 << ui8KeyLocation);
+ 139              		.loc 1 124 0
+ 140 00f2 4FF43443 		mov	r3, #46080
+ 141 00f6 C4F20803 		movt	r3, 16392
+ 142 00fa FA78     		ldrb	r2, [r7, #3]	@ zero_extendqisi2
+ 143 00fc 0121     		movs	r1, #1
+ 144 00fe 01FA02F2 		lsl	r2, r1, r2
+ 145 0102 1A60     		str	r2, [r3]
+ 125:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** 
+ 126:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** 
+ 127:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     // configure DMAC
+ 128:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     // enable DMA channel 0
+ 129:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     HWREG(AES_DMAC_CH0_CTRL) |= 0x000000001;
+ 146              		.loc 1 129 0
+ 147 0104 4FF43043 		mov	r3, #45056
+ 148 0108 C4F20803 		movt	r3, 16392
+ 149 010c 4FF43042 		mov	r2, #45056
+ 150 0110 C4F20802 		movt	r2, 16392
+ 151 0114 1268     		ldr	r2, [r2]
+ 152 0116 42F00102 		orr	r2, r2, #1
+ 153 011a 1A60     		str	r2, [r3]
+ 130:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** 
+ 131:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     // base address of the key in ext. memory
+ 132:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     HWREG(AES_DMAC_CH0_EXTADDR) = (uint32_t)pui8temp;
+ 154              		.loc 1 132 0
+ 155 011c 4BF20403 		movw	r3, #45060
+ 156 0120 C4F20803 		movt	r3, 16392
+ 157 0124 BA68     		ldr	r2, [r7, #8]
+ 158 0126 1A60     		str	r2, [r3]
+ 133:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** 
+ 134:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     // total key length in bytes (e.g. 16 for 1 x 128-bit key)
+ 135:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     HWREG(AES_DMAC_CH0_DMALENGTH) = 0x10;
+ 159              		.loc 1 135 0
+ 160 0128 4BF20C03 		movw	r3, #45068
+ 161 012c C4F20803 		movt	r3, 16392
+ 162 0130 1022     		movs	r2, #16
+ 163 0132 1A60     		str	r2, [r3]
+ 164              	.L4:
+ 136:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** 
+ 137:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     // wait for operation completed
+ 138:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     do
+ 139:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     {
+ 140:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****         ASM_NOP;
+ 165              		.loc 1 140 0 discriminator 1
+ 166              	@ 140 "build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c" 1
+ 167 0134 00BF     		NOP
+ 168              	@ 0 "" 2
+ 141:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     }
+ 142:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     while((!(HWREG(AES_CTRL_INT_STAT) & AES_CTRL_INT_STAT_RESULT_AV)));
+ 169              		.loc 1 142 0 discriminator 1
+ 170              		.thumb
+ 171 0136 4BF29073 		movw	r3, #46992
+ 172 013a C4F20803 		movt	r3, 16392
+ 173 013e 1B68     		ldr	r3, [r3]
+ 174 0140 03F00103 		and	r3, r3, #1
+ 175 0144 002B     		cmp	r3, #0
+ 176 0146 F5D0     		beq	.L4
+ 143:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** 
+ 144:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     // check for absence of errors in DMA and key store
+ 145:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     if((HWREG(AES_CTRL_INT_STAT) & AES_CTRL_INT_STAT_DMA_BUS_ERR))
+ 177              		.loc 1 145 0
+ 178 0148 4BF29073 		movw	r3, #46992
+ 179 014c C4F20803 		movt	r3, 16392
+ 180 0150 1B68     		ldr	r3, [r3]
+ 181 0152 002B     		cmp	r3, #0
+ 182 0154 0DDA     		bge	.L5
+ 146:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     {
+ 147:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****         HWREG(AES_CTRL_INT_CLR) |= AES_CTRL_INT_CLR_DMA_BUS_ERR;
+ 183              		.loc 1 147 0
+ 184 0156 4BF28873 		movw	r3, #46984
+ 185 015a C4F20803 		movt	r3, 16392
+ 186 015e 4BF28872 		movw	r2, #46984
+ 187 0162 C4F20802 		movt	r2, 16392
+ 188 0166 1268     		ldr	r2, [r2]
+ 189 0168 42F00042 		orr	r2, r2, #-2147483648
+ 190 016c 1A60     		str	r2, [r3]
+ 148:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****         return (AES_DMA_BUS_ERROR);
+ 191              		.loc 1 148 0
+ 192 016e 0323     		movs	r3, #3
+ 193 0170 4EE0     		b	.L6
+ 194              	.L5:
+ 149:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     }
+ 150:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     if((HWREG(AES_CTRL_INT_STAT) & AES_CTRL_INT_STAT_KEY_ST_WR_ERR))
+ 195              		.loc 1 150 0
+ 196 0172 4BF29073 		movw	r3, #46992
+ 197 0176 C4F20803 		movt	r3, 16392
+ 198 017a 1B68     		ldr	r3, [r3]
+ 199 017c 03F08043 		and	r3, r3, #1073741824
+ 200 0180 002B     		cmp	r3, #0
+ 201 0182 0DD0     		beq	.L7
+ 151:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     {
+ 152:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****         HWREG(AES_CTRL_INT_CLR) |= AES_CTRL_INT_CLR_KEY_ST_WR_ERR;
+ 202              		.loc 1 152 0
+ 203 0184 4BF28873 		movw	r3, #46984
+ 204 0188 C4F20803 		movt	r3, 16392
+ 205 018c 4BF28872 		movw	r2, #46984
+ 206 0190 C4F20802 		movt	r2, 16392
+ 207 0194 1268     		ldr	r2, [r2]
+ 208 0196 42F08042 		orr	r2, r2, #1073741824
+ 209 019a 1A60     		str	r2, [r3]
+ 153:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****         return (AES_KEYSTORE_WRITE_ERROR);
+ 210              		.loc 1 153 0
+ 211 019c 0223     		movs	r3, #2
+ 212 019e 37E0     		b	.L6
+ 213              	.L7:
+ 154:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     }
+ 155:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** 
+ 156:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     // acknowledge the interrupt
+ 157:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     HWREG(AES_CTRL_INT_CLR) |= (AES_CTRL_INT_CLR_DMA_IN_DONE |
+ 214              		.loc 1 157 0
+ 215 01a0 4BF28873 		movw	r3, #46984
+ 216 01a4 C4F20803 		movt	r3, 16392
+ 217 01a8 4BF28872 		movw	r2, #46984
+ 218 01ac C4F20802 		movt	r2, 16392
+ 219 01b0 1268     		ldr	r2, [r2]
+ 220 01b2 42F00302 		orr	r2, r2, #3
+ 221 01b6 1A60     		str	r2, [r3]
+ 158:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****                                 AES_CTRL_INT_CLR_RESULT_AV);
+ 159:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** 
+ 160:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     // disable master control/DMA clock
+ 161:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     HWREG(AES_CTRL_ALG_SEL) = 0x00000000;
+ 222              		.loc 1 161 0
+ 223 01b8 4FF43743 		mov	r3, #46848
+ 224 01bc C4F20803 		movt	r3, 16392
+ 225 01c0 0022     		movs	r2, #0
+ 226 01c2 1A60     		str	r2, [r3]
+ 162:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** 
+ 163:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     // check status, if error return error code
+ 164:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     if((HWREG(AES_KEY_STORE_WRITTEN_AREA) & 0x7) != 0x1)
+ 227              		.loc 1 164 0
+ 228 01c4 4BF20443 		movw	r3, #46084
+ 229 01c8 C4F20803 		movt	r3, 16392
+ 230 01cc 1B68     		ldr	r3, [r3]
+ 231 01ce 03F00703 		and	r3, r3, #7
+ 232 01d2 012B     		cmp	r3, #1
+ 233 01d4 07D0     		beq	.L8
+ 165:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     {
+ 166:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****         g_ui8CurrentAESOp = AES_NONE;
+ 234              		.loc 1 166 0
+ 235 01d6 40F20003 		movw	r3, #:lower16:g_ui8CurrentAESOp
+ 236 01da C0F20003 		movt	r3, #:upper16:g_ui8CurrentAESOp
+ 237 01de 0022     		movs	r2, #0
+ 238 01e0 1A70     		strb	r2, [r3]
+ 167:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****         return (AES_KEYSTORE_WRITE_ERROR);
+ 239              		.loc 1 167 0
+ 240 01e2 0223     		movs	r3, #2
+ 241 01e4 14E0     		b	.L6
+ 242              	.L8:
+ 168:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     }
+ 169:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** 
+ 170:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     for(i = 0; i < KEY_BLENGTH; i++)
+ 243              		.loc 1 170 0
+ 244 01e6 0023     		movs	r3, #0
+ 245 01e8 FB73     		strb	r3, [r7, #15]
+ 246 01ea 07E0     		b	.L9
+ 247              	.L10:
+ 171:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     {
+ 172:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****         pui8temp[i] = 0;
+ 248              		.loc 1 172 0 discriminator 2
+ 249 01ec FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 250 01ee BA68     		ldr	r2, [r7, #8]
+ 251 01f0 1344     		add	r3, r3, r2
+ 252 01f2 0022     		movs	r2, #0
+ 253 01f4 1A70     		strb	r2, [r3]
+ 170:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     {
+ 254              		.loc 1 170 0 discriminator 2
+ 255 01f6 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 256 01f8 0133     		adds	r3, r3, #1
+ 257 01fa FB73     		strb	r3, [r7, #15]
+ 258              	.L9:
+ 170:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     {
+ 259              		.loc 1 170 0 is_stmt 0 discriminator 1
+ 260 01fc FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 261 01fe 0F2B     		cmp	r3, #15
+ 262 0200 F4D9     		bls	.L10
+ 173:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     }
+ 174:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** 
+ 175:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     g_ui8CurrentAESOp = AES_NONE;
+ 263              		.loc 1 175 0 is_stmt 1
+ 264 0202 40F20003 		movw	r3, #:lower16:g_ui8CurrentAESOp
+ 265 0206 C0F20003 		movt	r3, #:upper16:g_ui8CurrentAESOp
+ 266 020a 0022     		movs	r2, #0
+ 267 020c 1A70     		strb	r2, [r3]
+ 176:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     return (AES_SUCCESS);
+ 268              		.loc 1 176 0
+ 269 020e 0023     		movs	r3, #0
+ 270              	.L6:
+ 177:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** }
+ 271              		.loc 1 177 0
+ 272 0210 1846     		mov	r0, r3
+ 273 0212 1037     		adds	r7, r7, #16
+ 274 0214 BD46     		mov	sp, r7
+ 275              		@ sp needed
+ 276 0216 80BD     		pop	{r7, pc}
+ 277              		.cfi_endproc
+ 278              	.LFE0:
+ 280              		.align	2
+ 281              		.global	AESECBStart
+ 282              		.thumb
+ 283              		.thumb_func
+ 285              	AESECBStart:
+ 286              	.LFB1:
+ 178:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** 
+ 179:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //*****************************************************************************
+ 180:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //
+ 181:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //! AESECBStart starts an AES-ECB operation.
+ 182:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //!
+ 183:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //! \param pui8MsgIn is pointer to input data.
+ 184:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //! \param pui8MsgOut is pointer to output data.
+ 185:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //! \param ui8KeyLocation is the location in Key RAM.
+ 186:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //! \param ui8Encrypt is set 'true' to ui8Encrypt or set 'false' to decrypt.
+ 187:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //! \param ui8IntEnable is set 'true' to enable AES interrupts or 'false' to
+ 188:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //! disable AES interrupt.
+ 189:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //!
+ 190:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //! The \e ui8KeyLocation parameter is an enumerated type which specifies
+ 191:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //! the Key Ram location in which the key is stored.
+ 192:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //! This parameter can have any of the following values:
+ 193:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //!
+ 194:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //! - \b KEY_AREA_0
+ 195:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //! - \b KEY_AREA_1
+ 196:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //! - \b KEY_AREA_2,
+ 197:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //! - \b KEY_AREA_3,
+ 198:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //! - \b KEY_AREA_4,
+ 199:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //! - \b KEY_AREA_5,
+ 200:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //! - \b KEY_AREA_6,
+ 201:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //! - \b KEY_AREA_7
+ 202:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //!
+ 203:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //! \return  AES_SUCCESS if successful.
+ 204:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //
+ 205:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //*****************************************************************************
+ 206:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** uint8_t AESECBStart(uint8_t *pui8MsgIn,
+ 207:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****                     uint8_t *pui8MsgOut,
+ 208:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****                     uint8_t ui8KeyLocation,
+ 209:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****                     uint8_t ui8Encrypt,
+ 210:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****                     uint8_t ui8IntEnable)
+ 211:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** {
+ 287              		.loc 1 211 0
+ 288              		.cfi_startproc
+ 289              		@ args = 4, pretend = 0, frame = 16
+ 290              		@ frame_needed = 1, uses_anonymous_args = 0
+ 291 0218 80B5     		push	{r7, lr}
+ 292              		.cfi_def_cfa_offset 8
+ 293              		.cfi_offset 7, -8
+ 294              		.cfi_offset 14, -4
+ 295 021a 84B0     		sub	sp, sp, #16
+ 296              		.cfi_def_cfa_offset 24
+ 297 021c 00AF     		add	r7, sp, #0
+ 298              		.cfi_def_cfa_register 7
+ 299 021e F860     		str	r0, [r7, #12]
+ 300 0220 B960     		str	r1, [r7, #8]
+ 301 0222 FA71     		strb	r2, [r7, #7]
+ 302 0224 BB71     		strb	r3, [r7, #6]
+ 212:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     // workaround for AES registers not retained after PM2
+ 213:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     g_ui8CurrentAESOp = AES_ECB;
+ 303              		.loc 1 213 0
+ 304 0226 40F20003 		movw	r3, #:lower16:g_ui8CurrentAESOp
+ 305 022a C0F20003 		movt	r3, #:upper16:g_ui8CurrentAESOp
+ 306 022e 0222     		movs	r2, #2
+ 307 0230 1A70     		strb	r2, [r3]
+ 214:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     HWREG(AES_CTRL_INT_CFG) = AES_CTRL_INT_CFG_LEVEL;
+ 308              		.loc 1 214 0
+ 309 0232 4BF28073 		movw	r3, #46976
+ 310 0236 C4F20803 		movt	r3, 16392
+ 311 023a 0122     		movs	r2, #1
+ 312 023c 1A60     		str	r2, [r3]
+ 215:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     HWREG(AES_CTRL_INT_EN) = AES_CTRL_INT_EN_RESULT_AV;
+ 313              		.loc 1 215 0
+ 314 023e 4BF28473 		movw	r3, #46980
+ 315 0242 C4F20803 		movt	r3, 16392
+ 316 0246 0122     		movs	r2, #1
+ 317 0248 1A60     		str	r2, [r3]
+ 216:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     if(ui8IntEnable)
+ 318              		.loc 1 216 0
+ 319 024a 3B7E     		ldrb	r3, [r7, #24]	@ zero_extendqisi2
+ 320 024c 002B     		cmp	r3, #0
+ 321 024e 05D0     		beq	.L12
+ 217:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     {
+ 218:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****         IntPendClear(INT_AES);
+ 322              		.loc 1 218 0
+ 323 0250 9F20     		movs	r0, #159
+ 324 0252 FFF7FEFF 		bl	IntPendClear
+ 219:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****         IntEnable(INT_AES);
+ 325              		.loc 1 219 0
+ 326 0256 9F20     		movs	r0, #159
+ 327 0258 FFF7FEFF 		bl	IntEnable
+ 328              	.L12:
+ 220:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     }
+ 221:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** 
+ 222:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     // configure the master control module
+ 223:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     // enable the DMA path to the AES engine
+ 224:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     HWREG(AES_CTRL_ALG_SEL) = AES_CTRL_ALG_SEL_AES;
+ 329              		.loc 1 224 0
+ 330 025c 4FF43743 		mov	r3, #46848
+ 331 0260 C4F20803 		movt	r3, 16392
+ 332 0264 0222     		movs	r2, #2
+ 333 0266 1A60     		str	r2, [r3]
+ 225:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     // clear any outstanding events
+ 226:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     HWREG(AES_CTRL_INT_CLR) |= (AES_CTRL_INT_CLR_DMA_IN_DONE |
+ 334              		.loc 1 226 0
+ 335 0268 4BF28873 		movw	r3, #46984
+ 336 026c C4F20803 		movt	r3, 16392
+ 337 0270 4BF28872 		movw	r2, #46984
+ 338 0274 C4F20802 		movt	r2, 16392
+ 339 0278 1268     		ldr	r2, [r2]
+ 340 027a 42F00302 		orr	r2, r2, #3
+ 341 027e 1A60     		str	r2, [r3]
+ 227:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****                                 AES_CTRL_INT_CLR_RESULT_AV);
+ 228:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** 
+ 229:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     HWREG(AES_KEY_STORE_READ_AREA) = (uint32_t)ui8KeyLocation;
+ 342              		.loc 1 229 0
+ 343 0280 4BF20C43 		movw	r3, #46092
+ 344 0284 C4F20803 		movt	r3, 16392
+ 345 0288 FA79     		ldrb	r2, [r7, #7]	@ zero_extendqisi2
+ 346 028a 1A60     		str	r2, [r3]
+ 347              	.L13:
+ 230:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** 
+ 231:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     //wait until key is loaded to the AES module
+ 232:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     do
+ 233:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     {
+ 234:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****         ASM_NOP;
+ 348              		.loc 1 234 0 discriminator 1
+ 349              	@ 234 "build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c" 1
+ 350 028c 00BF     		NOP
+ 351              	@ 0 "" 2
+ 235:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     }
+ 236:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     while((HWREG(AES_KEY_STORE_READ_AREA) & AES_KEY_STORE_READ_AREA_BUSY));
+ 352              		.loc 1 236 0 discriminator 1
+ 353              		.thumb
+ 354 028e 4BF20C43 		movw	r3, #46092
+ 355 0292 C4F20803 		movt	r3, 16392
+ 356 0296 1B68     		ldr	r3, [r3]
+ 357 0298 002B     		cmp	r3, #0
+ 358 029a F7DB     		blt	.L13
+ 237:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** 
+ 238:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     // check for Key Store read error
+ 239:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     if((HWREG(AES_CTRL_INT_STAT)& AES_CTRL_INT_STAT_KEY_ST_RD_ERR))
+ 359              		.loc 1 239 0
+ 360 029c 4BF29073 		movw	r3, #46992
+ 361 02a0 C4F20803 		movt	r3, 16392
+ 362 02a4 1B68     		ldr	r3, [r3]
+ 363 02a6 03F00053 		and	r3, r3, #536870912
+ 364 02aa 002B     		cmp	r3, #0
+ 365 02ac 0DD0     		beq	.L14
+ 240:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     {
+ 241:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****         // Clear Key Store Read error
+ 242:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****         HWREG(AES_CTRL_INT_CLR) |= AES_CTRL_INT_CLR_KEY_ST_RD_ERR;
+ 366              		.loc 1 242 0
+ 367 02ae 4BF28873 		movw	r3, #46984
+ 368 02b2 C4F20803 		movt	r3, 16392
+ 369 02b6 4BF28872 		movw	r2, #46984
+ 370 02ba C4F20802 		movt	r2, 16392
+ 371 02be 1268     		ldr	r2, [r2]
+ 372 02c0 42F00052 		orr	r2, r2, #536870912
+ 373 02c4 1A60     		str	r2, [r3]
+ 243:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****         return (AES_KEYSTORE_READ_ERROR);
+ 374              		.loc 1 243 0
+ 375 02c6 0123     		movs	r3, #1
+ 376 02c8 40E0     		b	.L15
+ 377              	.L14:
+ 244:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     }
+ 245:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** 
+ 246:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     // configure AES engine
+ 247:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     // program AES-ECB-128 encryption and no IV
+ 248:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     if(ui8Encrypt)
+ 378              		.loc 1 248 0
+ 379 02ca BB79     		ldrb	r3, [r7, #6]	@ zero_extendqisi2
+ 380 02cc 002B     		cmp	r3, #0
+ 381 02ce 06D0     		beq	.L16
+ 249:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     {
+ 250:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****         HWREG(AES_AES_CTRL) = 0x0000000C;
+ 382              		.loc 1 250 0
+ 383 02d0 4BF25053 		movw	r3, #46416
+ 384 02d4 C4F20803 		movt	r3, 16392
+ 385 02d8 0C22     		movs	r2, #12
+ 386 02da 1A60     		str	r2, [r3]
+ 387 02dc 05E0     		b	.L17
+ 388              	.L16:
+ 251:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     }
+ 252:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     else
+ 253:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     {
+ 254:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****         HWREG(AES_AES_CTRL) = 0x00000008;
+ 389              		.loc 1 254 0
+ 390 02de 4BF25053 		movw	r3, #46416
+ 391 02e2 C4F20803 		movt	r3, 16392
+ 392 02e6 0822     		movs	r2, #8
+ 393 02e8 1A60     		str	r2, [r3]
+ 394              	.L17:
+ 255:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     }
+ 256:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** 
+ 257:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     // write length of the message (lo)
+ 258:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     HWREG(AES_AES_C_LENGTH_0) = (uint32_t) AES_ECB_LENGTH;
+ 395              		.loc 1 258 0
+ 396 02ea 4BF25453 		movw	r3, #46420
+ 397 02ee C4F20803 		movt	r3, 16392
+ 398 02f2 1022     		movs	r2, #16
+ 399 02f4 1A60     		str	r2, [r3]
+ 259:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     // write length of the message (hi)
+ 260:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     HWREG(AES_AES_C_LENGTH_1) = 0;
+ 400              		.loc 1 260 0
+ 401 02f6 4BF25853 		movw	r3, #46424
+ 402 02fa C4F20803 		movt	r3, 16392
+ 403 02fe 0022     		movs	r2, #0
+ 404 0300 1A60     		str	r2, [r3]
+ 261:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** 
+ 262:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     // configure DMAC
+ 263:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     // enable DMA channel 0
+ 264:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     HWREG(AES_DMAC_CH0_CTRL) = AES_DMAC_CH0_CTRL_EN;
+ 405              		.loc 1 264 0
+ 406 0302 4FF43043 		mov	r3, #45056
+ 407 0306 C4F20803 		movt	r3, 16392
+ 408 030a 0122     		movs	r2, #1
+ 409 030c 1A60     		str	r2, [r3]
+ 265:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** 
+ 266:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     // base address of the input data in ext. memory
+ 267:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     HWREG(AES_DMAC_CH0_EXTADDR) = (uint32_t)pui8MsgIn;
+ 410              		.loc 1 267 0
+ 411 030e 4BF20403 		movw	r3, #45060
+ 412 0312 C4F20803 		movt	r3, 16392
+ 413 0316 FA68     		ldr	r2, [r7, #12]
+ 414 0318 1A60     		str	r2, [r3]
+ 268:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** 
+ 269:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     // input data length in bytes, equal to the message
+ 270:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     HWREG(AES_DMAC_CH0_DMALENGTH) = AES_ECB_LENGTH;
+ 415              		.loc 1 270 0
+ 416 031a 4BF20C03 		movw	r3, #45068
+ 417 031e C4F20803 		movt	r3, 16392
+ 418 0322 1022     		movs	r2, #16
+ 419 0324 1A60     		str	r2, [r3]
+ 271:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** 
+ 272:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     // length (may be non-block size aligned)
+ 273:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     HWREG(AES_DMAC_CH1_CTRL) = AES_DMAC_CH1_CTRL_EN; // enable DMA channel 1
+ 420              		.loc 1 273 0
+ 421 0326 4BF22003 		movw	r3, #45088
+ 422 032a C4F20803 		movt	r3, 16392
+ 423 032e 0122     		movs	r2, #1
+ 424 0330 1A60     		str	r2, [r3]
+ 274:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** 
+ 275:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     // base address of the output data buffer
+ 276:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     HWREG(AES_DMAC_CH1_EXTADDR) = (uint32_t)pui8MsgOut;
+ 425              		.loc 1 276 0
+ 426 0332 4BF22403 		movw	r3, #45092
+ 427 0336 C4F20803 		movt	r3, 16392
+ 428 033a BA68     		ldr	r2, [r7, #8]
+ 429 033c 1A60     		str	r2, [r3]
+ 277:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** 
+ 278:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     // output data length in bytes, equal to the result
+ 279:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     HWREG(AES_DMAC_CH1_DMALENGTH) = AES_ECB_LENGTH;
+ 430              		.loc 1 279 0
+ 431 033e 4BF22C03 		movw	r3, #45100
+ 432 0342 C4F20803 		movt	r3, 16392
+ 433 0346 1022     		movs	r2, #16
+ 434 0348 1A60     		str	r2, [r3]
+ 280:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** 
+ 281:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     return (AES_SUCCESS);
+ 435              		.loc 1 281 0
+ 436 034a 0023     		movs	r3, #0
+ 437              	.L15:
+ 282:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** }
+ 438              		.loc 1 282 0
+ 439 034c 1846     		mov	r0, r3
+ 440 034e 1037     		adds	r7, r7, #16
+ 441 0350 BD46     		mov	sp, r7
+ 442              		@ sp needed
+ 443 0352 80BD     		pop	{r7, pc}
+ 444              		.cfi_endproc
+ 445              	.LFE1:
+ 447              		.align	2
+ 448              		.global	AESECBCheckResult
+ 449              		.thumb
+ 450              		.thumb_func
+ 452              	AESECBCheckResult:
+ 453              	.LFB2:
+ 283:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** 
+ 284:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //*****************************************************************************
+ 285:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //
+ 286:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //! AESECBCheckResult is called to check the result of AES-ECB AESECBStart
+ 287:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //! operation.
+ 288:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //!
+ 289:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //! \return  if result is available or error occurs returns true.  If result
+ 290:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //! is not yet available or no error occurs returns false
+ 291:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //
+ 292:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //*****************************************************************************
+ 293:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** uint8_t AESECBCheckResult(void)
+ 294:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** {
+ 454              		.loc 1 294 0
+ 455              		.cfi_startproc
+ 456              		@ args = 0, pretend = 0, frame = 0
+ 457              		@ frame_needed = 1, uses_anonymous_args = 0
+ 458              		@ link register save eliminated.
+ 459 0354 80B4     		push	{r7}
+ 460              		.cfi_def_cfa_offset 4
+ 461              		.cfi_offset 7, -4
+ 462 0356 00AF     		add	r7, sp, #0
+ 463              		.cfi_def_cfa_register 7
+ 295:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     return (((HWREGB(AES_CTRL_INT_STAT) & AES_CTRL_INT_STAT_RESULT_AV)) ||
+ 464              		.loc 1 295 0
+ 465 0358 4BF29073 		movw	r3, #46992
+ 466 035c C4F20803 		movt	r3, 16392
+ 467 0360 1B78     		ldrb	r3, [r3]
+ 468 0362 DBB2     		uxtb	r3, r3
+ 469 0364 03F00103 		and	r3, r3, #1
+ 296:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****             ((HWREGB(AES_CTRL_INT_STAT) & AES_CTRL_INT_STAT_DMA_BUS_ERR)) ||
+ 297:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****             ((HWREGB(AES_CTRL_INT_STAT) & AES_CTRL_INT_STAT_KEY_ST_WR_ERR)) ||
+ 470              		.loc 1 297 0
+ 471 0368 002B     		cmp	r3, #0
+ 472 036a 18D1     		bne	.L19
+ 296:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****             ((HWREGB(AES_CTRL_INT_STAT) & AES_CTRL_INT_STAT_DMA_BUS_ERR)) ||
+ 473              		.loc 1 296 0
+ 474 036c 4BF29073 		movw	r3, #46992
+ 475 0370 C4F20803 		movt	r3, 16392
+ 476 0374 1B78     		ldrb	r3, [r3]
+ 477              		.loc 1 297 0
+ 478 0376 4BF29073 		movw	r3, #46992
+ 479 037a C4F20803 		movt	r3, 16392
+ 480 037e 1B78     		ldrb	r3, [r3]
+ 481 0380 DBB2     		uxtb	r3, r3
+ 482 0382 03F08043 		and	r3, r3, #1073741824
+ 296:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****             ((HWREGB(AES_CTRL_INT_STAT) & AES_CTRL_INT_STAT_DMA_BUS_ERR)) ||
+ 483              		.loc 1 296 0
+ 484 0386 002B     		cmp	r3, #0
+ 485 0388 09D1     		bne	.L19
+ 298:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****             ((HWREGB(AES_CTRL_INT_STAT) & AES_CTRL_INT_STAT_KEY_ST_RD_ERR)));
+ 486              		.loc 1 298 0
+ 487 038a 4BF29073 		movw	r3, #46992
+ 488 038e C4F20803 		movt	r3, 16392
+ 489 0392 1B78     		ldrb	r3, [r3]
+ 490 0394 DBB2     		uxtb	r3, r3
+ 491 0396 03F00053 		and	r3, r3, #536870912
+ 297:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****             ((HWREGB(AES_CTRL_INT_STAT) & AES_CTRL_INT_STAT_KEY_ST_RD_ERR)));
+ 492              		.loc 1 297 0
+ 493 039a 002B     		cmp	r3, #0
+ 494 039c 01D0     		beq	.L20
+ 495              	.L19:
+ 297:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****             ((HWREGB(AES_CTRL_INT_STAT) & AES_CTRL_INT_STAT_KEY_ST_RD_ERR)));
+ 496              		.loc 1 297 0 is_stmt 0 discriminator 1
+ 497 039e 0123     		movs	r3, #1
+ 498 03a0 00E0     		b	.L21
+ 499              	.L20:
+ 297:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****             ((HWREGB(AES_CTRL_INT_STAT) & AES_CTRL_INT_STAT_KEY_ST_RD_ERR)));
+ 500              		.loc 1 297 0 discriminator 2
+ 501 03a2 0023     		movs	r3, #0
+ 502              	.L21:
+ 295:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****             ((HWREGB(AES_CTRL_INT_STAT) & AES_CTRL_INT_STAT_DMA_BUS_ERR)) ||
+ 503              		.loc 1 295 0 is_stmt 1
+ 504 03a4 DBB2     		uxtb	r3, r3
+ 299:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** }
+ 505              		.loc 1 299 0
+ 506 03a6 1846     		mov	r0, r3
+ 507 03a8 BD46     		mov	sp, r7
+ 508              		@ sp needed
+ 509 03aa 5DF8047B 		ldr	r7, [sp], #4
+ 510 03ae 7047     		bx	lr
+ 511              		.cfi_endproc
+ 512              	.LFE2:
+ 514              		.align	2
+ 515              		.global	AESECBGetResult
+ 516              		.thumb
+ 517              		.thumb_func
+ 519              	AESECBGetResult:
+ 520              	.LFB3:
+ 300:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** 
+ 301:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //*****************************************************************************
+ 302:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //
+ 303:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //! AESECBGetResult gets the result of the AES ECB operation.  This function
+ 304:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //! must only be called after AESECBStart function is called.
+ 305:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //!
+ 306:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //! \return  AES_SUCCESS if successful.
+ 307:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //
+ 308:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** //*****************************************************************************
+ 309:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** uint8_t AESECBGetResult(void)
+ 310:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** {
+ 521              		.loc 1 310 0
+ 522              		.cfi_startproc
+ 523              		@ args = 0, pretend = 0, frame = 0
+ 524              		@ frame_needed = 1, uses_anonymous_args = 0
+ 525 03b0 80B5     		push	{r7, lr}
+ 526              		.cfi_def_cfa_offset 8
+ 527              		.cfi_offset 7, -8
+ 528              		.cfi_offset 14, -4
+ 529 03b2 00AF     		add	r7, sp, #0
+ 530              		.cfi_def_cfa_register 7
+ 311:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     //check for errors
+ 312:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     if((HWREG(AES_CTRL_INT_STAT) & AES_CTRL_INT_STAT_DMA_BUS_ERR))
+ 531              		.loc 1 312 0
+ 532 03b4 4BF29073 		movw	r3, #46992
+ 533 03b8 C4F20803 		movt	r3, 16392
+ 534 03bc 1B68     		ldr	r3, [r3]
+ 535 03be 002B     		cmp	r3, #0
+ 536 03c0 0DDA     		bge	.L24
+ 313:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     {
+ 314:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****         // clear the DMA error bit
+ 315:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****         HWREG(AES_CTRL_INT_CLR) |= AES_CTRL_INT_CLR_DMA_BUS_ERR;
+ 537              		.loc 1 315 0
+ 538 03c2 4BF28873 		movw	r3, #46984
+ 539 03c6 C4F20803 		movt	r3, 16392
+ 540 03ca 4BF28872 		movw	r2, #46984
+ 541 03ce C4F20802 		movt	r2, 16392
+ 542 03d2 1268     		ldr	r2, [r2]
+ 543 03d4 42F00042 		orr	r2, r2, #-2147483648
+ 544 03d8 1A60     		str	r2, [r3]
+ 316:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****         return (AES_DMA_BUS_ERROR);
+ 545              		.loc 1 316 0
+ 546 03da 0323     		movs	r3, #3
+ 547 03dc 4FE0     		b	.L25
+ 548              	.L24:
+ 317:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     }
+ 318:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     if((HWREG(AES_CTRL_INT_STAT) & AES_CTRL_INT_STAT_KEY_ST_WR_ERR))
+ 549              		.loc 1 318 0
+ 550 03de 4BF29073 		movw	r3, #46992
+ 551 03e2 C4F20803 		movt	r3, 16392
+ 552 03e6 1B68     		ldr	r3, [r3]
+ 553 03e8 03F08043 		and	r3, r3, #1073741824
+ 554 03ec 002B     		cmp	r3, #0
+ 555 03ee 0DD0     		beq	.L26
+ 319:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     {
+ 320:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****         // clear the Key Store Write error bit
+ 321:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****         HWREG(AES_CTRL_INT_CLR) |= AES_CTRL_INT_CLR_KEY_ST_WR_ERR;
+ 556              		.loc 1 321 0
+ 557 03f0 4BF28873 		movw	r3, #46984
+ 558 03f4 C4F20803 		movt	r3, 16392
+ 559 03f8 4BF28872 		movw	r2, #46984
+ 560 03fc C4F20802 		movt	r2, 16392
+ 561 0400 1268     		ldr	r2, [r2]
+ 562 0402 42F08042 		orr	r2, r2, #1073741824
+ 563 0406 1A60     		str	r2, [r3]
+ 322:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****         return (AES_KEYSTORE_WRITE_ERROR);
+ 564              		.loc 1 322 0
+ 565 0408 0223     		movs	r3, #2
+ 566 040a 38E0     		b	.L25
+ 567              	.L26:
+ 323:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     }
+ 324:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     if((HWREG(AES_CTRL_INT_STAT) & AES_CTRL_INT_STAT_KEY_ST_RD_ERR))
+ 568              		.loc 1 324 0
+ 569 040c 4BF29073 		movw	r3, #46992
+ 570 0410 C4F20803 		movt	r3, 16392
+ 571 0414 1B68     		ldr	r3, [r3]
+ 572 0416 03F00053 		and	r3, r3, #536870912
+ 573 041a 002B     		cmp	r3, #0
+ 574 041c 0DD0     		beq	.L27
+ 325:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     {
+ 326:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****         // clear the Key Store Read error bit
+ 327:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****         HWREG(AES_CTRL_INT_CLR) |= AES_CTRL_INT_CLR_KEY_ST_RD_ERR;
+ 575              		.loc 1 327 0
+ 576 041e 4BF28873 		movw	r3, #46984
+ 577 0422 C4F20803 		movt	r3, 16392
+ 578 0426 4BF28872 		movw	r2, #46984
+ 579 042a C4F20802 		movt	r2, 16392
+ 580 042e 1268     		ldr	r2, [r2]
+ 581 0430 42F00052 		orr	r2, r2, #536870912
+ 582 0434 1A60     		str	r2, [r3]
+ 328:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****         return (AES_KEYSTORE_READ_ERROR);
+ 583              		.loc 1 328 0
+ 584 0436 0123     		movs	r3, #1
+ 585 0438 21E0     		b	.L25
+ 586              	.L27:
+ 329:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     }
+ 330:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** 
+ 331:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     // if no errors then AES ECB operation was successful, disable AES
+ 332:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     // interrupt
+ 333:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     IntDisable(INT_AES);
+ 587              		.loc 1 333 0
+ 588 043a 9F20     		movs	r0, #159
+ 589 043c FFF7FEFF 		bl	IntDisable
+ 334:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** 
+ 335:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     //clear DMA done and result available bits
+ 336:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     HWREG(AES_CTRL_INT_CLR) |= (AES_CTRL_INT_CLR_DMA_IN_DONE |
+ 590              		.loc 1 336 0
+ 591 0440 4BF28873 		movw	r3, #46984
+ 592 0444 C4F20803 		movt	r3, 16392
+ 593 0448 4BF28872 		movw	r2, #46984
+ 594 044c C4F20802 		movt	r2, 16392
+ 595 0450 1268     		ldr	r2, [r2]
+ 596 0452 42F00302 		orr	r2, r2, #3
+ 597 0456 1A60     		str	r2, [r3]
+ 337:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****                                 AES_CTRL_INT_CLR_RESULT_AV);
+ 338:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** 
+ 339:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     // result has already been copied to the output buffer by DMA
+ 340:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     HWREG(AES_CTRL_ALG_SEL) = 0x00000000; // disable master control/DMA clock
+ 598              		.loc 1 340 0
+ 599 0458 4FF43743 		mov	r3, #46848
+ 600 045c C4F20803 		movt	r3, 16392
+ 601 0460 0022     		movs	r2, #0
+ 602 0462 1A60     		str	r2, [r3]
+ 341:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     HWREG(AES_AES_CTRL) = 0x00000000; // clear mode
+ 603              		.loc 1 341 0
+ 604 0464 4BF25053 		movw	r3, #46416
+ 605 0468 C4F20803 		movt	r3, 16392
+ 606 046c 0022     		movs	r2, #0
+ 607 046e 1A60     		str	r2, [r3]
+ 342:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     g_ui8CurrentAESOp = AES_NONE;
+ 608              		.loc 1 342 0
+ 609 0470 40F20003 		movw	r3, #:lower16:g_ui8CurrentAESOp
+ 610 0474 C0F20003 		movt	r3, #:upper16:g_ui8CurrentAESOp
+ 611 0478 0022     		movs	r2, #0
+ 612 047a 1A70     		strb	r2, [r3]
+ 343:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c ****     return (AES_SUCCESS);
+ 613              		.loc 1 343 0
+ 614 047c 0023     		movs	r3, #0
+ 615              	.L25:
+ 344:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.c **** }
+ 616              		.loc 1 344 0
+ 617 047e 1846     		mov	r0, r3
+ 618 0480 80BD     		pop	{r7, pc}
+ 619              		.cfi_endproc
+ 620              	.LFE3:
+ 622              		.bss
+ 623 0001 000000   		.align	2
+ 624              	ui32temp.4176:
+ 625 0004 00000000 		.space	16
+ 625      00000000 
+ 625      00000000 
+ 625      00000000 
+ 626              		.text
+ 627              	.Letext0:
+ 628              		.file 2 "/usr/include/newlib/machine/_default_types.h"
+ 629              		.file 3 "/usr/include/newlib/stdint.h"
+ 630              		.file 4 "build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 aes.c
+     /tmp/cc89361X.s:22     .bss:0000000000000000 g_ui8CurrentAESOp
+     /tmp/cc89361X.s:23     .bss:0000000000000000 $d
+     /tmp/cc89361X.s:25     .text:0000000000000000 $t
+     /tmp/cc89361X.s:30     .text:0000000000000000 AESLoadKey
+     /tmp/cc89361X.s:624    .bss:0000000000000004 ui32temp.4176
+     /tmp/cc89361X.s:285    .text:0000000000000218 AESECBStart
+     /tmp/cc89361X.s:452    .text:0000000000000354 AESECBCheckResult
+     /tmp/cc89361X.s:519    .text:00000000000003b0 AESECBGetResult
+                     .debug_frame:0000000000000010 $d
+                           .group:0000000000000000 wm4.1.08074afb2ccc9da754fae8e3ee0f577b
+                           .group:0000000000000000 wm4.hw_aes.h.39.77ecc3829d96bb0e5669b1f36ecffb12
+                           .group:0000000000000000 wm4.hw_ints.h.42.85b9479f2be35b086f1bb7cbb15bc097
+                           .group:0000000000000000 wm4.features.h.22.6a4ca7cd053637cc1d0db6c16f39b2d7
+                           .group:0000000000000000 wm4._default_types.h.15.8b2cb27e528498f8ff711db085d6e489
+                           .group:0000000000000000 wm4.stdint.h.20.796e373797e732130a803d4c0338fa1b
+                           .group:0000000000000000 wm4.stdbool.h.29.1c9ee6859ce8145f7838a4f2549ccec2
+                           .group:0000000000000000 wm4.hw_types.h.67.b10589a0806dcc2d274d6fab6b736519
+                           .group:0000000000000000 wm4.interrupt.h.41.272fc4ec0e276feb439e7974d0f77eaf
+                           .group:0000000000000000 wm4.aes.h.66.0fb976edb685649779bd34f5f8f7ef75
+
+UNDEFINED SYMBOLS
+IntDisable
+IntPendClear
+IntEnable

@@ -1,0 +1,665 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"sht21.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.align	2
+  19              		.global	sht21_init
+  20              		.thumb
+  21              		.thumb_func
+  23              	sht21_init:
+  24              	.LFB0:
+  25              		.file 1 "build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c"
+   1:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** /**
+   2:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****  * \file
+   3:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****  *         Device drivers for SHT21 temperature and humidity sensor in OpenMote-CC2538.
+   4:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****  * \author
+   5:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****  *         Pere Tuset, OpenMote <peretuset@openmote.com>
+   6:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****  */
+   7:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** 
+   8:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** #include "stdint.h"
+   9:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** #include "stdbool.h"
+  10:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** 
+  11:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** #include "i2c.h"
+  12:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** #include "sht21.h"
+  13:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** 
+  14:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** //=========================== define ==========================================
+  15:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** 
+  16:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** #define SHT21_ADDRESS                   ( 0x40 )
+  17:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** 
+  18:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** #define SHT21_USER_REG_READ             ( 0xE7 )
+  19:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** #define SHT21_USER_REG_WRITE            ( 0xE6 )
+  20:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** #define SHT21_USER_REG_RESERVED_BITS    ( 0x38 )
+  21:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** 
+  22:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** #define SHT21_RESOLUTION_12b_14b        ( (0 << 7) | (0 << 0) )
+  23:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** #define SHT21_RESOLUTION_8b_12b         ( (0 << 7) | (1 << 0) )
+  24:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** #define SHT21_RESOLUTION_10b_13b        ( (1 << 7) | (0 << 0) )
+  25:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** #define SHT21_RESOLUTION_11b_11b        ( (1 << 7) | (1 << 0) )
+  26:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** #define SHT21_BATTERY_ABOVE_2V25        ( 0 << 6 )
+  27:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** #define SHT21_BATTERY_BELOW_2V25        ( 1 << 6 )
+  28:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** #define SHT21_ONCHIP_HEATER_ENABLE      ( 1 << 2 )
+  29:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** #define SHT21_ONCHIP_HEATER_DISABLE     ( 0 << 2 )
+  30:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** #define SHT21_OTP_RELOAD_ENABLE         ( 0 << 1 )
+  31:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** #define SHT21_OTP_RELOAD_DISABLE        ( 1 << 1 )
+  32:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** 
+  33:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** #define SHT21_TEMPERATURE_HM_CMD        ( 0xE3 )
+  34:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** #define SHT21_HUMIDITY_HM_CMD           ( 0xE5 )
+  35:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** #define SHT21_TEMPERATURE_NHM_CMD       ( 0xF3 )
+  36:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** #define SHT21_HUMIDITY_NHM_CMD          ( 0xF5 )
+  37:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** #define SHT21_RESET_CMD                 ( 0xFE )
+  38:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** 
+  39:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** #define SHT21_STATUS_MASK               ( 0xFC )
+  40:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** 
+  41:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** #define SHT21_DEFAULT_CONFIG            ( SHT21_RESOLUTION_12b_14b | \
+  42:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****                                           SHT21_ONCHIP_HEATER_DISABLE | \
+  43:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****                                           SHT21_BATTERY_ABOVE_2V25 | \
+  44:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****                                           SHT21_OTP_RELOAD_DISABLE )
+  45:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** 
+  46:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** #define SHT21_USER_CONFIG               ( SHT21_RESOLUTION_8b_12b | \
+  47:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****                                           SHT21_ONCHIP_HEATER_DISABLE | \
+  48:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****                                           SHT21_BATTERY_ABOVE_2V25 | \
+  49:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****                                           SHT21_OTP_RELOAD_DISABLE )
+  50:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** 
+  51:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** //=========================== variables =======================================
+  52:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** 
+  53:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** //=========================== prototypes ======================================
+  54:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** 
+  55:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** static void sht21_pre_init(void);
+  56:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** 
+  57:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** //=========================== public ==========================================
+  58:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** 
+  59:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** void sht21_init(void) {
+  26              		.loc 1 59 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 8
+  29              		@ frame_needed = 1, uses_anonymous_args = 0
+  30 0000 80B5     		push	{r7, lr}
+  31              		.cfi_def_cfa_offset 8
+  32              		.cfi_offset 7, -8
+  33              		.cfi_offset 14, -4
+  34 0002 82B0     		sub	sp, sp, #8
+  35              		.cfi_def_cfa_offset 16
+  36 0004 00AF     		add	r7, sp, #0
+  37              		.cfi_def_cfa_register 7
+  60:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     uint8_t config[2];
+  61:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** 
+  62:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     // Pre-init the STH21 if required
+  63:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     sht21_pre_init();
+  38              		.loc 1 63 0
+  39 0006 00F001F9 		bl	sht21_pre_init
+  64:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** 
+  65:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     // Setup the configuration vector, the first position holds address
+  66:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     // and the second position holds the actual configuration
+  67:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     config[0] = SHT21_USER_REG_WRITE;
+  40              		.loc 1 67 0
+  41 000a E623     		movs	r3, #230
+  42 000c 3B71     		strb	r3, [r7, #4]
+  68:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     config[1] = 0;
+  43              		.loc 1 68 0
+  44 000e 0023     		movs	r3, #0
+  45 0010 7B71     		strb	r3, [r7, #5]
+  69:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** 
+  70:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     // Read the current configuration according to the datasheet (pag. 9, fig. 18)
+  71:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     i2c_write_byte(SHT21_ADDRESS, SHT21_USER_REG_READ);
+  46              		.loc 1 71 0
+  47 0012 4020     		movs	r0, #64
+  48 0014 E721     		movs	r1, #231
+  49 0016 FFF7FEFF 		bl	i2c_write_byte
+  72:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     i2c_read_byte(SHT21_ADDRESS, &config[1]);
+  50              		.loc 1 72 0
+  51 001a 3B1D     		adds	r3, r7, #4
+  52 001c 0133     		adds	r3, r3, #1
+  53 001e 4020     		movs	r0, #64
+  54 0020 1946     		mov	r1, r3
+  55 0022 FFF7FEFF 		bl	i2c_read_byte
+  73:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** 
+  74:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     // Clean all the configuration bits except those reserved
+  75:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     config[1] &= SHT21_USER_REG_RESERVED_BITS;
+  56              		.loc 1 75 0
+  57 0026 7B79     		ldrb	r3, [r7, #5]	@ zero_extendqisi2
+  58 0028 03F03803 		and	r3, r3, #56
+  59 002c DBB2     		uxtb	r3, r3
+  60 002e 7B71     		strb	r3, [r7, #5]
+  76:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** 
+  77:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     // Set the configuration bits without changing those reserved
+  78:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     config[1] |= SHT21_USER_CONFIG;
+  61              		.loc 1 78 0
+  62 0030 7B79     		ldrb	r3, [r7, #5]	@ zero_extendqisi2
+  63 0032 43F00303 		orr	r3, r3, #3
+  64 0036 DBB2     		uxtb	r3, r3
+  65 0038 7B71     		strb	r3, [r7, #5]
+  79:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** 
+  80:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     i2c_write_bytes(SHT21_ADDRESS, config, sizeof(config));
+  66              		.loc 1 80 0
+  67 003a 3B1D     		adds	r3, r7, #4
+  68 003c 4020     		movs	r0, #64
+  69 003e 1946     		mov	r1, r3
+  70 0040 0222     		movs	r2, #2
+  71 0042 FFF7FEFF 		bl	i2c_write_bytes
+  81:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** }
+  72              		.loc 1 81 0
+  73 0046 0837     		adds	r7, r7, #8
+  74 0048 BD46     		mov	sp, r7
+  75              		@ sp needed
+  76 004a 80BD     		pop	{r7, pc}
+  77              		.cfi_endproc
+  78              	.LFE0:
+  80              		.align	2
+  81              		.global	sht21_reset
+  82              		.thumb
+  83              		.thumb_func
+  85              	sht21_reset:
+  86              	.LFB1:
+  82:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** 
+  83:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** void sht21_reset(void) {
+  87              		.loc 1 83 0
+  88              		.cfi_startproc
+  89              		@ args = 0, pretend = 0, frame = 0
+  90              		@ frame_needed = 1, uses_anonymous_args = 0
+  91 004c 80B5     		push	{r7, lr}
+  92              		.cfi_def_cfa_offset 8
+  93              		.cfi_offset 7, -8
+  94              		.cfi_offset 14, -4
+  95 004e 00AF     		add	r7, sp, #0
+  96              		.cfi_def_cfa_register 7
+  84:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     // Send a soft-reset command according to the datasheet (pag. 9, fig. 17)
+  85:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     i2c_write_byte(SHT21_ADDRESS, SHT21_RESET_CMD);
+  97              		.loc 1 85 0
+  98 0050 4020     		movs	r0, #64
+  99 0052 FE21     		movs	r1, #254
+ 100 0054 FFF7FEFF 		bl	i2c_write_byte
+  86:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** }
+ 101              		.loc 1 86 0
+ 102 0058 80BD     		pop	{r7, pc}
+ 103              		.cfi_endproc
+ 104              	.LFE1:
+ 106 005a 00BF     		.align	2
+ 107              		.global	sht21_is_present
+ 108              		.thumb
+ 109              		.thumb_func
+ 111              	sht21_is_present:
+ 112              	.LFB2:
+  87:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** 
+  88:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** uint8_t sht21_is_present(void) {
+ 113              		.loc 1 88 0
+ 114              		.cfi_startproc
+ 115              		@ args = 0, pretend = 0, frame = 8
+ 116              		@ frame_needed = 1, uses_anonymous_args = 0
+ 117 005c 80B5     		push	{r7, lr}
+ 118              		.cfi_def_cfa_offset 8
+ 119              		.cfi_offset 7, -8
+ 120              		.cfi_offset 14, -4
+ 121 005e 82B0     		sub	sp, sp, #8
+ 122              		.cfi_def_cfa_offset 16
+ 123 0060 00AF     		add	r7, sp, #0
+ 124              		.cfi_def_cfa_register 7
+  89:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     uint8_t is_present;
+  90:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** 
+  91:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     // Pre-init the STH21 if required
+  92:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     sht21_pre_init();
+ 125              		.loc 1 92 0
+ 126 0062 00F0D3F8 		bl	sht21_pre_init
+  93:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** 
+  94:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     // Read the current configuration according to the datasheet (pag. 9, fig. 18)
+  95:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     i2c_write_byte(SHT21_ADDRESS, SHT21_USER_REG_READ);
+ 127              		.loc 1 95 0
+ 128 0066 4020     		movs	r0, #64
+ 129 0068 E721     		movs	r1, #231
+ 130 006a FFF7FEFF 		bl	i2c_write_byte
+  96:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     i2c_read_byte(SHT21_ADDRESS, &is_present);
+ 131              		.loc 1 96 0
+ 132 006e FB1D     		adds	r3, r7, #7
+ 133 0070 4020     		movs	r0, #64
+ 134 0072 1946     		mov	r1, r3
+ 135 0074 FFF7FEFF 		bl	i2c_read_byte
+  97:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** 
+  98:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     // Clear the reserved bits according to the datasheet (pag. 9, tab. 8)
+  99:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     is_present &= ~SHT21_USER_REG_RESERVED_BITS;
+ 136              		.loc 1 99 0
+ 137 0078 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 138 007a 23F03803 		bic	r3, r3, #56
+ 139 007e DBB2     		uxtb	r3, r3
+ 140 0080 FB71     		strb	r3, [r7, #7]
+ 100:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** 
+ 101:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     return (is_present == SHT21_DEFAULT_CONFIG || is_present == SHT21_USER_CONFIG);
+ 141              		.loc 1 101 0
+ 142 0082 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 143 0084 022B     		cmp	r3, #2
+ 144 0086 02D0     		beq	.L4
+ 145              		.loc 1 101 0 is_stmt 0 discriminator 2
+ 146 0088 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 147 008a 032B     		cmp	r3, #3
+ 148 008c 01D1     		bne	.L5
+ 149              	.L4:
+ 150              		.loc 1 101 0 discriminator 1
+ 151 008e 0123     		movs	r3, #1
+ 152 0090 00E0     		b	.L6
+ 153              	.L5:
+ 154              		.loc 1 101 0 discriminator 3
+ 155 0092 0023     		movs	r3, #0
+ 156              	.L6:
+ 157              		.loc 1 101 0 discriminator 4
+ 158 0094 DBB2     		uxtb	r3, r3
+ 102:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** }
+ 159              		.loc 1 102 0 is_stmt 1 discriminator 4
+ 160 0096 1846     		mov	r0, r3
+ 161 0098 0837     		adds	r7, r7, #8
+ 162 009a BD46     		mov	sp, r7
+ 163              		@ sp needed
+ 164 009c 80BD     		pop	{r7, pc}
+ 165              		.cfi_endproc
+ 166              	.LFE2:
+ 168 009e 00BF     		.align	2
+ 169              		.global	sht21_read_temperature
+ 170              		.thumb
+ 171              		.thumb_func
+ 173              	sht21_read_temperature:
+ 174              	.LFB3:
+ 103:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** 
+ 104:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** uint16_t sht21_read_temperature(void) {
+ 175              		.loc 1 104 0
+ 176              		.cfi_startproc
+ 177              		@ args = 0, pretend = 0, frame = 8
+ 178              		@ frame_needed = 1, uses_anonymous_args = 0
+ 179 00a0 80B5     		push	{r7, lr}
+ 180              		.cfi_def_cfa_offset 8
+ 181              		.cfi_offset 7, -8
+ 182              		.cfi_offset 14, -4
+ 183 00a2 82B0     		sub	sp, sp, #8
+ 184              		.cfi_def_cfa_offset 16
+ 185 00a4 00AF     		add	r7, sp, #0
+ 186              		.cfi_def_cfa_register 7
+ 105:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     uint8_t sht21_temperature[2];
+ 106:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     uint16_t temperature;
+ 107:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** 
+ 108:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     // Read the current temperature according to the datasheet (pag. 8, fig. 15)
+ 109:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     i2c_write_byte(SHT21_ADDRESS, SHT21_TEMPERATURE_HM_CMD);
+ 187              		.loc 1 109 0
+ 188 00a6 4020     		movs	r0, #64
+ 189 00a8 E321     		movs	r1, #227
+ 190 00aa FFF7FEFF 		bl	i2c_write_byte
+ 110:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     i2c_read_bytes(SHT21_ADDRESS, sht21_temperature, sizeof(sht21_temperature));
+ 191              		.loc 1 110 0
+ 192 00ae 3B1D     		adds	r3, r7, #4
+ 193 00b0 4020     		movs	r0, #64
+ 194 00b2 1946     		mov	r1, r3
+ 195 00b4 0222     		movs	r2, #2
+ 196 00b6 FFF7FEFF 		bl	i2c_read_bytes
+ 111:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     
+ 112:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     temperature = (sht21_temperature[0] << 8) | (sht21_temperature[1] & SHT21_STATUS_MASK);
+ 197              		.loc 1 112 0
+ 198 00ba 3B79     		ldrb	r3, [r7, #4]	@ zero_extendqisi2
+ 199 00bc 1B02     		lsls	r3, r3, #8
+ 200 00be 9AB2     		uxth	r2, r3
+ 201 00c0 7B79     		ldrb	r3, [r7, #5]	@ zero_extendqisi2
+ 202 00c2 03F0FC03 		and	r3, r3, #252
+ 203 00c6 9BB2     		uxth	r3, r3
+ 204 00c8 1343     		orrs	r3, r3, r2
+ 205 00ca 9BB2     		uxth	r3, r3
+ 206 00cc FB80     		strh	r3, [r7, #6]	@ movhi
+ 113:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     
+ 114:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     return temperature;
+ 207              		.loc 1 114 0
+ 208 00ce FB88     		ldrh	r3, [r7, #6]
+ 115:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** }
+ 209              		.loc 1 115 0
+ 210 00d0 1846     		mov	r0, r3
+ 211 00d2 0837     		adds	r7, r7, #8
+ 212 00d4 BD46     		mov	sp, r7
+ 213              		@ sp needed
+ 214 00d6 80BD     		pop	{r7, pc}
+ 215              		.cfi_endproc
+ 216              	.LFE3:
+ 218              		.global	__aeabi_f2d
+ 219              		.global	__aeabi_i2d
+ 220              		.global	__aeabi_dmul
+ 221              		.global	__aeabi_ddiv
+ 222              		.global	__aeabi_dadd
+ 223              		.global	__aeabi_d2f
+ 224              		.align	2
+ 225              		.global	sht21_convert_temperature
+ 226              		.thumb
+ 227              		.thumb_func
+ 229              	sht21_convert_temperature:
+ 230              	.LFB4:
+ 116:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** 
+ 117:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** float sht21_convert_temperature(uint16_t temperature) {
+ 231              		.loc 1 117 0
+ 232              		.cfi_startproc
+ 233              		@ args = 0, pretend = 0, frame = 16
+ 234              		@ frame_needed = 1, uses_anonymous_args = 0
+ 235 00d8 B0B5     		push	{r4, r5, r7, lr}
+ 236              		.cfi_def_cfa_offset 16
+ 237              		.cfi_offset 4, -16
+ 238              		.cfi_offset 5, -12
+ 239              		.cfi_offset 7, -8
+ 240              		.cfi_offset 14, -4
+ 241 00da 84B0     		sub	sp, sp, #16
+ 242              		.cfi_def_cfa_offset 32
+ 243 00dc 00AF     		add	r7, sp, #0
+ 244              		.cfi_def_cfa_register 7
+ 245 00de 0346     		mov	r3, r0
+ 246 00e0 FB80     		strh	r3, [r7, #6]	@ movhi
+ 118:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     float result;
+ 119:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     
+ 120:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     result  = -46.85;
+ 247              		.loc 1 120 0
+ 248 00e2 46F26663 		movw	r3, #26214
+ 249 00e6 CCF23B23 		movt	r3, 49723
+ 250 00ea FB60     		str	r3, [r7, #12]	@ float
+ 121:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     result += 175.72 * temperature / 65536;
+ 251              		.loc 1 121 0
+ 252 00ec F868     		ldr	r0, [r7, #12]	@ float
+ 253 00ee FFF7FEFF 		bl	__aeabi_f2d
+ 254 00f2 0446     		mov	r4, r0
+ 255 00f4 0D46     		mov	r5, r1
+ 256 00f6 FB88     		ldrh	r3, [r7, #6]
+ 257 00f8 1846     		mov	r0, r3
+ 258 00fa FFF7FEFF 		bl	__aeabi_i2d
+ 259 00fe 0246     		mov	r2, r0
+ 260 0100 0B46     		mov	r3, r1
+ 261 0102 1046     		mov	r0, r2
+ 262 0104 1946     		mov	r1, r3
+ 263 0106 12A3     		adr	r3, .L12
+ 264 0108 D3E90023 		ldrd	r2, [r3]
+ 265 010c FFF7FEFF 		bl	__aeabi_dmul
+ 266 0110 0246     		mov	r2, r0
+ 267 0112 0B46     		mov	r3, r1
+ 268 0114 1046     		mov	r0, r2
+ 269 0116 1946     		mov	r1, r3
+ 270 0118 4FF00002 		mov	r2, #0
+ 271 011c 4FF00003 		mov	r3, #0
+ 272 0120 C4F2F003 		movt	r3, 16624
+ 273 0124 FFF7FEFF 		bl	__aeabi_ddiv
+ 274 0128 0246     		mov	r2, r0
+ 275 012a 0B46     		mov	r3, r1
+ 276 012c 2046     		mov	r0, r4
+ 277 012e 2946     		mov	r1, r5
+ 278 0130 FFF7FEFF 		bl	__aeabi_dadd
+ 279 0134 0246     		mov	r2, r0
+ 280 0136 0B46     		mov	r3, r1
+ 281 0138 1046     		mov	r0, r2
+ 282 013a 1946     		mov	r1, r3
+ 283 013c FFF7FEFF 		bl	__aeabi_d2f
+ 284 0140 0346     		mov	r3, r0
+ 285 0142 FB60     		str	r3, [r7, #12]	@ float
+ 122:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     
+ 123:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     return result;
+ 286              		.loc 1 123 0
+ 287 0144 FB68     		ldr	r3, [r7, #12]	@ float
+ 124:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** }
+ 288              		.loc 1 124 0
+ 289 0146 1846     		mov	r0, r3
+ 290 0148 1037     		adds	r7, r7, #16
+ 291 014a BD46     		mov	sp, r7
+ 292              		@ sp needed
+ 293 014c B0BD     		pop	{r4, r5, r7, pc}
+ 294              	.L13:
+ 295 014e 00BF     		.align	3
+ 296              	.L12:
+ 297 0150 D7A3703D 		.word	1030792151
+ 298 0154 0AF76540 		.word	1080424202
+ 299              		.cfi_endproc
+ 300              	.LFE4:
+ 302              		.align	2
+ 303              		.global	sht21_read_humidity
+ 304              		.thumb
+ 305              		.thumb_func
+ 307              	sht21_read_humidity:
+ 308              	.LFB5:
+ 125:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** 
+ 126:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** uint16_t sht21_read_humidity(void) {
+ 309              		.loc 1 126 0
+ 310              		.cfi_startproc
+ 311              		@ args = 0, pretend = 0, frame = 8
+ 312              		@ frame_needed = 1, uses_anonymous_args = 0
+ 313 0158 80B5     		push	{r7, lr}
+ 314              		.cfi_def_cfa_offset 8
+ 315              		.cfi_offset 7, -8
+ 316              		.cfi_offset 14, -4
+ 317 015a 82B0     		sub	sp, sp, #8
+ 318              		.cfi_def_cfa_offset 16
+ 319 015c 00AF     		add	r7, sp, #0
+ 320              		.cfi_def_cfa_register 7
+ 127:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     uint8_t sht21_humidity[2];
+ 128:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     uint16_t humidity;
+ 129:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** 
+ 130:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     // Read the current humidity according to the datasheet (pag. 8, fig. 15)
+ 131:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     i2c_write_byte(SHT21_ADDRESS, SHT21_HUMIDITY_HM_CMD);
+ 321              		.loc 1 131 0
+ 322 015e 4020     		movs	r0, #64
+ 323 0160 E521     		movs	r1, #229
+ 324 0162 FFF7FEFF 		bl	i2c_write_byte
+ 132:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     i2c_read_bytes(SHT21_ADDRESS, sht21_humidity, sizeof(sht21_humidity));
+ 325              		.loc 1 132 0
+ 326 0166 3B1D     		adds	r3, r7, #4
+ 327 0168 4020     		movs	r0, #64
+ 328 016a 1946     		mov	r1, r3
+ 329 016c 0222     		movs	r2, #2
+ 330 016e FFF7FEFF 		bl	i2c_read_bytes
+ 133:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** 
+ 134:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     humidity = (sht21_humidity[0] << 8) | (sht21_humidity[1] & SHT21_STATUS_MASK);
+ 331              		.loc 1 134 0
+ 332 0172 3B79     		ldrb	r3, [r7, #4]	@ zero_extendqisi2
+ 333 0174 1B02     		lsls	r3, r3, #8
+ 334 0176 9AB2     		uxth	r2, r3
+ 335 0178 7B79     		ldrb	r3, [r7, #5]	@ zero_extendqisi2
+ 336 017a 03F0FC03 		and	r3, r3, #252
+ 337 017e 9BB2     		uxth	r3, r3
+ 338 0180 1343     		orrs	r3, r3, r2
+ 339 0182 9BB2     		uxth	r3, r3
+ 340 0184 FB80     		strh	r3, [r7, #6]	@ movhi
+ 135:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** 
+ 136:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     return humidity;
+ 341              		.loc 1 136 0
+ 342 0186 FB88     		ldrh	r3, [r7, #6]
+ 137:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** }
+ 343              		.loc 1 137 0
+ 344 0188 1846     		mov	r0, r3
+ 345 018a 0837     		adds	r7, r7, #8
+ 346 018c BD46     		mov	sp, r7
+ 347              		@ sp needed
+ 348 018e 80BD     		pop	{r7, pc}
+ 349              		.cfi_endproc
+ 350              	.LFE5:
+ 352              		.align	2
+ 353              		.global	sht21_convert_humidity
+ 354              		.thumb
+ 355              		.thumb_func
+ 357              	sht21_convert_humidity:
+ 358              	.LFB6:
+ 138:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** 
+ 139:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** float sht21_convert_humidity(uint16_t humidity) {
+ 359              		.loc 1 139 0
+ 360              		.cfi_startproc
+ 361              		@ args = 0, pretend = 0, frame = 16
+ 362              		@ frame_needed = 1, uses_anonymous_args = 0
+ 363 0190 B0B5     		push	{r4, r5, r7, lr}
+ 364              		.cfi_def_cfa_offset 16
+ 365              		.cfi_offset 4, -16
+ 366              		.cfi_offset 5, -12
+ 367              		.cfi_offset 7, -8
+ 368              		.cfi_offset 14, -4
+ 369 0192 84B0     		sub	sp, sp, #16
+ 370              		.cfi_def_cfa_offset 32
+ 371 0194 00AF     		add	r7, sp, #0
+ 372              		.cfi_def_cfa_register 7
+ 373 0196 0346     		mov	r3, r0
+ 374 0198 FB80     		strh	r3, [r7, #6]	@ movhi
+ 140:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     float result;
+ 141:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     
+ 142:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     result  = -6.0;
+ 375              		.loc 1 142 0
+ 376 019a 4FF00003 		mov	r3, #0
+ 377 019e CCF2C003 		movt	r3, 49344
+ 378 01a2 FB60     		str	r3, [r7, #12]	@ float
+ 143:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     result += 125.0 * humidity / 65536;
+ 379              		.loc 1 143 0
+ 380 01a4 F868     		ldr	r0, [r7, #12]	@ float
+ 381 01a6 FFF7FEFF 		bl	__aeabi_f2d
+ 382 01aa 0446     		mov	r4, r0
+ 383 01ac 0D46     		mov	r5, r1
+ 384 01ae FB88     		ldrh	r3, [r7, #6]
+ 385 01b0 1846     		mov	r0, r3
+ 386 01b2 FFF7FEFF 		bl	__aeabi_i2d
+ 387 01b6 0246     		mov	r2, r0
+ 388 01b8 0B46     		mov	r3, r1
+ 389 01ba 1046     		mov	r0, r2
+ 390 01bc 1946     		mov	r1, r3
+ 391 01be 4FF00002 		mov	r2, #0
+ 392 01c2 4FF48043 		mov	r3, #16384
+ 393 01c6 C4F25F03 		movt	r3, 16479
+ 394 01ca FFF7FEFF 		bl	__aeabi_dmul
+ 395 01ce 0246     		mov	r2, r0
+ 396 01d0 0B46     		mov	r3, r1
+ 397 01d2 1046     		mov	r0, r2
+ 398 01d4 1946     		mov	r1, r3
+ 399 01d6 4FF00002 		mov	r2, #0
+ 400 01da 4FF00003 		mov	r3, #0
+ 401 01de C4F2F003 		movt	r3, 16624
+ 402 01e2 FFF7FEFF 		bl	__aeabi_ddiv
+ 403 01e6 0246     		mov	r2, r0
+ 404 01e8 0B46     		mov	r3, r1
+ 405 01ea 2046     		mov	r0, r4
+ 406 01ec 2946     		mov	r1, r5
+ 407 01ee FFF7FEFF 		bl	__aeabi_dadd
+ 408 01f2 0246     		mov	r2, r0
+ 409 01f4 0B46     		mov	r3, r1
+ 410 01f6 1046     		mov	r0, r2
+ 411 01f8 1946     		mov	r1, r3
+ 412 01fa FFF7FEFF 		bl	__aeabi_d2f
+ 413 01fe 0346     		mov	r3, r0
+ 414 0200 FB60     		str	r3, [r7, #12]	@ float
+ 144:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     
+ 145:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     return result;
+ 415              		.loc 1 145 0
+ 416 0202 FB68     		ldr	r3, [r7, #12]	@ float
+ 146:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** }
+ 417              		.loc 1 146 0
+ 418 0204 1846     		mov	r0, r3
+ 419 0206 1037     		adds	r7, r7, #16
+ 420 0208 BD46     		mov	sp, r7
+ 421              		@ sp needed
+ 422 020a B0BD     		pop	{r4, r5, r7, pc}
+ 423              		.cfi_endproc
+ 424              	.LFE6:
+ 426              		.align	2
+ 427              		.thumb
+ 428              		.thumb_func
+ 430              	sht21_pre_init:
+ 431              	.LFB7:
+ 147:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** 
+ 148:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** //=========================== private =========================================
+ 149:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** 
+ 150:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** static void sht21_pre_init(void) {
+ 432              		.loc 1 150 0
+ 433              		.cfi_startproc
+ 434              		@ args = 0, pretend = 0, frame = 8
+ 435              		@ frame_needed = 1, uses_anonymous_args = 0
+ 436              		@ link register save eliminated.
+ 437 020c 80B4     		push	{r7}
+ 438              		.cfi_def_cfa_offset 4
+ 439              		.cfi_offset 7, -4
+ 440 020e 83B0     		sub	sp, sp, #12
+ 441              		.cfi_def_cfa_offset 16
+ 442 0210 00AF     		add	r7, sp, #0
+ 443              		.cfi_def_cfa_register 7
+ 151:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     static bool is_initialized = false;
+ 152:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     volatile uint32_t i;
+ 153:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** 
+ 154:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     if (is_initialized == false) {
+ 444              		.loc 1 154 0
+ 445 0212 40F20003 		movw	r3, #:lower16:is_initialized.4185
+ 446 0216 C0F20003 		movt	r3, #:upper16:is_initialized.4185
+ 447 021a 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 448 021c 83F00103 		eor	r3, r3, #1
+ 449 0220 DBB2     		uxtb	r3, r3
+ 450 0222 002B     		cmp	r3, #0
+ 451 0224 11D0     		beq	.L18
+ 155:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****         // Delay needed for the SHT21 to startup
+ 156:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****         for (i = 0x1FFFF; i != 0; i--);
+ 452              		.loc 1 156 0
+ 453 0226 4FF6FF73 		movw	r3, #65535
+ 454 022a C0F20103 		movt	r3, 1
+ 455 022e 7B60     		str	r3, [r7, #4]
+ 456 0230 02E0     		b	.L20
+ 457              	.L21:
+ 458              		.loc 1 156 0 is_stmt 0 discriminator 2
+ 459 0232 7B68     		ldr	r3, [r7, #4]
+ 460 0234 013B     		subs	r3, r3, #1
+ 461 0236 7B60     		str	r3, [r7, #4]
+ 462              	.L20:
+ 463              		.loc 1 156 0 discriminator 1
+ 464 0238 7B68     		ldr	r3, [r7, #4]
+ 465 023a 002B     		cmp	r3, #0
+ 466 023c F9D1     		bne	.L21
+ 157:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****         is_initialized = true;
+ 467              		.loc 1 157 0 is_stmt 1
+ 468 023e 40F20003 		movw	r3, #:lower16:is_initialized.4185
+ 469 0242 C0F20003 		movt	r3, #:upper16:is_initialized.4185
+ 470 0246 0122     		movs	r2, #1
+ 471 0248 1A70     		strb	r2, [r3]
+ 472              	.L18:
+ 158:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c ****     }
+ 159:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/sht21/sht21.c **** }
+ 473              		.loc 1 159 0
+ 474 024a 0C37     		adds	r7, r7, #12
+ 475 024c BD46     		mov	sp, r7
+ 476              		@ sp needed
+ 477 024e 5DF8047B 		ldr	r7, [sp], #4
+ 478 0252 7047     		bx	lr
+ 479              		.cfi_endproc
+ 480              	.LFE7:
+ 482              		.bss
+ 483              	is_initialized.4185:
+ 484 0000 00       		.space	1
+ 485              		.text
+ 486              	.Letext0:
+ 487              		.file 2 "/usr/include/newlib/machine/_default_types.h"
+ 488              		.file 3 "/usr/include/newlib/stdint.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 sht21.c
+     /tmp/ccMxrFZX.s:18     .text:0000000000000000 $t
+     /tmp/ccMxrFZX.s:23     .text:0000000000000000 sht21_init
+     /tmp/ccMxrFZX.s:430    .text:000000000000020c sht21_pre_init
+     /tmp/ccMxrFZX.s:85     .text:000000000000004c sht21_reset
+     /tmp/ccMxrFZX.s:111    .text:000000000000005c sht21_is_present
+     /tmp/ccMxrFZX.s:173    .text:00000000000000a0 sht21_read_temperature
+     /tmp/ccMxrFZX.s:229    .text:00000000000000d8 sht21_convert_temperature
+     /tmp/ccMxrFZX.s:297    .text:0000000000000150 $d
+     /tmp/ccMxrFZX.s:302    .text:0000000000000158 $t
+     /tmp/ccMxrFZX.s:307    .text:0000000000000158 sht21_read_humidity
+     /tmp/ccMxrFZX.s:357    .text:0000000000000190 sht21_convert_humidity
+     /tmp/ccMxrFZX.s:483    .bss:0000000000000000 is_initialized.4185
+     /tmp/ccMxrFZX.s:484    .bss:0000000000000000 $d
+                     .debug_frame:0000000000000010 $d
+                           .group:0000000000000000 wm4.1.08074afb2ccc9da754fae8e3ee0f577b
+                           .group:0000000000000000 wm4.features.h.22.6a4ca7cd053637cc1d0db6c16f39b2d7
+                           .group:0000000000000000 wm4._default_types.h.15.8b2cb27e528498f8ff711db085d6e489
+                           .group:0000000000000000 wm4.stdint.h.20.796e373797e732130a803d4c0338fa1b
+                           .group:0000000000000000 wm4.stdbool.h.29.1c9ee6859ce8145f7838a4f2549ccec2
+                           .group:0000000000000000 wm4.i2c.h.2.c40f7396ee1937cb7d6a6e6fcec1c344
+
+UNDEFINED SYMBOLS
+i2c_write_byte
+i2c_read_byte
+i2c_write_bytes
+i2c_read_bytes
+__aeabi_f2d
+__aeabi_i2d
+__aeabi_dmul
+__aeabi_ddiv
+__aeabi_dadd
+__aeabi_d2f

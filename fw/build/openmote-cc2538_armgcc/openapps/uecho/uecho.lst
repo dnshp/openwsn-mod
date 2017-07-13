@@ -1,0 +1,387 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"uecho.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.rodata
+  19              		.align	2
+  22              	rreg_uriquery:
+  23 0000 683D7563 		.ascii	"h=ucb\000"
+  23      6200
+  24 0006 0000     		.align	2
+  27              	infoBoardname:
+  28 0008 43433235 		.ascii	"CC2538\000"
+  28      333800
+  29 000f 00       		.align	2
+  32              	infouCName:
+  33 0010 43433235 		.ascii	"CC2538\000"
+  33      333800
+  34 0017 00       		.align	2
+  37              	infoRadioName:
+  38 0018 43433235 		.ascii	"CC2538 SoC\000"
+  38      33382053 
+  38      6F4300
+  39 0023 00       		.align	2
+  42              	infoStackName:
+  43 0024 4F70656E 		.ascii	"OpenWSN \000"
+  43      57534E20 
+  43      00
+  44              		.comm	uecho_vars,16,4
+  45 002d 000000   		.text
+  46              		.align	2
+  47              		.global	uecho_init
+  48              		.thumb
+  49              		.thumb_func
+  51              	uecho_init:
+  52              	.LFB0:
+  53              		.file 1 "build/openmote-cc2538_armgcc/openapps/uecho/uecho.c"
+   1:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c **** #include "opendefs.h"
+   2:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c **** #include "uecho.h"
+   3:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c **** #include "openqueue.h"
+   4:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c **** #include "openserial.h"
+   5:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c **** #include "packetfunctions.h"
+   6:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c **** 
+   7:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c **** //=========================== variables =======================================
+   8:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c **** 
+   9:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c **** uecho_vars_t uecho_vars;
+  10:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c **** 
+  11:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c **** //=========================== prototypes ======================================
+  12:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c **** 
+  13:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c **** //=========================== public ==========================================
+  14:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c **** 
+  15:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c **** void uecho_init() {
+  54              		.loc 1 15 0
+  55              		.cfi_startproc
+  56              		@ args = 0, pretend = 0, frame = 0
+  57              		@ frame_needed = 1, uses_anonymous_args = 0
+  58 0000 80B5     		push	{r7, lr}
+  59              		.cfi_def_cfa_offset 8
+  60              		.cfi_offset 7, -8
+  61              		.cfi_offset 14, -4
+  62 0002 00AF     		add	r7, sp, #0
+  63              		.cfi_def_cfa_register 7
+  16:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c ****    // clear local variables
+  17:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c ****    memset(&uecho_vars,0,sizeof(uecho_vars_t));
+  64              		.loc 1 17 0
+  65 0004 40F20000 		movw	r0, #:lower16:uecho_vars
+  66 0008 C0F20000 		movt	r0, #:upper16:uecho_vars
+  67 000c 0021     		movs	r1, #0
+  68 000e 1022     		movs	r2, #16
+  69 0010 FFF7FEFF 		bl	memset
+  18:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c **** 
+  19:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c ****    // register at UDP stack
+  20:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c ****    uecho_vars.desc.port              = WKP_UDP_ECHO;
+  70              		.loc 1 20 0
+  71 0014 40F20003 		movw	r3, #:lower16:uecho_vars
+  72 0018 C0F20003 		movt	r3, #:upper16:uecho_vars
+  73 001c 0722     		movs	r2, #7
+  74 001e 1A80     		strh	r2, [r3]	@ movhi
+  21:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c ****    uecho_vars.desc.callbackReceive   = &uecho_receive;
+  75              		.loc 1 21 0
+  76 0020 40F20003 		movw	r3, #:lower16:uecho_vars
+  77 0024 C0F20003 		movt	r3, #:upper16:uecho_vars
+  78 0028 40F20002 		movw	r2, #:lower16:uecho_receive
+  79 002c C0F20002 		movt	r2, #:upper16:uecho_receive
+  80 0030 5A60     		str	r2, [r3, #4]
+  22:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c ****    uecho_vars.desc.callbackSendDone  = &uecho_sendDone;
+  81              		.loc 1 22 0
+  82 0032 40F20003 		movw	r3, #:lower16:uecho_vars
+  83 0036 C0F20003 		movt	r3, #:upper16:uecho_vars
+  84 003a 40F20002 		movw	r2, #:lower16:uecho_sendDone
+  85 003e C0F20002 		movt	r2, #:upper16:uecho_sendDone
+  86 0042 9A60     		str	r2, [r3, #8]
+  23:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c ****    openudp_register(&uecho_vars.desc);
+  87              		.loc 1 23 0
+  88 0044 40F20000 		movw	r0, #:lower16:uecho_vars
+  89 0048 C0F20000 		movt	r0, #:upper16:uecho_vars
+  90 004c FFF7FEFF 		bl	openudp_register
+  24:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c **** }
+  91              		.loc 1 24 0
+  92 0050 80BD     		pop	{r7, pc}
+  93              		.cfi_endproc
+  94              	.LFE0:
+  96 0052 00BF     		.align	2
+  97              		.global	uecho_receive
+  98              		.thumb
+  99              		.thumb_func
+ 101              	uecho_receive:
+ 102              	.LFB1:
+  25:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c **** 
+  26:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c **** void uecho_receive(OpenQueueEntry_t* request) {
+ 103              		.loc 1 26 0
+ 104              		.cfi_startproc
+ 105              		@ args = 0, pretend = 0, frame = 16
+ 106              		@ frame_needed = 1, uses_anonymous_args = 0
+ 107 0054 80B5     		push	{r7, lr}
+ 108              		.cfi_def_cfa_offset 8
+ 109              		.cfi_offset 7, -8
+ 110              		.cfi_offset 14, -4
+ 111 0056 84B0     		sub	sp, sp, #16
+ 112              		.cfi_def_cfa_offset 24
+ 113 0058 00AF     		add	r7, sp, #0
+ 114              		.cfi_def_cfa_register 7
+ 115 005a 7860     		str	r0, [r7, #4]
+  27:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c ****    uint16_t          temp_l4_destination_port;
+  28:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c ****    OpenQueueEntry_t* reply;
+  29:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c ****    
+  30:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c ****    reply = openqueue_getFreePacketBuffer(COMPONENT_UECHO);
+ 116              		.loc 1 30 0
+ 117 005c 2320     		movs	r0, #35
+ 118 005e FFF7FEFF 		bl	openqueue_getFreePacketBuffer
+ 119 0062 F860     		str	r0, [r7, #12]
+  31:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c ****    if (reply==NULL) {
+ 120              		.loc 1 31 0
+ 121 0064 FB68     		ldr	r3, [r7, #12]
+ 122 0066 002B     		cmp	r3, #0
+ 123 0068 09D1     		bne	.L3
+  32:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c ****       openserial_printError(
+ 124              		.loc 1 32 0
+ 125 006a 2320     		movs	r0, #35
+ 126 006c 2C21     		movs	r1, #44
+ 127 006e 0022     		movs	r2, #0
+ 128 0070 0023     		movs	r3, #0
+ 129 0072 FFF7FEFF 		bl	openserial_printError
+  33:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c ****          COMPONENT_UECHO,
+  34:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c ****          ERR_NO_FREE_PACKET_BUFFER,
+  35:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c ****          (errorparameter_t)0,
+  36:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c ****          (errorparameter_t)0
+  37:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c ****       );
+  38:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c ****       openqueue_freePacketBuffer(request); //clear the request packet as well
+ 130              		.loc 1 38 0
+ 131 0076 7868     		ldr	r0, [r7, #4]
+ 132 0078 FFF7FEFF 		bl	openqueue_freePacketBuffer
+  39:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c ****       return;
+ 133              		.loc 1 39 0
+ 134 007c 3CE0     		b	.L2
+ 135              	.L3:
+  40:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c ****    }
+  41:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c ****    
+  42:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c ****    reply->owner                         = COMPONENT_UECHO;
+ 136              		.loc 1 42 0
+ 137 007e FB68     		ldr	r3, [r7, #12]
+ 138 0080 2322     		movs	r2, #35
+ 139 0082 5A70     		strb	r2, [r3, #1]
+  43:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c ****    
+  44:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c ****    // reply with the same OpenQueueEntry_t
+  45:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c ****    reply->creator                       = COMPONENT_UECHO;
+ 140              		.loc 1 45 0
+ 141 0084 FB68     		ldr	r3, [r7, #12]
+ 142 0086 2322     		movs	r2, #35
+ 143 0088 1A70     		strb	r2, [r3]
+  46:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c ****    reply->l4_protocol                   = IANA_UDP;
+ 144              		.loc 1 46 0
+ 145 008a FB68     		ldr	r3, [r7, #12]
+ 146 008c 1122     		movs	r2, #17
+ 147 008e 5A72     		strb	r2, [r3, #9]
+  47:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c ****    temp_l4_destination_port           = request->l4_destination_port;
+ 148              		.loc 1 47 0
+ 149 0090 7B68     		ldr	r3, [r7, #4]
+ 150 0092 DB89     		ldrh	r3, [r3, #14]	@ movhi
+ 151 0094 7B81     		strh	r3, [r7, #10]	@ movhi
+  48:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c ****    reply->l4_destination_port           = request->l4_sourcePortORicmpv6Type;
+ 152              		.loc 1 48 0
+ 153 0096 7B68     		ldr	r3, [r7, #4]
+ 154 0098 9A89     		ldrh	r2, [r3, #12]
+ 155 009a FB68     		ldr	r3, [r7, #12]
+ 156 009c DA81     		strh	r2, [r3, #14]	@ movhi
+  49:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c ****    reply->l4_sourcePortORicmpv6Type     = temp_l4_destination_port;
+ 157              		.loc 1 49 0
+ 158 009e FB68     		ldr	r3, [r7, #12]
+ 159 00a0 7A89     		ldrh	r2, [r7, #10]	@ movhi
+ 160 00a2 9A81     		strh	r2, [r3, #12]	@ movhi
+  50:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c ****    reply->l3_destinationAdd.type        = ADDR_128B;
+ 161              		.loc 1 50 0
+ 162 00a4 FB68     		ldr	r3, [r7, #12]
+ 163 00a6 0322     		movs	r2, #3
+ 164 00a8 5A75     		strb	r2, [r3, #21]
+  51:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c ****    
+  52:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c ****    // copy source to destination to echo.
+  53:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c ****    memcpy(&reply->l3_destinationAdd.addr_128b[0],&request->l3_sourceAdd.addr_128b[0],16);
+ 165              		.loc 1 53 0
+ 166 00aa FB68     		ldr	r3, [r7, #12]
+ 167 00ac 03F11602 		add	r2, r3, #22
+ 168 00b0 7B68     		ldr	r3, [r7, #4]
+ 169 00b2 2733     		adds	r3, r3, #39
+ 170 00b4 1046     		mov	r0, r2
+ 171 00b6 1946     		mov	r1, r3
+ 172 00b8 1022     		movs	r2, #16
+ 173 00ba FFF7FEFF 		bl	memcpy
+  54:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c ****    
+  55:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c ****    packetfunctions_reserveHeaderSize(reply,request->length);
+ 174              		.loc 1 55 0
+ 175 00be 7B68     		ldr	r3, [r7, #4]
+ 176 00c0 1B7A     		ldrb	r3, [r3, #8]	@ zero_extendqisi2
+ 177 00c2 F868     		ldr	r0, [r7, #12]
+ 178 00c4 1946     		mov	r1, r3
+ 179 00c6 FFF7FEFF 		bl	packetfunctions_reserveHeaderSize
+  56:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c ****    memcpy(&reply->payload[0],&request->payload[0],request->length);
+ 180              		.loc 1 56 0
+ 181 00ca FB68     		ldr	r3, [r7, #12]
+ 182 00cc 5968     		ldr	r1, [r3, #4]
+ 183 00ce 7B68     		ldr	r3, [r7, #4]
+ 184 00d0 5A68     		ldr	r2, [r3, #4]
+ 185 00d2 7B68     		ldr	r3, [r7, #4]
+ 186 00d4 1B7A     		ldrb	r3, [r3, #8]	@ zero_extendqisi2
+ 187 00d6 0846     		mov	r0, r1
+ 188 00d8 1146     		mov	r1, r2
+ 189 00da 1A46     		mov	r2, r3
+ 190 00dc FFF7FEFF 		bl	memcpy
+  57:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c ****    openqueue_freePacketBuffer(request);
+ 191              		.loc 1 57 0
+ 192 00e0 7868     		ldr	r0, [r7, #4]
+ 193 00e2 FFF7FEFF 		bl	openqueue_freePacketBuffer
+  58:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c ****    
+  59:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c ****    if ((openudp_send(reply))==E_FAIL) {
+ 194              		.loc 1 59 0
+ 195 00e6 F868     		ldr	r0, [r7, #12]
+ 196 00e8 FFF7FEFF 		bl	openudp_send
+ 197 00ec 0346     		mov	r3, r0
+ 198 00ee 012B     		cmp	r3, #1
+ 199 00f0 02D1     		bne	.L2
+  60:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c ****       openqueue_freePacketBuffer(reply);
+ 200              		.loc 1 60 0
+ 201 00f2 F868     		ldr	r0, [r7, #12]
+ 202 00f4 FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 203              	.L2:
+  61:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c ****    }
+  62:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c **** }
+ 204              		.loc 1 62 0
+ 205 00f8 1037     		adds	r7, r7, #16
+ 206 00fa BD46     		mov	sp, r7
+ 207              		@ sp needed
+ 208 00fc 80BD     		pop	{r7, pc}
+ 209              		.cfi_endproc
+ 210              	.LFE1:
+ 212 00fe 00BF     		.align	2
+ 213              		.global	uecho_sendDone
+ 214              		.thumb
+ 215              		.thumb_func
+ 217              	uecho_sendDone:
+ 218              	.LFB2:
+  63:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c **** 
+  64:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c **** void uecho_sendDone(OpenQueueEntry_t* msg, owerror_t error) {
+ 219              		.loc 1 64 0
+ 220              		.cfi_startproc
+ 221              		@ args = 0, pretend = 0, frame = 8
+ 222              		@ frame_needed = 1, uses_anonymous_args = 0
+ 223 0100 80B5     		push	{r7, lr}
+ 224              		.cfi_def_cfa_offset 8
+ 225              		.cfi_offset 7, -8
+ 226              		.cfi_offset 14, -4
+ 227 0102 82B0     		sub	sp, sp, #8
+ 228              		.cfi_def_cfa_offset 16
+ 229 0104 00AF     		add	r7, sp, #0
+ 230              		.cfi_def_cfa_register 7
+ 231 0106 7860     		str	r0, [r7, #4]
+ 232 0108 0B46     		mov	r3, r1
+ 233 010a FB70     		strb	r3, [r7, #3]
+  65:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c ****    openqueue_freePacketBuffer(msg);
+ 234              		.loc 1 65 0
+ 235 010c 7868     		ldr	r0, [r7, #4]
+ 236 010e FFF7FEFF 		bl	openqueue_freePacketBuffer
+  66:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c **** }
+ 237              		.loc 1 66 0
+ 238 0112 0837     		adds	r7, r7, #8
+ 239 0114 BD46     		mov	sp, r7
+ 240              		@ sp needed
+ 241 0116 80BD     		pop	{r7, pc}
+ 242              		.cfi_endproc
+ 243              	.LFE2:
+ 245              		.align	2
+ 246              		.global	uecho_debugPrint
+ 247              		.thumb
+ 248              		.thumb_func
+ 250              	uecho_debugPrint:
+ 251              	.LFB3:
+  67:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c **** 
+  68:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c **** bool uecho_debugPrint() {
+ 252              		.loc 1 68 0
+ 253              		.cfi_startproc
+ 254              		@ args = 0, pretend = 0, frame = 0
+ 255              		@ frame_needed = 1, uses_anonymous_args = 0
+ 256              		@ link register save eliminated.
+ 257 0118 80B4     		push	{r7}
+ 258              		.cfi_def_cfa_offset 4
+ 259              		.cfi_offset 7, -4
+ 260 011a 00AF     		add	r7, sp, #0
+ 261              		.cfi_def_cfa_register 7
+  69:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c ****    return FALSE;
+ 262              		.loc 1 69 0
+ 263 011c 0023     		movs	r3, #0
+  70:build/openmote-cc2538_armgcc/openapps/uecho/uecho.c **** }
+ 264              		.loc 1 70 0
+ 265 011e 1846     		mov	r0, r3
+ 266 0120 BD46     		mov	sp, r7
+ 267              		@ sp needed
+ 268 0122 5DF8047B 		ldr	r7, [sp], #4
+ 269 0126 7047     		bx	lr
+ 270              		.cfi_endproc
+ 271              	.LFE3:
+ 273              	.Letext0:
+ 274              		.file 2 "/usr/include/newlib/machine/_default_types.h"
+ 275              		.file 3 "/usr/include/newlib/stdint.h"
+ 276              		.file 4 "inc/opendefs.h"
+ 277              		.file 5 "openstack/04-TRAN/openudp.h"
+ 278              		.file 6 "build/openmote-cc2538_armgcc/openapps/uecho/uecho.h"
+ 279              		.file 7 "bsp/boards/openmote-cc2538/board_info.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 uecho.c
+     /tmp/ccNR2dSA.s:19     .rodata:0000000000000000 $d
+     /tmp/ccNR2dSA.s:22     .rodata:0000000000000000 rreg_uriquery
+     /tmp/ccNR2dSA.s:27     .rodata:0000000000000008 infoBoardname
+     /tmp/ccNR2dSA.s:32     .rodata:0000000000000010 infouCName
+     /tmp/ccNR2dSA.s:37     .rodata:0000000000000018 infoRadioName
+     /tmp/ccNR2dSA.s:42     .rodata:0000000000000024 infoStackName
+                            *COM*:0000000000000010 uecho_vars
+     /tmp/ccNR2dSA.s:46     .text:0000000000000000 $t
+     /tmp/ccNR2dSA.s:51     .text:0000000000000000 uecho_init
+     /tmp/ccNR2dSA.s:101    .text:0000000000000054 uecho_receive
+     /tmp/ccNR2dSA.s:217    .text:0000000000000100 uecho_sendDone
+     /tmp/ccNR2dSA.s:250    .text:0000000000000118 uecho_debugPrint
+                     .debug_frame:0000000000000010 $d
+                           .group:0000000000000000 wm4.1.08074afb2ccc9da754fae8e3ee0f577b
+                           .group:0000000000000000 wm4.features.h.22.6a4ca7cd053637cc1d0db6c16f39b2d7
+                           .group:0000000000000000 wm4._default_types.h.15.8b2cb27e528498f8ff711db085d6e489
+                           .group:0000000000000000 wm4.stdint.h.20.796e373797e732130a803d4c0338fa1b
+                           .group:0000000000000000 wm4.toolchain_defs.h.2.e5fd326231d01413e5361944b26cde07
+                           .group:0000000000000000 wm4.newlib.h.8.fec018e441fee7bfa1923812ad010f97
+                           .group:0000000000000000 wm4.config.h.212.4163ef2871a828c674038d036b081cfd
+                           .group:0000000000000000 wm4._ansi.h.23.5644b60c990a4800b02a6e654e88f93a
+                           .group:0000000000000000 wm4.stddef.h.39.daafd3d79fe2f3a84d2d73d7d4e706f8
+                           .group:0000000000000000 wm4.lock.h.2.9bc98482741e5e2a9450b12934a684ea
+                           .group:0000000000000000 wm4._types.h.54.d3d34a3b7f3cc230cd159baf022b4b08
+                           .group:0000000000000000 wm4.stddef.h.158.61317cdbfb4026324507d123a50b0fd6
+                           .group:0000000000000000 wm4.reent.h.17.8bd9e4098e0428508c282cad794fae43
+                           .group:0000000000000000 wm4.cdefs.h.47.339223046f475c9f2d5db3a9118d7c65
+                           .group:0000000000000000 wm4.string.h.15.dab3980bf35408a4c507182805e2de3a
+                           .group:0000000000000000 wm4.stddef.h.158.a7efb00f6cbc6f43213b50e183c9830c
+                           .group:0000000000000000 wm4.string.h.126.6ff3aa59129e7f66b2c273baf353e066
+                           .group:0000000000000000 wm4.stdbool.h.29.1c9ee6859ce8145f7838a4f2549ccec2
+                           .group:0000000000000000 wm4.hw_types.h.67.b10589a0806dcc2d274d6fab6b736519
+                           .group:0000000000000000 wm4.interrupt.h.41.272fc4ec0e276feb439e7974d0f77eaf
+                           .group:0000000000000000 wm4.board_info.h.22.aeb00002354a4949fff54190040e37af
+                           .group:0000000000000000 wm4.opendefs.h.23.16dafe2a30b31097968a5d4db894173a
+                           .group:0000000000000000 wm4.IEEE802154.h.2.38fb510ed33a23a9a0660164e6dfab69
+                           .group:0000000000000000 wm4.openserial.h.9.0a357d13b4113cc69ceb77572df48861
+
+UNDEFINED SYMBOLS
+memset
+openudp_register
+openqueue_getFreePacketBuffer
+openserial_printError
+openqueue_freePacketBuffer
+memcpy
+packetfunctions_reserveHeaderSize
+openudp_send

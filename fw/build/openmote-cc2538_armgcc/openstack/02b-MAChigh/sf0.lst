@@ -1,0 +1,726 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"sf0.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.rodata
+  19              		.align	2
+  22              	rreg_uriquery:
+  23 0000 683D7563 		.ascii	"h=ucb\000"
+  23      6200
+  24 0006 0000     		.align	2
+  27              	infoBoardname:
+  28 0008 43433235 		.ascii	"CC2538\000"
+  28      333800
+  29 000f 00       		.align	2
+  32              	infouCName:
+  33 0010 43433235 		.ascii	"CC2538\000"
+  33      333800
+  34 0017 00       		.align	2
+  37              	infoRadioName:
+  38 0018 43433235 		.ascii	"CC2538 SoC\000"
+  38      33382053 
+  38      6F4300
+  39 0023 00       		.align	2
+  42              	infoStackName:
+  43 0024 4F70656E 		.ascii	"OpenWSN \000"
+  43      57534E20 
+  43      00
+  44 002d 000000   		.align	2
+  47              	all_routers_multicast:
+  48 0030 FF       		.byte	-1
+  49 0031 02       		.byte	2
+  50 0032 00       		.byte	0
+  51 0033 00       		.byte	0
+  52 0034 00       		.byte	0
+  53 0035 00       		.byte	0
+  54 0036 00       		.byte	0
+  55 0037 00       		.byte	0
+  56 0038 00       		.byte	0
+  57 0039 00       		.byte	0
+  58 003a 00       		.byte	0
+  59 003b 00       		.byte	0
+  60 003c 00       		.byte	0
+  61 003d 00       		.byte	0
+  62 003e 00       		.byte	0
+  63 003f 1A       		.byte	26
+  64              		.comm	sf0_vars,2,4
+  65              		.text
+  66              		.align	2
+  67              		.global	sf0_init
+  68              		.thumb
+  69              		.thumb_func
+  71              	sf0_init:
+  72              	.LFB0:
+  73              		.file 1 "build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c"
+   1:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** #include "opendefs.h"
+   2:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** #include "sf0.h"
+   3:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** #include "neighbors.h"
+   4:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** #include "sixtop.h"
+   5:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** #include "scheduler.h"
+   6:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** #include "schedule.h"
+   7:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** #include "idmanager.h"
+   8:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** #include "openapps.h"
+   9:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** 
+  10:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** //=========================== definition =====================================
+  11:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** 
+  12:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** #define SF0THRESHOLD      2
+  13:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** 
+  14:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** //=========================== variables =======================================
+  15:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** 
+  16:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** sf0_vars_t sf0_vars;
+  17:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** 
+  18:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** //=========================== prototypes ======================================
+  19:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** 
+  20:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** void sf0_addCell_task(void);
+  21:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** void sf0_removeCell_task(void);
+  22:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** void sf0_bandwidthEstimate_task(void);
+  23:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** 
+  24:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** //=========================== public ==========================================
+  25:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** 
+  26:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** void sf0_init(void) {
+  74              		.loc 1 26 0
+  75              		.cfi_startproc
+  76              		@ args = 0, pretend = 0, frame = 0
+  77              		@ frame_needed = 1, uses_anonymous_args = 0
+  78 0000 80B5     		push	{r7, lr}
+  79              		.cfi_def_cfa_offset 8
+  80              		.cfi_offset 7, -8
+  81              		.cfi_offset 14, -4
+  82 0002 00AF     		add	r7, sp, #0
+  83              		.cfi_def_cfa_register 7
+  27:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****     memset(&sf0_vars,0,sizeof(sf0_vars_t));
+  84              		.loc 1 27 0
+  85 0004 40F20000 		movw	r0, #:lower16:sf0_vars
+  86 0008 C0F20000 		movt	r0, #:upper16:sf0_vars
+  87 000c 0021     		movs	r1, #0
+  88 000e 0222     		movs	r2, #2
+  89 0010 FFF7FEFF 		bl	memset
+  28:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****     sf0_vars.numAppPacketsPerSlotFrame = 0;
+  90              		.loc 1 28 0
+  91 0014 40F20003 		movw	r3, #:lower16:sf0_vars
+  92 0018 C0F20003 		movt	r3, #:upper16:sf0_vars
+  93 001c 0022     		movs	r2, #0
+  94 001e 1A70     		strb	r2, [r3]
+  29:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** }
+  95              		.loc 1 29 0
+  96 0020 80BD     		pop	{r7, pc}
+  97              		.cfi_endproc
+  98              	.LFE0:
+ 100 0022 00BF     		.align	2
+ 101              		.global	sf0_notif_addedCell
+ 102              		.thumb
+ 103              		.thumb_func
+ 105              	sf0_notif_addedCell:
+ 106              	.LFB1:
+  30:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** 
+  31:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** void sf0_notif_addedCell(void) {
+ 107              		.loc 1 31 0
+ 108              		.cfi_startproc
+ 109              		@ args = 0, pretend = 0, frame = 0
+ 110              		@ frame_needed = 1, uses_anonymous_args = 0
+ 111 0024 80B5     		push	{r7, lr}
+ 112              		.cfi_def_cfa_offset 8
+ 113              		.cfi_offset 7, -8
+ 114              		.cfi_offset 14, -4
+ 115 0026 00AF     		add	r7, sp, #0
+ 116              		.cfi_def_cfa_register 7
+  32:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****    scheduler_push_task(sf0_addCell_task,TASKPRIO_SF0);
+ 117              		.loc 1 32 0
+ 118 0028 40F20000 		movw	r0, #:lower16:sf0_addCell_task
+ 119 002c C0F20000 		movt	r0, #:upper16:sf0_addCell_task
+ 120 0030 0821     		movs	r1, #8
+ 121 0032 FFF7FEFF 		bl	scheduler_push_task
+  33:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** }
+ 122              		.loc 1 33 0
+ 123 0036 80BD     		pop	{r7, pc}
+ 124              		.cfi_endproc
+ 125              	.LFE1:
+ 127              		.align	2
+ 128              		.global	sf0_notif_removedCell
+ 129              		.thumb
+ 130              		.thumb_func
+ 132              	sf0_notif_removedCell:
+ 133              	.LFB2:
+  34:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** 
+  35:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** void sf0_notif_removedCell(void) {
+ 134              		.loc 1 35 0
+ 135              		.cfi_startproc
+ 136              		@ args = 0, pretend = 0, frame = 0
+ 137              		@ frame_needed = 1, uses_anonymous_args = 0
+ 138 0038 80B5     		push	{r7, lr}
+ 139              		.cfi_def_cfa_offset 8
+ 140              		.cfi_offset 7, -8
+ 141              		.cfi_offset 14, -4
+ 142 003a 00AF     		add	r7, sp, #0
+ 143              		.cfi_def_cfa_register 7
+  36:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****    scheduler_push_task(sf0_removeCell_task,TASKPRIO_SF0);
+ 144              		.loc 1 36 0
+ 145 003c 40F20000 		movw	r0, #:lower16:sf0_removeCell_task
+ 146 0040 C0F20000 		movt	r0, #:upper16:sf0_removeCell_task
+ 147 0044 0821     		movs	r1, #8
+ 148 0046 FFF7FEFF 		bl	scheduler_push_task
+  37:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** }
+ 149              		.loc 1 37 0
+ 150 004a 80BD     		pop	{r7, pc}
+ 151              		.cfi_endproc
+ 152              	.LFE2:
+ 154              		.align	2
+ 155              		.global	sf0_notifyNewSlotframe
+ 156              		.thumb
+ 157              		.thumb_func
+ 159              	sf0_notifyNewSlotframe:
+ 160              	.LFB3:
+  38:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** 
+  39:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** // this function is called once per slotframe. 
+  40:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** void sf0_notifyNewSlotframe(void) {
+ 161              		.loc 1 40 0
+ 162              		.cfi_startproc
+ 163              		@ args = 0, pretend = 0, frame = 0
+ 164              		@ frame_needed = 1, uses_anonymous_args = 0
+ 165 004c 80B5     		push	{r7, lr}
+ 166              		.cfi_def_cfa_offset 8
+ 167              		.cfi_offset 7, -8
+ 168              		.cfi_offset 14, -4
+ 169 004e 00AF     		add	r7, sp, #0
+ 170              		.cfi_def_cfa_register 7
+  41:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****    scheduler_push_task(sf0_bandwidthEstimate_task,TASKPRIO_SF0);
+ 171              		.loc 1 41 0
+ 172 0050 40F20000 		movw	r0, #:lower16:sf0_bandwidthEstimate_task
+ 173 0054 C0F20000 		movt	r0, #:upper16:sf0_bandwidthEstimate_task
+ 174 0058 0821     		movs	r1, #8
+ 175 005a FFF7FEFF 		bl	scheduler_push_task
+  42:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** }
+ 176              		.loc 1 42 0
+ 177 005e 80BD     		pop	{r7, pc}
+ 178              		.cfi_endproc
+ 179              	.LFE3:
+ 181              		.align	2
+ 182              		.global	sf0_setBackoff
+ 183              		.thumb
+ 184              		.thumb_func
+ 186              	sf0_setBackoff:
+ 187              	.LFB4:
+  43:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** 
+  44:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** void sf0_setBackoff(uint8_t value){
+ 188              		.loc 1 44 0
+ 189              		.cfi_startproc
+ 190              		@ args = 0, pretend = 0, frame = 8
+ 191              		@ frame_needed = 1, uses_anonymous_args = 0
+ 192              		@ link register save eliminated.
+ 193 0060 80B4     		push	{r7}
+ 194              		.cfi_def_cfa_offset 4
+ 195              		.cfi_offset 7, -4
+ 196 0062 83B0     		sub	sp, sp, #12
+ 197              		.cfi_def_cfa_offset 16
+ 198 0064 00AF     		add	r7, sp, #0
+ 199              		.cfi_def_cfa_register 7
+ 200 0066 0346     		mov	r3, r0
+ 201 0068 FB71     		strb	r3, [r7, #7]
+  45:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****     sf0_vars.backoff = value;
+ 202              		.loc 1 45 0
+ 203 006a 40F20003 		movw	r3, #:lower16:sf0_vars
+ 204 006e C0F20003 		movt	r3, #:upper16:sf0_vars
+ 205 0072 FA79     		ldrb	r2, [r7, #7]
+ 206 0074 5A70     		strb	r2, [r3, #1]
+  46:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** }
+ 207              		.loc 1 46 0
+ 208 0076 0C37     		adds	r7, r7, #12
+ 209 0078 BD46     		mov	sp, r7
+ 210              		@ sp needed
+ 211 007a 5DF8047B 		ldr	r7, [sp], #4
+ 212 007e 7047     		bx	lr
+ 213              		.cfi_endproc
+ 214              	.LFE4:
+ 216              		.align	2
+ 217              		.global	sf0_addCell_task
+ 218              		.thumb
+ 219              		.thumb_func
+ 221              	sf0_addCell_task:
+ 222              	.LFB5:
+  47:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** 
+  48:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** //=========================== private =========================================
+  49:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** 
+  50:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** void sf0_addCell_task(void) {
+ 223              		.loc 1 50 0
+ 224              		.cfi_startproc
+ 225              		@ args = 0, pretend = 0, frame = 24
+ 226              		@ frame_needed = 1, uses_anonymous_args = 0
+ 227 0080 80B5     		push	{r7, lr}
+ 228              		.cfi_def_cfa_offset 8
+ 229              		.cfi_offset 7, -8
+ 230              		.cfi_offset 14, -4
+ 231 0082 86B0     		sub	sp, sp, #24
+ 232              		.cfi_def_cfa_offset 32
+ 233 0084 00AF     		add	r7, sp, #0
+ 234              		.cfi_def_cfa_register 7
+  51:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****    open_addr_t          neighbor;
+  52:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****    bool                 foundNeighbor;
+  53:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****    
+  54:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****    // get preferred parent
+  55:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****    foundNeighbor = icmpv6rpl_getPreferredParentEui64(&neighbor);
+ 235              		.loc 1 55 0
+ 236 0086 3B1D     		adds	r3, r7, #4
+ 237 0088 1846     		mov	r0, r3
+ 238 008a FFF7FEFF 		bl	icmpv6rpl_getPreferredParentEui64
+ 239 008e 0346     		mov	r3, r0
+ 240 0090 FB75     		strb	r3, [r7, #23]
+  56:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****    if (foundNeighbor==FALSE) {
+ 241              		.loc 1 56 0
+ 242 0092 FB7D     		ldrb	r3, [r7, #23]
+ 243 0094 83F00103 		eor	r3, r3, #1
+ 244 0098 DBB2     		uxtb	r3, r3
+ 245 009a 002B     		cmp	r3, #0
+ 246 009c 00D0     		beq	.L7
+  57:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****       return;
+ 247              		.loc 1 57 0
+ 248 009e 0FE0     		b	.L6
+ 249              	.L7:
+  58:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****    }
+  59:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****    
+  60:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****    if (sixtop_setHandler(SIX_HANDLER_SF0)==FALSE){
+ 250              		.loc 1 60 0
+ 251 00a0 0220     		movs	r0, #2
+ 252 00a2 FFF7FEFF 		bl	sixtop_setHandler
+ 253 00a6 0346     		mov	r3, r0
+ 254 00a8 83F00103 		eor	r3, r3, #1
+ 255 00ac DBB2     		uxtb	r3, r3
+ 256 00ae 002B     		cmp	r3, #0
+ 257 00b0 00D0     		beq	.L9
+  61:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****       // one sixtop transcation is happening, only one instance at one time
+  62:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****       return;
+ 258              		.loc 1 62 0
+ 259 00b2 05E0     		b	.L6
+ 260              	.L9:
+  63:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****    }
+  64:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****    // call sixtop
+  65:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****    sixtop_request(
+ 261              		.loc 1 65 0
+ 262 00b4 3B1D     		adds	r3, r7, #4
+ 263 00b6 0120     		movs	r0, #1
+ 264 00b8 1946     		mov	r1, r3
+ 265 00ba 0122     		movs	r2, #1
+ 266 00bc FFF7FEFF 		bl	sixtop_request
+ 267              	.L6:
+  66:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****       IANA_6TOP_CMD_ADD,
+  67:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****       &neighbor,
+  68:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****       1
+  69:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****    );
+  70:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** }
+ 268              		.loc 1 70 0
+ 269 00c0 1837     		adds	r7, r7, #24
+ 270 00c2 BD46     		mov	sp, r7
+ 271              		@ sp needed
+ 272 00c4 80BD     		pop	{r7, pc}
+ 273              		.cfi_endproc
+ 274              	.LFE5:
+ 276 00c6 00BF     		.align	2
+ 277              		.global	sf0_removeCell_task
+ 278              		.thumb
+ 279              		.thumb_func
+ 281              	sf0_removeCell_task:
+ 282              	.LFB6:
+  71:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** 
+  72:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** void sf0_removeCell_task(void) {
+ 283              		.loc 1 72 0
+ 284              		.cfi_startproc
+ 285              		@ args = 0, pretend = 0, frame = 24
+ 286              		@ frame_needed = 1, uses_anonymous_args = 0
+ 287 00c8 80B5     		push	{r7, lr}
+ 288              		.cfi_def_cfa_offset 8
+ 289              		.cfi_offset 7, -8
+ 290              		.cfi_offset 14, -4
+ 291 00ca 86B0     		sub	sp, sp, #24
+ 292              		.cfi_def_cfa_offset 32
+ 293 00cc 00AF     		add	r7, sp, #0
+ 294              		.cfi_def_cfa_register 7
+  73:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****    open_addr_t          neighbor;
+  74:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****    bool                 foundNeighbor;
+  75:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****    
+  76:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****    // get preferred parent
+  77:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****    foundNeighbor = icmpv6rpl_getPreferredParentEui64(&neighbor);
+ 295              		.loc 1 77 0
+ 296 00ce 3B1D     		adds	r3, r7, #4
+ 297 00d0 1846     		mov	r0, r3
+ 298 00d2 FFF7FEFF 		bl	icmpv6rpl_getPreferredParentEui64
+ 299 00d6 0346     		mov	r3, r0
+ 300 00d8 FB75     		strb	r3, [r7, #23]
+  78:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****    if (foundNeighbor==FALSE) {
+ 301              		.loc 1 78 0
+ 302 00da FB7D     		ldrb	r3, [r7, #23]
+ 303 00dc 83F00103 		eor	r3, r3, #1
+ 304 00e0 DBB2     		uxtb	r3, r3
+ 305 00e2 002B     		cmp	r3, #0
+ 306 00e4 00D0     		beq	.L12
+  79:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****       return;
+ 307              		.loc 1 79 0
+ 308 00e6 0FE0     		b	.L11
+ 309              	.L12:
+  80:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****    }
+  81:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****    
+  82:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****    if (sixtop_setHandler(SIX_HANDLER_SF0)==FALSE){
+ 310              		.loc 1 82 0
+ 311 00e8 0220     		movs	r0, #2
+ 312 00ea FFF7FEFF 		bl	sixtop_setHandler
+ 313 00ee 0346     		mov	r3, r0
+ 314 00f0 83F00103 		eor	r3, r3, #1
+ 315 00f4 DBB2     		uxtb	r3, r3
+ 316 00f6 002B     		cmp	r3, #0
+ 317 00f8 00D0     		beq	.L14
+  83:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****       // one sixtop transcation is happening, only one instance at one time
+  84:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****       return;
+ 318              		.loc 1 84 0
+ 319 00fa 05E0     		b	.L11
+ 320              	.L14:
+  85:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****    }
+  86:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****    // call sixtop
+  87:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****    sixtop_request(
+ 321              		.loc 1 87 0
+ 322 00fc 3B1D     		adds	r3, r7, #4
+ 323 00fe 0220     		movs	r0, #2
+ 324 0100 1946     		mov	r1, r3
+ 325 0102 0122     		movs	r2, #1
+ 326 0104 FFF7FEFF 		bl	sixtop_request
+ 327              	.L11:
+  88:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****       IANA_6TOP_CMD_DELETE,
+  89:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****       &neighbor,
+  90:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****       1
+  91:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****    );
+  92:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** }
+ 328              		.loc 1 92 0
+ 329 0108 1837     		adds	r7, r7, #24
+ 330 010a BD46     		mov	sp, r7
+ 331              		@ sp needed
+ 332 010c 80BD     		pop	{r7, pc}
+ 333              		.cfi_endproc
+ 334              	.LFE6:
+ 336 010e 00BF     		.align	2
+ 337              		.global	sf0_bandwidthEstimate_task
+ 338              		.thumb
+ 339              		.thumb_func
+ 341              	sf0_bandwidthEstimate_task:
+ 342              	.LFB7:
+  93:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** 
+  94:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** void sf0_bandwidthEstimate_task(void){
+ 343              		.loc 1 94 0
+ 344              		.cfi_startproc
+ 345              		@ args = 0, pretend = 0, frame = 24
+ 346              		@ frame_needed = 1, uses_anonymous_args = 0
+ 347 0110 80B5     		push	{r7, lr}
+ 348              		.cfi_def_cfa_offset 8
+ 349              		.cfi_offset 7, -8
+ 350              		.cfi_offset 14, -4
+ 351 0112 86B0     		sub	sp, sp, #24
+ 352              		.cfi_def_cfa_offset 32
+ 353 0114 00AF     		add	r7, sp, #0
+ 354              		.cfi_def_cfa_register 7
+  95:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****     open_addr_t    neighbor;
+  96:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****     bool           foundNeighbor;
+  97:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****     int8_t         bw_outgoing;
+  98:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****     int8_t         bw_incoming;
+  99:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****     int8_t         bw_self;
+ 100:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****     
+ 101:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****     // do not reserve cells if I'm a DAGroot
+ 102:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****     if (idmanager_getIsDAGroot()){
+ 355              		.loc 1 102 0
+ 356 0116 FFF7FEFF 		bl	idmanager_getIsDAGroot
+ 357 011a 0346     		mov	r3, r0
+ 358 011c 002B     		cmp	r3, #0
+ 359 011e 00D0     		beq	.L17
+ 103:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****         return;
+ 360              		.loc 1 103 0
+ 361 0120 6DE0     		b	.L16
+ 362              	.L17:
+ 104:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****     }
+ 105:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****     
+ 106:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****     if (sf0_vars.backoff>0){
+ 363              		.loc 1 106 0
+ 364 0122 40F20003 		movw	r3, #:lower16:sf0_vars
+ 365 0126 C0F20003 		movt	r3, #:upper16:sf0_vars
+ 366 012a 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 367 012c 002B     		cmp	r3, #0
+ 368 012e 0CD0     		beq	.L19
+ 107:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****         sf0_vars.backoff -= 1;
+ 369              		.loc 1 107 0
+ 370 0130 40F20003 		movw	r3, #:lower16:sf0_vars
+ 371 0134 C0F20003 		movt	r3, #:upper16:sf0_vars
+ 372 0138 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 373 013a 013B     		subs	r3, r3, #1
+ 374 013c DAB2     		uxtb	r2, r3
+ 375 013e 40F20003 		movw	r3, #:lower16:sf0_vars
+ 376 0142 C0F20003 		movt	r3, #:upper16:sf0_vars
+ 377 0146 5A70     		strb	r2, [r3, #1]
+ 108:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****         return;
+ 378              		.loc 1 108 0
+ 379 0148 59E0     		b	.L16
+ 380              	.L19:
+ 109:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****     }
+ 110:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****     
+ 111:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****     // get preferred parent
+ 112:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****     foundNeighbor = icmpv6rpl_getPreferredParentEui64(&neighbor);
+ 381              		.loc 1 112 0
+ 382 014a 3B46     		mov	r3, r7
+ 383 014c 1846     		mov	r0, r3
+ 384 014e FFF7FEFF 		bl	icmpv6rpl_getPreferredParentEui64
+ 385 0152 0346     		mov	r3, r0
+ 386 0154 FB75     		strb	r3, [r7, #23]
+ 113:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****     if (foundNeighbor==FALSE) {
+ 387              		.loc 1 113 0
+ 388 0156 FB7D     		ldrb	r3, [r7, #23]
+ 389 0158 83F00103 		eor	r3, r3, #1
+ 390 015c DBB2     		uxtb	r3, r3
+ 391 015e 002B     		cmp	r3, #0
+ 392 0160 00D0     		beq	.L20
+ 114:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****         return;
+ 393              		.loc 1 114 0
+ 394 0162 4CE0     		b	.L16
+ 395              	.L20:
+ 115:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****     }
+ 116:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****     
+ 117:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****     // get bandwidth of outgoing, incoming and self.
+ 118:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****     // Here we just calculate the estimated bandwidth for 
+ 119:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****     // the application sending on dedicate cells(TX or Rx).
+ 120:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****     bw_outgoing = schedule_getNumOfSlotsByType(CELLTYPE_TX);
+ 396              		.loc 1 120 0
+ 397 0164 0120     		movs	r0, #1
+ 398 0166 FFF7FEFF 		bl	schedule_getNumOfSlotsByType
+ 399 016a 0346     		mov	r3, r0
+ 400 016c BB75     		strb	r3, [r7, #22]
+ 121:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****     bw_incoming = schedule_getNumOfSlotsByType(CELLTYPE_RX);
+ 401              		.loc 1 121 0
+ 402 016e 0220     		movs	r0, #2
+ 403 0170 FFF7FEFF 		bl	schedule_getNumOfSlotsByType
+ 404 0174 0346     		mov	r3, r0
+ 405 0176 7B75     		strb	r3, [r7, #21]
+ 122:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****     
+ 123:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****     // get self required bandwith, you can design your
+ 124:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****     // application and assign bw_self accordingly. 
+ 125:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****     // for example:
+ 126:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****     //    bw_self = application_getBandwdith(app_name);
+ 127:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****     // By default, it's set to zero.
+ 128:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****     // bw_self = openapps_getBandwidth(COMPONENT_UINJECT);
+ 129:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****     bw_self = sf0_vars.numAppPacketsPerSlotFrame;
+ 406              		.loc 1 129 0
+ 407 0178 40F20003 		movw	r3, #:lower16:sf0_vars
+ 408 017c C0F20003 		movt	r3, #:upper16:sf0_vars
+ 409 0180 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 410 0182 3B75     		strb	r3, [r7, #20]
+ 130:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****     
+ 131:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****     // In SF0, scheduledCells = bw_outgoing
+ 132:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****     //         requiredCells  = bw_incoming + bw_self
+ 133:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****     // when scheduledCells<requiredCells, add one or more cell
+ 134:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****     
+ 135:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****     if (bw_outgoing <= bw_incoming+bw_self){
+ 411              		.loc 1 135 0
+ 412 0184 97F91620 		ldrsb	r2, [r7, #22]
+ 413 0188 97F91510 		ldrsb	r1, [r7, #21]
+ 414 018c 97F91430 		ldrsb	r3, [r7, #20]
+ 415 0190 0B44     		add	r3, r3, r1
+ 416 0192 9A42     		cmp	r2, r3
+ 417 0194 19DC     		bgt	.L21
+ 136:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****         if (sixtop_setHandler(SIX_HANDLER_SF0)==FALSE){
+ 418              		.loc 1 136 0
+ 419 0196 0220     		movs	r0, #2
+ 420 0198 FFF7FEFF 		bl	sixtop_setHandler
+ 421 019c 0346     		mov	r3, r0
+ 422 019e 83F00103 		eor	r3, r3, #1
+ 423 01a2 DBB2     		uxtb	r3, r3
+ 424 01a4 002B     		cmp	r3, #0
+ 425 01a6 00D0     		beq	.L22
+ 137:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****             // one sixtop transcation is happening, only one instance at one time
+ 138:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****             return;
+ 426              		.loc 1 138 0
+ 427 01a8 29E0     		b	.L16
+ 428              	.L22:
+ 139:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****         }
+ 140:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****         sixtop_request(
+ 429              		.loc 1 140 0
+ 430 01aa 7A7D     		ldrb	r2, [r7, #21]	@ zero_extendqisi2
+ 431 01ac 3B7D     		ldrb	r3, [r7, #20]	@ zero_extendqisi2
+ 432 01ae 1344     		add	r3, r3, r2
+ 433 01b0 DAB2     		uxtb	r2, r3
+ 434 01b2 BB7D     		ldrb	r3, [r7, #22]	@ zero_extendqisi2
+ 435 01b4 D31A     		subs	r3, r2, r3
+ 436 01b6 DBB2     		uxtb	r3, r3
+ 437 01b8 0133     		adds	r3, r3, #1
+ 438 01ba DBB2     		uxtb	r3, r3
+ 439 01bc 3A46     		mov	r2, r7
+ 440 01be 0120     		movs	r0, #1
+ 441 01c0 1146     		mov	r1, r2
+ 442 01c2 1A46     		mov	r2, r3
+ 443 01c4 FFF7FEFF 		bl	sixtop_request
+ 444 01c8 19E0     		b	.L16
+ 445              	.L21:
+ 141:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****             IANA_6TOP_CMD_ADD,
+ 142:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****             &neighbor,
+ 143:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****             bw_incoming+bw_self-bw_outgoing+1
+ 144:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****         );
+ 145:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****     } else {
+ 146:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****         // remove cell(s)
+ 147:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****         if ( (bw_incoming+bw_self) < (bw_outgoing-SF0THRESHOLD)) {
+ 446              		.loc 1 147 0
+ 447 01ca 97F91520 		ldrsb	r2, [r7, #21]
+ 448 01ce 97F91430 		ldrsb	r3, [r7, #20]
+ 449 01d2 1A44     		add	r2, r2, r3
+ 450 01d4 97F91630 		ldrsb	r3, [r7, #22]
+ 451 01d8 023B     		subs	r3, r3, #2
+ 452 01da 9A42     		cmp	r2, r3
+ 453 01dc 0FDA     		bge	.L16
+ 148:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****             if (sixtop_setHandler(SIX_HANDLER_SF0)==FALSE){
+ 454              		.loc 1 148 0
+ 455 01de 0220     		movs	r0, #2
+ 456 01e0 FFF7FEFF 		bl	sixtop_setHandler
+ 457 01e4 0346     		mov	r3, r0
+ 458 01e6 83F00103 		eor	r3, r3, #1
+ 459 01ea DBB2     		uxtb	r3, r3
+ 460 01ec 002B     		cmp	r3, #0
+ 461 01ee 00D0     		beq	.L24
+ 149:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****                // one sixtop transcation is happening, only one instance at one time
+ 150:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****                return;
+ 462              		.loc 1 150 0
+ 463 01f0 05E0     		b	.L16
+ 464              	.L24:
+ 151:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****             }
+ 152:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****             sixtop_request(
+ 465              		.loc 1 152 0
+ 466 01f2 3B46     		mov	r3, r7
+ 467 01f4 0220     		movs	r0, #2
+ 468 01f6 1946     		mov	r1, r3
+ 469 01f8 0222     		movs	r2, #2
+ 470 01fa FFF7FEFF 		bl	sixtop_request
+ 471              	.L16:
+ 153:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****                 IANA_6TOP_CMD_DELETE,
+ 154:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****                 &neighbor,
+ 155:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****                 SF0THRESHOLD
+ 156:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****             );
+ 157:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****         } else {
+ 158:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****             // nothing to do
+ 159:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****         }
+ 160:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****     }
+ 161:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** }
+ 472              		.loc 1 161 0
+ 473 01fe 1837     		adds	r7, r7, #24
+ 474 0200 BD46     		mov	sp, r7
+ 475              		@ sp needed
+ 476 0202 80BD     		pop	{r7, pc}
+ 477              		.cfi_endproc
+ 478              	.LFE7:
+ 480              		.align	2
+ 481              		.global	sf0_appPktPeriod
+ 482              		.thumb
+ 483              		.thumb_func
+ 485              	sf0_appPktPeriod:
+ 486              	.LFB8:
+ 162:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** 
+ 163:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** void sf0_appPktPeriod(uint8_t numAppPacketsPerSlotFrame){
+ 487              		.loc 1 163 0
+ 488              		.cfi_startproc
+ 489              		@ args = 0, pretend = 0, frame = 8
+ 490              		@ frame_needed = 1, uses_anonymous_args = 0
+ 491              		@ link register save eliminated.
+ 492 0204 80B4     		push	{r7}
+ 493              		.cfi_def_cfa_offset 4
+ 494              		.cfi_offset 7, -4
+ 495 0206 83B0     		sub	sp, sp, #12
+ 496              		.cfi_def_cfa_offset 16
+ 497 0208 00AF     		add	r7, sp, #0
+ 498              		.cfi_def_cfa_register 7
+ 499 020a 0346     		mov	r3, r0
+ 500 020c FB71     		strb	r3, [r7, #7]
+ 164:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c ****     sf0_vars.numAppPacketsPerSlotFrame = numAppPacketsPerSlotFrame;
+ 501              		.loc 1 164 0
+ 502 020e 40F20003 		movw	r3, #:lower16:sf0_vars
+ 503 0212 C0F20003 		movt	r3, #:upper16:sf0_vars
+ 504 0216 FA79     		ldrb	r2, [r7, #7]
+ 505 0218 1A70     		strb	r2, [r3]
+ 165:build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.c **** }
+ 506              		.loc 1 165 0
+ 507 021a 0C37     		adds	r7, r7, #12
+ 508 021c BD46     		mov	sp, r7
+ 509              		@ sp needed
+ 510 021e 5DF8047B 		ldr	r7, [sp], #4
+ 511 0222 7047     		bx	lr
+ 512              		.cfi_endproc
+ 513              	.LFE8:
+ 515              	.Letext0:
+ 516              		.file 2 "/usr/include/newlib/machine/_default_types.h"
+ 517              		.file 3 "/usr/include/newlib/stdint.h"
+ 518              		.file 4 "inc/opendefs.h"
+ 519              		.file 5 "build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sf0.h"
+ 520              		.file 6 "build/openmote-cc2538_armgcc/openstack/02b-MAChigh/sixtop.h"
+ 521              		.file 7 "kernel/scheduler.h"
+ 522              		.file 8 "build/openmote-cc2538_armgcc/openstack/02b-MAChigh/schedule.h"
+ 523              		.file 9 "bsp/boards/openmote-cc2538/board_info.h"
+ 524              		.file 10 "openstack/03b-IPv6/icmpv6rpl.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 sf0.c
+     /tmp/ccpWtsyK.s:19     .rodata:0000000000000000 $d
+     /tmp/ccpWtsyK.s:22     .rodata:0000000000000000 rreg_uriquery
+     /tmp/ccpWtsyK.s:27     .rodata:0000000000000008 infoBoardname
+     /tmp/ccpWtsyK.s:32     .rodata:0000000000000010 infouCName
+     /tmp/ccpWtsyK.s:37     .rodata:0000000000000018 infoRadioName
+     /tmp/ccpWtsyK.s:42     .rodata:0000000000000024 infoStackName
+     /tmp/ccpWtsyK.s:47     .rodata:0000000000000030 all_routers_multicast
+                            *COM*:0000000000000002 sf0_vars
+     /tmp/ccpWtsyK.s:66     .text:0000000000000000 $t
+     /tmp/ccpWtsyK.s:71     .text:0000000000000000 sf0_init
+     /tmp/ccpWtsyK.s:105    .text:0000000000000024 sf0_notif_addedCell
+     /tmp/ccpWtsyK.s:221    .text:0000000000000080 sf0_addCell_task
+     /tmp/ccpWtsyK.s:132    .text:0000000000000038 sf0_notif_removedCell
+     /tmp/ccpWtsyK.s:281    .text:00000000000000c8 sf0_removeCell_task
+     /tmp/ccpWtsyK.s:159    .text:000000000000004c sf0_notifyNewSlotframe
+     /tmp/ccpWtsyK.s:341    .text:0000000000000110 sf0_bandwidthEstimate_task
+     /tmp/ccpWtsyK.s:186    .text:0000000000000060 sf0_setBackoff
+     /tmp/ccpWtsyK.s:485    .text:0000000000000204 sf0_appPktPeriod
+                     .debug_frame:0000000000000010 $d
+                           .group:0000000000000000 wm4.1.08074afb2ccc9da754fae8e3ee0f577b
+                           .group:0000000000000000 wm4.features.h.22.6a4ca7cd053637cc1d0db6c16f39b2d7
+                           .group:0000000000000000 wm4._default_types.h.15.8b2cb27e528498f8ff711db085d6e489
+                           .group:0000000000000000 wm4.stdint.h.20.796e373797e732130a803d4c0338fa1b
+                           .group:0000000000000000 wm4.toolchain_defs.h.2.e5fd326231d01413e5361944b26cde07
+                           .group:0000000000000000 wm4.newlib.h.8.fec018e441fee7bfa1923812ad010f97
+                           .group:0000000000000000 wm4.config.h.212.4163ef2871a828c674038d036b081cfd
+                           .group:0000000000000000 wm4._ansi.h.23.5644b60c990a4800b02a6e654e88f93a
+                           .group:0000000000000000 wm4.stddef.h.39.daafd3d79fe2f3a84d2d73d7d4e706f8
+                           .group:0000000000000000 wm4.lock.h.2.9bc98482741e5e2a9450b12934a684ea
+                           .group:0000000000000000 wm4._types.h.54.d3d34a3b7f3cc230cd159baf022b4b08
+                           .group:0000000000000000 wm4.stddef.h.158.61317cdbfb4026324507d123a50b0fd6
+                           .group:0000000000000000 wm4.reent.h.17.8bd9e4098e0428508c282cad794fae43
+                           .group:0000000000000000 wm4.cdefs.h.47.339223046f475c9f2d5db3a9118d7c65
+                           .group:0000000000000000 wm4.string.h.15.dab3980bf35408a4c507182805e2de3a
+                           .group:0000000000000000 wm4.stddef.h.158.a7efb00f6cbc6f43213b50e183c9830c
+                           .group:0000000000000000 wm4.string.h.126.6ff3aa59129e7f66b2c273baf353e066
+                           .group:0000000000000000 wm4.stdbool.h.29.1c9ee6859ce8145f7838a4f2549ccec2
+                           .group:0000000000000000 wm4.hw_types.h.67.b10589a0806dcc2d274d6fab6b736519
+                           .group:0000000000000000 wm4.interrupt.h.41.272fc4ec0e276feb439e7974d0f77eaf
+                           .group:0000000000000000 wm4.board_info.h.22.aeb00002354a4949fff54190040e37af
+                           .group:0000000000000000 wm4.opendefs.h.23.16dafe2a30b31097968a5d4db894173a
+                           .group:0000000000000000 wm4.opentimers.h.8.044f2d040a134cdb0ddb58adfc2508be
+                           .group:0000000000000000 wm4.icmpv6rpl.h.15.0573bca2230f8b0d62a096dd795549d0
+                           .group:0000000000000000 wm4.neighbors.h.15.6d6181cbf1a5e29302c33fc055c1b200
+                           .group:0000000000000000 wm4.processIE.h.2.f7e3ebe58176b1696c1c10947f24f68e
+                           .group:0000000000000000 wm4.sixtop.h.16.9a560ceacc5efd96bdee707dc9b8cf3b
+                           .group:0000000000000000 wm4.scheduler.h.2.d8d85f436d0d4b3991926a15b8490cf4
+                           .group:0000000000000000 wm4.schedule.h.2.5f1ce0fba8afc2f4b06da872a2bf3e7d
+                           .group:0000000000000000 wm4.idmanager.h.2.8c0e2159b32ef3125cbb1e984805cbfe
+
+UNDEFINED SYMBOLS
+memset
+scheduler_push_task
+icmpv6rpl_getPreferredParentEui64
+sixtop_setHandler
+sixtop_request
+idmanager_getIsDAGroot
+schedule_getNumOfSlotsByType

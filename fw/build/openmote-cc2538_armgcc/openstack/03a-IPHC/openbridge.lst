@@ -1,0 +1,474 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"openbridge.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.rodata
+  19              		.align	2
+  22              	rreg_uriquery:
+  23 0000 683D7563 		.ascii	"h=ucb\000"
+  23      6200
+  24 0006 0000     		.align	2
+  27              	infoBoardname:
+  28 0008 43433235 		.ascii	"CC2538\000"
+  28      333800
+  29 000f 00       		.align	2
+  32              	infouCName:
+  33 0010 43433235 		.ascii	"CC2538\000"
+  33      333800
+  34 0017 00       		.align	2
+  37              	infoRadioName:
+  38 0018 43433235 		.ascii	"CC2538 SoC\000"
+  38      33382053 
+  38      6F4300
+  39 0023 00       		.align	2
+  42              	infoStackName:
+  43 0024 4F70656E 		.ascii	"OpenWSN \000"
+  43      57534E20 
+  43      00
+  44 002d 000000   		.text
+  45              		.align	2
+  46              		.global	openbridge_init
+  47              		.thumb
+  48              		.thumb_func
+  50              	openbridge_init:
+  51              	.LFB0:
+  52              		.file 1 "build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c"
+   1:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c **** #include "opendefs.h"
+   2:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c **** #include "openbridge.h"
+   3:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c **** #include "openserial.h"
+   4:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c **** #include "packetfunctions.h"
+   5:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c **** #include "iphc.h"
+   6:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c **** #include "idmanager.h"
+   7:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c **** #include "openqueue.h"
+   8:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c **** 
+   9:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c **** //=========================== variables =======================================
+  10:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c **** 
+  11:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c **** //=========================== prototypes ======================================
+  12:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c **** //=========================== public ==========================================
+  13:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c **** 
+  14:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c **** void openbridge_init() {
+  53              		.loc 1 14 0
+  54              		.cfi_startproc
+  55              		@ args = 0, pretend = 0, frame = 0
+  56              		@ frame_needed = 1, uses_anonymous_args = 0
+  57              		@ link register save eliminated.
+  58 0000 80B4     		push	{r7}
+  59              		.cfi_def_cfa_offset 4
+  60              		.cfi_offset 7, -4
+  61 0002 00AF     		add	r7, sp, #0
+  62              		.cfi_def_cfa_register 7
+  15:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c **** }
+  63              		.loc 1 15 0
+  64 0004 BD46     		mov	sp, r7
+  65              		@ sp needed
+  66 0006 5DF8047B 		ldr	r7, [sp], #4
+  67 000a 7047     		bx	lr
+  68              		.cfi_endproc
+  69              	.LFE0:
+  71              		.align	2
+  72              		.global	openbridge_triggerData
+  73              		.thumb
+  74              		.thumb_func
+  76              	openbridge_triggerData:
+  77              	.LFB1:
+  16:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c **** 
+  17:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c **** void openbridge_triggerData() {
+  78              		.loc 1 17 0
+  79              		.cfi_startproc
+  80              		@ args = 0, pretend = 0, frame = 144
+  81              		@ frame_needed = 1, uses_anonymous_args = 0
+  82 000c 80B5     		push	{r7, lr}
+  83              		.cfi_def_cfa_offset 8
+  84              		.cfi_offset 7, -8
+  85              		.cfi_offset 14, -4
+  86 000e A4B0     		sub	sp, sp, #144
+  87              		.cfi_def_cfa_offset 152
+  88 0010 00AF     		add	r7, sp, #0
+  89              		.cfi_def_cfa_register 7
+  18:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****    uint8_t           input_buffer[136];//worst case: 8B of next hop + 128B of data
+  19:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****    OpenQueueEntry_t* pkt;
+  20:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****    uint8_t           numDataBytes;
+  21:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****   
+  22:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****    numDataBytes = openserial_getInputBufferFilllevel();
+  90              		.loc 1 22 0
+  91 0012 FFF7FEFF 		bl	openserial_getInputBufferFilllevel
+  92 0016 0346     		mov	r3, r0
+  93 0018 87F88F30 		strb	r3, [r7, #143]
+  23:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****   
+  24:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****    //poipoi xv
+  25:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****    //this is a temporal workaround as we are never supposed to get chunks of data
+  26:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****    //longer than input buffer size.. I assume that HDLC will solve that.
+  27:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****    // MAC header is 13B + 8 next hop so we cannot accept packets that are longer than 118B
+  28:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****    if (numDataBytes>(136 - 10/*21*/) || numDataBytes<8){
+  94              		.loc 1 28 0
+  95 001c 97F88F30 		ldrb	r3, [r7, #143]	@ zero_extendqisi2
+  96 0020 7E2B     		cmp	r3, #126
+  97 0022 03D8     		bhi	.L3
+  98              		.loc 1 28 0 is_stmt 0 discriminator 1
+  99 0024 97F88F30 		ldrb	r3, [r7, #143]	@ zero_extendqisi2
+ 100 0028 072B     		cmp	r3, #7
+ 101 002a 09D8     		bhi	.L4
+ 102              	.L3:
+  29:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****    //to prevent too short or too long serial frames to kill the stack  
+  30:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****        openserial_printError(COMPONENT_OPENBRIDGE,ERR_INPUTBUFFER_LENGTH,
+ 103              		.loc 1 30 0 is_stmt 1
+ 104 002c 97F88F30 		ldrb	r3, [r7, #143]	@ zero_extendqisi2
+ 105 0030 9BB2     		uxth	r3, r3
+ 106 0032 1020     		movs	r0, #16
+ 107 0034 3421     		movs	r1, #52
+ 108 0036 1A46     		mov	r2, r3
+ 109 0038 0023     		movs	r3, #0
+ 110 003a FFF7FEFF 		bl	openserial_printError
+  31:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****                    (errorparameter_t)numDataBytes,
+  32:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****                    (errorparameter_t)0);
+  33:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****        return;
+ 111              		.loc 1 33 0
+ 112 003e 61E0     		b	.L2
+ 113              	.L4:
+  34:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****    }
+  35:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****   
+  36:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****    //copying the buffer once we know it is not too big
+  37:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****    openserial_getInputBuffer(&(input_buffer[0]),numDataBytes);
+ 114              		.loc 1 37 0
+ 115 0040 3A46     		mov	r2, r7
+ 116 0042 97F88F30 		ldrb	r3, [r7, #143]	@ zero_extendqisi2
+ 117 0046 1046     		mov	r0, r2
+ 118 0048 1946     		mov	r1, r3
+ 119 004a FFF7FEFF 		bl	openserial_getInputBuffer
+  38:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****   
+  39:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****    if (idmanager_getIsDAGroot()==TRUE && numDataBytes>0) {
+ 120              		.loc 1 39 0
+ 121 004e FFF7FEFF 		bl	idmanager_getIsDAGroot
+ 122 0052 0346     		mov	r3, r0
+ 123 0054 002B     		cmp	r3, #0
+ 124 0056 55D0     		beq	.L2
+ 125              		.loc 1 39 0 is_stmt 0 discriminator 1
+ 126 0058 97F88F30 		ldrb	r3, [r7, #143]	@ zero_extendqisi2
+ 127 005c 002B     		cmp	r3, #0
+ 128 005e 51D0     		beq	.L2
+  40:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****       pkt = openqueue_getFreePacketBuffer(COMPONENT_OPENBRIDGE);
+ 129              		.loc 1 40 0 is_stmt 1
+ 130 0060 1020     		movs	r0, #16
+ 131 0062 FFF7FEFF 		bl	openqueue_getFreePacketBuffer
+ 132 0066 C7F88800 		str	r0, [r7, #136]
+  41:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****       if (pkt==NULL) {
+ 133              		.loc 1 41 0
+ 134 006a D7F88830 		ldr	r3, [r7, #136]
+ 135 006e 002B     		cmp	r3, #0
+ 136 0070 06D1     		bne	.L7
+  42:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****          openserial_printError(COMPONENT_OPENBRIDGE,ERR_NO_FREE_PACKET_BUFFER,
+ 137              		.loc 1 42 0
+ 138 0072 1020     		movs	r0, #16
+ 139 0074 2C21     		movs	r1, #44
+ 140 0076 0022     		movs	r2, #0
+ 141 0078 0023     		movs	r3, #0
+ 142 007a FFF7FEFF 		bl	openserial_printError
+  43:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****                                (errorparameter_t)0,
+  44:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****                                (errorparameter_t)0);
+  45:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****          return;
+ 143              		.loc 1 45 0
+ 144 007e 41E0     		b	.L2
+ 145              	.L7:
+  46:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****       }
+  47:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****       //admin
+  48:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****       pkt->creator  = COMPONENT_OPENBRIDGE;
+ 146              		.loc 1 48 0
+ 147 0080 D7F88830 		ldr	r3, [r7, #136]
+ 148 0084 1022     		movs	r2, #16
+ 149 0086 1A70     		strb	r2, [r3]
+  49:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****       pkt->owner    = COMPONENT_OPENBRIDGE;
+ 150              		.loc 1 49 0
+ 151 0088 D7F88830 		ldr	r3, [r7, #136]
+ 152 008c 1022     		movs	r2, #16
+ 153 008e 5A70     		strb	r2, [r3, #1]
+  50:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****       //l2
+  51:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****       pkt->l2_nextORpreviousHop.type = ADDR_64B;
+ 154              		.loc 1 51 0
+ 155 0090 D7F88830 		ldr	r3, [r7, #136]
+ 156 0094 0222     		movs	r2, #2
+ 157 0096 83F83820 		strb	r2, [r3, #56]
+  52:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****       memcpy(&(pkt->l2_nextORpreviousHop.addr_64b[0]),&(input_buffer[0]),8);
+ 158              		.loc 1 52 0
+ 159 009a D7F88830 		ldr	r3, [r7, #136]
+ 160 009e 03F13902 		add	r2, r3, #57
+ 161 00a2 3B46     		mov	r3, r7
+ 162 00a4 1046     		mov	r0, r2
+ 163 00a6 1946     		mov	r1, r3
+ 164 00a8 0822     		movs	r2, #8
+ 165 00aa FFF7FEFF 		bl	memcpy
+  53:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****       //payload
+  54:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****       packetfunctions_reserveHeaderSize(pkt,numDataBytes-8);
+ 166              		.loc 1 54 0
+ 167 00ae 97F88F30 		ldrb	r3, [r7, #143]
+ 168 00b2 083B     		subs	r3, r3, #8
+ 169 00b4 DBB2     		uxtb	r3, r3
+ 170 00b6 D7F88800 		ldr	r0, [r7, #136]
+ 171 00ba 1946     		mov	r1, r3
+ 172 00bc FFF7FEFF 		bl	packetfunctions_reserveHeaderSize
+  55:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****       memcpy(pkt->payload,&(input_buffer[8]),numDataBytes-8);
+ 173              		.loc 1 55 0
+ 174 00c0 D7F88830 		ldr	r3, [r7, #136]
+ 175 00c4 5968     		ldr	r1, [r3, #4]
+ 176 00c6 97F88F30 		ldrb	r3, [r7, #143]	@ zero_extendqisi2
+ 177 00ca 083B     		subs	r3, r3, #8
+ 178 00cc 3A46     		mov	r2, r7
+ 179 00ce 0832     		adds	r2, r2, #8
+ 180 00d0 0846     		mov	r0, r1
+ 181 00d2 1146     		mov	r1, r2
+ 182 00d4 1A46     		mov	r2, r3
+ 183 00d6 FFF7FEFF 		bl	memcpy
+  56:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****       
+  57:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****       //this is to catch the too short packet. remove it after fw-103 is solved.
+  58:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****       if (numDataBytes<16){
+ 184              		.loc 1 58 0
+ 185 00da 97F88F30 		ldrb	r3, [r7, #143]	@ zero_extendqisi2
+ 186 00de 0F2B     		cmp	r3, #15
+ 187 00e0 05D8     		bhi	.L8
+  59:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****               openserial_printError(COMPONENT_OPENBRIDGE,ERR_INVALIDSERIALFRAME,
+ 188              		.loc 1 59 0
+ 189 00e2 1020     		movs	r0, #16
+ 190 00e4 3621     		movs	r1, #54
+ 191 00e6 0022     		movs	r2, #0
+ 192 00e8 0023     		movs	r3, #0
+ 193 00ea FFF7FEFF 		bl	openserial_printError
+ 194              	.L8:
+  60:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****                             (errorparameter_t)0,
+  61:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****                             (errorparameter_t)0);
+  62:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****       }        
+  63:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****       //send
+  64:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****       if ((iphc_sendFromBridge(pkt))==E_FAIL) {
+ 195              		.loc 1 64 0
+ 196 00ee D7F88800 		ldr	r0, [r7, #136]
+ 197 00f2 FFF7FEFF 		bl	iphc_sendFromBridge
+ 198 00f6 0346     		mov	r3, r0
+ 199 00f8 012B     		cmp	r3, #1
+ 200 00fa 03D1     		bne	.L2
+  65:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****          openqueue_freePacketBuffer(pkt);
+ 201              		.loc 1 65 0
+ 202 00fc D7F88800 		ldr	r0, [r7, #136]
+ 203 0100 FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 204              	.L2:
+  66:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****       }
+  67:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****    }
+  68:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c **** }
+ 205              		.loc 1 68 0
+ 206 0104 9037     		adds	r7, r7, #144
+ 207 0106 BD46     		mov	sp, r7
+ 208              		@ sp needed
+ 209 0108 80BD     		pop	{r7, pc}
+ 210              		.cfi_endproc
+ 211              	.LFE1:
+ 213 010a 00BF     		.align	2
+ 214              		.global	openbridge_sendDone
+ 215              		.thumb
+ 216              		.thumb_func
+ 218              	openbridge_sendDone:
+ 219              	.LFB2:
+  69:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c **** 
+  70:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c **** void openbridge_sendDone(OpenQueueEntry_t* msg, owerror_t error) {
+ 220              		.loc 1 70 0
+ 221              		.cfi_startproc
+ 222              		@ args = 0, pretend = 0, frame = 8
+ 223              		@ frame_needed = 1, uses_anonymous_args = 0
+ 224 010c 80B5     		push	{r7, lr}
+ 225              		.cfi_def_cfa_offset 8
+ 226              		.cfi_offset 7, -8
+ 227              		.cfi_offset 14, -4
+ 228 010e 82B0     		sub	sp, sp, #8
+ 229              		.cfi_def_cfa_offset 16
+ 230 0110 00AF     		add	r7, sp, #0
+ 231              		.cfi_def_cfa_register 7
+ 232 0112 7860     		str	r0, [r7, #4]
+ 233 0114 0B46     		mov	r3, r1
+ 234 0116 FB70     		strb	r3, [r7, #3]
+  71:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****    msg->owner = COMPONENT_OPENBRIDGE;
+ 235              		.loc 1 71 0
+ 236 0118 7B68     		ldr	r3, [r7, #4]
+ 237 011a 1022     		movs	r2, #16
+ 238 011c 5A70     		strb	r2, [r3, #1]
+  72:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****    if (msg->creator!=COMPONENT_OPENBRIDGE) {
+ 239              		.loc 1 72 0
+ 240 011e 7B68     		ldr	r3, [r7, #4]
+ 241 0120 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 242 0122 102B     		cmp	r3, #16
+ 243 0124 05D0     		beq	.L11
+  73:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****       openserial_printError(COMPONENT_OPENBRIDGE,ERR_UNEXPECTED_SENDDONE,
+ 244              		.loc 1 73 0
+ 245 0126 1020     		movs	r0, #16
+ 246 0128 2B21     		movs	r1, #43
+ 247 012a 0022     		movs	r2, #0
+ 248 012c 0023     		movs	r3, #0
+ 249 012e FFF7FEFF 		bl	openserial_printError
+ 250              	.L11:
+  74:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****                             (errorparameter_t)0,
+  75:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****                             (errorparameter_t)0);
+  76:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****    }
+  77:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****    openqueue_freePacketBuffer(msg);
+ 251              		.loc 1 77 0
+ 252 0132 7868     		ldr	r0, [r7, #4]
+ 253 0134 FFF7FEFF 		bl	openqueue_freePacketBuffer
+  78:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c **** }
+ 254              		.loc 1 78 0
+ 255 0138 0837     		adds	r7, r7, #8
+ 256 013a BD46     		mov	sp, r7
+ 257              		@ sp needed
+ 258 013c 80BD     		pop	{r7, pc}
+ 259              		.cfi_endproc
+ 260              	.LFE2:
+ 262 013e 00BF     		.align	2
+ 263              		.global	openbridge_receive
+ 264              		.thumb
+ 265              		.thumb_func
+ 267              	openbridge_receive:
+ 268              	.LFB3:
+  79:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c **** 
+  80:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c **** /**
+  81:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c **** \brief Receive a frame at the openbridge, which sends it out over serial.
+  82:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c **** */
+  83:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c **** void openbridge_receive(OpenQueueEntry_t* msg) {
+ 269              		.loc 1 83 0
+ 270              		.cfi_startproc
+ 271              		@ args = 0, pretend = 0, frame = 8
+ 272              		@ frame_needed = 1, uses_anonymous_args = 0
+ 273 0140 90B5     		push	{r4, r7, lr}
+ 274              		.cfi_def_cfa_offset 12
+ 275              		.cfi_offset 4, -12
+ 276              		.cfi_offset 7, -8
+ 277              		.cfi_offset 14, -4
+ 278 0142 83B0     		sub	sp, sp, #12
+ 279              		.cfi_def_cfa_offset 24
+ 280 0144 00AF     		add	r7, sp, #0
+ 281              		.cfi_def_cfa_register 7
+ 282 0146 7860     		str	r0, [r7, #4]
+  84:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****    
+  85:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****    // prepend previous hop
+  86:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****    packetfunctions_reserveHeaderSize(msg,LENGTH_ADDR64b);
+ 283              		.loc 1 86 0
+ 284 0148 7868     		ldr	r0, [r7, #4]
+ 285 014a 0821     		movs	r1, #8
+ 286 014c FFF7FEFF 		bl	packetfunctions_reserveHeaderSize
+  87:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****    memcpy(msg->payload,msg->l2_nextORpreviousHop.addr_64b,LENGTH_ADDR64b);
+ 287              		.loc 1 87 0
+ 288 0150 7B68     		ldr	r3, [r7, #4]
+ 289 0152 5A68     		ldr	r2, [r3, #4]
+ 290 0154 7B68     		ldr	r3, [r7, #4]
+ 291 0156 3933     		adds	r3, r3, #57
+ 292 0158 1046     		mov	r0, r2
+ 293 015a 1946     		mov	r1, r3
+ 294 015c 0822     		movs	r2, #8
+ 295 015e FFF7FEFF 		bl	memcpy
+  88:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****    
+  89:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****    // prepend next hop (me)
+  90:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****    packetfunctions_reserveHeaderSize(msg,LENGTH_ADDR64b);
+ 296              		.loc 1 90 0
+ 297 0162 7868     		ldr	r0, [r7, #4]
+ 298 0164 0821     		movs	r1, #8
+ 299 0166 FFF7FEFF 		bl	packetfunctions_reserveHeaderSize
+  91:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****    memcpy(msg->payload,idmanager_getMyID(ADDR_64B)->addr_64b,LENGTH_ADDR64b);
+ 300              		.loc 1 91 0
+ 301 016a 7B68     		ldr	r3, [r7, #4]
+ 302 016c 5C68     		ldr	r4, [r3, #4]
+ 303 016e 0220     		movs	r0, #2
+ 304 0170 FFF7FEFF 		bl	idmanager_getMyID
+ 305 0174 0346     		mov	r3, r0
+ 306 0176 0133     		adds	r3, r3, #1
+ 307 0178 2046     		mov	r0, r4
+ 308 017a 1946     		mov	r1, r3
+ 309 017c 0822     		movs	r2, #8
+ 310 017e FFF7FEFF 		bl	memcpy
+  92:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****    
+  93:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****    // send packet over serial (will be memcopied into serial buffer)
+  94:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****    openserial_printData((uint8_t*)(msg->payload),msg->length);
+ 311              		.loc 1 94 0
+ 312 0182 7B68     		ldr	r3, [r7, #4]
+ 313 0184 5A68     		ldr	r2, [r3, #4]
+ 314 0186 7B68     		ldr	r3, [r7, #4]
+ 315 0188 1B7A     		ldrb	r3, [r3, #8]	@ zero_extendqisi2
+ 316 018a 1046     		mov	r0, r2
+ 317 018c 1946     		mov	r1, r3
+ 318 018e FFF7FEFF 		bl	openserial_printData
+  95:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****    
+  96:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****    // free packet
+  97:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c ****    openqueue_freePacketBuffer(msg);
+ 319              		.loc 1 97 0
+ 320 0192 7868     		ldr	r0, [r7, #4]
+ 321 0194 FFF7FEFF 		bl	openqueue_freePacketBuffer
+  98:build/openmote-cc2538_armgcc/openstack/03a-IPHC/openbridge.c **** }
+ 322              		.loc 1 98 0
+ 323 0198 0C37     		adds	r7, r7, #12
+ 324 019a BD46     		mov	sp, r7
+ 325              		@ sp needed
+ 326 019c 90BD     		pop	{r4, r7, pc}
+ 327              		.cfi_endproc
+ 328              	.LFE3:
+ 330              	.Letext0:
+ 331              		.file 2 "/usr/include/newlib/machine/_default_types.h"
+ 332              		.file 3 "/usr/include/newlib/stdint.h"
+ 333              		.file 4 "inc/opendefs.h"
+ 334              		.file 5 "bsp/boards/openmote-cc2538/board_info.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 openbridge.c
+     /tmp/ccxG8eBv.s:19     .rodata:0000000000000000 $d
+     /tmp/ccxG8eBv.s:22     .rodata:0000000000000000 rreg_uriquery
+     /tmp/ccxG8eBv.s:27     .rodata:0000000000000008 infoBoardname
+     /tmp/ccxG8eBv.s:32     .rodata:0000000000000010 infouCName
+     /tmp/ccxG8eBv.s:37     .rodata:0000000000000018 infoRadioName
+     /tmp/ccxG8eBv.s:42     .rodata:0000000000000024 infoStackName
+     /tmp/ccxG8eBv.s:45     .text:0000000000000000 $t
+     /tmp/ccxG8eBv.s:50     .text:0000000000000000 openbridge_init
+     /tmp/ccxG8eBv.s:76     .text:000000000000000c openbridge_triggerData
+     /tmp/ccxG8eBv.s:218    .text:000000000000010c openbridge_sendDone
+     /tmp/ccxG8eBv.s:267    .text:0000000000000140 openbridge_receive
+                     .debug_frame:0000000000000010 $d
+                           .group:0000000000000000 wm4.1.08074afb2ccc9da754fae8e3ee0f577b
+                           .group:0000000000000000 wm4.features.h.22.6a4ca7cd053637cc1d0db6c16f39b2d7
+                           .group:0000000000000000 wm4._default_types.h.15.8b2cb27e528498f8ff711db085d6e489
+                           .group:0000000000000000 wm4.stdint.h.20.796e373797e732130a803d4c0338fa1b
+                           .group:0000000000000000 wm4.toolchain_defs.h.2.e5fd326231d01413e5361944b26cde07
+                           .group:0000000000000000 wm4.newlib.h.8.fec018e441fee7bfa1923812ad010f97
+                           .group:0000000000000000 wm4.config.h.212.4163ef2871a828c674038d036b081cfd
+                           .group:0000000000000000 wm4._ansi.h.23.5644b60c990a4800b02a6e654e88f93a
+                           .group:0000000000000000 wm4.stddef.h.39.daafd3d79fe2f3a84d2d73d7d4e706f8
+                           .group:0000000000000000 wm4.lock.h.2.9bc98482741e5e2a9450b12934a684ea
+                           .group:0000000000000000 wm4._types.h.54.d3d34a3b7f3cc230cd159baf022b4b08
+                           .group:0000000000000000 wm4.stddef.h.158.61317cdbfb4026324507d123a50b0fd6
+                           .group:0000000000000000 wm4.reent.h.17.8bd9e4098e0428508c282cad794fae43
+                           .group:0000000000000000 wm4.cdefs.h.47.339223046f475c9f2d5db3a9118d7c65
+                           .group:0000000000000000 wm4.string.h.15.dab3980bf35408a4c507182805e2de3a
+                           .group:0000000000000000 wm4.stddef.h.158.a7efb00f6cbc6f43213b50e183c9830c
+                           .group:0000000000000000 wm4.string.h.126.6ff3aa59129e7f66b2c273baf353e066
+                           .group:0000000000000000 wm4.stdbool.h.29.1c9ee6859ce8145f7838a4f2549ccec2
+                           .group:0000000000000000 wm4.hw_types.h.67.b10589a0806dcc2d274d6fab6b736519
+                           .group:0000000000000000 wm4.interrupt.h.41.272fc4ec0e276feb439e7974d0f77eaf
+                           .group:0000000000000000 wm4.board_info.h.22.aeb00002354a4949fff54190040e37af
+                           .group:0000000000000000 wm4.opendefs.h.23.16dafe2a30b31097968a5d4db894173a
+                           .group:0000000000000000 wm4.openserial.h.9.0a357d13b4113cc69ceb77572df48861
+                           .group:0000000000000000 wm4.iphc.h.2.9e7d9d56ac728a3c0b3014283a59854e
+                           .group:0000000000000000 wm4.idmanager.h.2.8c0e2159b32ef3125cbb1e984805cbfe
+                           .group:0000000000000000 wm4.IEEE802154.h.2.38fb510ed33a23a9a0660164e6dfab69
+
+UNDEFINED SYMBOLS
+openserial_getInputBufferFilllevel
+openserial_printError
+openserial_getInputBuffer
+idmanager_getIsDAGroot
+openqueue_getFreePacketBuffer
+memcpy
+packetfunctions_reserveHeaderSize
+iphc_sendFromBridge
+openqueue_freePacketBuffer
+idmanager_getMyID
+openserial_printData

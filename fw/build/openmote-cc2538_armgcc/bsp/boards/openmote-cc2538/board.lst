@@ -1,0 +1,1105 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"board.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.rodata
+  19              		.align	2
+  22              	rreg_uriquery:
+  23 0000 683D7563 		.ascii	"h=ucb\000"
+  23      6200
+  24 0006 0000     		.align	2
+  27              	infoBoardname:
+  28 0008 43433235 		.ascii	"CC2538\000"
+  28      333800
+  29 000f 00       		.align	2
+  32              	infouCName:
+  33 0010 43433235 		.ascii	"CC2538\000"
+  33      333800
+  34 0017 00       		.align	2
+  37              	infoRadioName:
+  38 0018 43433235 		.ascii	"CC2538 SoC\000"
+  38      33382053 
+  38      6F4300
+  39 0023 00       		.align	2
+  42              	infoStackName:
+  43 0024 4F70656E 		.ascii	"OpenWSN \000"
+  43      57534E20 
+  43      00
+  44 002d 000000   		.text
+  45              		.align	2
+  46              		.global	main
+  47              		.thumb
+  48              		.thumb_func
+  50              	main:
+  51              	.LFB0:
+  52              		.file 1 "build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c"
+   1:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** /**
+   2:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****  * Author: Xavier Vilajosana (xvilajosana@eecs.berkeley.edu)
+   3:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****  *         Pere Tuset (peretuset@openmote.com)
+   4:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****  * Date:   July 2013
+   5:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****  * Description: CC2538-specific definition of the "board" bsp module.
+   6:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****  */
+   7:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+   8:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** #include <headers/hw_ioc.h>
+   9:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** #include <headers/hw_memmap.h>
+  10:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** #include <headers/hw_ssi.h>
+  11:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** #include <headers/hw_sys_ctrl.h>
+  12:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** #include <headers/hw_types.h>
+  13:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+  14:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** #include <source/flash.h>
+  15:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** #include <source/interrupt.h>
+  16:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** #include <source/ioc.h>
+  17:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** #include <source/gpio.h>
+  18:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** #include <source/gptimer.h>
+  19:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** #include <source/sys_ctrl.h>
+  20:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+  21:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** #include "board.h"
+  22:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** #include "bsp_timer.h"
+  23:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** #include "debugpins.h"
+  24:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** #include "i2c.h"
+  25:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** #include "leds.h"
+  26:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** #include "radio.h"
+  27:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** #include "radiotimer.h"
+  28:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** #include "sensors.h"
+  29:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** #include "uart.h"
+  30:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+  31:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** //=========================== variables =======================================
+  32:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+  33:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** #define BSP_BUTTON_BASE                 ( GPIO_C_BASE )
+  34:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** #define BSP_BUTTON_USER                 ( GPIO_PIN_3 )
+  35:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+  36:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** #define CC2538_FLASH_ADDRESS            ( 0x0027F800 )
+  37:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+  38:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** //=========================== prototypes ======================================
+  39:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+  40:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** void board_timer_init(void);
+  41:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** uint32_t board_timer_get(void);
+  42:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** bool board_timer_expired(uint32_t future);
+  43:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+  44:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** static void clock_init(void);
+  45:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** static void gpio_init(void);
+  46:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** static void button_init(void);
+  47:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+  48:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** static void SysCtrlDeepSleepSetting(void);
+  49:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** static void SysCtrlSleepSetting(void);
+  50:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** static void SysCtrlRunSetting(void);
+  51:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** static void SysCtrlWakeupSetting(void);
+  52:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+  53:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** static void GPIO_C_Handler(void);
+  54:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+  55:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** //=========================== main ============================================
+  56:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+  57:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** extern int mote_main(void);
+  58:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+  59:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** int main(void) {
+  53              		.loc 1 59 0
+  54              		.cfi_startproc
+  55              		@ args = 0, pretend = 0, frame = 0
+  56              		@ frame_needed = 1, uses_anonymous_args = 0
+  57 0000 80B5     		push	{r7, lr}
+  58              		.cfi_def_cfa_offset 8
+  59              		.cfi_offset 7, -8
+  60              		.cfi_offset 14, -4
+  61 0002 00AF     		add	r7, sp, #0
+  62              		.cfi_def_cfa_register 7
+  60:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****    return mote_main();
+  63              		.loc 1 60 0
+  64 0004 FFF7FEFF 		bl	mote_main
+  65 0008 0346     		mov	r3, r0
+  61:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** }
+  66              		.loc 1 61 0
+  67 000a 1846     		mov	r0, r3
+  68 000c 80BD     		pop	{r7, pc}
+  69              		.cfi_endproc
+  70              	.LFE0:
+  72 000e 00BF     		.align	2
+  73              		.global	board_init
+  74              		.thumb
+  75              		.thumb_func
+  77              	board_init:
+  78              	.LFB1:
+  62:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+  63:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** //=========================== public ==========================================
+  64:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+  65:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** void board_init(void) {
+  79              		.loc 1 65 0
+  80              		.cfi_startproc
+  81              		@ args = 0, pretend = 0, frame = 0
+  82              		@ frame_needed = 1, uses_anonymous_args = 0
+  83 0010 80B5     		push	{r7, lr}
+  84              		.cfi_def_cfa_offset 8
+  85              		.cfi_offset 7, -8
+  86              		.cfi_offset 14, -4
+  87 0012 00AF     		add	r7, sp, #0
+  88              		.cfi_def_cfa_register 7
+  66:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****    gpio_init();
+  89              		.loc 1 66 0
+  90 0014 00F066F8 		bl	gpio_init
+  67:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****    clock_init();
+  91              		.loc 1 67 0
+  92 0018 00F0A4F8 		bl	clock_init
+  68:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+  69:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****    board_timer_init();
+  93              		.loc 1 69 0
+  94 001c FFF7FEFF 		bl	board_timer_init
+  70:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+  71:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****    leds_init();
+  95              		.loc 1 71 0
+  96 0020 FFF7FEFF 		bl	leds_init
+  72:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****    debugpins_init();
+  97              		.loc 1 72 0
+  98 0024 FFF7FEFF 		bl	debugpins_init
+  73:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****    button_init();
+  99              		.loc 1 73 0
+ 100 0028 00F0E8F8 		bl	button_init
+  74:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****    bsp_timer_init();
+ 101              		.loc 1 74 0
+ 102 002c FFF7FEFF 		bl	bsp_timer_init
+  75:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****    radiotimer_init();
+ 103              		.loc 1 75 0
+ 104 0030 FFF7FEFF 		bl	radiotimer_init
+  76:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****    uart_init();
+ 105              		.loc 1 76 0
+ 106 0034 FFF7FEFF 		bl	uart_init
+  77:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****    radio_init();
+ 107              		.loc 1 77 0
+ 108 0038 FFF7FEFF 		bl	radio_init
+  78:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****    i2c_init();
+ 109              		.loc 1 78 0
+ 110 003c FFF7FEFF 		bl	i2c_init
+  79:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****    sensors_init();
+ 111              		.loc 1 79 0
+ 112 0040 FFF7FEFF 		bl	sensors_init
+  80:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** }
+ 113              		.loc 1 80 0
+ 114 0044 80BD     		pop	{r7, pc}
+ 115              		.cfi_endproc
+ 116              	.LFE1:
+ 118 0046 00BF     		.align	2
+ 119              		.global	board_sleep
+ 120              		.thumb
+ 121              		.thumb_func
+ 123              	board_sleep:
+ 124              	.LFB2:
+  81:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+  82:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** /**
+  83:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****  * Puts the board to sleep
+  84:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****  */
+  85:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** void board_sleep(void) {
+ 125              		.loc 1 85 0
+ 126              		.cfi_startproc
+ 127              		@ args = 0, pretend = 0, frame = 0
+ 128              		@ frame_needed = 1, uses_anonymous_args = 0
+ 129 0048 80B5     		push	{r7, lr}
+ 130              		.cfi_def_cfa_offset 8
+ 131              		.cfi_offset 7, -8
+ 132              		.cfi_offset 14, -4
+ 133 004a 00AF     		add	r7, sp, #0
+ 134              		.cfi_def_cfa_register 7
+  86:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     SysCtrlPowerModeSet(SYS_CTRL_PM_NOACTION);
+ 135              		.loc 1 86 0
+ 136 004c 0020     		movs	r0, #0
+ 137 004e FFF7FEFF 		bl	SysCtrlPowerModeSet
+  87:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     SysCtrlSleep();
+ 138              		.loc 1 87 0
+ 139 0052 FFF7FEFF 		bl	SysCtrlSleep
+  88:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** }
+ 140              		.loc 1 88 0
+ 141 0056 80BD     		pop	{r7, pc}
+ 142              		.cfi_endproc
+ 143              	.LFE2:
+ 145              		.align	2
+ 146              		.global	board_timer_init
+ 147              		.thumb
+ 148              		.thumb_func
+ 150              	board_timer_init:
+ 151              	.LFB3:
+  89:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+  90:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** /**
+  91:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****  * Timer runs at 32 MHz and is 32-bit wide
+  92:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****  * The timer is divided by 32, whichs gives a 1 microsecond ticks
+  93:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****  */
+  94:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** void board_timer_init(void) {
+ 152              		.loc 1 94 0
+ 153              		.cfi_startproc
+ 154              		@ args = 0, pretend = 0, frame = 0
+ 155              		@ frame_needed = 1, uses_anonymous_args = 0
+ 156 0058 80B5     		push	{r7, lr}
+ 157              		.cfi_def_cfa_offset 8
+ 158              		.cfi_offset 7, -8
+ 159              		.cfi_offset 14, -4
+ 160 005a 00AF     		add	r7, sp, #0
+ 161              		.cfi_def_cfa_register 7
+  95:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     // Configure the timer
+  96:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     TimerConfigure(GPTIMER2_BASE, GPTIMER_CFG_PERIODIC_UP);
+ 162              		.loc 1 96 0
+ 163 005c 4FF40050 		mov	r0, #8192
+ 164 0060 C4F20300 		movt	r0, 16387
+ 165 0064 3221     		movs	r1, #50
+ 166 0066 FFF7FEFF 		bl	TimerConfigure
+  97:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     
+  98:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     // Enable the timer
+  99:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     TimerEnable(GPTIMER2_BASE, GPTIMER_BOTH);
+ 167              		.loc 1 99 0
+ 168 006a 4FF40050 		mov	r0, #8192
+ 169 006e C4F20300 		movt	r0, 16387
+ 170 0072 4FF6FF71 		movw	r1, #65535
+ 171 0076 FFF7FEFF 		bl	TimerEnable
+ 100:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** }
+ 172              		.loc 1 100 0
+ 173 007a 80BD     		pop	{r7, pc}
+ 174              		.cfi_endproc
+ 175              	.LFE3:
+ 177              		.align	2
+ 178              		.global	board_timer_get
+ 179              		.thumb
+ 180              		.thumb_func
+ 182              	board_timer_get:
+ 183              	.LFB4:
+ 101:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+ 102:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** /**
+ 103:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****  * Returns the current value of the timer
+ 104:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****  * The timer is divided by 32, whichs gives a 1 microsecond ticks
+ 105:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****  */
+ 106:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** uint32_t board_timer_get(void) {
+ 184              		.loc 1 106 0
+ 185              		.cfi_startproc
+ 186              		@ args = 0, pretend = 0, frame = 8
+ 187              		@ frame_needed = 1, uses_anonymous_args = 0
+ 188 007c 80B5     		push	{r7, lr}
+ 189              		.cfi_def_cfa_offset 8
+ 190              		.cfi_offset 7, -8
+ 191              		.cfi_offset 14, -4
+ 192 007e 82B0     		sub	sp, sp, #8
+ 193              		.cfi_def_cfa_offset 16
+ 194 0080 00AF     		add	r7, sp, #0
+ 195              		.cfi_def_cfa_register 7
+ 107:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     uint32_t current;
+ 108:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     
+ 109:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     current = TimerValueGet(GPTIMER2_BASE, GPTIMER_A) >> 5;
+ 196              		.loc 1 109 0
+ 197 0082 4FF40050 		mov	r0, #8192
+ 198 0086 C4F20300 		movt	r0, 16387
+ 199 008a FF21     		movs	r1, #255
+ 200 008c FFF7FEFF 		bl	TimerValueGet
+ 201 0090 0346     		mov	r3, r0
+ 202 0092 5B09     		lsrs	r3, r3, #5
+ 203 0094 7B60     		str	r3, [r7, #4]
+ 110:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     
+ 111:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     return current;
+ 204              		.loc 1 111 0
+ 205 0096 7B68     		ldr	r3, [r7, #4]
+ 112:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** }
+ 206              		.loc 1 112 0
+ 207 0098 1846     		mov	r0, r3
+ 208 009a 0837     		adds	r7, r7, #8
+ 209 009c BD46     		mov	sp, r7
+ 210              		@ sp needed
+ 211 009e 80BD     		pop	{r7, pc}
+ 212              		.cfi_endproc
+ 213              	.LFE4:
+ 215              		.align	2
+ 216              		.global	board_timer_expired
+ 217              		.thumb
+ 218              		.thumb_func
+ 220              	board_timer_expired:
+ 221              	.LFB5:
+ 113:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+ 114:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** /**
+ 115:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****  * Returns true if the timer has expired
+ 116:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****  * The timer is divided by 32, whichs gives a 1 microsecond ticks
+ 117:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****  */
+ 118:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** bool board_timer_expired(uint32_t future) {
+ 222              		.loc 1 118 0
+ 223              		.cfi_startproc
+ 224              		@ args = 0, pretend = 0, frame = 16
+ 225              		@ frame_needed = 1, uses_anonymous_args = 0
+ 226 00a0 80B5     		push	{r7, lr}
+ 227              		.cfi_def_cfa_offset 8
+ 228              		.cfi_offset 7, -8
+ 229              		.cfi_offset 14, -4
+ 230 00a2 84B0     		sub	sp, sp, #16
+ 231              		.cfi_def_cfa_offset 24
+ 232 00a4 00AF     		add	r7, sp, #0
+ 233              		.cfi_def_cfa_register 7
+ 234 00a6 7860     		str	r0, [r7, #4]
+ 119:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     uint32_t current;
+ 120:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     int32_t remaining;
+ 121:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+ 122:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     current = TimerValueGet(GPTIMER2_BASE, GPTIMER_A) >> 5;
+ 235              		.loc 1 122 0
+ 236 00a8 4FF40050 		mov	r0, #8192
+ 237 00ac C4F20300 		movt	r0, 16387
+ 238 00b0 FF21     		movs	r1, #255
+ 239 00b2 FFF7FEFF 		bl	TimerValueGet
+ 240 00b6 0346     		mov	r3, r0
+ 241 00b8 5B09     		lsrs	r3, r3, #5
+ 242 00ba FB60     		str	r3, [r7, #12]
+ 123:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+ 124:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     remaining = (int32_t) (future - current);
+ 243              		.loc 1 124 0
+ 244 00bc 7A68     		ldr	r2, [r7, #4]
+ 245 00be FB68     		ldr	r3, [r7, #12]
+ 246 00c0 D31A     		subs	r3, r2, r3
+ 247 00c2 BB60     		str	r3, [r7, #8]
+ 125:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     
+ 126:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     if (remaining > 0) {
+ 248              		.loc 1 126 0
+ 249 00c4 BB68     		ldr	r3, [r7, #8]
+ 250 00c6 002B     		cmp	r3, #0
+ 251 00c8 01DD     		ble	.L9
+ 127:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****         return false;
+ 252              		.loc 1 127 0
+ 253 00ca 0023     		movs	r3, #0
+ 254 00cc 00E0     		b	.L10
+ 255              	.L9:
+ 128:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     } else {
+ 129:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****         return true;
+ 256              		.loc 1 129 0
+ 257 00ce 0123     		movs	r3, #1
+ 258              	.L10:
+ 130:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     }
+ 131:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** }
+ 259              		.loc 1 131 0
+ 260 00d0 1846     		mov	r0, r3
+ 261 00d2 1037     		adds	r7, r7, #16
+ 262 00d4 BD46     		mov	sp, r7
+ 263              		@ sp needed
+ 264 00d6 80BD     		pop	{r7, pc}
+ 265              		.cfi_endproc
+ 266              	.LFE5:
+ 268              		.align	2
+ 269              		.global	board_reset
+ 270              		.thumb
+ 271              		.thumb_func
+ 273              	board_reset:
+ 274              	.LFB6:
+ 132:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+ 133:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** /**
+ 134:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****  * Resets the board
+ 135:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****  */
+ 136:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** void board_reset(void) {
+ 275              		.loc 1 136 0
+ 276              		.cfi_startproc
+ 277              		@ args = 0, pretend = 0, frame = 0
+ 278              		@ frame_needed = 1, uses_anonymous_args = 0
+ 279 00d8 80B5     		push	{r7, lr}
+ 280              		.cfi_def_cfa_offset 8
+ 281              		.cfi_offset 7, -8
+ 282              		.cfi_offset 14, -4
+ 283 00da 00AF     		add	r7, sp, #0
+ 284              		.cfi_def_cfa_register 7
+ 137:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     SysCtrlReset();
+ 285              		.loc 1 137 0
+ 286 00dc FFF7FEFF 		bl	SysCtrlReset
+ 138:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** }
+ 287              		.loc 1 138 0
+ 288 00e0 80BD     		pop	{r7, pc}
+ 289              		.cfi_endproc
+ 290              	.LFE6:
+ 292 00e2 00BF     		.align	2
+ 293              		.thumb
+ 294              		.thumb_func
+ 296              	gpio_init:
+ 297              	.LFB7:
+ 139:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+ 140:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** //=========================== private =========================================
+ 141:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+ 142:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** static void gpio_init(void) {
+ 298              		.loc 1 142 0
+ 299              		.cfi_startproc
+ 300              		@ args = 0, pretend = 0, frame = 0
+ 301              		@ frame_needed = 1, uses_anonymous_args = 0
+ 302 00e4 80B5     		push	{r7, lr}
+ 303              		.cfi_def_cfa_offset 8
+ 304              		.cfi_offset 7, -8
+ 305              		.cfi_offset 14, -4
+ 306 00e6 00AF     		add	r7, sp, #0
+ 307              		.cfi_def_cfa_register 7
+ 143:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     /* Set GPIOs as output */
+ 144:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     GPIOPinTypeGPIOOutput(GPIO_A_BASE, 0xFF);
+ 308              		.loc 1 144 0
+ 309 00e8 4FF41040 		mov	r0, #36864
+ 310 00ec C4F20D00 		movt	r0, 16397
+ 311 00f0 FF21     		movs	r1, #255
+ 312 00f2 FFF7FEFF 		bl	GPIOPinTypeGPIOOutput
+ 145:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     GPIOPinTypeGPIOOutput(GPIO_B_BASE, 0xFF);
+ 313              		.loc 1 145 0
+ 314 00f6 4FF42040 		mov	r0, #40960
+ 315 00fa C4F20D00 		movt	r0, 16397
+ 316 00fe FF21     		movs	r1, #255
+ 317 0100 FFF7FEFF 		bl	GPIOPinTypeGPIOOutput
+ 146:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     GPIOPinTypeGPIOOutput(GPIO_C_BASE, 0xFF);
+ 318              		.loc 1 146 0
+ 319 0104 4FF43040 		mov	r0, #45056
+ 320 0108 C4F20D00 		movt	r0, 16397
+ 321 010c FF21     		movs	r1, #255
+ 322 010e FFF7FEFF 		bl	GPIOPinTypeGPIOOutput
+ 147:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     GPIOPinTypeGPIOOutput(GPIO_D_BASE, 0xFF);
+ 323              		.loc 1 147 0
+ 324 0112 4FF44040 		mov	r0, #49152
+ 325 0116 C4F20D00 		movt	r0, 16397
+ 326 011a FF21     		movs	r1, #255
+ 327 011c FFF7FEFF 		bl	GPIOPinTypeGPIOOutput
+ 148:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+ 149:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     /* Initialize GPIOs to low */
+ 150:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     GPIOPinWrite(GPIO_A_BASE, 0xFF, 0x00);
+ 328              		.loc 1 150 0
+ 329 0120 4FF41040 		mov	r0, #36864
+ 330 0124 C4F20D00 		movt	r0, 16397
+ 331 0128 FF21     		movs	r1, #255
+ 332 012a 0022     		movs	r2, #0
+ 333 012c FFF7FEFF 		bl	GPIOPinWrite
+ 151:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     GPIOPinWrite(GPIO_B_BASE, 0xFF, 0x00);
+ 334              		.loc 1 151 0
+ 335 0130 4FF42040 		mov	r0, #40960
+ 336 0134 C4F20D00 		movt	r0, 16397
+ 337 0138 FF21     		movs	r1, #255
+ 338 013a 0022     		movs	r2, #0
+ 339 013c FFF7FEFF 		bl	GPIOPinWrite
+ 152:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     GPIOPinWrite(GPIO_C_BASE, 0xFF, 0x00);
+ 340              		.loc 1 152 0
+ 341 0140 4FF43040 		mov	r0, #45056
+ 342 0144 C4F20D00 		movt	r0, 16397
+ 343 0148 FF21     		movs	r1, #255
+ 344 014a 0022     		movs	r2, #0
+ 345 014c FFF7FEFF 		bl	GPIOPinWrite
+ 153:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     GPIOPinWrite(GPIO_D_BASE, 0xFF, 0x00);
+ 346              		.loc 1 153 0
+ 347 0150 4FF44040 		mov	r0, #49152
+ 348 0154 C4F20D00 		movt	r0, 16397
+ 349 0158 FF21     		movs	r1, #255
+ 350 015a 0022     		movs	r2, #0
+ 351 015c FFF7FEFF 		bl	GPIOPinWrite
+ 154:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** }
+ 352              		.loc 1 154 0
+ 353 0160 80BD     		pop	{r7, pc}
+ 354              		.cfi_endproc
+ 355              	.LFE7:
+ 357 0162 00BF     		.align	2
+ 358              		.thumb
+ 359              		.thumb_func
+ 361              	clock_init:
+ 362              	.LFB8:
+ 155:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+ 156:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** static void clock_init(void) {
+ 363              		.loc 1 156 0
+ 364              		.cfi_startproc
+ 365              		@ args = 0, pretend = 0, frame = 8
+ 366              		@ frame_needed = 1, uses_anonymous_args = 0
+ 367 0164 80B5     		push	{r7, lr}
+ 368              		.cfi_def_cfa_offset 8
+ 369              		.cfi_offset 7, -8
+ 370              		.cfi_offset 14, -4
+ 371 0166 82B0     		sub	sp, sp, #8
+ 372              		.cfi_def_cfa_offset 16
+ 373 0168 00AF     		add	r7, sp, #0
+ 374              		.cfi_def_cfa_register 7
+ 157:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     /* Disable global interrupts */
+ 158:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     bool bIntDisabled = IntMasterDisable();
+ 375              		.loc 1 158 0
+ 376 016a FFF7FEFF 		bl	IntMasterDisable
+ 377 016e 0346     		mov	r3, r0
+ 378 0170 FB71     		strb	r3, [r7, #7]
+ 159:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+ 160:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     /* Configure the 32 kHz pins, PD6 and PD7, for crystal operation */
+ 161:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     /* By default they are configured as GPIOs */
+ 162:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     GPIODirModeSet(GPIO_D_BASE, 0x40, GPIO_DIR_MODE_IN);
+ 379              		.loc 1 162 0
+ 380 0172 4FF44040 		mov	r0, #49152
+ 381 0176 C4F20D00 		movt	r0, 16397
+ 382 017a 4021     		movs	r1, #64
+ 383 017c 0022     		movs	r2, #0
+ 384 017e FFF7FEFF 		bl	GPIODirModeSet
+ 163:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     GPIODirModeSet(GPIO_D_BASE, 0x80, GPIO_DIR_MODE_IN);
+ 385              		.loc 1 163 0
+ 386 0182 4FF44040 		mov	r0, #49152
+ 387 0186 C4F20D00 		movt	r0, 16397
+ 388 018a 8021     		movs	r1, #128
+ 389 018c 0022     		movs	r2, #0
+ 390 018e FFF7FEFF 		bl	GPIODirModeSet
+ 164:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     IOCPadConfigSet(GPIO_D_BASE, 0x40, IOC_OVERRIDE_ANA);
+ 391              		.loc 1 164 0
+ 392 0192 4FF44040 		mov	r0, #49152
+ 393 0196 C4F20D00 		movt	r0, 16397
+ 394 019a 4021     		movs	r1, #64
+ 395 019c 0122     		movs	r2, #1
+ 396 019e FFF7FEFF 		bl	IOCPadConfigSet
+ 165:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     IOCPadConfigSet(GPIO_D_BASE, 0x80, IOC_OVERRIDE_ANA);
+ 397              		.loc 1 165 0
+ 398 01a2 4FF44040 		mov	r0, #49152
+ 399 01a6 C4F20D00 		movt	r0, 16397
+ 400 01aa 8021     		movs	r1, #128
+ 401 01ac 0122     		movs	r2, #1
+ 402 01ae FFF7FEFF 		bl	IOCPadConfigSet
+ 166:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+ 167:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     /* Set the real-time clock to use the 32 kHz external crystal */
+ 168:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     /* Set the system clock to use the external 32 MHz crystal */
+ 169:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     /* Set the system clock to 32 MHz */
+ 170:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     SysCtrlClockSet(true, false, SYS_CTRL_SYSDIV_32MHZ);
+ 403              		.loc 1 170 0
+ 404 01b2 0120     		movs	r0, #1
+ 405 01b4 0021     		movs	r1, #0
+ 406 01b6 0022     		movs	r2, #0
+ 407 01b8 FFF7FEFF 		bl	SysCtrlClockSet
+ 171:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+ 172:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     /* Set the IO clock to operate at 16 MHz */
+ 173:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     /* This way peripherals can run while the system clock is gated */
+ 174:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     SysCtrlIOClockSet(SYS_CTRL_SYSDIV_16MHZ);
+ 408              		.loc 1 174 0
+ 409 01bc 0120     		movs	r0, #1
+ 410 01be FFF7FEFF 		bl	SysCtrlIOClockSet
+ 175:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+ 176:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     /* Wait until the selected clock configuration is stable */
+ 177:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     while (!((HWREG(SYS_CTRL_CLOCK_STA)) & (SYS_CTRL_CLOCK_STA_XOSC_STB)));
+ 411              		.loc 1 177 0
+ 412 01c2 00BF     		nop
+ 413              	.L14:
+ 414              		.loc 1 177 0 is_stmt 0 discriminator 1
+ 415 01c4 42F20403 		movw	r3, #8196
+ 416 01c8 C4F20D03 		movt	r3, 16397
+ 417 01cc 1B68     		ldr	r3, [r3]
+ 418 01ce 03F40023 		and	r3, r3, #524288
+ 419 01d2 002B     		cmp	r3, #0
+ 420 01d4 F6D0     		beq	.L14
+ 178:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+ 179:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     /* Define what peripherals run in each mode */
+ 180:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     SysCtrlRunSetting();
+ 421              		.loc 1 180 0 is_stmt 1
+ 422 01d6 00F049F8 		bl	SysCtrlRunSetting
+ 181:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     SysCtrlSleepSetting();
+ 423              		.loc 1 181 0
+ 424 01da 00F077F8 		bl	SysCtrlSleepSetting
+ 182:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     SysCtrlDeepSleepSetting();
+ 425              		.loc 1 182 0
+ 426 01de 00F0A5F8 		bl	SysCtrlDeepSleepSetting
+ 183:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     SysCtrlWakeupSetting();
+ 427              		.loc 1 183 0
+ 428 01e2 00F0D3F8 		bl	SysCtrlWakeupSetting
+ 184:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+ 185:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     /* Re-enable interrupt if initially enabled */
+ 186:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     if (!bIntDisabled) {
+ 429              		.loc 1 186 0
+ 430 01e6 FB79     		ldrb	r3, [r7, #7]
+ 431 01e8 83F00103 		eor	r3, r3, #1
+ 432 01ec DBB2     		uxtb	r3, r3
+ 433 01ee 002B     		cmp	r3, #0
+ 434 01f0 01D0     		beq	.L13
+ 187:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****         IntMasterEnable();
+ 435              		.loc 1 187 0
+ 436 01f2 FFF7FEFF 		bl	IntMasterEnable
+ 437              	.L13:
+ 188:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     }
+ 189:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** }
+ 438              		.loc 1 189 0
+ 439 01f6 0837     		adds	r7, r7, #8
+ 440 01f8 BD46     		mov	sp, r7
+ 441              		@ sp needed
+ 442 01fa 80BD     		pop	{r7, pc}
+ 443              		.cfi_endproc
+ 444              	.LFE8:
+ 446              		.align	2
+ 447              		.thumb
+ 448              		.thumb_func
+ 450              	button_init:
+ 451              	.LFB9:
+ 190:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+ 191:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** /**
+ 192:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****  * Configures the user button as input source
+ 193:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****  */
+ 194:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** static void button_init(void) {
+ 452              		.loc 1 194 0
+ 453              		.cfi_startproc
+ 454              		@ args = 0, pretend = 0, frame = 8
+ 455              		@ frame_needed = 1, uses_anonymous_args = 0
+ 456 01fc 80B5     		push	{r7, lr}
+ 457              		.cfi_def_cfa_offset 8
+ 458              		.cfi_offset 7, -8
+ 459              		.cfi_offset 14, -4
+ 460 01fe 82B0     		sub	sp, sp, #8
+ 461              		.cfi_def_cfa_offset 16
+ 462 0200 00AF     		add	r7, sp, #0
+ 463              		.cfi_def_cfa_register 7
+ 195:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     volatile uint32_t i;
+ 196:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+ 197:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     /* Delay to avoid pin floating problems */
+ 198:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     for (i = 0xFFFF; i != 0; i--);
+ 464              		.loc 1 198 0
+ 465 0202 4FF6FF73 		movw	r3, #65535
+ 466 0206 7B60     		str	r3, [r7, #4]
+ 467 0208 02E0     		b	.L17
+ 468              	.L18:
+ 469              		.loc 1 198 0 is_stmt 0 discriminator 2
+ 470 020a 7B68     		ldr	r3, [r7, #4]
+ 471 020c 013B     		subs	r3, r3, #1
+ 472 020e 7B60     		str	r3, [r7, #4]
+ 473              	.L17:
+ 474              		.loc 1 198 0 discriminator 1
+ 475 0210 7B68     		ldr	r3, [r7, #4]
+ 476 0212 002B     		cmp	r3, #0
+ 477 0214 F9D1     		bne	.L18
+ 199:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+ 200:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     /* The button is an input GPIO on falling edge */
+ 201:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     GPIOPinTypeGPIOInput(BSP_BUTTON_BASE, BSP_BUTTON_USER);
+ 478              		.loc 1 201 0 is_stmt 1
+ 479 0216 4FF43040 		mov	r0, #45056
+ 480 021a C4F20D00 		movt	r0, 16397
+ 481 021e 0821     		movs	r1, #8
+ 482 0220 FFF7FEFF 		bl	GPIOPinTypeGPIOInput
+ 202:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     GPIOIntTypeSet(BSP_BUTTON_BASE, BSP_BUTTON_USER, GPIO_FALLING_EDGE);
+ 483              		.loc 1 202 0
+ 484 0224 4FF43040 		mov	r0, #45056
+ 485 0228 C4F20D00 		movt	r0, 16397
+ 486 022c 0821     		movs	r1, #8
+ 487 022e 0022     		movs	r2, #0
+ 488 0230 FFF7FEFF 		bl	GPIOIntTypeSet
+ 203:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+ 204:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     /* Register the interrupt */
+ 205:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     GPIOPortIntRegister(BSP_BUTTON_BASE, GPIO_C_Handler);
+ 489              		.loc 1 205 0
+ 490 0234 4FF43040 		mov	r0, #45056
+ 491 0238 C4F20D00 		movt	r0, 16397
+ 492 023c 40F20001 		movw	r1, #:lower16:GPIO_C_Handler
+ 493 0240 C0F20001 		movt	r1, #:upper16:GPIO_C_Handler
+ 494 0244 FFF7FEFF 		bl	GPIOPortIntRegister
+ 206:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+ 207:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     /* Clear and enable the interrupt */
+ 208:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     GPIOPinIntClear(BSP_BUTTON_BASE, BSP_BUTTON_USER);
+ 495              		.loc 1 208 0
+ 496 0248 4FF43040 		mov	r0, #45056
+ 497 024c C4F20D00 		movt	r0, 16397
+ 498 0250 0821     		movs	r1, #8
+ 499 0252 FFF7FEFF 		bl	GPIOPinIntClear
+ 209:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     GPIOPinIntEnable(BSP_BUTTON_BASE, BSP_BUTTON_USER);
+ 500              		.loc 1 209 0
+ 501 0256 4FF43040 		mov	r0, #45056
+ 502 025a C4F20D00 		movt	r0, 16397
+ 503 025e 0821     		movs	r1, #8
+ 504 0260 FFF7FEFF 		bl	GPIOPinIntEnable
+ 210:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** }
+ 505              		.loc 1 210 0
+ 506 0264 0837     		adds	r7, r7, #8
+ 507 0266 BD46     		mov	sp, r7
+ 508              		@ sp needed
+ 509 0268 80BD     		pop	{r7, pc}
+ 510              		.cfi_endproc
+ 511              	.LFE9:
+ 513 026a 00BF     		.align	2
+ 514              		.thumb
+ 515              		.thumb_func
+ 517              	SysCtrlRunSetting:
+ 518              	.LFB10:
+ 211:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+ 212:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** static void SysCtrlRunSetting(void) {
+ 519              		.loc 1 212 0
+ 520              		.cfi_startproc
+ 521              		@ args = 0, pretend = 0, frame = 0
+ 522              		@ frame_needed = 1, uses_anonymous_args = 0
+ 523 026c 80B5     		push	{r7, lr}
+ 524              		.cfi_def_cfa_offset 8
+ 525              		.cfi_offset 7, -8
+ 526              		.cfi_offset 14, -4
+ 527 026e 00AF     		add	r7, sp, #0
+ 528              		.cfi_def_cfa_register 7
+ 213:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   /* Disable General Purpose Timers 0, 1, 2, 3 when running */
+ 214:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   SysCtrlPeripheralDisable(SYS_CTRL_PERIPH_GPT0);
+ 529              		.loc 1 214 0
+ 530 0270 0020     		movs	r0, #0
+ 531 0272 FFF7FEFF 		bl	SysCtrlPeripheralDisable
+ 215:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   SysCtrlPeripheralDisable(SYS_CTRL_PERIPH_GPT1);
+ 532              		.loc 1 215 0
+ 533 0276 0120     		movs	r0, #1
+ 534 0278 FFF7FEFF 		bl	SysCtrlPeripheralDisable
+ 216:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   SysCtrlPeripheralDisable(SYS_CTRL_PERIPH_GPT3);
+ 535              		.loc 1 216 0
+ 536 027c 0320     		movs	r0, #3
+ 537 027e FFF7FEFF 		bl	SysCtrlPeripheralDisable
+ 217:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+ 218:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   /* Disable SSI 0, 1 when running */
+ 219:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   SysCtrlPeripheralDisable(SYS_CTRL_PERIPH_SSI0);
+ 538              		.loc 1 219 0
+ 539 0282 4FF48070 		mov	r0, #256
+ 540 0286 FFF7FEFF 		bl	SysCtrlPeripheralDisable
+ 220:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   SysCtrlPeripheralDisable(SYS_CTRL_PERIPH_SSI1);
+ 541              		.loc 1 220 0
+ 542 028a 40F20110 		movw	r0, #257
+ 543 028e FFF7FEFF 		bl	SysCtrlPeripheralDisable
+ 221:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+ 222:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   /* Disable UART1 when running */
+ 223:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   SysCtrlPeripheralDisable(SYS_CTRL_PERIPH_UART1);
+ 544              		.loc 1 223 0
+ 545 0292 40F20120 		movw	r0, #513
+ 546 0296 FFF7FEFF 		bl	SysCtrlPeripheralDisable
+ 224:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+ 225:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   /* Disable I2C, AES and PKA when running */
+ 226:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   SysCtrlPeripheralDisable(SYS_CTRL_PERIPH_I2C);
+ 547              		.loc 1 226 0
+ 548 029a 4FF44070 		mov	r0, #768
+ 549 029e FFF7FEFF 		bl	SysCtrlPeripheralDisable
+ 227:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   SysCtrlPeripheralDisable(SYS_CTRL_PERIPH_PKA);
+ 550              		.loc 1 227 0
+ 551 02a2 4FF48060 		mov	r0, #1024
+ 552 02a6 FFF7FEFF 		bl	SysCtrlPeripheralDisable
+ 228:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   SysCtrlPeripheralDisable(SYS_CTRL_PERIPH_AES);
+ 553              		.loc 1 228 0
+ 554 02aa 40F20140 		movw	r0, #1025
+ 555 02ae FFF7FEFF 		bl	SysCtrlPeripheralDisable
+ 229:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+ 230:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   /* Enable UART0 and RFC when running */
+ 231:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   SysCtrlPeripheralEnable(SYS_CTRL_PERIPH_GPT2);
+ 556              		.loc 1 231 0
+ 557 02b2 0220     		movs	r0, #2
+ 558 02b4 FFF7FEFF 		bl	SysCtrlPeripheralEnable
+ 232:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   SysCtrlPeripheralEnable(SYS_CTRL_PERIPH_UART0);
+ 559              		.loc 1 232 0
+ 560 02b8 4FF40070 		mov	r0, #512
+ 561 02bc FFF7FEFF 		bl	SysCtrlPeripheralEnable
+ 233:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   SysCtrlPeripheralEnable(SYS_CTRL_PERIPH_RFC);
+ 562              		.loc 1 233 0
+ 563 02c0 4FF4A060 		mov	r0, #1280
+ 564 02c4 FFF7FEFF 		bl	SysCtrlPeripheralEnable
+ 234:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** }
+ 565              		.loc 1 234 0
+ 566 02c8 80BD     		pop	{r7, pc}
+ 567              		.cfi_endproc
+ 568              	.LFE10:
+ 570 02ca 00BF     		.align	2
+ 571              		.thumb
+ 572              		.thumb_func
+ 574              	SysCtrlSleepSetting:
+ 575              	.LFB11:
+ 235:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+ 236:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** static void SysCtrlSleepSetting(void) {
+ 576              		.loc 1 236 0
+ 577              		.cfi_startproc
+ 578              		@ args = 0, pretend = 0, frame = 0
+ 579              		@ frame_needed = 1, uses_anonymous_args = 0
+ 580 02cc 80B5     		push	{r7, lr}
+ 581              		.cfi_def_cfa_offset 8
+ 582              		.cfi_offset 7, -8
+ 583              		.cfi_offset 14, -4
+ 584 02ce 00AF     		add	r7, sp, #0
+ 585              		.cfi_def_cfa_register 7
+ 237:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   /* Disable General Purpose Timers 0, 1, 2, 3 during sleep */
+ 238:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   SysCtrlPeripheralSleepDisable(SYS_CTRL_PERIPH_GPT0);
+ 586              		.loc 1 238 0
+ 587 02d0 0020     		movs	r0, #0
+ 588 02d2 FFF7FEFF 		bl	SysCtrlPeripheralSleepDisable
+ 239:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   SysCtrlPeripheralSleepDisable(SYS_CTRL_PERIPH_GPT1);
+ 589              		.loc 1 239 0
+ 590 02d6 0120     		movs	r0, #1
+ 591 02d8 FFF7FEFF 		bl	SysCtrlPeripheralSleepDisable
+ 240:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   SysCtrlPeripheralSleepDisable(SYS_CTRL_PERIPH_GPT3);
+ 592              		.loc 1 240 0
+ 593 02dc 0320     		movs	r0, #3
+ 594 02de FFF7FEFF 		bl	SysCtrlPeripheralSleepDisable
+ 241:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+ 242:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   /* Disable SSI 0, 1 during sleep */
+ 243:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   SysCtrlPeripheralSleepDisable(SYS_CTRL_PERIPH_SSI0);
+ 595              		.loc 1 243 0
+ 596 02e2 4FF48070 		mov	r0, #256
+ 597 02e6 FFF7FEFF 		bl	SysCtrlPeripheralSleepDisable
+ 244:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   SysCtrlPeripheralSleepDisable(SYS_CTRL_PERIPH_SSI1);
+ 598              		.loc 1 244 0
+ 599 02ea 40F20110 		movw	r0, #257
+ 600 02ee FFF7FEFF 		bl	SysCtrlPeripheralSleepDisable
+ 245:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+ 246:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   /* Disable UART 0, 1 during sleep */
+ 247:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   SysCtrlPeripheralSleepDisable(SYS_CTRL_PERIPH_UART1);
+ 601              		.loc 1 247 0
+ 602 02f2 40F20120 		movw	r0, #513
+ 603 02f6 FFF7FEFF 		bl	SysCtrlPeripheralSleepDisable
+ 248:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+ 249:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   /* Disable I2C, PKA, AES during sleep */
+ 250:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   SysCtrlPeripheralSleepDisable(SYS_CTRL_PERIPH_I2C);
+ 604              		.loc 1 250 0
+ 605 02fa 4FF44070 		mov	r0, #768
+ 606 02fe FFF7FEFF 		bl	SysCtrlPeripheralSleepDisable
+ 251:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   SysCtrlPeripheralSleepDisable(SYS_CTRL_PERIPH_PKA);
+ 607              		.loc 1 251 0
+ 608 0302 4FF48060 		mov	r0, #1024
+ 609 0306 FFF7FEFF 		bl	SysCtrlPeripheralSleepDisable
+ 252:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   SysCtrlPeripheralSleepDisable(SYS_CTRL_PERIPH_AES);
+ 610              		.loc 1 252 0
+ 611 030a 40F20140 		movw	r0, #1025
+ 612 030e FFF7FEFF 		bl	SysCtrlPeripheralSleepDisable
+ 253:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+ 254:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   /* Enable UART and RFC during sleep */
+ 255:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   SysCtrlPeripheralSleepEnable(SYS_CTRL_PERIPH_GPT2);
+ 613              		.loc 1 255 0
+ 614 0312 0220     		movs	r0, #2
+ 615 0314 FFF7FEFF 		bl	SysCtrlPeripheralSleepEnable
+ 256:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   SysCtrlPeripheralSleepEnable(SYS_CTRL_PERIPH_UART0);
+ 616              		.loc 1 256 0
+ 617 0318 4FF40070 		mov	r0, #512
+ 618 031c FFF7FEFF 		bl	SysCtrlPeripheralSleepEnable
+ 257:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   SysCtrlPeripheralSleepEnable(SYS_CTRL_PERIPH_RFC);
+ 619              		.loc 1 257 0
+ 620 0320 4FF4A060 		mov	r0, #1280
+ 621 0324 FFF7FEFF 		bl	SysCtrlPeripheralSleepEnable
+ 258:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** }
+ 622              		.loc 1 258 0
+ 623 0328 80BD     		pop	{r7, pc}
+ 624              		.cfi_endproc
+ 625              	.LFE11:
+ 627 032a 00BF     		.align	2
+ 628              		.thumb
+ 629              		.thumb_func
+ 631              	SysCtrlDeepSleepSetting:
+ 632              	.LFB12:
+ 259:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+ 260:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** static void SysCtrlDeepSleepSetting(void) {
+ 633              		.loc 1 260 0
+ 634              		.cfi_startproc
+ 635              		@ args = 0, pretend = 0, frame = 0
+ 636              		@ frame_needed = 1, uses_anonymous_args = 0
+ 637 032c 80B5     		push	{r7, lr}
+ 638              		.cfi_def_cfa_offset 8
+ 639              		.cfi_offset 7, -8
+ 640              		.cfi_offset 14, -4
+ 641 032e 00AF     		add	r7, sp, #0
+ 642              		.cfi_def_cfa_register 7
+ 261:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   /* Disable General Purpose Timers 0, 1, 2, 3 during deep sleep */
+ 262:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   SysCtrlPeripheralDeepSleepDisable(SYS_CTRL_PERIPH_GPT0);
+ 643              		.loc 1 262 0
+ 644 0330 0020     		movs	r0, #0
+ 645 0332 FFF7FEFF 		bl	SysCtrlPeripheralDeepSleepDisable
+ 263:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   SysCtrlPeripheralDeepSleepDisable(SYS_CTRL_PERIPH_GPT1);
+ 646              		.loc 1 263 0
+ 647 0336 0120     		movs	r0, #1
+ 648 0338 FFF7FEFF 		bl	SysCtrlPeripheralDeepSleepDisable
+ 264:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   SysCtrlPeripheralDeepSleepDisable(SYS_CTRL_PERIPH_GPT2);
+ 649              		.loc 1 264 0
+ 650 033c 0220     		movs	r0, #2
+ 651 033e FFF7FEFF 		bl	SysCtrlPeripheralDeepSleepDisable
+ 265:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   SysCtrlPeripheralDeepSleepDisable(SYS_CTRL_PERIPH_GPT3);
+ 652              		.loc 1 265 0
+ 653 0342 0320     		movs	r0, #3
+ 654 0344 FFF7FEFF 		bl	SysCtrlPeripheralDeepSleepDisable
+ 266:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+ 267:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   /* Disable SSI 0, 1 during deep sleep */
+ 268:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   SysCtrlPeripheralDeepSleepDisable(SYS_CTRL_PERIPH_SSI0);
+ 655              		.loc 1 268 0
+ 656 0348 4FF48070 		mov	r0, #256
+ 657 034c FFF7FEFF 		bl	SysCtrlPeripheralDeepSleepDisable
+ 269:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   SysCtrlPeripheralDeepSleepDisable(SYS_CTRL_PERIPH_SSI1);
+ 658              		.loc 1 269 0
+ 659 0350 40F20110 		movw	r0, #257
+ 660 0354 FFF7FEFF 		bl	SysCtrlPeripheralDeepSleepDisable
+ 270:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+ 271:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   /* Disable UART 0, 1 during deep sleep */
+ 272:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   SysCtrlPeripheralDeepSleepDisable(SYS_CTRL_PERIPH_UART0);
+ 661              		.loc 1 272 0
+ 662 0358 4FF40070 		mov	r0, #512
+ 663 035c FFF7FEFF 		bl	SysCtrlPeripheralDeepSleepDisable
+ 273:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   SysCtrlPeripheralDeepSleepDisable(SYS_CTRL_PERIPH_UART1);
+ 664              		.loc 1 273 0
+ 665 0360 40F20120 		movw	r0, #513
+ 666 0364 FFF7FEFF 		bl	SysCtrlPeripheralDeepSleepDisable
+ 274:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+ 275:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   /* Disable I2C, PKA, AES during deep sleep */
+ 276:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   SysCtrlPeripheralDeepSleepDisable(SYS_CTRL_PERIPH_I2C);
+ 667              		.loc 1 276 0
+ 668 0368 4FF44070 		mov	r0, #768
+ 669 036c FFF7FEFF 		bl	SysCtrlPeripheralDeepSleepDisable
+ 277:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   SysCtrlPeripheralDeepSleepDisable(SYS_CTRL_PERIPH_PKA);
+ 670              		.loc 1 277 0
+ 671 0370 4FF48060 		mov	r0, #1024
+ 672 0374 FFF7FEFF 		bl	SysCtrlPeripheralDeepSleepDisable
+ 278:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   SysCtrlPeripheralDeepSleepDisable(SYS_CTRL_PERIPH_AES);
+ 673              		.loc 1 278 0
+ 674 0378 40F20140 		movw	r0, #1025
+ 675 037c FFF7FEFF 		bl	SysCtrlPeripheralDeepSleepDisable
+ 279:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   SysCtrlPeripheralDeepSleepDisable(SYS_CTRL_PERIPH_RFC);
+ 676              		.loc 1 279 0
+ 677 0380 4FF4A060 		mov	r0, #1280
+ 678 0384 FFF7FEFF 		bl	SysCtrlPeripheralDeepSleepDisable
+ 280:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** }
+ 679              		.loc 1 280 0
+ 680 0388 80BD     		pop	{r7, pc}
+ 681              		.cfi_endproc
+ 682              	.LFE12:
+ 684 038a 00BF     		.align	2
+ 685              		.thumb
+ 686              		.thumb_func
+ 688              	SysCtrlWakeupSetting:
+ 689              	.LFB13:
+ 281:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+ 282:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** static void SysCtrlWakeupSetting(void) {
+ 690              		.loc 1 282 0
+ 691              		.cfi_startproc
+ 692              		@ args = 0, pretend = 0, frame = 0
+ 693              		@ frame_needed = 1, uses_anonymous_args = 0
+ 694 038c 80B5     		push	{r7, lr}
+ 695              		.cfi_def_cfa_offset 8
+ 696              		.cfi_offset 7, -8
+ 697              		.cfi_offset 14, -4
+ 698 038e 00AF     		add	r7, sp, #0
+ 699              		.cfi_def_cfa_register 7
+ 283:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   /* Allow the SMTimer to wake up the processor */
+ 284:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****   GPIOIntWakeupEnable(GPIO_IWE_SM_TIMER);
+ 700              		.loc 1 284 0
+ 701 0390 2020     		movs	r0, #32
+ 702 0392 FFF7FEFF 		bl	GPIOIntWakeupEnable
+ 285:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** }
+ 703              		.loc 1 285 0
+ 704 0396 80BD     		pop	{r7, pc}
+ 705              		.cfi_endproc
+ 706              	.LFE13:
+ 708              		.align	2
+ 709              		.thumb
+ 710              		.thumb_func
+ 712              	GPIO_C_Handler:
+ 713              	.LFB14:
+ 286:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+ 287:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** //=========================== interrupt handlers ==============================
+ 288:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+ 289:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** /**
+ 290:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****  * GPIO_C interrupt handler. User button is GPIO_C_3
+ 291:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****  * Erases a Flash sector to trigger the bootloader backdoor
+ 292:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****  */
+ 293:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** static void GPIO_C_Handler(void) {
+ 714              		.loc 1 293 0
+ 715              		.cfi_startproc
+ 716              		@ args = 0, pretend = 0, frame = 0
+ 717              		@ frame_needed = 1, uses_anonymous_args = 0
+ 718 0398 80B5     		push	{r7, lr}
+ 719              		.cfi_def_cfa_offset 8
+ 720              		.cfi_offset 7, -8
+ 721              		.cfi_offset 14, -4
+ 722 039a 00AF     		add	r7, sp, #0
+ 723              		.cfi_def_cfa_register 7
+ 294:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     /* Disable the interrupts */
+ 295:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     IntMasterDisable();
+ 724              		.loc 1 295 0
+ 725 039c FFF7FEFF 		bl	IntMasterDisable
+ 296:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+ 297:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     /* Eras the CCA flash page */
+ 298:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     FlashMainPageErase(CC2538_FLASH_ADDRESS);
+ 726              		.loc 1 298 0
+ 727 03a0 4FF47840 		mov	r0, #63488
+ 728 03a4 C0F22700 		movt	r0, 39
+ 729 03a8 FFF7FEFF 		bl	FlashMainPageErase
+ 299:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** 
+ 300:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     /* Reset the board */
+ 301:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c ****     SysCtrlReset();
+ 730              		.loc 1 301 0
+ 731 03ac FFF7FEFF 		bl	SysCtrlReset
+ 302:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board.c **** }
+ 732              		.loc 1 302 0
+ 733 03b0 80BD     		pop	{r7, pc}
+ 734              		.cfi_endproc
+ 735              	.LFE14:
+ 737              	.Letext0:
+ 738              		.file 2 "/usr/include/newlib/machine/_default_types.h"
+ 739              		.file 3 "/usr/include/newlib/stdint.h"
+ 740              		.file 4 "bsp/boards/openmote-cc2538/board_info.h"
+ 741              		.file 5 "inc/opendefs.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 board.c
+     /tmp/cc1DTe5D.s:19     .rodata:0000000000000000 $d
+     /tmp/cc1DTe5D.s:22     .rodata:0000000000000000 rreg_uriquery
+     /tmp/cc1DTe5D.s:27     .rodata:0000000000000008 infoBoardname
+     /tmp/cc1DTe5D.s:32     .rodata:0000000000000010 infouCName
+     /tmp/cc1DTe5D.s:37     .rodata:0000000000000018 infoRadioName
+     /tmp/cc1DTe5D.s:42     .rodata:0000000000000024 infoStackName
+     /tmp/cc1DTe5D.s:45     .text:0000000000000000 $t
+     /tmp/cc1DTe5D.s:50     .text:0000000000000000 main
+     /tmp/cc1DTe5D.s:77     .text:0000000000000010 board_init
+     /tmp/cc1DTe5D.s:296    .text:00000000000000e4 gpio_init
+     /tmp/cc1DTe5D.s:361    .text:0000000000000164 clock_init
+     /tmp/cc1DTe5D.s:150    .text:0000000000000058 board_timer_init
+     /tmp/cc1DTe5D.s:450    .text:00000000000001fc button_init
+     /tmp/cc1DTe5D.s:123    .text:0000000000000048 board_sleep
+     /tmp/cc1DTe5D.s:182    .text:000000000000007c board_timer_get
+     /tmp/cc1DTe5D.s:220    .text:00000000000000a0 board_timer_expired
+     /tmp/cc1DTe5D.s:273    .text:00000000000000d8 board_reset
+     /tmp/cc1DTe5D.s:517    .text:000000000000026c SysCtrlRunSetting
+     /tmp/cc1DTe5D.s:574    .text:00000000000002cc SysCtrlSleepSetting
+     /tmp/cc1DTe5D.s:631    .text:000000000000032c SysCtrlDeepSleepSetting
+     /tmp/cc1DTe5D.s:688    .text:000000000000038c SysCtrlWakeupSetting
+     /tmp/cc1DTe5D.s:712    .text:0000000000000398 GPIO_C_Handler
+                     .debug_frame:0000000000000010 $d
+                           .group:0000000000000000 wm4.1.08074afb2ccc9da754fae8e3ee0f577b
+                           .group:0000000000000000 wm4.hw_ioc.h.39.7722cce4a3cc0e3380c3cd135aee3b21
+                           .group:0000000000000000 wm4.hw_memmap.h.39.19283c377d449c9bca5fdd8ccb62628c
+                           .group:0000000000000000 wm4.hw_ssi.h.39.9082f14e87d6077894a6e46eebe76d2f
+                           .group:0000000000000000 wm4.hw_sys_ctrl.h.39.50b4d7775c38e82076d0eb3bdc2daf82
+                           .group:0000000000000000 wm4.features.h.22.6a4ca7cd053637cc1d0db6c16f39b2d7
+                           .group:0000000000000000 wm4._default_types.h.15.8b2cb27e528498f8ff711db085d6e489
+                           .group:0000000000000000 wm4.stdint.h.20.796e373797e732130a803d4c0338fa1b
+                           .group:0000000000000000 wm4.stdbool.h.29.1c9ee6859ce8145f7838a4f2549ccec2
+                           .group:0000000000000000 wm4.hw_types.h.67.b10589a0806dcc2d274d6fab6b736519
+                           .group:0000000000000000 wm4.flash.h.41.1b4c606036d8f71c3434e1ed199afc8d
+                           .group:0000000000000000 wm4.interrupt.h.41.272fc4ec0e276feb439e7974d0f77eaf
+                           .group:0000000000000000 wm4.ioc.h.41.7444fe7016a1d045dd9fea497d615b28
+                           .group:0000000000000000 wm4.gpio.h.41.604fa3d9f70fb140a75ada50bffeaeff
+                           .group:0000000000000000 wm4.gptimer.h.41.51b4a65e82289454ba49ea8dab75309e
+                           .group:0000000000000000 wm4.sys_ctrl.h.41.c6bbd4dace326d685c1afa45bc1ba1e2
+                           .group:0000000000000000 wm4.newlib.h.8.fec018e441fee7bfa1923812ad010f97
+                           .group:0000000000000000 wm4.config.h.212.4163ef2871a828c674038d036b081cfd
+                           .group:0000000000000000 wm4._ansi.h.23.5644b60c990a4800b02a6e654e88f93a
+                           .group:0000000000000000 wm4.stddef.h.39.daafd3d79fe2f3a84d2d73d7d4e706f8
+                           .group:0000000000000000 wm4.lock.h.2.9bc98482741e5e2a9450b12934a684ea
+                           .group:0000000000000000 wm4._types.h.54.d3d34a3b7f3cc230cd159baf022b4b08
+                           .group:0000000000000000 wm4.stddef.h.158.61317cdbfb4026324507d123a50b0fd6
+                           .group:0000000000000000 wm4.reent.h.17.8bd9e4098e0428508c282cad794fae43
+                           .group:0000000000000000 wm4.cdefs.h.47.339223046f475c9f2d5db3a9118d7c65
+                           .group:0000000000000000 wm4.string.h.15.dab3980bf35408a4c507182805e2de3a
+                           .group:0000000000000000 wm4.stddef.h.158.a7efb00f6cbc6f43213b50e183c9830c
+                           .group:0000000000000000 wm4.string.h.126.6ff3aa59129e7f66b2c273baf353e066
+                           .group:0000000000000000 wm4.board_info.h.22.aeb00002354a4949fff54190040e37af
+                           .group:0000000000000000 wm4.toolchain_defs.h.2.1de8df52ab2567aa1aa0a288d2325900
+                           .group:0000000000000000 wm4.opendefs.h.23.16dafe2a30b31097968a5d4db894173a
+                           .group:0000000000000000 wm4.opentimers.h.22.96cfa97d1f5564118f54ad8599fc1867
+                           .group:0000000000000000 wm4.i2c.h.2.c40f7396ee1937cb7d6a6e6fcec1c344
+
+UNDEFINED SYMBOLS
+mote_main
+leds_init
+debugpins_init
+bsp_timer_init
+radiotimer_init
+uart_init
+radio_init
+i2c_init
+sensors_init
+SysCtrlPowerModeSet
+SysCtrlSleep
+TimerConfigure
+TimerEnable
+TimerValueGet
+SysCtrlReset
+GPIOPinTypeGPIOOutput
+GPIOPinWrite
+IntMasterDisable
+GPIODirModeSet
+IOCPadConfigSet
+SysCtrlClockSet
+SysCtrlIOClockSet
+IntMasterEnable
+GPIOPinTypeGPIOInput
+GPIOIntTypeSet
+GPIOPortIntRegister
+GPIOPinIntClear
+GPIOPinIntEnable
+SysCtrlPeripheralDisable
+SysCtrlPeripheralEnable
+SysCtrlPeripheralSleepDisable
+SysCtrlPeripheralSleepEnable
+SysCtrlPeripheralDeepSleepDisable
+GPIOIntWakeupEnable
+FlashMainPageErase

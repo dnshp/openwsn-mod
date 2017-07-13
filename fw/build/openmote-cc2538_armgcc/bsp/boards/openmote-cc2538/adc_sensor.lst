@@ -1,0 +1,321 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"adc_sensor.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.rodata
+  19              		.align	2
+  22              	rreg_uriquery:
+  23 0000 683D7563 		.ascii	"h=ucb\000"
+  23      6200
+  24 0006 0000     		.align	2
+  27              	infoBoardname:
+  28 0008 43433235 		.ascii	"CC2538\000"
+  28      333800
+  29 000f 00       		.align	2
+  32              	infouCName:
+  33 0010 43433235 		.ascii	"CC2538\000"
+  33      333800
+  34 0017 00       		.align	2
+  37              	infoRadioName:
+  38 0018 43433235 		.ascii	"CC2538 SoC\000"
+  38      33382053 
+  38      6F4300
+  39 0023 00       		.text
+  40              		.align	2
+  41              		.global	adc_sensor_init
+  42              		.thumb
+  43              		.thumb_func
+  45              	adc_sensor_init:
+  46              	.LFB0:
+  47              		.file 1 "build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c"
+   1:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c **** /**
+   2:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c ****    \brief Definition of the OpenMote-CC2538 ADC temperature sensor driver.
+   3:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c ****    \author Nicola Accettura <nicola.accettura@eecs.berkeley.edu>, March 2015.
+   4:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c **** */
+   5:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c **** 
+   6:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c **** #include <headers/hw_cctest.h>
+   7:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c **** #include <headers/hw_rfcore_xreg.h>
+   8:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c **** 
+   9:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c **** #include <source/adc.h>
+  10:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c **** 
+  11:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c **** #include "adc_sensor.h"
+  12:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c **** 
+  13:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c **** //=========================== defines =========================================
+  14:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c **** 
+  15:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c **** #define CONST 0.58134 //(VREF / 2047) = (1190 / 2047), VREF from Datasheet
+  16:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c **** #define OFFSET_DATASHEET_25C 827 // 1422*CONST, from Datasheet
+  17:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c **** #define TEMP_COEFF (CONST * 4.2) // From Datasheet
+  18:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c **** #define OFFSET_0C (OFFSET_DATASHEET_25C - (25 * TEMP_COEFF))
+  19:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c **** 
+  20:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c **** //=========================== variables =======================================
+  21:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c **** 
+  22:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c **** //=========================== prototype =======================================
+  23:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c **** 
+  24:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c **** //=========================== public ==========================================
+  25:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c **** 
+  26:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c **** /**
+  27:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c ****    \brief Initialize the sensor
+  28:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c **** */
+  29:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c **** void adc_sensor_init(void) {
+  48              		.loc 1 29 0
+  49              		.cfi_startproc
+  50              		@ args = 0, pretend = 0, frame = 0
+  51              		@ frame_needed = 1, uses_anonymous_args = 0
+  52 0000 80B5     		push	{r7, lr}
+  53              		.cfi_def_cfa_offset 8
+  54              		.cfi_offset 7, -8
+  55              		.cfi_offset 14, -4
+  56 0002 00AF     		add	r7, sp, #0
+  57              		.cfi_def_cfa_register 7
+  30:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c ****    HWREG(CCTEST_TR0) |= CCTEST_TR0_ADCTM;
+  58              		.loc 1 30 0
+  59 0004 3423     		movs	r3, #52
+  60 0006 C4F20143 		movt	r3, 17409
+  61 000a 3422     		movs	r2, #52
+  62 000c C4F20142 		movt	r2, 17409
+  63 0010 1268     		ldr	r2, [r2]
+  64 0012 42F00202 		orr	r2, r2, #2
+  65 0016 1A60     		str	r2, [r3]
+  31:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c ****    HWREG(RFCORE_XREG_ATEST) = 0x01;
+  66              		.loc 1 31 0
+  67 0018 48F2F463 		movw	r3, #34548
+  68 001c C4F20803 		movt	r3, 16392
+  69 0020 0122     		movs	r2, #1
+  70 0022 1A60     		str	r2, [r3]
+  32:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c ****    SOCADCSingleConfigure(SOCADC_12_BIT, SOCADC_REF_INTERNAL);
+  71              		.loc 1 32 0
+  72 0024 3020     		movs	r0, #48
+  73 0026 0021     		movs	r1, #0
+  74 0028 FFF7FEFF 		bl	SOCADCSingleConfigure
+  33:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c ****    adc_sens_read_temperature();
+  75              		.loc 1 33 0
+  76 002c FFF7FEFF 		bl	adc_sens_read_temperature
+  34:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c **** }
+  77              		.loc 1 34 0
+  78 0030 80BD     		pop	{r7, pc}
+  79              		.cfi_endproc
+  80              	.LFE0:
+  82 0032 00BF     		.align	2
+  83              		.global	adc_sens_read_temperature
+  84              		.thumb
+  85              		.thumb_func
+  87              	adc_sens_read_temperature:
+  88              	.LFB1:
+  35:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c **** 
+  36:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c **** /**
+  37:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c ****    \brief Read rough data from sensor
+  38:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c ****    \param[out] ui16Dummy rough data.
+  39:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c **** */
+  40:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c **** uint16_t adc_sens_read_temperature(void) {
+  89              		.loc 1 40 0
+  90              		.cfi_startproc
+  91              		@ args = 0, pretend = 0, frame = 8
+  92              		@ frame_needed = 1, uses_anonymous_args = 0
+  93 0034 80B5     		push	{r7, lr}
+  94              		.cfi_def_cfa_offset 8
+  95              		.cfi_offset 7, -8
+  96              		.cfi_offset 14, -4
+  97 0036 82B0     		sub	sp, sp, #8
+  98              		.cfi_def_cfa_offset 16
+  99 0038 00AF     		add	r7, sp, #0
+ 100              		.cfi_def_cfa_register 7
+  41:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c ****    uint16_t ui16Dummy;
+  42:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c **** 
+  43:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c ****    SOCADCSingleStart(SOCADC_TEMP_SENS);
+ 101              		.loc 1 43 0
+ 102 003a 0E20     		movs	r0, #14
+ 103 003c FFF7FEFF 		bl	SOCADCSingleStart
+  44:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c ****    while(!SOCADCEndOfCOnversionGet());
+ 104              		.loc 1 44 0
+ 105 0040 00BF     		nop
+ 106              	.L3:
+ 107              		.loc 1 44 0 is_stmt 0 discriminator 1
+ 108 0042 FFF7FEFF 		bl	SOCADCEndOfCOnversionGet
+ 109 0046 0346     		mov	r3, r0
+ 110 0048 83F00103 		eor	r3, r3, #1
+ 111 004c DBB2     		uxtb	r3, r3
+ 112 004e 002B     		cmp	r3, #0
+ 113 0050 F7D1     		bne	.L3
+  45:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c ****    ui16Dummy = SOCADCDataGet() >> SOCADC_12_BIT_RSHIFT;
+ 114              		.loc 1 45 0 is_stmt 1
+ 115 0052 FFF7FEFF 		bl	SOCADCDataGet
+ 116 0056 0346     		mov	r3, r0
+ 117 0058 1B09     		lsrs	r3, r3, #4
+ 118 005a FB80     		strh	r3, [r7, #6]	@ movhi
+  46:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c ****    return ui16Dummy;
+ 119              		.loc 1 46 0
+ 120 005c FB88     		ldrh	r3, [r7, #6]
+  47:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c **** }
+ 121              		.loc 1 47 0
+ 122 005e 1846     		mov	r0, r3
+ 123 0060 0837     		adds	r7, r7, #8
+ 124 0062 BD46     		mov	sp, r7
+ 125              		@ sp needed
+ 126 0064 80BD     		pop	{r7, pc}
+ 127              		.cfi_endproc
+ 128              	.LFE1:
+ 130              		.global	__aeabi_i2d
+ 131              		.global	__aeabi_dmul
+ 132              		.global	__aeabi_d2f
+ 133              		.global	__aeabi_f2d
+ 134              		.global	__aeabi_dsub
+ 135              		.global	__aeabi_ddiv
+ 136 0066 00BF     		.align	2
+ 137              		.global	adc_sens_convert_temperature
+ 138              		.thumb
+ 139              		.thumb_func
+ 141              	adc_sens_convert_temperature:
+ 142              	.LFB2:
+  48:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c **** 
+  49:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c **** /**
+  50:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c ****    \brief Convert rough data to human understandable
+  51:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c ****    \param[in] cputemp rough data.
+  52:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c ****    \param[out] the number of registered OpenSensors.
+  53:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c **** */
+  54:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c **** float adc_sens_convert_temperature(uint16_t cputemp) {
+ 143              		.loc 1 54 0
+ 144              		.cfi_startproc
+ 145              		@ args = 0, pretend = 0, frame = 16
+ 146              		@ frame_needed = 1, uses_anonymous_args = 0
+ 147 0068 80B5     		push	{r7, lr}
+ 148              		.cfi_def_cfa_offset 8
+ 149              		.cfi_offset 7, -8
+ 150              		.cfi_offset 14, -4
+ 151 006a 84B0     		sub	sp, sp, #16
+ 152              		.cfi_def_cfa_offset 24
+ 153 006c 00AF     		add	r7, sp, #0
+ 154              		.cfi_def_cfa_register 7
+ 155 006e 0346     		mov	r3, r0
+ 156 0070 FB80     		strh	r3, [r7, #6]	@ movhi
+  55:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c ****    float dOutputVoltage;
+  56:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c **** 
+  57:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c ****    dOutputVoltage = cputemp * CONST;
+ 157              		.loc 1 57 0
+ 158 0072 FB88     		ldrh	r3, [r7, #6]
+ 159 0074 1846     		mov	r0, r3
+ 160 0076 FFF7FEFF 		bl	__aeabi_i2d
+ 161 007a 0246     		mov	r2, r0
+ 162 007c 0B46     		mov	r3, r1
+ 163 007e 1046     		mov	r0, r2
+ 164 0080 1946     		mov	r1, r3
+ 165 0082 17A3     		adr	r3, .L7
+ 166 0084 D3E90023 		ldrd	r2, [r3]
+ 167 0088 FFF7FEFF 		bl	__aeabi_dmul
+ 168 008c 0246     		mov	r2, r0
+ 169 008e 0B46     		mov	r3, r1
+ 170 0090 1046     		mov	r0, r2
+ 171 0092 1946     		mov	r1, r3
+ 172 0094 FFF7FEFF 		bl	__aeabi_d2f
+ 173 0098 0346     		mov	r3, r0
+ 174 009a FB60     		str	r3, [r7, #12]	@ float
+  58:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c ****    dOutputVoltage = ((dOutputVoltage - OFFSET_0C) / TEMP_COEFF);
+ 175              		.loc 1 58 0
+ 176 009c F868     		ldr	r0, [r7, #12]	@ float
+ 177 009e FFF7FEFF 		bl	__aeabi_f2d
+ 178 00a2 0246     		mov	r2, r0
+ 179 00a4 0B46     		mov	r3, r1
+ 180 00a6 1046     		mov	r0, r2
+ 181 00a8 1946     		mov	r1, r3
+ 182 00aa 0FA3     		adr	r3, .L7+8
+ 183 00ac D3E90023 		ldrd	r2, [r3]
+ 184 00b0 FFF7FEFF 		bl	__aeabi_dsub
+ 185 00b4 0246     		mov	r2, r0
+ 186 00b6 0B46     		mov	r3, r1
+ 187 00b8 1046     		mov	r0, r2
+ 188 00ba 1946     		mov	r1, r3
+ 189 00bc 0CA3     		adr	r3, .L7+16
+ 190 00be D3E90023 		ldrd	r2, [r3]
+ 191 00c2 FFF7FEFF 		bl	__aeabi_ddiv
+ 192 00c6 0246     		mov	r2, r0
+ 193 00c8 0B46     		mov	r3, r1
+ 194 00ca 1046     		mov	r0, r2
+ 195 00cc 1946     		mov	r1, r3
+ 196 00ce FFF7FEFF 		bl	__aeabi_d2f
+ 197 00d2 0346     		mov	r3, r0
+ 198 00d4 FB60     		str	r3, [r7, #12]	@ float
+  59:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c ****    return dOutputVoltage;
+ 199              		.loc 1 59 0
+ 200 00d6 FB68     		ldr	r3, [r7, #12]	@ float
+  60:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/adc_sensor.c **** }
+ 201              		.loc 1 60 0
+ 202 00d8 1846     		mov	r0, r3
+ 203 00da 1037     		adds	r7, r7, #16
+ 204 00dc BD46     		mov	sp, r7
+ 205              		@ sp needed
+ 206 00de 80BD     		pop	{r7, pc}
+ 207              	.L8:
+ 208              		.align	3
+ 209              	.L7:
+ 210 00e0 9869FB57 		.word	1476094360
+ 211 00e4 569AE23F 		.word	1071815254
+ 212 00e8 6C787AA5 		.word	2776266860
+ 213 00ec ACEF8740 		.word	1082650540
+ 214 00f0 ADFBC742 		.word	1120402349
+ 215 00f4 74880340 		.word	1073973364
+ 216              		.cfi_endproc
+ 217              	.LFE2:
+ 219              	.Letext0:
+ 220              		.file 2 "/usr/include/newlib/machine/_default_types.h"
+ 221              		.file 3 "/usr/include/newlib/stdint.h"
+ 222              		.file 4 "build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/board_info.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 adc_sensor.c
+     /tmp/ccYjsXoF.s:19     .rodata:0000000000000000 $d
+     /tmp/ccYjsXoF.s:22     .rodata:0000000000000000 rreg_uriquery
+     /tmp/ccYjsXoF.s:27     .rodata:0000000000000008 infoBoardname
+     /tmp/ccYjsXoF.s:32     .rodata:0000000000000010 infouCName
+     /tmp/ccYjsXoF.s:37     .rodata:0000000000000018 infoRadioName
+     /tmp/ccYjsXoF.s:40     .text:0000000000000000 $t
+     /tmp/ccYjsXoF.s:45     .text:0000000000000000 adc_sensor_init
+     /tmp/ccYjsXoF.s:87     .text:0000000000000034 adc_sens_read_temperature
+     /tmp/ccYjsXoF.s:141    .text:0000000000000068 adc_sens_convert_temperature
+     /tmp/ccYjsXoF.s:210    .text:00000000000000e0 $d
+                     .debug_frame:0000000000000010 $d
+                           .group:0000000000000000 wm4.1.08074afb2ccc9da754fae8e3ee0f577b
+                           .group:0000000000000000 wm4.hw_cctest.h.39.e14d1adafc571f323ab16c979c8c05d0
+                           .group:0000000000000000 wm4.hw_rfcore_xreg.h.39.6b38b9cec070780b17fcef77b2e7e09d
+                           .group:0000000000000000 wm4.features.h.22.6a4ca7cd053637cc1d0db6c16f39b2d7
+                           .group:0000000000000000 wm4._default_types.h.15.8b2cb27e528498f8ff711db085d6e489
+                           .group:0000000000000000 wm4.stdint.h.20.796e373797e732130a803d4c0338fa1b
+                           .group:0000000000000000 wm4.stdbool.h.29.1c9ee6859ce8145f7838a4f2549ccec2
+                           .group:0000000000000000 wm4.hw_types.h.67.b10589a0806dcc2d274d6fab6b736519
+                           .group:0000000000000000 wm4.adc.h.62.fb7ddcf28d3300859ae98ee27dbc8abb
+                           .group:0000000000000000 wm4.newlib.h.8.fec018e441fee7bfa1923812ad010f97
+                           .group:0000000000000000 wm4.config.h.212.4163ef2871a828c674038d036b081cfd
+                           .group:0000000000000000 wm4._ansi.h.23.5644b60c990a4800b02a6e654e88f93a
+                           .group:0000000000000000 wm4.stddef.h.39.daafd3d79fe2f3a84d2d73d7d4e706f8
+                           .group:0000000000000000 wm4.lock.h.2.9bc98482741e5e2a9450b12934a684ea
+                           .group:0000000000000000 wm4._types.h.54.d3d34a3b7f3cc230cd159baf022b4b08
+                           .group:0000000000000000 wm4.stddef.h.158.61317cdbfb4026324507d123a50b0fd6
+                           .group:0000000000000000 wm4.reent.h.17.8bd9e4098e0428508c282cad794fae43
+                           .group:0000000000000000 wm4.cdefs.h.47.339223046f475c9f2d5db3a9118d7c65
+                           .group:0000000000000000 wm4.string.h.15.dab3980bf35408a4c507182805e2de3a
+                           .group:0000000000000000 wm4.stddef.h.158.a7efb00f6cbc6f43213b50e183c9830c
+                           .group:0000000000000000 wm4.string.h.126.6ff3aa59129e7f66b2c273baf353e066
+                           .group:0000000000000000 wm4.interrupt.h.41.272fc4ec0e276feb439e7974d0f77eaf
+                           .group:0000000000000000 wm4.board_info.h.22.aeb00002354a4949fff54190040e37af
+
+UNDEFINED SYMBOLS
+SOCADCSingleConfigure
+SOCADCSingleStart
+SOCADCEndOfCOnversionGet
+SOCADCDataGet
+__aeabi_i2d
+__aeabi_dmul
+__aeabi_d2f
+__aeabi_f2d
+__aeabi_dsub
+__aeabi_ddiv

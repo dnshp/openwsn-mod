@@ -1,0 +1,1170 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"rrt.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.rodata
+  19              		.align	2
+  22              	rreg_uriquery:
+  23 0000 683D7563 		.ascii	"h=ucb\000"
+  23      6200
+  24 0006 0000     		.align	2
+  27              	infoBoardname:
+  28 0008 43433235 		.ascii	"CC2538\000"
+  28      333800
+  29 000f 00       		.align	2
+  32              	infouCName:
+  33 0010 43433235 		.ascii	"CC2538\000"
+  33      333800
+  34 0017 00       		.align	2
+  37              	infoRadioName:
+  38 0018 43433235 		.ascii	"CC2538 SoC\000"
+  38      33382053 
+  38      6F4300
+  39 0023 00       		.align	2
+  42              	infoStackName:
+  43 0024 4F70656E 		.ascii	"OpenWSN \000"
+  43      57534E20 
+  43      00
+  44 002d 000000   		.align	2
+  47              	ipAddr_ipsoRD:
+  48 0030 26       		.byte	38
+  49 0031 07       		.byte	7
+  50 0032 F7       		.byte	-9
+  51 0033 40       		.byte	64
+  52 0034 00       		.byte	0
+  53 0035 00       		.byte	0
+  54 0036 00       		.byte	0
+  55 0037 3F       		.byte	63
+  56 0038 00       		.byte	0
+  57 0039 00       		.byte	0
+  58 003a 00       		.byte	0
+  59 003b 00       		.byte	0
+  60 003c 00       		.byte	0
+  61 003d 00       		.byte	0
+  62 003e 0E       		.byte	14
+  63 003f 29       		.byte	41
+  64              		.align	2
+  67              	ipAddr_motesEecs:
+  68 0040 20       		.byte	32
+  69 0041 01       		.byte	1
+  70 0042 04       		.byte	4
+  71 0043 70       		.byte	112
+  72 0044 00       		.byte	0
+  73 0045 66       		.byte	102
+  74 0046 00       		.byte	0
+  75 0047 19       		.byte	25
+  76 0048 00       		.byte	0
+  77 0049 00       		.byte	0
+  78 004a 00       		.byte	0
+  79 004b 00       		.byte	0
+  80 004c 00       		.byte	0
+  81 004d 00       		.byte	0
+  82 004e 00       		.byte	0
+  83 004f 02       		.byte	2
+  84              		.align	2
+  87              	ipAddr_local:
+  88 0050 26       		.byte	38
+  89 0051 07       		.byte	7
+  90 0052 F1       		.byte	-15
+  91 0053 40       		.byte	64
+  92 0054 04       		.byte	4
+  93 0055 00       		.byte	0
+  94 0056 10       		.byte	16
+  95 0057 36       		.byte	54
+  96 0058 4D       		.byte	77
+  97 0059 CD       		.byte	-51
+  98 005a AB       		.byte	-85
+  99 005b 54       		.byte	84
+ 100 005c 81       		.byte	-127
+ 101 005d 99       		.byte	-103
+ 102 005e C1       		.byte	-63
+ 103 005f F7       		.byte	-9
+ 104              		.align	2
+ 107              	ipAddr_motedata:
+ 108 0060 20       		.byte	32
+ 109 0061 01       		.byte	1
+ 110 0062 04       		.byte	4
+ 111 0063 70       		.byte	112
+ 112 0064 00       		.byte	0
+ 113 0065 66       		.byte	102
+ 114 0066 00       		.byte	0
+ 115 0067 17       		.byte	23
+ 116 0068 00       		.byte	0
+ 117 0069 00       		.byte	0
+ 118 006a 00       		.byte	0
+ 119 006b 00       		.byte	0
+ 120 006c 00       		.byte	0
+ 121 006d 00       		.byte	0
+ 122 006e 00       		.byte	0
+ 123 006f 02       		.byte	2
+ 124              		.align	2
+ 127              	ipAddr_ringmaster:
+ 128 0070 BB       		.byte	-69
+ 129 0071 BB       		.byte	-69
+ 130 0072 00       		.byte	0
+ 131 0073 00       		.byte	0
+ 132 0074 00       		.byte	0
+ 133 0075 00       		.byte	0
+ 134 0076 00       		.byte	0
+ 135 0077 00       		.byte	0
+ 136 0078 00       		.byte	0
+ 137 0079 00       		.byte	0
+ 138 007a 00       		.byte	0
+ 139 007b 00       		.byte	0
+ 140 007c 00       		.byte	0
+ 141 007d 00       		.byte	0
+ 142 007e 00       		.byte	0
+ 143 007f 01       		.byte	1
+ 144              		.align	2
+ 147              	all_routers_multicast:
+ 148 0080 FF       		.byte	-1
+ 149 0081 02       		.byte	2
+ 150 0082 00       		.byte	0
+ 151 0083 00       		.byte	0
+ 152 0084 00       		.byte	0
+ 153 0085 00       		.byte	0
+ 154 0086 00       		.byte	0
+ 155 0087 00       		.byte	0
+ 156 0088 00       		.byte	0
+ 157 0089 00       		.byte	0
+ 158 008a 00       		.byte	0
+ 159 008b 00       		.byte	0
+ 160 008c 00       		.byte	0
+ 161 008d 00       		.byte	0
+ 162 008e 00       		.byte	0
+ 163 008f 1A       		.byte	26
+ 164              		.global	rrt_path0
+ 165              		.align	2
+ 168              	rrt_path0:
+ 169 0090 727400   		.ascii	"rt\000"
+ 170              		.comm	rrt_vars,52,4
+ 171 0093 00       		.text
+ 172              		.align	2
+ 173              		.global	rrt_init
+ 174              		.thumb
+ 175              		.thumb_func
+ 177              	rrt_init:
+ 178              	.LFB0:
+ 179              		.file 1 "build/openmote-cc2538_armgcc/openapps/rrt/rrt.c"
+   1:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** /**
+   2:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** \brief A CoAP resource which indicates the board its running on.
+   3:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** */
+   4:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** 
+   5:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** 
+   6:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** #include "opendefs.h"
+   7:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** #include "rrt.h"
+   8:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** #include "sixtop.h"
+   9:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** #include "idmanager.h"
+  10:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** #include "openqueue.h"
+  11:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** #include "neighbors.h"
+  12:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** #include "packetfunctions.h"
+  13:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** #include "leds.h"
+  14:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** #include "openserial.h"
+  15:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** 
+  16:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** //=========================== defines =========================================
+  17:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** 
+  18:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** const uint8_t rrt_path0[] = "rt";
+  19:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** 
+  20:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** //=========================== variables =======================================
+  21:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** 
+  22:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** rrt_vars_t rrt_vars;
+  23:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** 
+  24:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** //=========================== prototypes ======================================
+  25:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** 
+  26:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** owerror_t     rrt_receive(
+  27:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****    OpenQueueEntry_t* msg,
+  28:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****    coap_header_iht*  coap_header,
+  29:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****    coap_option_iht*  coap_options
+  30:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** );
+  31:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** void          rrt_sendDone(
+  32:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****    OpenQueueEntry_t* msg,
+  33:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****    owerror_t error
+  34:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** );
+  35:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** void rrt_setGETRespMsg(
+  36:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****    OpenQueueEntry_t* msg,
+  37:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****    uint8_t discovered   
+  38:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** );
+  39:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** 
+  40:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** void rrt_sendCoAPMsg(char actionMsg, uint8_t *ipv6mote);
+  41:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** 
+  42:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** //=========================== public ==========================================
+  43:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** 
+  44:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** /**
+  45:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** \brief Initialize this module.
+  46:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** */
+  47:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** void rrt_init() {
+ 180              		.loc 1 47 0
+ 181              		.cfi_startproc
+ 182              		@ args = 0, pretend = 0, frame = 0
+ 183              		@ frame_needed = 1, uses_anonymous_args = 0
+ 184 0000 80B5     		push	{r7, lr}
+ 185              		.cfi_def_cfa_offset 8
+ 186              		.cfi_offset 7, -8
+ 187              		.cfi_offset 14, -4
+ 188 0002 00AF     		add	r7, sp, #0
+ 189              		.cfi_def_cfa_register 7
+  48:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****    
+  49:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****    // do not run if DAGroot
+  50:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****    if(idmanager_getIsDAGroot()==TRUE) return; 
+ 190              		.loc 1 50 0
+ 191 0004 FFF7FEFF 		bl	idmanager_getIsDAGroot
+ 192 0008 0346     		mov	r3, r0
+ 193 000a 002B     		cmp	r3, #0
+ 194 000c 00D0     		beq	.L2
+ 195              		.loc 1 50 0 is_stmt 0 discriminator 1
+ 196 000e 45E0     		b	.L1
+ 197              	.L2:
+  51:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****    
+  52:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****    // prepare the resource descriptor for the /rt path
+  53:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****    rrt_vars.desc.path0len             = sizeof(rrt_path0)-1;
+ 198              		.loc 1 53 0 is_stmt 1
+ 199 0010 40F20003 		movw	r3, #:lower16:rrt_vars
+ 200 0014 C0F20003 		movt	r3, #:upper16:rrt_vars
+ 201 0018 0222     		movs	r2, #2
+ 202 001a 1A70     		strb	r2, [r3]
+  54:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****    rrt_vars.desc.path0val             = (uint8_t*)(&rrt_path0);
+ 203              		.loc 1 54 0
+ 204 001c 40F20003 		movw	r3, #:lower16:rrt_vars
+ 205 0020 C0F20003 		movt	r3, #:upper16:rrt_vars
+ 206 0024 40F20002 		movw	r2, #:lower16:rrt_path0
+ 207 0028 C0F20002 		movt	r2, #:upper16:rrt_path0
+ 208 002c 5A60     		str	r2, [r3, #4]
+  55:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****    rrt_vars.desc.path1len             = 0;
+ 209              		.loc 1 55 0
+ 210 002e 40F20003 		movw	r3, #:lower16:rrt_vars
+ 211 0032 C0F20003 		movt	r3, #:upper16:rrt_vars
+ 212 0036 0022     		movs	r2, #0
+ 213 0038 1A72     		strb	r2, [r3, #8]
+  56:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****    rrt_vars.desc.path1val             = NULL;
+ 214              		.loc 1 56 0
+ 215 003a 40F20003 		movw	r3, #:lower16:rrt_vars
+ 216 003e C0F20003 		movt	r3, #:upper16:rrt_vars
+ 217 0042 0022     		movs	r2, #0
+ 218 0044 DA60     		str	r2, [r3, #12]
+  57:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****    rrt_vars.desc.componentID          = COMPONENT_RRT;
+ 219              		.loc 1 57 0
+ 220 0046 40F20003 		movw	r3, #:lower16:rrt_vars
+ 221 004a C0F20003 		movt	r3, #:upper16:rrt_vars
+ 222 004e 2522     		movs	r2, #37
+ 223 0050 1A74     		strb	r2, [r3, #16]
+  58:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****    rrt_vars.desc.discoverable         = TRUE;
+ 224              		.loc 1 58 0
+ 225 0052 40F20003 		movw	r3, #:lower16:rrt_vars
+ 226 0056 C0F20003 		movt	r3, #:upper16:rrt_vars
+ 227 005a 0122     		movs	r2, #1
+ 228 005c 5A74     		strb	r2, [r3, #17]
+  59:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****    rrt_vars.desc.callbackRx           = &rrt_receive;
+ 229              		.loc 1 59 0
+ 230 005e 40F20003 		movw	r3, #:lower16:rrt_vars
+ 231 0062 C0F20003 		movt	r3, #:upper16:rrt_vars
+ 232 0066 40F20002 		movw	r2, #:lower16:rrt_receive
+ 233 006a C0F20002 		movt	r2, #:upper16:rrt_receive
+ 234 006e 5A61     		str	r2, [r3, #20]
+  60:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****    rrt_vars.desc.callbackSendDone     = &rrt_sendDone;
+ 235              		.loc 1 60 0
+ 236 0070 40F20003 		movw	r3, #:lower16:rrt_vars
+ 237 0074 C0F20003 		movt	r3, #:upper16:rrt_vars
+ 238 0078 40F20002 		movw	r2, #:lower16:rrt_sendDone
+ 239 007c C0F20002 		movt	r2, #:upper16:rrt_sendDone
+ 240 0080 9A61     		str	r2, [r3, #24]
+  61:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** 
+  62:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****    rrt_vars.discovered                = 0; //if this mote has been discovered by ringmaster
+ 241              		.loc 1 62 0
+ 242 0082 40F20003 		movw	r3, #:lower16:rrt_vars
+ 243 0086 C0F20003 		movt	r3, #:upper16:rrt_vars
+ 244 008a 0022     		movs	r2, #0
+ 245 008c 83F83020 		strb	r2, [r3, #48]
+  63:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****    
+  64:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****    // register with the CoAP module
+  65:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****    opencoap_register(&rrt_vars.desc);
+ 246              		.loc 1 65 0
+ 247 0090 40F20000 		movw	r0, #:lower16:rrt_vars
+ 248 0094 C0F20000 		movt	r0, #:upper16:rrt_vars
+ 249 0098 FFF7FEFF 		bl	opencoap_register
+ 250              	.L1:
+  66:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** }
+ 251              		.loc 1 66 0
+ 252 009c 80BD     		pop	{r7, pc}
+ 253              		.cfi_endproc
+ 254              	.LFE0:
+ 256 009e 00BF     		.align	2
+ 257              		.global	rrt_receive
+ 258              		.thumb
+ 259              		.thumb_func
+ 261              	rrt_receive:
+ 262              	.LFB1:
+  67:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** 
+  68:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** //=========================== private =========================================
+  69:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** 
+  70:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** /**
+  71:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** \brief Called when a CoAP message is received for this resource.
+  72:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** 
+  73:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** \param[in] msg          The received message. CoAP header and options already
+  74:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****    parsed.
+  75:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** \param[in] coap_header  The CoAP header contained in the message.
+  76:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** \param[in] coap_options The CoAP options contained in the message.
+  77:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** 
+  78:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** \return Whether the response is prepared successfully.
+  79:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** */
+  80:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** owerror_t rrt_receive(
+  81:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****       OpenQueueEntry_t* msg,
+  82:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****       coap_header_iht* coap_header,
+  83:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****       coap_option_iht* coap_options
+  84:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****    ) {
+ 263              		.loc 1 84 0
+ 264              		.cfi_startproc
+ 265              		@ args = 0, pretend = 0, frame = 40
+ 266              		@ frame_needed = 1, uses_anonymous_args = 0
+ 267 00a0 90B5     		push	{r4, r7, lr}
+ 268              		.cfi_def_cfa_offset 12
+ 269              		.cfi_offset 4, -12
+ 270              		.cfi_offset 7, -8
+ 271              		.cfi_offset 14, -4
+ 272 00a2 8BB0     		sub	sp, sp, #44
+ 273              		.cfi_def_cfa_offset 56
+ 274 00a4 00AF     		add	r7, sp, #0
+ 275              		.cfi_def_cfa_register 7
+ 276 00a6 F860     		str	r0, [r7, #12]
+ 277 00a8 B960     		str	r1, [r7, #8]
+ 278 00aa 7A60     		str	r2, [r7, #4]
+  85:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****    
+  86:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****    owerror_t outcome;
+  87:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****    uint8_t mssgRecvd;
+  88:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****    uint8_t moteToSendTo[16];
+  89:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****    uint8_t actionToFwd;
+  90:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** 
+  91:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****    switch (coap_header->Code) {
+ 279              		.loc 1 91 0
+ 280 00ac BB68     		ldr	r3, [r7, #8]
+ 281 00ae DB78     		ldrb	r3, [r3, #3]	@ zero_extendqisi2
+ 282 00b0 013B     		subs	r3, r3, #1
+ 283 00b2 032B     		cmp	r3, #3
+ 284 00b4 00F2A980 		bhi	.L5
+ 285 00b8 01A2     		adr	r2, .L7
+ 286 00ba 52F823F0 		ldr	pc, [r2, r3, lsl #2]
+ 287 00be 00BF     		.p2align 2
+ 288              	.L7:
+ 289 00c0 D1000000 		.word	.L6+1
+ 290 00c4 13010000 		.word	.L8+1
+ 291 00c8 13010000 		.word	.L8+1
+ 292 00cc CF010000 		.word	.L9+1
+ 293              	.L6:
+  92:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****       case COAP_CODE_REQ_GET:
+  93:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          
+  94:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          //=== reset packet payload (we will reuse this packetBuffer)
+  95:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          msg->payload                     = &(msg->packet[127]);
+ 294              		.loc 1 95 0
+ 295 00d0 FB68     		ldr	r3, [r7, #12]
+ 296 00d2 03F20B12 		addw	r2, r3, #267
+ 297 00d6 FB68     		ldr	r3, [r7, #12]
+ 298 00d8 5A60     		str	r2, [r3, #4]
+  96:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          msg->length                      = 0;
+ 299              		.loc 1 96 0
+ 300 00da FB68     		ldr	r3, [r7, #12]
+ 301 00dc 0022     		movs	r2, #0
+ 302 00de 1A72     		strb	r2, [r3, #8]
+  97:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          
+  98:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          //=== prepare  CoAP response
+  99:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          rrt_setGETRespMsg(msg, rrt_vars.discovered);
+ 303              		.loc 1 99 0
+ 304 00e0 40F20003 		movw	r3, #:lower16:rrt_vars
+ 305 00e4 C0F20003 		movt	r3, #:upper16:rrt_vars
+ 306 00e8 93F83030 		ldrb	r3, [r3, #48]	@ zero_extendqisi2
+ 307 00ec F868     		ldr	r0, [r7, #12]
+ 308 00ee 1946     		mov	r1, r3
+ 309 00f0 FFF7FEFF 		bl	rrt_setGETRespMsg
+ 100:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          
+ 101:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          
+ 102:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          // payload marker
+ 103:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          packetfunctions_reserveHeaderSize(msg,1);
+ 310              		.loc 1 103 0
+ 311 00f4 F868     		ldr	r0, [r7, #12]
+ 312 00f6 0121     		movs	r1, #1
+ 313 00f8 FFF7FEFF 		bl	packetfunctions_reserveHeaderSize
+ 104:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          msg->payload[0] = COAP_PAYLOAD_MARKER;
+ 314              		.loc 1 104 0
+ 315 00fc FB68     		ldr	r3, [r7, #12]
+ 316 00fe 5B68     		ldr	r3, [r3, #4]
+ 317 0100 FF22     		movs	r2, #255
+ 318 0102 1A70     		strb	r2, [r3]
+ 105:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          
+ 106:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          // set the CoAP header
+ 107:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          coap_header->Code                = COAP_CODE_RESP_CONTENT;
+ 319              		.loc 1 107 0
+ 320 0104 BB68     		ldr	r3, [r7, #8]
+ 321 0106 4522     		movs	r2, #69
+ 322 0108 DA70     		strb	r2, [r3, #3]
+ 108:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          
+ 109:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          outcome                          = E_SUCCESS;
+ 323              		.loc 1 109 0
+ 324 010a 0023     		movs	r3, #0
+ 325 010c 87F82730 		strb	r3, [r7, #39]
+ 110:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          break;
+ 326              		.loc 1 110 0
+ 327 0110 7EE0     		b	.L10
+ 328              	.L8:
+ 111:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****       case COAP_CODE_REQ_PUT:
+ 112:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****       case COAP_CODE_REQ_POST:
+ 113:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          mssgRecvd = msg->payload[0];
+ 329              		.loc 1 113 0
+ 330 0112 FB68     		ldr	r3, [r7, #12]
+ 331 0114 5B68     		ldr	r3, [r3, #4]
+ 332 0116 1B78     		ldrb	r3, [r3]
+ 333 0118 87F82630 		strb	r3, [r7, #38]
+ 114:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          
+ 115:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          if (mssgRecvd == 'C') {
+ 334              		.loc 1 115 0
+ 335 011c 97F82630 		ldrb	r3, [r7, #38]	@ zero_extendqisi2
+ 336 0120 432B     		cmp	r3, #67
+ 337 0122 07D1     		bne	.L11
+ 116:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****             rrt_vars.discovered = 1;
+ 338              		.loc 1 116 0
+ 339 0124 40F20003 		movw	r3, #:lower16:rrt_vars
+ 340 0128 C0F20003 		movt	r3, #:upper16:rrt_vars
+ 341 012c 0122     		movs	r2, #1
+ 342 012e 83F83020 		strb	r2, [r3, #48]
+ 343 0132 35E0     		b	.L12
+ 344              	.L11:
+ 117:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          } else if (mssgRecvd == 'B' && rrt_vars.discovered == 1) {
+ 345              		.loc 1 117 0
+ 346 0134 97F82630 		ldrb	r3, [r7, #38]	@ zero_extendqisi2
+ 347 0138 422B     		cmp	r3, #66
+ 348 013a 0ED1     		bne	.L13
+ 349              		.loc 1 117 0 is_stmt 0 discriminator 1
+ 350 013c 40F20003 		movw	r3, #:lower16:rrt_vars
+ 351 0140 C0F20003 		movt	r3, #:upper16:rrt_vars
+ 352 0144 93F83030 		ldrb	r3, [r3, #48]	@ zero_extendqisi2
+ 353 0148 012B     		cmp	r3, #1
+ 354 014a 06D1     		bne	.L13
+ 118:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****             //blink mote
+ 119:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****             leds_error_toggle();
+ 355              		.loc 1 119 0 is_stmt 1
+ 356 014c FFF7FEFF 		bl	leds_error_toggle
+ 120:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** 
+ 121:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****             //send packet back saying it did action B - blink
+ 122:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****             rrt_sendCoAPMsg('B', NULL); //NULL for ringmaster
+ 357              		.loc 1 122 0
+ 358 0150 4220     		movs	r0, #66
+ 359 0152 0021     		movs	r1, #0
+ 360 0154 FFF7FEFF 		bl	rrt_sendCoAPMsg
+ 361 0158 22E0     		b	.L12
+ 362              	.L13:
+ 123:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          } else if (mssgRecvd == 'F' && rrt_vars.discovered == 1) { //format - FB[ipv6]
+ 363              		.loc 1 123 0
+ 364 015a 97F82630 		ldrb	r3, [r7, #38]	@ zero_extendqisi2
+ 365 015e 462B     		cmp	r3, #70
+ 366 0160 1ED1     		bne	.L12
+ 367              		.loc 1 123 0 is_stmt 0 discriminator 1
+ 368 0162 40F20003 		movw	r3, #:lower16:rrt_vars
+ 369 0166 C0F20003 		movt	r3, #:upper16:rrt_vars
+ 370 016a 93F83030 		ldrb	r3, [r3, #48]	@ zero_extendqisi2
+ 371 016e 012B     		cmp	r3, #1
+ 372 0170 16D1     		bne	.L12
+ 124:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****             actionToFwd = msg->payload[1];
+ 373              		.loc 1 124 0 is_stmt 1
+ 374 0172 FB68     		ldr	r3, [r7, #12]
+ 375 0174 5B68     		ldr	r3, [r3, #4]
+ 376 0176 5B78     		ldrb	r3, [r3, #1]
+ 377 0178 87F82530 		strb	r3, [r7, #37]
+ 125:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****             memcpy(&moteToSendTo, &msg->payload[2], 16);
+ 378              		.loc 1 125 0
+ 379 017c FB68     		ldr	r3, [r7, #12]
+ 380 017e 5B68     		ldr	r3, [r3, #4]
+ 381 0180 0233     		adds	r3, r3, #2
+ 382 0182 07F11404 		add	r4, r7, #20
+ 383 0186 1868     		ldr	r0, [r3]	@ unaligned
+ 384 0188 5968     		ldr	r1, [r3, #4]	@ unaligned
+ 385 018a 9A68     		ldr	r2, [r3, #8]	@ unaligned
+ 386 018c DB68     		ldr	r3, [r3, #12]	@ unaligned
+ 387 018e 0FC4     		stmia	r4!, {r0, r1, r2, r3}
+ 126:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****             rrt_sendCoAPMsg(actionToFwd, moteToSendTo);
+ 388              		.loc 1 126 0
+ 389 0190 97F82520 		ldrb	r2, [r7, #37]	@ zero_extendqisi2
+ 390 0194 07F11403 		add	r3, r7, #20
+ 391 0198 1046     		mov	r0, r2
+ 392 019a 1946     		mov	r1, r3
+ 393 019c FFF7FEFF 		bl	rrt_sendCoAPMsg
+ 394              	.L12:
+ 127:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          }
+ 128:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** 
+ 129:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          // reset packet payload
+ 130:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          msg->payload                     = &(msg->packet[127]);
+ 395              		.loc 1 130 0
+ 396 01a0 FB68     		ldr	r3, [r7, #12]
+ 397 01a2 03F20B12 		addw	r2, r3, #267
+ 398 01a6 FB68     		ldr	r3, [r7, #12]
+ 399 01a8 5A60     		str	r2, [r3, #4]
+ 131:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          msg->length                      = 0;
+ 400              		.loc 1 131 0
+ 401 01aa FB68     		ldr	r3, [r7, #12]
+ 402 01ac 0022     		movs	r2, #0
+ 403 01ae 1A72     		strb	r2, [r3, #8]
+ 132:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** 
+ 133:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          packetfunctions_reserveHeaderSize(msg, 1);
+ 404              		.loc 1 133 0
+ 405 01b0 F868     		ldr	r0, [r7, #12]
+ 406 01b2 0121     		movs	r1, #1
+ 407 01b4 FFF7FEFF 		bl	packetfunctions_reserveHeaderSize
+ 134:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          msg->payload[0] = COAP_PAYLOAD_MARKER;
+ 408              		.loc 1 134 0
+ 409 01b8 FB68     		ldr	r3, [r7, #12]
+ 410 01ba 5B68     		ldr	r3, [r3, #4]
+ 411 01bc FF22     		movs	r2, #255
+ 412 01be 1A70     		strb	r2, [r3]
+ 135:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** 
+ 136:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          //set the CoAP header
+ 137:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          coap_header->Code                = COAP_CODE_RESP_CONTENT;
+ 413              		.loc 1 137 0
+ 414 01c0 BB68     		ldr	r3, [r7, #8]
+ 415 01c2 4522     		movs	r2, #69
+ 416 01c4 DA70     		strb	r2, [r3, #3]
+ 138:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** 
+ 139:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          outcome                          = E_SUCCESS;
+ 417              		.loc 1 139 0
+ 418 01c6 0023     		movs	r3, #0
+ 419 01c8 87F82730 		strb	r3, [r7, #39]
+ 140:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          
+ 141:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          break;
+ 420              		.loc 1 141 0
+ 421 01cc 20E0     		b	.L10
+ 422              	.L9:
+ 142:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****       case COAP_CODE_REQ_DELETE:
+ 143:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          msg->payload                     = &(msg->packet[127]);
+ 423              		.loc 1 143 0
+ 424 01ce FB68     		ldr	r3, [r7, #12]
+ 425 01d0 03F20B12 		addw	r2, r3, #267
+ 426 01d4 FB68     		ldr	r3, [r7, #12]
+ 427 01d6 5A60     		str	r2, [r3, #4]
+ 144:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          msg->length                      = 0;
+ 428              		.loc 1 144 0
+ 429 01d8 FB68     		ldr	r3, [r7, #12]
+ 430 01da 0022     		movs	r2, #0
+ 431 01dc 1A72     		strb	r2, [r3, #8]
+ 145:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          
+ 146:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          //unregister the current mote as 'discovered' by ringmaster
+ 147:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          rrt_vars.discovered = 0; 
+ 432              		.loc 1 147 0
+ 433 01de 40F20003 		movw	r3, #:lower16:rrt_vars
+ 434 01e2 C0F20003 		movt	r3, #:upper16:rrt_vars
+ 435 01e6 0022     		movs	r2, #0
+ 436 01e8 83F83020 		strb	r2, [r3, #48]
+ 148:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          
+ 149:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          // payload marker
+ 150:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          packetfunctions_reserveHeaderSize(msg,1);
+ 437              		.loc 1 150 0
+ 438 01ec F868     		ldr	r0, [r7, #12]
+ 439 01ee 0121     		movs	r1, #1
+ 440 01f0 FFF7FEFF 		bl	packetfunctions_reserveHeaderSize
+ 151:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          msg->payload[0] = COAP_PAYLOAD_MARKER;
+ 441              		.loc 1 151 0
+ 442 01f4 FB68     		ldr	r3, [r7, #12]
+ 443 01f6 5B68     		ldr	r3, [r3, #4]
+ 444 01f8 FF22     		movs	r2, #255
+ 445 01fa 1A70     		strb	r2, [r3]
+ 152:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          
+ 153:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          // set the CoAP header
+ 154:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          coap_header->Code                = COAP_CODE_RESP_CONTENT;
+ 446              		.loc 1 154 0
+ 447 01fc BB68     		ldr	r3, [r7, #8]
+ 448 01fe 4522     		movs	r2, #69
+ 449 0200 DA70     		strb	r2, [r3, #3]
+ 155:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          
+ 156:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          outcome                          = E_SUCCESS;
+ 450              		.loc 1 156 0
+ 451 0202 0023     		movs	r3, #0
+ 452 0204 87F82730 		strb	r3, [r7, #39]
+ 157:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          break;
+ 453              		.loc 1 157 0
+ 454 0208 02E0     		b	.L10
+ 455              	.L5:
+ 158:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** 
+ 159:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****       default:
+ 160:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          // return an error message
+ 161:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          outcome = E_FAIL;
+ 456              		.loc 1 161 0
+ 457 020a 0123     		movs	r3, #1
+ 458 020c 87F82730 		strb	r3, [r7, #39]
+ 459              	.L10:
+ 162:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****    }
+ 163:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****    
+ 164:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****    return outcome;
+ 460              		.loc 1 164 0
+ 461 0210 97F82730 		ldrb	r3, [r7, #39]	@ zero_extendqisi2
+ 165:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** }
+ 462              		.loc 1 165 0
+ 463 0214 1846     		mov	r0, r3
+ 464 0216 2C37     		adds	r7, r7, #44
+ 465 0218 BD46     		mov	sp, r7
+ 466              		@ sp needed
+ 467 021a 90BD     		pop	{r4, r7, pc}
+ 468              		.cfi_endproc
+ 469              	.LFE1:
+ 471              		.align	2
+ 472              		.global	rrt_setGETRespMsg
+ 473              		.thumb
+ 474              		.thumb_func
+ 476              	rrt_setGETRespMsg:
+ 477              	.LFB2:
+ 166:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** 
+ 167:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** void rrt_setGETRespMsg(OpenQueueEntry_t* msg, uint8_t registered) {
+ 478              		.loc 1 167 0
+ 479              		.cfi_startproc
+ 480              		@ args = 0, pretend = 0, frame = 8
+ 481              		@ frame_needed = 1, uses_anonymous_args = 0
+ 482 021c 80B5     		push	{r7, lr}
+ 483              		.cfi_def_cfa_offset 8
+ 484              		.cfi_offset 7, -8
+ 485              		.cfi_offset 14, -4
+ 486 021e 82B0     		sub	sp, sp, #8
+ 487              		.cfi_def_cfa_offset 16
+ 488 0220 00AF     		add	r7, sp, #0
+ 489              		.cfi_def_cfa_register 7
+ 490 0222 7860     		str	r0, [r7, #4]
+ 491 0224 0B46     		mov	r3, r1
+ 492 0226 FB70     		strb	r3, [r7, #3]
+ 168:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          if (registered == 0) {
+ 493              		.loc 1 168 0
+ 494 0228 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 495 022a 002B     		cmp	r3, #0
+ 496 022c 3ED1     		bne	.L16
+ 169:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****              packetfunctions_reserveHeaderSize(msg,11);
+ 497              		.loc 1 169 0
+ 498 022e 7868     		ldr	r0, [r7, #4]
+ 499 0230 0B21     		movs	r1, #11
+ 500 0232 FFF7FEFF 		bl	packetfunctions_reserveHeaderSize
+ 170:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****              msg->payload[0]  =  'r';
+ 501              		.loc 1 170 0
+ 502 0236 7B68     		ldr	r3, [r7, #4]
+ 503 0238 5B68     		ldr	r3, [r3, #4]
+ 504 023a 7222     		movs	r2, #114
+ 505 023c 1A70     		strb	r2, [r3]
+ 171:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****              msg->payload[1]  =  'e';
+ 506              		.loc 1 171 0
+ 507 023e 7B68     		ldr	r3, [r7, #4]
+ 508 0240 5B68     		ldr	r3, [r3, #4]
+ 509 0242 0133     		adds	r3, r3, #1
+ 510 0244 6522     		movs	r2, #101
+ 511 0246 1A70     		strb	r2, [r3]
+ 172:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****              msg->payload[2]  =  'g';
+ 512              		.loc 1 172 0
+ 513 0248 7B68     		ldr	r3, [r7, #4]
+ 514 024a 5B68     		ldr	r3, [r3, #4]
+ 515 024c 0233     		adds	r3, r3, #2
+ 516 024e 6722     		movs	r2, #103
+ 517 0250 1A70     		strb	r2, [r3]
+ 173:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****              msg->payload[3]  =  'i';
+ 518              		.loc 1 173 0
+ 519 0252 7B68     		ldr	r3, [r7, #4]
+ 520 0254 5B68     		ldr	r3, [r3, #4]
+ 521 0256 0333     		adds	r3, r3, #3
+ 522 0258 6922     		movs	r2, #105
+ 523 025a 1A70     		strb	r2, [r3]
+ 174:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****              msg->payload[4]  =  's';
+ 524              		.loc 1 174 0
+ 525 025c 7B68     		ldr	r3, [r7, #4]
+ 526 025e 5B68     		ldr	r3, [r3, #4]
+ 527 0260 0433     		adds	r3, r3, #4
+ 528 0262 7322     		movs	r2, #115
+ 529 0264 1A70     		strb	r2, [r3]
+ 175:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****              msg->payload[5]  =  't';
+ 530              		.loc 1 175 0
+ 531 0266 7B68     		ldr	r3, [r7, #4]
+ 532 0268 5B68     		ldr	r3, [r3, #4]
+ 533 026a 0533     		adds	r3, r3, #5
+ 534 026c 7422     		movs	r2, #116
+ 535 026e 1A70     		strb	r2, [r3]
+ 176:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****              msg->payload[6]  =  'e';
+ 536              		.loc 1 176 0
+ 537 0270 7B68     		ldr	r3, [r7, #4]
+ 538 0272 5B68     		ldr	r3, [r3, #4]
+ 539 0274 0633     		adds	r3, r3, #6
+ 540 0276 6522     		movs	r2, #101
+ 541 0278 1A70     		strb	r2, [r3]
+ 177:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****              msg->payload[7]  =  'r';
+ 542              		.loc 1 177 0
+ 543 027a 7B68     		ldr	r3, [r7, #4]
+ 544 027c 5B68     		ldr	r3, [r3, #4]
+ 545 027e 0733     		adds	r3, r3, #7
+ 546 0280 7222     		movs	r2, #114
+ 547 0282 1A70     		strb	r2, [r3]
+ 178:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****              msg->payload[8]  =  'i';
+ 548              		.loc 1 178 0
+ 549 0284 7B68     		ldr	r3, [r7, #4]
+ 550 0286 5B68     		ldr	r3, [r3, #4]
+ 551 0288 0833     		adds	r3, r3, #8
+ 552 028a 6922     		movs	r2, #105
+ 553 028c 1A70     		strb	r2, [r3]
+ 179:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****              msg->payload[9]  =  'n';
+ 554              		.loc 1 179 0
+ 555 028e 7B68     		ldr	r3, [r7, #4]
+ 556 0290 5B68     		ldr	r3, [r3, #4]
+ 557 0292 0933     		adds	r3, r3, #9
+ 558 0294 6E22     		movs	r2, #110
+ 559 0296 1A70     		strb	r2, [r3]
+ 180:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****              msg->payload[10] = 'g';
+ 560              		.loc 1 180 0
+ 561 0298 7B68     		ldr	r3, [r7, #4]
+ 562 029a 5B68     		ldr	r3, [r3, #4]
+ 563 029c 0A33     		adds	r3, r3, #10
+ 564 029e 6722     		movs	r2, #103
+ 565 02a0 1A70     		strb	r2, [r3]
+ 181:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** 
+ 182:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****              rrt_sendCoAPMsg('D', NULL); //'D' stands for discovery, 0 for ringmaster
+ 566              		.loc 1 182 0
+ 567 02a2 4420     		movs	r0, #68
+ 568 02a4 0021     		movs	r1, #0
+ 569 02a6 FFF7FEFF 		bl	rrt_sendCoAPMsg
+ 570 02aa 34E0     		b	.L15
+ 571              	.L16:
+ 183:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** 
+ 184:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          } else {
+ 185:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****              packetfunctions_reserveHeaderSize(msg,10);
+ 572              		.loc 1 185 0
+ 573 02ac 7868     		ldr	r0, [r7, #4]
+ 574 02ae 0A21     		movs	r1, #10
+ 575 02b0 FFF7FEFF 		bl	packetfunctions_reserveHeaderSize
+ 186:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****              msg->payload[0] = 'r';
+ 576              		.loc 1 186 0
+ 577 02b4 7B68     		ldr	r3, [r7, #4]
+ 578 02b6 5B68     		ldr	r3, [r3, #4]
+ 579 02b8 7222     		movs	r2, #114
+ 580 02ba 1A70     		strb	r2, [r3]
+ 187:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****              msg->payload[1] = 'e';
+ 581              		.loc 1 187 0
+ 582 02bc 7B68     		ldr	r3, [r7, #4]
+ 583 02be 5B68     		ldr	r3, [r3, #4]
+ 584 02c0 0133     		adds	r3, r3, #1
+ 585 02c2 6522     		movs	r2, #101
+ 586 02c4 1A70     		strb	r2, [r3]
+ 188:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****              msg->payload[2] = 'g';
+ 587              		.loc 1 188 0
+ 588 02c6 7B68     		ldr	r3, [r7, #4]
+ 589 02c8 5B68     		ldr	r3, [r3, #4]
+ 590 02ca 0233     		adds	r3, r3, #2
+ 591 02cc 6722     		movs	r2, #103
+ 592 02ce 1A70     		strb	r2, [r3]
+ 189:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****              msg->payload[3] = 'i';
+ 593              		.loc 1 189 0
+ 594 02d0 7B68     		ldr	r3, [r7, #4]
+ 595 02d2 5B68     		ldr	r3, [r3, #4]
+ 596 02d4 0333     		adds	r3, r3, #3
+ 597 02d6 6922     		movs	r2, #105
+ 598 02d8 1A70     		strb	r2, [r3]
+ 190:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****              msg->payload[4] = 's';
+ 599              		.loc 1 190 0
+ 600 02da 7B68     		ldr	r3, [r7, #4]
+ 601 02dc 5B68     		ldr	r3, [r3, #4]
+ 602 02de 0433     		adds	r3, r3, #4
+ 603 02e0 7322     		movs	r2, #115
+ 604 02e2 1A70     		strb	r2, [r3]
+ 191:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****              msg->payload[5] = 't';
+ 605              		.loc 1 191 0
+ 606 02e4 7B68     		ldr	r3, [r7, #4]
+ 607 02e6 5B68     		ldr	r3, [r3, #4]
+ 608 02e8 0533     		adds	r3, r3, #5
+ 609 02ea 7422     		movs	r2, #116
+ 610 02ec 1A70     		strb	r2, [r3]
+ 192:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****              msg->payload[6] = 'e';
+ 611              		.loc 1 192 0
+ 612 02ee 7B68     		ldr	r3, [r7, #4]
+ 613 02f0 5B68     		ldr	r3, [r3, #4]
+ 614 02f2 0633     		adds	r3, r3, #6
+ 615 02f4 6522     		movs	r2, #101
+ 616 02f6 1A70     		strb	r2, [r3]
+ 193:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****              msg->payload[7] = 'r';
+ 617              		.loc 1 193 0
+ 618 02f8 7B68     		ldr	r3, [r7, #4]
+ 619 02fa 5B68     		ldr	r3, [r3, #4]
+ 620 02fc 0733     		adds	r3, r3, #7
+ 621 02fe 7222     		movs	r2, #114
+ 622 0300 1A70     		strb	r2, [r3]
+ 194:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****              msg->payload[8] = 'e';
+ 623              		.loc 1 194 0
+ 624 0302 7B68     		ldr	r3, [r7, #4]
+ 625 0304 5B68     		ldr	r3, [r3, #4]
+ 626 0306 0833     		adds	r3, r3, #8
+ 627 0308 6522     		movs	r2, #101
+ 628 030a 1A70     		strb	r2, [r3]
+ 195:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****              msg->payload[9] = 'd';
+ 629              		.loc 1 195 0
+ 630 030c 7B68     		ldr	r3, [r7, #4]
+ 631 030e 5B68     		ldr	r3, [r3, #4]
+ 632 0310 0933     		adds	r3, r3, #9
+ 633 0312 6422     		movs	r2, #100
+ 634 0314 1A70     		strb	r2, [r3]
+ 635              	.L15:
+ 196:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          }
+ 197:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** }
+ 636              		.loc 1 197 0
+ 637 0316 0837     		adds	r7, r7, #8
+ 638 0318 BD46     		mov	sp, r7
+ 639              		@ sp needed
+ 640 031a 80BD     		pop	{r7, pc}
+ 641              		.cfi_endproc
+ 642              	.LFE2:
+ 644              		.align	2
+ 645              		.global	rrt_sendCoAPMsg
+ 646              		.thumb
+ 647              		.thumb_func
+ 649              	rrt_sendCoAPMsg:
+ 650              	.LFB3:
+ 198:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** 
+ 199:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** /**
+ 200:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****  * if mote is 0, then send to the ringmater, defined by ipAddr_ringmaster
+ 201:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** **/
+ 202:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** void rrt_sendCoAPMsg(char actionMsg, uint8_t *ipv6mote) {
+ 651              		.loc 1 202 0
+ 652              		.cfi_startproc
+ 653              		@ args = 0, pretend = 0, frame = 16
+ 654              		@ frame_needed = 1, uses_anonymous_args = 0
+ 655 031c B0B5     		push	{r4, r5, r7, lr}
+ 656              		.cfi_def_cfa_offset 16
+ 657              		.cfi_offset 4, -16
+ 658              		.cfi_offset 5, -12
+ 659              		.cfi_offset 7, -8
+ 660              		.cfi_offset 14, -4
+ 661 031e 86B0     		sub	sp, sp, #24
+ 662              		.cfi_def_cfa_offset 40
+ 663 0320 02AF     		add	r7, sp, #8
+ 664              		.cfi_def_cfa 7, 32
+ 665 0322 0346     		mov	r3, r0
+ 666 0324 3960     		str	r1, [r7]
+ 667 0326 FB71     		strb	r3, [r7, #7]
+ 203:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****       OpenQueueEntry_t* pkt;
+ 204:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****       owerror_t outcome;
+ 205:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****       uint8_t numOptions;
+ 206:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** 
+ 207:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****       pkt = openqueue_getFreePacketBuffer(COMPONENT_RRT);
+ 668              		.loc 1 207 0
+ 669 0328 2520     		movs	r0, #37
+ 670 032a FFF7FEFF 		bl	openqueue_getFreePacketBuffer
+ 671 032e F860     		str	r0, [r7, #12]
+ 208:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****       if (pkt == NULL) {
+ 672              		.loc 1 208 0
+ 673 0330 FB68     		ldr	r3, [r7, #12]
+ 674 0332 002B     		cmp	r3, #0
+ 675 0334 09D1     		bne	.L19
+ 209:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****           openserial_printError(COMPONENT_RRT,ERR_BUSY_SENDING,
+ 676              		.loc 1 209 0
+ 677 0336 2520     		movs	r0, #37
+ 678 0338 2A21     		movs	r1, #42
+ 679 033a 0022     		movs	r2, #0
+ 680 033c 0023     		movs	r3, #0
+ 681 033e FFF7FEFF 		bl	openserial_printError
+ 210:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****                                 (errorparameter_t)0,
+ 211:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****                                 (errorparameter_t)0);
+ 212:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****           openqueue_freePacketBuffer(pkt);
+ 682              		.loc 1 212 0
+ 683 0342 F868     		ldr	r0, [r7, #12]
+ 684 0344 FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 213:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****           return;
+ 685              		.loc 1 213 0
+ 686 0348 6FE0     		b	.L18
+ 687              	.L19:
+ 214:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****       }
+ 215:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** 
+ 216:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****       pkt->creator   = COMPONENT_RRT;
+ 688              		.loc 1 216 0
+ 689 034a FB68     		ldr	r3, [r7, #12]
+ 690 034c 2522     		movs	r2, #37
+ 691 034e 1A70     		strb	r2, [r3]
+ 217:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****       pkt->owner      = COMPONENT_RRT;
+ 692              		.loc 1 217 0
+ 693 0350 FB68     		ldr	r3, [r7, #12]
+ 694 0352 2522     		movs	r2, #37
+ 695 0354 5A70     		strb	r2, [r3, #1]
+ 218:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****       pkt->l4_protocol  = IANA_UDP;
+ 696              		.loc 1 218 0
+ 697 0356 FB68     		ldr	r3, [r7, #12]
+ 698 0358 1122     		movs	r2, #17
+ 699 035a 5A72     		strb	r2, [r3, #9]
+ 219:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** 
+ 220:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****       packetfunctions_reserveHeaderSize(pkt, 1);
+ 700              		.loc 1 220 0
+ 701 035c F868     		ldr	r0, [r7, #12]
+ 702 035e 0121     		movs	r1, #1
+ 703 0360 FFF7FEFF 		bl	packetfunctions_reserveHeaderSize
+ 221:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****       pkt->payload[0] = actionMsg;
+ 704              		.loc 1 221 0
+ 705 0364 FB68     		ldr	r3, [r7, #12]
+ 706 0366 5B68     		ldr	r3, [r3, #4]
+ 707 0368 FA79     		ldrb	r2, [r7, #7]
+ 708 036a 1A70     		strb	r2, [r3]
+ 222:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** 
+ 223:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****       numOptions = 0;
+ 709              		.loc 1 223 0
+ 710 036c 0023     		movs	r3, #0
+ 711 036e FB72     		strb	r3, [r7, #11]
+ 224:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****       // location-path option
+ 225:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****       packetfunctions_reserveHeaderSize(pkt,sizeof(rrt_path0)-1);
+ 712              		.loc 1 225 0
+ 713 0370 F868     		ldr	r0, [r7, #12]
+ 714 0372 0221     		movs	r1, #2
+ 715 0374 FFF7FEFF 		bl	packetfunctions_reserveHeaderSize
+ 226:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****       memcpy(&pkt->payload[0],&rrt_path0,sizeof(rrt_path0)-1);
+ 716              		.loc 1 226 0
+ 717 0378 FB68     		ldr	r3, [r7, #12]
+ 718 037a 5B68     		ldr	r3, [r3, #4]
+ 719 037c 1846     		mov	r0, r3
+ 720 037e 40F20001 		movw	r1, #:lower16:rrt_path0
+ 721 0382 C0F20001 		movt	r1, #:upper16:rrt_path0
+ 722 0386 0222     		movs	r2, #2
+ 723 0388 FFF7FEFF 		bl	memcpy
+ 227:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****       packetfunctions_reserveHeaderSize(pkt,1);
+ 724              		.loc 1 227 0
+ 725 038c F868     		ldr	r0, [r7, #12]
+ 726 038e 0121     		movs	r1, #1
+ 727 0390 FFF7FEFF 		bl	packetfunctions_reserveHeaderSize
+ 228:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****       pkt->payload[0]                  = (COAP_OPTION_NUM_URIPATH) << 4 |
+ 728              		.loc 1 228 0
+ 729 0394 FB68     		ldr	r3, [r7, #12]
+ 730 0396 5B68     		ldr	r3, [r3, #4]
+ 731 0398 B222     		movs	r2, #178
+ 732 039a 1A70     		strb	r2, [r3]
+ 229:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          (sizeof(rrt_path0)-1);
+ 230:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****        numOptions++;
+ 733              		.loc 1 230 0
+ 734 039c FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 735 039e 0133     		adds	r3, r3, #1
+ 736 03a0 FB72     		strb	r3, [r7, #11]
+ 231:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****       // content-type option
+ 232:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****       packetfunctions_reserveHeaderSize(pkt,2);
+ 737              		.loc 1 232 0
+ 738 03a2 F868     		ldr	r0, [r7, #12]
+ 739 03a4 0221     		movs	r1, #2
+ 740 03a6 FFF7FEFF 		bl	packetfunctions_reserveHeaderSize
+ 233:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****       pkt->payload[0]                  = COAP_OPTION_NUM_CONTENTFORMAT << 4 |
+ 741              		.loc 1 233 0
+ 742 03aa FB68     		ldr	r3, [r7, #12]
+ 743 03ac 5B68     		ldr	r3, [r3, #4]
+ 744 03ae C122     		movs	r2, #193
+ 745 03b0 1A70     		strb	r2, [r3]
+ 234:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****          1;
+ 235:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****       pkt->payload[1]                  = COAP_MEDTYPE_APPOCTETSTREAM;
+ 746              		.loc 1 235 0
+ 747 03b2 FB68     		ldr	r3, [r7, #12]
+ 748 03b4 5B68     		ldr	r3, [r3, #4]
+ 749 03b6 0133     		adds	r3, r3, #1
+ 750 03b8 2A22     		movs	r2, #42
+ 751 03ba 1A70     		strb	r2, [r3]
+ 236:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****       numOptions++;
+ 752              		.loc 1 236 0
+ 753 03bc FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+ 754 03be 0133     		adds	r3, r3, #1
+ 755 03c0 FB72     		strb	r3, [r7, #11]
+ 237:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** 
+ 238:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****       //metada
+ 239:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****       pkt->l4_destination_port   = WKP_UDP_RINGMASTER; 
+ 756              		.loc 1 239 0
+ 757 03c2 FB68     		ldr	r3, [r7, #12]
+ 758 03c4 43F69822 		movw	r2, #15000
+ 759 03c8 DA81     		strh	r2, [r3, #14]	@ movhi
+ 240:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****       pkt->l3_destinationAdd.type = ADDR_128B;
+ 760              		.loc 1 240 0
+ 761 03ca FB68     		ldr	r3, [r7, #12]
+ 762 03cc 0322     		movs	r2, #3
+ 763 03ce 5A75     		strb	r2, [r3, #21]
+ 241:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****       // set destination address here
+ 242:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****       if (!ipv6mote) {  //if mote ptr is NULL, then send to ringmaster
+ 764              		.loc 1 242 0
+ 765 03d0 3B68     		ldr	r3, [r7]
+ 766 03d2 002B     		cmp	r3, #0
+ 767 03d4 0ED1     		bne	.L21
+ 243:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****         memcpy(&pkt->l3_destinationAdd.addr_128b[0], &ipAddr_ringmaster, 16);
+ 768              		.loc 1 243 0
+ 769 03d6 FB68     		ldr	r3, [r7, #12]
+ 770 03d8 03F11602 		add	r2, r3, #22
+ 771 03dc 40F20003 		movw	r3, #:lower16:ipAddr_ringmaster
+ 772 03e0 C0F20003 		movt	r3, #:upper16:ipAddr_ringmaster
+ 773 03e4 1446     		mov	r4, r2
+ 774 03e6 1D46     		mov	r5, r3
+ 775 03e8 0FCD     		ldmia	r5!, {r0, r1, r2, r3}
+ 776 03ea 2060     		str	r0, [r4]	@ unaligned
+ 777 03ec 6160     		str	r1, [r4, #4]	@ unaligned
+ 778 03ee A260     		str	r2, [r4, #8]	@ unaligned
+ 779 03f0 E360     		str	r3, [r4, #12]	@ unaligned
+ 780 03f2 06E0     		b	.L22
+ 781              	.L21:
+ 244:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****       } else {
+ 245:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****         memcpy(&pkt->l3_destinationAdd.addr_128b[0], &ipv6mote[0], 16);
+ 782              		.loc 1 245 0
+ 783 03f4 FB68     		ldr	r3, [r7, #12]
+ 784 03f6 1633     		adds	r3, r3, #22
+ 785 03f8 1846     		mov	r0, r3
+ 786 03fa 3968     		ldr	r1, [r7]
+ 787 03fc 1022     		movs	r2, #16
+ 788 03fe FFF7FEFF 		bl	memcpy
+ 789              	.L22:
+ 246:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****       }
+ 247:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** 
+ 248:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****       //send
+ 249:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****       outcome = opencoap_send(
+ 790              		.loc 1 249 0
+ 791 0402 FC7A     		ldrb	r4, [r7, #11]	@ zero_extendqisi2
+ 792 0404 40F20003 		movw	r3, #:lower16:rrt_vars
+ 793 0408 C0F20003 		movt	r3, #:upper16:rrt_vars
+ 794 040c 0093     		str	r3, [sp]
+ 795 040e F868     		ldr	r0, [r7, #12]
+ 796 0410 0121     		movs	r1, #1
+ 797 0412 0322     		movs	r2, #3
+ 798 0414 2346     		mov	r3, r4
+ 799 0416 FFF7FEFF 		bl	opencoap_send
+ 800 041a 0346     		mov	r3, r0
+ 801 041c BB72     		strb	r3, [r7, #10]
+ 250:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****               pkt,
+ 251:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****               COAP_TYPE_NON,
+ 252:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****               COAP_CODE_REQ_PUT,
+ 253:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****               numOptions,
+ 254:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****               &rrt_vars.desc
+ 255:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****               );
+ 256:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****       
+ 257:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** 
+ 258:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****       if (outcome == E_FAIL) {
+ 802              		.loc 1 258 0
+ 803 041e BB7A     		ldrb	r3, [r7, #10]	@ zero_extendqisi2
+ 804 0420 012B     		cmp	r3, #1
+ 805 0422 02D1     		bne	.L18
+ 259:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****         openqueue_freePacketBuffer(pkt);
+ 806              		.loc 1 259 0
+ 807 0424 F868     		ldr	r0, [r7, #12]
+ 808 0426 FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 809              	.L18:
+ 260:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****       }
+ 261:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** }
+ 810              		.loc 1 261 0
+ 811 042a 1037     		adds	r7, r7, #16
+ 812 042c BD46     		mov	sp, r7
+ 813              		@ sp needed
+ 814 042e B0BD     		pop	{r4, r5, r7, pc}
+ 815              		.cfi_endproc
+ 816              	.LFE3:
+ 818              		.align	2
+ 819              		.global	rrt_sendDone
+ 820              		.thumb
+ 821              		.thumb_func
+ 823              	rrt_sendDone:
+ 824              	.LFB4:
+ 262:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** 
+ 263:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** /**
+ 264:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** \brief The stack indicates that the packet was sent.
+ 265:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** 
+ 266:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** \param[in] msg The CoAP message just sent.
+ 267:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** \param[in] error The outcome of sending it.
+ 268:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** */
+ 269:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** void rrt_sendDone(OpenQueueEntry_t* msg, owerror_t error) {
+ 825              		.loc 1 269 0
+ 826              		.cfi_startproc
+ 827              		@ args = 0, pretend = 0, frame = 8
+ 828              		@ frame_needed = 1, uses_anonymous_args = 0
+ 829 0430 80B5     		push	{r7, lr}
+ 830              		.cfi_def_cfa_offset 8
+ 831              		.cfi_offset 7, -8
+ 832              		.cfi_offset 14, -4
+ 833 0432 82B0     		sub	sp, sp, #8
+ 834              		.cfi_def_cfa_offset 16
+ 835 0434 00AF     		add	r7, sp, #0
+ 836              		.cfi_def_cfa_register 7
+ 837 0436 7860     		str	r0, [r7, #4]
+ 838 0438 0B46     		mov	r3, r1
+ 839 043a FB70     		strb	r3, [r7, #3]
+ 270:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c ****    openqueue_freePacketBuffer(msg);
+ 840              		.loc 1 270 0
+ 841 043c 7868     		ldr	r0, [r7, #4]
+ 842 043e FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 271:build/openmote-cc2538_armgcc/openapps/rrt/rrt.c **** }
+ 843              		.loc 1 271 0
+ 844 0442 0837     		adds	r7, r7, #8
+ 845 0444 BD46     		mov	sp, r7
+ 846              		@ sp needed
+ 847 0446 80BD     		pop	{r7, pc}
+ 848              		.cfi_endproc
+ 849              	.LFE4:
+ 851              	.Letext0:
+ 852              		.file 2 "/usr/include/newlib/machine/_default_types.h"
+ 853              		.file 3 "/usr/include/newlib/stdint.h"
+ 854              		.file 4 "inc/opendefs.h"
+ 855              		.file 5 "openapps/opencoap/opencoap.h"
+ 856              		.file 6 "build/openmote-cc2538_armgcc/openapps/rrt/rrt.h"
+ 857              		.file 7 "bsp/boards/openmote-cc2538/board_info.h"
+ 858              		.file 8 "openstack/03b-IPv6/icmpv6rpl.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 rrt.c
+     /tmp/ccTDEFKx.s:19     .rodata:0000000000000000 $d
+     /tmp/ccTDEFKx.s:22     .rodata:0000000000000000 rreg_uriquery
+     /tmp/ccTDEFKx.s:27     .rodata:0000000000000008 infoBoardname
+     /tmp/ccTDEFKx.s:32     .rodata:0000000000000010 infouCName
+     /tmp/ccTDEFKx.s:37     .rodata:0000000000000018 infoRadioName
+     /tmp/ccTDEFKx.s:42     .rodata:0000000000000024 infoStackName
+     /tmp/ccTDEFKx.s:47     .rodata:0000000000000030 ipAddr_ipsoRD
+     /tmp/ccTDEFKx.s:67     .rodata:0000000000000040 ipAddr_motesEecs
+     /tmp/ccTDEFKx.s:87     .rodata:0000000000000050 ipAddr_local
+     /tmp/ccTDEFKx.s:107    .rodata:0000000000000060 ipAddr_motedata
+     /tmp/ccTDEFKx.s:127    .rodata:0000000000000070 ipAddr_ringmaster
+     /tmp/ccTDEFKx.s:147    .rodata:0000000000000080 all_routers_multicast
+     /tmp/ccTDEFKx.s:168    .rodata:0000000000000090 rrt_path0
+                            *COM*:0000000000000034 rrt_vars
+     /tmp/ccTDEFKx.s:172    .text:0000000000000000 $t
+     /tmp/ccTDEFKx.s:177    .text:0000000000000000 rrt_init
+     /tmp/ccTDEFKx.s:261    .text:00000000000000a0 rrt_receive
+     /tmp/ccTDEFKx.s:823    .text:0000000000000430 rrt_sendDone
+     /tmp/ccTDEFKx.s:289    .text:00000000000000c0 $d
+     /tmp/ccTDEFKx.s:295    .text:00000000000000d0 $t
+     /tmp/ccTDEFKx.s:476    .text:000000000000021c rrt_setGETRespMsg
+     /tmp/ccTDEFKx.s:649    .text:000000000000031c rrt_sendCoAPMsg
+                     .debug_frame:0000000000000010 $d
+                           .group:0000000000000000 wm4.1.08074afb2ccc9da754fae8e3ee0f577b
+                           .group:0000000000000000 wm4.features.h.22.6a4ca7cd053637cc1d0db6c16f39b2d7
+                           .group:0000000000000000 wm4._default_types.h.15.8b2cb27e528498f8ff711db085d6e489
+                           .group:0000000000000000 wm4.stdint.h.20.796e373797e732130a803d4c0338fa1b
+                           .group:0000000000000000 wm4.toolchain_defs.h.2.e5fd326231d01413e5361944b26cde07
+                           .group:0000000000000000 wm4.newlib.h.8.fec018e441fee7bfa1923812ad010f97
+                           .group:0000000000000000 wm4.config.h.212.4163ef2871a828c674038d036b081cfd
+                           .group:0000000000000000 wm4._ansi.h.23.5644b60c990a4800b02a6e654e88f93a
+                           .group:0000000000000000 wm4.stddef.h.39.daafd3d79fe2f3a84d2d73d7d4e706f8
+                           .group:0000000000000000 wm4.lock.h.2.9bc98482741e5e2a9450b12934a684ea
+                           .group:0000000000000000 wm4._types.h.54.d3d34a3b7f3cc230cd159baf022b4b08
+                           .group:0000000000000000 wm4.stddef.h.158.61317cdbfb4026324507d123a50b0fd6
+                           .group:0000000000000000 wm4.reent.h.17.8bd9e4098e0428508c282cad794fae43
+                           .group:0000000000000000 wm4.cdefs.h.47.339223046f475c9f2d5db3a9118d7c65
+                           .group:0000000000000000 wm4.string.h.15.dab3980bf35408a4c507182805e2de3a
+                           .group:0000000000000000 wm4.stddef.h.158.a7efb00f6cbc6f43213b50e183c9830c
+                           .group:0000000000000000 wm4.string.h.126.6ff3aa59129e7f66b2c273baf353e066
+                           .group:0000000000000000 wm4.stdbool.h.29.1c9ee6859ce8145f7838a4f2549ccec2
+                           .group:0000000000000000 wm4.hw_types.h.67.b10589a0806dcc2d274d6fab6b736519
+                           .group:0000000000000000 wm4.interrupt.h.41.272fc4ec0e276feb439e7974d0f77eaf
+                           .group:0000000000000000 wm4.board_info.h.22.aeb00002354a4949fff54190040e37af
+                           .group:0000000000000000 wm4.opendefs.h.23.16dafe2a30b31097968a5d4db894173a
+                           .group:0000000000000000 wm4.opentimers.h.8.044f2d040a134cdb0ddb58adfc2508be
+                           .group:0000000000000000 wm4.opencoap.h.32.54fb4d751dc200645403fc22b4aec840
+                           .group:0000000000000000 wm4.schedule.h.2.5f1ce0fba8afc2f4b06da872a2bf3e7d
+                           .group:0000000000000000 wm4.processIE.h.2.f7e3ebe58176b1696c1c10947f24f68e
+                           .group:0000000000000000 wm4.sixtop.h.16.9a560ceacc5efd96bdee707dc9b8cf3b
+                           .group:0000000000000000 wm4.idmanager.h.2.8c0e2159b32ef3125cbb1e984805cbfe
+                           .group:0000000000000000 wm4.IEEE802154.h.2.38fb510ed33a23a9a0660164e6dfab69
+                           .group:0000000000000000 wm4.icmpv6rpl.h.2.1b9b0c3d4c338cb1d7d7805fa59cf215
+                           .group:0000000000000000 wm4.neighbors.h.15.6d6181cbf1a5e29302c33fc055c1b200
+                           .group:0000000000000000 wm4.openserial.h.9.0a357d13b4113cc69ceb77572df48861
+
+UNDEFINED SYMBOLS
+idmanager_getIsDAGroot
+opencoap_register
+packetfunctions_reserveHeaderSize
+leds_error_toggle
+openqueue_getFreePacketBuffer
+openserial_printError
+openqueue_freePacketBuffer
+memcpy
+opencoap_send

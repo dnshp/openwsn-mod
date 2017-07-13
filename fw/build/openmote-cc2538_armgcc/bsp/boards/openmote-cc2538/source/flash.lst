@@ -1,0 +1,995 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"flash.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.align	2
+  19              		.global	FlashMainPageErase
+  20              		.thumb
+  21              		.thumb_func
+  23              	FlashMainPageErase:
+  24              	.LFB0:
+  25              		.file 1 "build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c"
+   1:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** /******************************************************************************
+   2:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** *  Filename:       flash.c
+   3:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** *  Revised:        $Date: 2013-03-24 14:46:31 +0100 (Sun, 24 Mar 2013) $
+   4:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** *  Revision:       $Revision: 9524 $
+   5:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** *
+   6:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** *  Description:    Driver for programming the on-chip flash.
+   7:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** *
+   8:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** *  Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
+   9:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** *
+  10:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** *
+  11:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** *  Redistribution and use in source and binary forms, with or without
+  12:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** *  modification, are permitted provided that the following conditions
+  13:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** *  are met:
+  14:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** *
+  15:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** *    Redistributions of source code must retain the above copyright
+  16:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** *    notice, this list of conditions and the following disclaimer.
+  17:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** *
+  18:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** *    Redistributions in binary form must reproduce the above copyright
+  19:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** *    notice, this list of conditions and the following disclaimer in the
+  20:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** *    documentation and/or other materials provided with the distribution.
+  21:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** *
+  22:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** *    Neither the name of Texas Instruments Incorporated nor the names of
+  23:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** *    its contributors may be used to endorse or promote products derived
+  24:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** *    from this software without specific prior written permission.
+  25:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** *
+  26:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  27:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  28:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  29:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** *  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  30:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** *  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  31:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** *  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  32:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** *  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  33:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** *  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+  34:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  35:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  36:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** *  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  37:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** *
+  38:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** ******************************************************************************/
+  39:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** 
+  40:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //*****************************************************************************
+  41:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //
+  42:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! \addtogroup flash_api
+  43:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! @{
+  44:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //
+  45:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //*****************************************************************************
+  46:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** 
+  47:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** #include <headers/hw_flash_ctrl.h>
+  48:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** #include <headers/hw_memmap.h>
+  49:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** #include "debug.h"
+  50:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** #include "flash.h"
+  51:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** #include "rom.h"
+  52:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** 
+  53:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //*****************************************************************************
+  54:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //
+  55:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! Erases a flash main page with use of ROM function
+  56:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //!
+  57:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! \param ui32Address is the start address of the flash main page to be erased.
+  58:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //!
+  59:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! This function erases one 2 kB main page of the on-chip flash. After
+  60:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! erasing, the page is filled with 0xFF bytes. Locked pages cannot be
+  61:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! erased. The flash main pages do not include the upper page.
+  62:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //!
+  63:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! This function does not return until the page is erased or an error
+  64:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! encountered.
+  65:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //!
+  66:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! \return Returns 0 on success, -1 if erasing error is encountered,
+  67:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //!         or -2 in case of illegal parameter use.
+  68:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //
+  69:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //*****************************************************************************
+  70:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** int32_t
+  71:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** FlashMainPageErase(uint32_t ui32Address)
+  72:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** {
+  26              		.loc 1 72 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 16
+  29              		@ frame_needed = 1, uses_anonymous_args = 0
+  30 0000 80B5     		push	{r7, lr}
+  31              		.cfi_def_cfa_offset 8
+  32              		.cfi_offset 7, -8
+  33              		.cfi_offset 14, -4
+  34 0002 84B0     		sub	sp, sp, #16
+  35              		.cfi_def_cfa_offset 24
+  36 0004 00AF     		add	r7, sp, #0
+  37              		.cfi_def_cfa_register 7
+  38 0006 7860     		str	r0, [r7, #4]
+  73:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     int32_t          i32Stat;               // 0 = pass, -1 = fail
+  74:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     uint32_t ui32CurrentCacheMode;
+  75:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** 
+  76:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     i32Stat = 0;
+  39              		.loc 1 76 0
+  40 0008 0023     		movs	r3, #0
+  41 000a FB60     		str	r3, [r7, #12]
+  77:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** 
+  78:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+  79:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     // Check the arguments.
+  80:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+  81:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     ASSERT(!(ui32Address < FLASH_BASE));
+  82:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     ASSERT(!(ui32Address >= (FLASH_BASE + (FlashSizeGet() * 1024) -
+  83:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****                              FLASH_ERASE_SIZE)));
+  84:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     ASSERT(!(ui32Address & (FLASH_ERASE_SIZE - 1)));
+  85:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** 
+  86:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+  87:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     // Save current cache mode since the ROM function will change it.
+  88:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+  89:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     ui32CurrentCacheMode = FlashCacheModeGet();
+  42              		.loc 1 89 0
+  43 000c FFF7FEFF 		bl	FlashCacheModeGet
+  44 0010 B860     		str	r0, [r7, #8]
+  90:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** 
+  91:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+  92:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     // Erase the specified flash main page by calling ROM function.
+  93:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+  94:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     i32Stat = ROM_PageErase(ui32Address, FLASH_ERASE_SIZE);
+  45              		.loc 1 94 0
+  46 0012 4823     		movs	r3, #72
+  47 0014 DB68     		ldr	r3, [r3, #12]
+  48 0016 7868     		ldr	r0, [r7, #4]
+  49 0018 4FF40061 		mov	r1, #2048
+  50 001c 9847     		blx	r3
+  51 001e F860     		str	r0, [r7, #12]
+  95:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** 
+  96:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+  97:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     // Restore cache mode.
+  98:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+  99:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     FlashCacheModeSet(ui32CurrentCacheMode);
+  52              		.loc 1 99 0
+  53 0020 B868     		ldr	r0, [r7, #8]
+  54 0022 FFF7FEFF 		bl	FlashCacheModeSet
+ 100:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** 
+ 101:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+ 102:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     // Return status pass or fail.
+ 103:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+ 104:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     return(i32Stat);
+  55              		.loc 1 104 0
+  56 0026 FB68     		ldr	r3, [r7, #12]
+ 105:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** }
+  57              		.loc 1 105 0
+  58 0028 1846     		mov	r0, r3
+  59 002a 1037     		adds	r7, r7, #16
+  60 002c BD46     		mov	sp, r7
+  61              		@ sp needed
+  62 002e 80BD     		pop	{r7, pc}
+  63              		.cfi_endproc
+  64              	.LFE0:
+  66              		.align	2
+  67              		.global	FlashUpperPageErase
+  68              		.thumb
+  69              		.thumb_func
+  71              	FlashUpperPageErase:
+  72              	.LFB1:
+ 106:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** 
+ 107:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //*****************************************************************************
+ 108:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //
+ 109:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! Erases the upper flash page with use of ROM function
+ 110:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //!
+ 111:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! This function erases the 2 kB upper page of the on-chip flash. After
+ 112:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! erasing, the page is filled with 0xFF bytes. A locked page cannot
+ 113:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! be erased.
+ 114:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //!
+ 115:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! This function does not return until the flash page is erased or
+ 116:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! an error encountered.
+ 117:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //!
+ 118:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! \return Returns 0 on success, -1 if erasing error is encountered
+ 119:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //!         or, -2 in case of illegal parameter use.
+ 120:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //
+ 121:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //*****************************************************************************
+ 122:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** int32_t
+ 123:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** FlashUpperPageErase(void)
+ 124:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** {
+  73              		.loc 1 124 0
+  74              		.cfi_startproc
+  75              		@ args = 0, pretend = 0, frame = 16
+  76              		@ frame_needed = 1, uses_anonymous_args = 0
+  77 0030 80B5     		push	{r7, lr}
+  78              		.cfi_def_cfa_offset 8
+  79              		.cfi_offset 7, -8
+  80              		.cfi_offset 14, -4
+  81 0032 84B0     		sub	sp, sp, #16
+  82              		.cfi_def_cfa_offset 24
+  83 0034 00AF     		add	r7, sp, #0
+  84              		.cfi_def_cfa_register 7
+ 125:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     uint32_t ui32UpperPageAddr;
+ 126:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     uint32_t ui32CurrentCacheMode;
+ 127:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     int32_t  i32Stat;                  // 0 = pass, -1 = fail, -2 = wrong param
+ 128:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** 
+ 129:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     i32Stat = 0;
+  85              		.loc 1 129 0
+  86 0036 0023     		movs	r3, #0
+  87 0038 FB60     		str	r3, [r7, #12]
+ 130:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** 
+ 131:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+ 132:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     // Find start address of upper flash page
+ 133:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+ 134:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     ui32UpperPageAddr = FLASH_BASE + (FlashSizeGet() * 1024) - FLASH_ERASE_SIZE;
+  88              		.loc 1 134 0
+  89 003a FFF7FEFF 		bl	FlashSizeGet
+  90 003e 0346     		mov	r3, r0
+  91 0040 03F2FE73 		addw	r3, r3, #2046
+  92 0044 9B02     		lsls	r3, r3, #10
+  93 0046 BB60     		str	r3, [r7, #8]
+ 135:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** 
+ 136:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+ 137:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     // Save current cache mode since the ROM function will change it.
+ 138:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+ 139:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     ui32CurrentCacheMode = FlashCacheModeGet();
+  94              		.loc 1 139 0
+  95 0048 FFF7FEFF 		bl	FlashCacheModeGet
+  96 004c 7860     		str	r0, [r7, #4]
+ 140:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** 
+ 141:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+ 142:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     // Erase the upper flash page by calling ROM function.
+ 143:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+ 144:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     i32Stat = ROM_PageErase(ui32UpperPageAddr, FLASH_ERASE_SIZE);
+  97              		.loc 1 144 0
+  98 004e 4823     		movs	r3, #72
+  99 0050 DB68     		ldr	r3, [r3, #12]
+ 100 0052 B868     		ldr	r0, [r7, #8]
+ 101 0054 4FF40061 		mov	r1, #2048
+ 102 0058 9847     		blx	r3
+ 103 005a F860     		str	r0, [r7, #12]
+ 145:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** 
+ 146:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+ 147:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     // Restore cache mode.
+ 148:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+ 149:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     FlashCacheModeSet(ui32CurrentCacheMode);
+ 104              		.loc 1 149 0
+ 105 005c 7868     		ldr	r0, [r7, #4]
+ 106 005e FFF7FEFF 		bl	FlashCacheModeSet
+ 150:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** 
+ 151:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+ 152:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     // Return status pass or fail.
+ 153:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+ 154:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     return(i32Stat);
+ 107              		.loc 1 154 0
+ 108 0062 FB68     		ldr	r3, [r7, #12]
+ 155:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** }
+ 109              		.loc 1 155 0
+ 110 0064 1846     		mov	r0, r3
+ 111 0066 1037     		adds	r7, r7, #16
+ 112 0068 BD46     		mov	sp, r7
+ 113              		@ sp needed
+ 114 006a 80BD     		pop	{r7, pc}
+ 115              		.cfi_endproc
+ 116              	.LFE1:
+ 118              		.align	2
+ 119              		.global	FlashMainPageProgram
+ 120              		.thumb
+ 121              		.thumb_func
+ 123              	FlashMainPageProgram:
+ 124              	.LFB2:
+ 156:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** 
+ 157:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //*****************************************************************************
+ 158:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //
+ 159:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! Programs the flash main pages by use of ROM function
+ 160:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //!
+ 161:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! \param pui32Data is a pointer to the data to be programmed.
+ 162:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! \param ui32Address is the starting address in flash to be programmed. Must
+ 163:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! be a multiple of four and within the flash main pages.
+ 164:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! \param ui32Count is the number of bytes to be programmed. Must be a multiple
+ 165:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! of four.
+ 166:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //!
+ 167:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! This function programs a sequence of words into the on-chip flash.
+ 168:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! Programming each location consists of the result of an AND operation
+ 169:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! of the new data and the existing data; in other words, bits that contain
+ 170:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! 1 can remain 1 or be changed to 0, but bits that are 0 cannot be changed
+ 171:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! to 1. Therefore, a word can be programmed multiple times as long as these
+ 172:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! rules are followed; if a program operation attempts to change a 0 bit to
+ 173:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! a 1 bit, that bit will not have its value changed.
+ 174:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //!
+ 175:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! Because the flash is programmed one word at a time, the starting address and
+ 176:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! byte count must both be multiples of four. The caller must
+ 177:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! verify the programmed contents, if verification is required.
+ 178:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //!
+ 179:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! This function does not return until the data is programmed or an
+ 180:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! error encountered. Locked flash pages cannot be programmed.
+ 181:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //!
+ 182:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! \return Returns 0 on success, -1 if a programming error is encountered
+ 183:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //!         or, -2 in case of illegal parameter use.
+ 184:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //
+ 185:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //*****************************************************************************
+ 186:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** int32_t
+ 187:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** FlashMainPageProgram(uint32_t *pui32Data, uint32_t ui32Address,
+ 188:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****                      uint32_t ui32Count)
+ 189:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** {
+ 125              		.loc 1 189 0
+ 126              		.cfi_startproc
+ 127              		@ args = 0, pretend = 0, frame = 24
+ 128              		@ frame_needed = 1, uses_anonymous_args = 0
+ 129 006c 80B5     		push	{r7, lr}
+ 130              		.cfi_def_cfa_offset 8
+ 131              		.cfi_offset 7, -8
+ 132              		.cfi_offset 14, -4
+ 133 006e 86B0     		sub	sp, sp, #24
+ 134              		.cfi_def_cfa_offset 32
+ 135 0070 00AF     		add	r7, sp, #0
+ 136              		.cfi_def_cfa_register 7
+ 137 0072 F860     		str	r0, [r7, #12]
+ 138 0074 B960     		str	r1, [r7, #8]
+ 139 0076 7A60     		str	r2, [r7, #4]
+ 190:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     uint32_t ui32CurrentCacheMode;
+ 191:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     int32_t  i32Stat;     // 0 = pass, -1 = fail, -2 = wrong param
+ 192:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** 
+ 193:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     i32Stat = 0;            // Start out passing
+ 140              		.loc 1 193 0
+ 141 0078 0023     		movs	r3, #0
+ 142 007a 7B61     		str	r3, [r7, #20]
+ 194:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** 
+ 195:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+ 196:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     // Check the arguments.
+ 197:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+ 198:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     ASSERT(!(ui32Address             < FLASH_BASE));
+ 199:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     ASSERT(!((ui32Address + ui32Count) > (FLASH_BASE + (FlashSizeGet() * 1024) -
+ 200:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****                                           FLASH_ERASE_SIZE)));
+ 201:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     ASSERT(!(ui32Address & 3));
+ 202:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     ASSERT(!(ui32Count   & 3));
+ 203:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** 
+ 204:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+ 205:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     // Save current cache mode since the ROM function will change it.
+ 206:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+ 207:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     ui32CurrentCacheMode = FlashCacheModeGet();
+ 143              		.loc 1 207 0
+ 144 007c FFF7FEFF 		bl	FlashCacheModeGet
+ 145 0080 3861     		str	r0, [r7, #16]
+ 208:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** 
+ 209:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+ 210:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     // Program flash by executing function in ROM.
+ 211:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+ 212:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     i32Stat = ROM_ProgramFlash(pui32Data, ui32Address, ui32Count);
+ 146              		.loc 1 212 0
+ 147 0082 4823     		movs	r3, #72
+ 148 0084 1B69     		ldr	r3, [r3, #16]
+ 149 0086 F868     		ldr	r0, [r7, #12]
+ 150 0088 B968     		ldr	r1, [r7, #8]
+ 151 008a 7A68     		ldr	r2, [r7, #4]
+ 152 008c 9847     		blx	r3
+ 153 008e 7861     		str	r0, [r7, #20]
+ 213:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** 
+ 214:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+ 215:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     // Restore cache mode.
+ 216:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+ 217:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     FlashCacheModeSet(ui32CurrentCacheMode);
+ 154              		.loc 1 217 0
+ 155 0090 3869     		ldr	r0, [r7, #16]
+ 156 0092 FFF7FEFF 		bl	FlashCacheModeSet
+ 218:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** 
+ 219:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+ 220:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     // Return status pass or fail.
+ 221:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+ 222:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     return(i32Stat);
+ 157              		.loc 1 222 0
+ 158 0096 7B69     		ldr	r3, [r7, #20]
+ 223:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** }
+ 159              		.loc 1 223 0
+ 160 0098 1846     		mov	r0, r3
+ 161 009a 1837     		adds	r7, r7, #24
+ 162 009c BD46     		mov	sp, r7
+ 163              		@ sp needed
+ 164 009e 80BD     		pop	{r7, pc}
+ 165              		.cfi_endproc
+ 166              	.LFE2:
+ 168              		.align	2
+ 169              		.global	FlashUpperPageProgram
+ 170              		.thumb
+ 171              		.thumb_func
+ 173              	FlashUpperPageProgram:
+ 174              	.LFB3:
+ 224:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** 
+ 225:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //*****************************************************************************
+ 226:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //
+ 227:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! Programs the upper page of the flash by use of ROM function
+ 228:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //!
+ 229:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! \param pui32Data is a pointer to the data to be programmed.
+ 230:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! \param ui32Address is the starting address within the flash upper page to be
+ 231:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! programmed. Must be a multiple of four and within the flash upper page.
+ 232:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! \param ui32Count is the number of bytes to be programmed.  Must be a multiple
+ 233:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! of four.
+ 234:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //!
+ 235:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! This function programs a sequence of words into the on-chip flash.
+ 236:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! Programming each location consists of the result of an AND operation
+ 237:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! of the new data and the existing data; in other words, bits that contain
+ 238:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! 1 can remain 1 or be changed to 0, but bits that are 0 cannot be changed
+ 239:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! to 1. Therefore, a word can be programmed multiple times as long as these
+ 240:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! rules are followed; if a program operation attempts to change a 0 bit to
+ 241:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! a 1 bit, that bit will not have its value changed.
+ 242:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //!
+ 243:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! Because the flash is programmed one word at a time, the starting address and
+ 244:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! byte count must both be multiples of four. The caller must
+ 245:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! verify the programmed contents, if such verification is required.
+ 246:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //!
+ 247:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! This function does not return until the data is programmed or an
+ 248:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! error encountered. A locked flash page cannot be programmed.
+ 249:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //!
+ 250:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! \return Returns 0 on success, -1 if a programming error is encountered
+ 251:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //!         or, -2 in case of illegal parameter use.
+ 252:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //
+ 253:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //*****************************************************************************
+ 254:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** int32_t
+ 255:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** FlashUpperPageProgram(uint32_t *pui32Data, uint32_t ui32Address,
+ 256:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****                       uint32_t ui32Count)
+ 257:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** {
+ 175              		.loc 1 257 0
+ 176              		.cfi_startproc
+ 177              		@ args = 0, pretend = 0, frame = 24
+ 178              		@ frame_needed = 1, uses_anonymous_args = 0
+ 179 00a0 80B5     		push	{r7, lr}
+ 180              		.cfi_def_cfa_offset 8
+ 181              		.cfi_offset 7, -8
+ 182              		.cfi_offset 14, -4
+ 183 00a2 86B0     		sub	sp, sp, #24
+ 184              		.cfi_def_cfa_offset 32
+ 185 00a4 00AF     		add	r7, sp, #0
+ 186              		.cfi_def_cfa_register 7
+ 187 00a6 F860     		str	r0, [r7, #12]
+ 188 00a8 B960     		str	r1, [r7, #8]
+ 189 00aa 7A60     		str	r2, [r7, #4]
+ 258:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     uint32_t ui32CurrentCacheMode;
+ 259:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     int32_t  i32Stat;                // 0 = pass, -1 = fail, -2 = wrong param
+ 260:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** 
+ 261:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     i32Stat = 0;                     // Start out passing
+ 190              		.loc 1 261 0
+ 191 00ac 0023     		movs	r3, #0
+ 192 00ae 7B61     		str	r3, [r7, #20]
+ 262:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** 
+ 263:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+ 264:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     // Check the arguments.
+ 265:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+ 266:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     ASSERT(!(ui32Address < (FLASH_BASE + (FlashSizeGet() * 1024) -
+ 267:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****                             FLASH_ERASE_SIZE)));
+ 268:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     ASSERT(!((ui32Address + ui32Count) > (FLASH_BASE +
+ 269:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****                                           (FlashSizeGet() * 1024))));
+ 270:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     ASSERT(!(ui32Address & 3));
+ 271:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     ASSERT(!(ui32Count   & 3));
+ 272:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** 
+ 273:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+ 274:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     // Save current cache mode since the ROM function will change it.
+ 275:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+ 276:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     ui32CurrentCacheMode = FlashCacheModeGet();
+ 193              		.loc 1 276 0
+ 194 00b0 FFF7FEFF 		bl	FlashCacheModeGet
+ 195 00b4 3861     		str	r0, [r7, #16]
+ 277:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** 
+ 278:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+ 279:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     // Program flash by executing function in ROM.
+ 280:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+ 281:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     i32Stat = ROM_ProgramFlash(pui32Data, ui32Address, ui32Count);
+ 196              		.loc 1 281 0
+ 197 00b6 4823     		movs	r3, #72
+ 198 00b8 1B69     		ldr	r3, [r3, #16]
+ 199 00ba F868     		ldr	r0, [r7, #12]
+ 200 00bc B968     		ldr	r1, [r7, #8]
+ 201 00be 7A68     		ldr	r2, [r7, #4]
+ 202 00c0 9847     		blx	r3
+ 203 00c2 7861     		str	r0, [r7, #20]
+ 282:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** 
+ 283:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+ 284:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     // Clear flash controller register bit set by ROM function.
+ 285:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+ 286:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     HWREG(FLASH_CTRL_FCTL) &= (~FLASH_CTRL_FCTL_UPPER_PAGE_ACCESS);
+ 204              		.loc 1 286 0
+ 205 00c4 43F20803 		movw	r3, #12296
+ 206 00c8 C4F20D03 		movt	r3, 16397
+ 207 00cc 43F20802 		movw	r2, #12296
+ 208 00d0 C4F20D02 		movt	r2, 16397
+ 209 00d4 1268     		ldr	r2, [r2]
+ 210 00d6 22F40072 		bic	r2, r2, #512
+ 211 00da 1A60     		str	r2, [r3]
+ 287:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** 
+ 288:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+ 289:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     // Restore cache mode.
+ 290:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+ 291:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     FlashCacheModeSet(ui32CurrentCacheMode);
+ 212              		.loc 1 291 0
+ 213 00dc 3869     		ldr	r0, [r7, #16]
+ 214 00de FFF7FEFF 		bl	FlashCacheModeSet
+ 292:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** 
+ 293:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+ 294:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     // Return status pass or fail.
+ 295:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+ 296:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     return(i32Stat);
+ 215              		.loc 1 296 0
+ 216 00e2 7B69     		ldr	r3, [r7, #20]
+ 297:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** }
+ 217              		.loc 1 297 0
+ 218 00e4 1846     		mov	r0, r3
+ 219 00e6 1837     		adds	r7, r7, #24
+ 220 00e8 BD46     		mov	sp, r7
+ 221              		@ sp needed
+ 222 00ea 80BD     		pop	{r7, pc}
+ 223              		.cfi_endproc
+ 224              	.LFE3:
+ 226              		.align	2
+ 227              		.global	FlashGet
+ 228              		.thumb
+ 229              		.thumb_func
+ 231              	FlashGet:
+ 232              	.LFB4:
+ 298:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** 
+ 299:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //*****************************************************************************
+ 300:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //
+ 301:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! Gets the current contents of the flash at the designated address
+ 302:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //!
+ 303:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! \param ui32Addr is the desired address to be read within the flash.
+ 304:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //!
+ 305:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! This function helps differentiate flash memory reads from flash
+ 306:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! register reads.
+ 307:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //!
+ 308:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! \return Returns the 32bit value as an uint32_t value.
+ 309:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //
+ 310:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //*****************************************************************************
+ 311:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** uint32_t
+ 312:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** FlashGet(uint32_t ui32Addr)
+ 313:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** {
+ 233              		.loc 1 313 0
+ 234              		.cfi_startproc
+ 235              		@ args = 0, pretend = 0, frame = 8
+ 236              		@ frame_needed = 1, uses_anonymous_args = 0
+ 237              		@ link register save eliminated.
+ 238 00ec 80B4     		push	{r7}
+ 239              		.cfi_def_cfa_offset 4
+ 240              		.cfi_offset 7, -4
+ 241 00ee 83B0     		sub	sp, sp, #12
+ 242              		.cfi_def_cfa_offset 16
+ 243 00f0 00AF     		add	r7, sp, #0
+ 244              		.cfi_def_cfa_register 7
+ 245 00f2 7860     		str	r0, [r7, #4]
+ 314:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     return(HWREG(ui32Addr));
+ 246              		.loc 1 314 0
+ 247 00f4 7B68     		ldr	r3, [r7, #4]
+ 248 00f6 1B68     		ldr	r3, [r3]
+ 315:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** }
+ 249              		.loc 1 315 0
+ 250 00f8 1846     		mov	r0, r3
+ 251 00fa 0C37     		adds	r7, r7, #12
+ 252 00fc BD46     		mov	sp, r7
+ 253              		@ sp needed
+ 254 00fe 5DF8047B 		ldr	r7, [sp], #4
+ 255 0102 7047     		bx	lr
+ 256              		.cfi_endproc
+ 257              	.LFE4:
+ 259              		.align	2
+ 260              		.global	FlashCacheModeGet
+ 261              		.thumb
+ 262              		.thumb_func
+ 264              	FlashCacheModeGet:
+ 265              	.LFB5:
+ 316:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** 
+ 317:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //*****************************************************************************
+ 318:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //
+ 319:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! Gets the current state of the flash Cache Mode
+ 320:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //!
+ 321:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! This function gets the current setting for the Cache Mode.
+ 322:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //!
+ 323:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! \return Returns the CM bits. Return value should match one of the
+ 324:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! FLASH_CACHE_MODE_<> macros defined in flash.h.
+ 325:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //
+ 326:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //*****************************************************************************
+ 327:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** uint32_t
+ 328:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** FlashCacheModeGet(void)
+ 329:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** {
+ 266              		.loc 1 329 0
+ 267              		.cfi_startproc
+ 268              		@ args = 0, pretend = 0, frame = 0
+ 269              		@ frame_needed = 1, uses_anonymous_args = 0
+ 270              		@ link register save eliminated.
+ 271 0104 80B4     		push	{r7}
+ 272              		.cfi_def_cfa_offset 4
+ 273              		.cfi_offset 7, -4
+ 274 0106 00AF     		add	r7, sp, #0
+ 275              		.cfi_def_cfa_register 7
+ 330:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+ 331:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     // Return a FLASH_CACHE_MODE_<> macro value.
+ 332:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+ 333:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     return(HWREG(FLASH_CTRL_FCTL) & FLASH_CTRL_FCTL_CM_M);
+ 276              		.loc 1 333 0
+ 277 0108 43F20803 		movw	r3, #12296
+ 278 010c C4F20D03 		movt	r3, 16397
+ 279 0110 1B68     		ldr	r3, [r3]
+ 280 0112 03F00C03 		and	r3, r3, #12
+ 334:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** }
+ 281              		.loc 1 334 0
+ 282 0116 1846     		mov	r0, r3
+ 283 0118 BD46     		mov	sp, r7
+ 284              		@ sp needed
+ 285 011a 5DF8047B 		ldr	r7, [sp], #4
+ 286 011e 7047     		bx	lr
+ 287              		.cfi_endproc
+ 288              	.LFE5:
+ 290              		.align	2
+ 291              		.global	FlashCacheModeSet
+ 292              		.thumb
+ 293              		.thumb_func
+ 295              	FlashCacheModeSet:
+ 296              	.LFB6:
+ 335:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** 
+ 336:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //*****************************************************************************
+ 337:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //
+ 338:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! Sets the flash Cache Mode state
+ 339:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //!
+ 340:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! \param ui32CacheMode is the desired cache mode.
+ 341:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //!
+ 342:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! This function sets the flash Cache Mode to the desired state and accepts
+ 343:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! a right justified 2 bit setting for the Cachemode bits. The function waits
+ 344:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! for the flash to be idle, reads the FCTL register contents, masks in the
+ 345:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! requested setting, and writes it into the FCTL register.
+ 346:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //!
+ 347:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! The parameter \e ui32CacheMode can have one of the following values:
+ 348:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //!
+ 349:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! - \b FLASH_CTRL_CACHE_MODE_DISABLE
+ 350:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! - \b FLASH_CTRL_CACHE_MODE_ENABLE
+ 351:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! - \b FLASH_CTRL_CACHE_MODE_PREFETCH_ENABLE
+ 352:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! - \b FLASH_CTRL_CACHE_MODE_REALTIME
+ 353:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //!
+ 354:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! \return None
+ 355:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //
+ 356:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //*****************************************************************************
+ 357:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** void
+ 358:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** FlashCacheModeSet(uint32_t ui32CacheMode)
+ 359:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** {
+ 297              		.loc 1 359 0
+ 298              		.cfi_startproc
+ 299              		@ args = 0, pretend = 0, frame = 16
+ 300              		@ frame_needed = 1, uses_anonymous_args = 0
+ 301              		@ link register save eliminated.
+ 302 0120 80B4     		push	{r7}
+ 303              		.cfi_def_cfa_offset 4
+ 304              		.cfi_offset 7, -4
+ 305 0122 85B0     		sub	sp, sp, #20
+ 306              		.cfi_def_cfa_offset 24
+ 307 0124 00AF     		add	r7, sp, #0
+ 308              		.cfi_def_cfa_register 7
+ 309 0126 7860     		str	r0, [r7, #4]
+ 360:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     uint32_t ui32Busy;
+ 361:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     uint32_t ui32TempValue;
+ 362:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** 
+ 363:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+ 364:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     // Check the arguments.
+ 365:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+ 366:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     ASSERT((ui32CacheMode == FLASH_CTRL_CACHE_MODE_DISABLE) ||
+ 367:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****            (ui32CacheMode == FLASH_CTRL_CACHE_MODE_ENABLE) ||
+ 368:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****            (ui32CacheMode == FLASH_CTRL_CACHE_MODE_PREFETCH_ENABLE) ||
+ 369:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****            (ui32CacheMode == FLASH_CTRL_CACHE_MODE_REALTIME));
+ 370:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** 
+ 371:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+ 372:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     // Wait until FLASH is not busy.
+ 373:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+ 374:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     ui32Busy = 1;
+ 310              		.loc 1 374 0
+ 311 0128 0123     		movs	r3, #1
+ 312 012a FB60     		str	r3, [r7, #12]
+ 375:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     while(ui32Busy)
+ 313              		.loc 1 375 0
+ 314 012c 09E0     		b	.L14
+ 315              	.L15:
+ 376:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     {
+ 377:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****         ui32TempValue = HWREG(FLASH_CTRL_FCTL);
+ 316              		.loc 1 377 0
+ 317 012e 43F20803 		movw	r3, #12296
+ 318 0132 C4F20D03 		movt	r3, 16397
+ 319 0136 1B68     		ldr	r3, [r3]
+ 320 0138 BB60     		str	r3, [r7, #8]
+ 378:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****         ui32Busy      = ui32TempValue & FLASH_CTRL_FCTL_BUSY;
+ 321              		.loc 1 378 0
+ 322 013a BB68     		ldr	r3, [r7, #8]
+ 323 013c 03F08003 		and	r3, r3, #128
+ 324 0140 FB60     		str	r3, [r7, #12]
+ 325              	.L14:
+ 375:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     while(ui32Busy)
+ 326              		.loc 1 375 0 discriminator 1
+ 327 0142 FB68     		ldr	r3, [r7, #12]
+ 328 0144 002B     		cmp	r3, #0
+ 329 0146 F2D1     		bne	.L15
+ 379:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     }
+ 380:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** 
+ 381:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+ 382:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     // Set desired cache mode.
+ 383:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     //
+ 384:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     ui32TempValue           &= ~FLASH_CTRL_FCTL_CM_M;
+ 330              		.loc 1 384 0
+ 331 0148 BB68     		ldr	r3, [r7, #8]
+ 332 014a 23F00C03 		bic	r3, r3, #12
+ 333 014e BB60     		str	r3, [r7, #8]
+ 385:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     HWREG(FLASH_CTRL_FCTL) = ui32TempValue | ui32CacheMode;
+ 334              		.loc 1 385 0
+ 335 0150 43F20803 		movw	r3, #12296
+ 336 0154 C4F20D03 		movt	r3, 16397
+ 337 0158 B968     		ldr	r1, [r7, #8]
+ 338 015a 7A68     		ldr	r2, [r7, #4]
+ 339 015c 0A43     		orrs	r2, r2, r1
+ 340 015e 1A60     		str	r2, [r3]
+ 386:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** }
+ 341              		.loc 1 386 0
+ 342 0160 1437     		adds	r7, r7, #20
+ 343 0162 BD46     		mov	sp, r7
+ 344              		@ sp needed
+ 345 0164 5DF8047B 		ldr	r7, [sp], #4
+ 346 0168 7047     		bx	lr
+ 347              		.cfi_endproc
+ 348              	.LFE6:
+ 350 016a 00BF     		.align	2
+ 351              		.global	FlashSizeGet
+ 352              		.thumb
+ 353              		.thumb_func
+ 355              	FlashSizeGet:
+ 356              	.LFB7:
+ 387:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** 
+ 388:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //*****************************************************************************
+ 389:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //
+ 390:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! Returns the flash size in number of KBytes
+ 391:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //!
+ 392:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! This function returns the size of the flash in KBytes as determined by
+ 393:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! examining the FLASH_DIECFG0 register settings.
+ 394:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //!
+ 395:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! \return Returns the flash size in KBytes
+ 396:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //
+ 397:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //*****************************************************************************
+ 398:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** uint32_t
+ 399:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** FlashSizeGet(void)
+ 400:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** {
+ 357              		.loc 1 400 0
+ 358              		.cfi_startproc
+ 359              		@ args = 0, pretend = 0, frame = 8
+ 360              		@ frame_needed = 1, uses_anonymous_args = 0
+ 361              		@ link register save eliminated.
+ 362 016c 80B4     		push	{r7}
+ 363              		.cfi_def_cfa_offset 4
+ 364              		.cfi_offset 7, -4
+ 365 016e 83B0     		sub	sp, sp, #12
+ 366              		.cfi_def_cfa_offset 16
+ 367 0170 00AF     		add	r7, sp, #0
+ 368              		.cfi_def_cfa_register 7
+ 401:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     uint32_t ui32RegValue;
+ 402:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     uint32_t ui32Size;
+ 403:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** 
+ 404:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     ui32RegValue = HWREG(FLASH_CTRL_DIECFG0);
+ 369              		.loc 1 404 0
+ 370 0172 43F21403 		movw	r3, #12308
+ 371 0176 C4F20D03 		movt	r3, 16397
+ 372 017a 1B68     		ldr	r3, [r3]
+ 373 017c 3B60     		str	r3, [r7]
+ 405:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     ui32RegValue = (ui32RegValue & FLASH_CTRL_DIECFG0_FLASH_SIZE_M) >>
+ 374              		.loc 1 405 0
+ 375 017e 3B68     		ldr	r3, [r7]
+ 376 0180 03F07003 		and	r3, r3, #112
+ 377 0184 1B09     		lsrs	r3, r3, #4
+ 378 0186 3B60     		str	r3, [r7]
+ 406:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****                    FLASH_CTRL_DIECFG0_FLASH_SIZE_S;
+ 407:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** 
+ 408:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     switch(ui32RegValue)
+ 379              		.loc 1 408 0
+ 380 0188 3B68     		ldr	r3, [r7]
+ 381 018a 042B     		cmp	r3, #4
+ 382 018c 1ED8     		bhi	.L17
+ 383 018e 01A2     		adr	r2, .L19
+ 384 0190 52F823F0 		ldr	pc, [r2, r3, lsl #2]
+ 385              		.p2align 2
+ 386              	.L19:
+ 387 0194 C7010000 		.word	.L18+1
+ 388 0198 C1010000 		.word	.L20+1
+ 389 019c B9010000 		.word	.L21+1
+ 390 01a0 B1010000 		.word	.L22+1
+ 391 01a4 A9010000 		.word	.L23+1
+ 392              	.L23:
+ 409:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     {
+ 410:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     case 0x04:
+ 411:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****         ui32Size = 512;
+ 393              		.loc 1 411 0
+ 394 01a8 4FF40073 		mov	r3, #512
+ 395 01ac 7B60     		str	r3, [r7, #4]
+ 412:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****         break;
+ 396              		.loc 1 412 0
+ 397 01ae 10E0     		b	.L24
+ 398              	.L22:
+ 413:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     case 0x03:
+ 414:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****         ui32Size = 384;
+ 399              		.loc 1 414 0
+ 400 01b0 4FF4C073 		mov	r3, #384
+ 401 01b4 7B60     		str	r3, [r7, #4]
+ 415:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****         break;
+ 402              		.loc 1 415 0
+ 403 01b6 0CE0     		b	.L24
+ 404              	.L21:
+ 416:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     case 0x02:
+ 417:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****         ui32Size = 256;
+ 405              		.loc 1 417 0
+ 406 01b8 4FF48073 		mov	r3, #256
+ 407 01bc 7B60     		str	r3, [r7, #4]
+ 418:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****         break;
+ 408              		.loc 1 418 0
+ 409 01be 08E0     		b	.L24
+ 410              	.L20:
+ 419:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     case 0x01:
+ 420:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****         ui32Size = 128;
+ 411              		.loc 1 420 0
+ 412 01c0 8023     		movs	r3, #128
+ 413 01c2 7B60     		str	r3, [r7, #4]
+ 421:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****         break;
+ 414              		.loc 1 421 0
+ 415 01c4 05E0     		b	.L24
+ 416              	.L18:
+ 422:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     case 0x00:
+ 423:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****         ui32Size =  64;
+ 417              		.loc 1 423 0
+ 418 01c6 4023     		movs	r3, #64
+ 419 01c8 7B60     		str	r3, [r7, #4]
+ 424:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****         break;
+ 420              		.loc 1 424 0
+ 421 01ca 02E0     		b	.L24
+ 422              	.L17:
+ 425:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     default:
+ 426:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****         ui32Size =  64;
+ 423              		.loc 1 426 0
+ 424 01cc 4023     		movs	r3, #64
+ 425 01ce 7B60     		str	r3, [r7, #4]
+ 427:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****         break;
+ 426              		.loc 1 427 0
+ 427 01d0 00BF     		nop
+ 428              	.L24:
+ 428:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     }
+ 429:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     return(ui32Size);
+ 429              		.loc 1 429 0
+ 430 01d2 7B68     		ldr	r3, [r7, #4]
+ 430:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** }
+ 431              		.loc 1 430 0
+ 432 01d4 1846     		mov	r0, r3
+ 433 01d6 0C37     		adds	r7, r7, #12
+ 434 01d8 BD46     		mov	sp, r7
+ 435              		@ sp needed
+ 436 01da 5DF8047B 		ldr	r7, [sp], #4
+ 437 01de 7047     		bx	lr
+ 438              		.cfi_endproc
+ 439              	.LFE7:
+ 441              		.align	2
+ 442              		.global	FlashSramSizeGet
+ 443              		.thumb
+ 444              		.thumb_func
+ 446              	FlashSramSizeGet:
+ 447              	.LFB8:
+ 431:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** 
+ 432:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //*****************************************************************************
+ 433:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //
+ 434:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! Returns the SRAM size in number of KBytes
+ 435:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //!
+ 436:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! This function returns the size of the SRAM in KBytes as determined by
+ 437:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! examining the FLASH_DIECFG0 register settings.
+ 438:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //!
+ 439:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //! \return Returns the SRAM size in KBytes
+ 440:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //
+ 441:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** //*****************************************************************************
+ 442:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** uint32_t
+ 443:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** FlashSramSizeGet(void)
+ 444:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** {
+ 448              		.loc 1 444 0
+ 449              		.cfi_startproc
+ 450              		@ args = 0, pretend = 0, frame = 8
+ 451              		@ frame_needed = 1, uses_anonymous_args = 0
+ 452              		@ link register save eliminated.
+ 453 01e0 80B4     		push	{r7}
+ 454              		.cfi_def_cfa_offset 4
+ 455              		.cfi_offset 7, -4
+ 456 01e2 83B0     		sub	sp, sp, #12
+ 457              		.cfi_def_cfa_offset 16
+ 458 01e4 00AF     		add	r7, sp, #0
+ 459              		.cfi_def_cfa_register 7
+ 445:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     uint32_t ui32RegValue;
+ 446:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     uint32_t ui32Size;
+ 447:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** 
+ 448:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     ui32RegValue = HWREG(FLASH_CTRL_DIECFG0);
+ 460              		.loc 1 448 0
+ 461 01e6 43F21403 		movw	r3, #12308
+ 462 01ea C4F20D03 		movt	r3, 16397
+ 463 01ee 1B68     		ldr	r3, [r3]
+ 464 01f0 3B60     		str	r3, [r7]
+ 449:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     ui32RegValue = (ui32RegValue & FLASH_CTRL_DIECFG0_SRAM_SIZE_M) >>
+ 465              		.loc 1 449 0
+ 466 01f2 3B68     		ldr	r3, [r7]
+ 467 01f4 03F46073 		and	r3, r3, #896
+ 468 01f8 DB09     		lsrs	r3, r3, #7
+ 469 01fa 3B60     		str	r3, [r7]
+ 450:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****                    FLASH_CTRL_DIECFG0_SRAM_SIZE_S;
+ 451:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** 
+ 452:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     switch(ui32RegValue)
+ 470              		.loc 1 452 0
+ 471 01fc 3B68     		ldr	r3, [r7]
+ 472 01fe 012B     		cmp	r3, #1
+ 473 0200 06D0     		beq	.L28
+ 474 0202 012B     		cmp	r3, #1
+ 475 0204 07D3     		bcc	.L29
+ 476 0206 042B     		cmp	r3, #4
+ 477 0208 08D1     		bne	.L33
+ 453:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     {
+ 454:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     case 0x04:
+ 455:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****         ui32Size = 32;
+ 478              		.loc 1 455 0
+ 479 020a 2023     		movs	r3, #32
+ 480 020c 7B60     		str	r3, [r7, #4]
+ 456:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****         break;
+ 481              		.loc 1 456 0
+ 482 020e 08E0     		b	.L31
+ 483              	.L28:
+ 457:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     case 0x01:
+ 458:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****         ui32Size =  8;
+ 484              		.loc 1 458 0
+ 485 0210 0823     		movs	r3, #8
+ 486 0212 7B60     		str	r3, [r7, #4]
+ 459:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****         break;
+ 487              		.loc 1 459 0
+ 488 0214 05E0     		b	.L31
+ 489              	.L29:
+ 460:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     case 0x00:
+ 461:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****         ui32Size = 16;
+ 490              		.loc 1 461 0
+ 491 0216 1023     		movs	r3, #16
+ 492 0218 7B60     		str	r3, [r7, #4]
+ 462:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****         break;
+ 493              		.loc 1 462 0
+ 494 021a 02E0     		b	.L31
+ 495              	.L33:
+ 463:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     default:
+ 464:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****         ui32Size = 32;
+ 496              		.loc 1 464 0
+ 497 021c 2023     		movs	r3, #32
+ 498 021e 7B60     		str	r3, [r7, #4]
+ 465:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****         break;
+ 499              		.loc 1 465 0
+ 500 0220 00BF     		nop
+ 501              	.L31:
+ 466:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     }
+ 467:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c ****     return(ui32Size);
+ 502              		.loc 1 467 0
+ 503 0222 7B68     		ldr	r3, [r7, #4]
+ 468:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/flash.c **** }
+ 504              		.loc 1 468 0
+ 505 0224 1846     		mov	r0, r3
+ 506 0226 0C37     		adds	r7, r7, #12
+ 507 0228 BD46     		mov	sp, r7
+ 508              		@ sp needed
+ 509 022a 5DF8047B 		ldr	r7, [sp], #4
+ 510 022e 7047     		bx	lr
+ 511              		.cfi_endproc
+ 512              	.LFE8:
+ 514              	.Letext0:
+ 515              		.file 2 "/usr/include/newlib/machine/_default_types.h"
+ 516              		.file 3 "/usr/include/newlib/stdint.h"
+ 517              		.file 4 "build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/rom.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 flash.c
+     /tmp/ccI7MMCo.s:18     .text:0000000000000000 $t
+     /tmp/ccI7MMCo.s:23     .text:0000000000000000 FlashMainPageErase
+     /tmp/ccI7MMCo.s:264    .text:0000000000000104 FlashCacheModeGet
+     /tmp/ccI7MMCo.s:295    .text:0000000000000120 FlashCacheModeSet
+     /tmp/ccI7MMCo.s:71     .text:0000000000000030 FlashUpperPageErase
+     /tmp/ccI7MMCo.s:355    .text:000000000000016c FlashSizeGet
+     /tmp/ccI7MMCo.s:123    .text:000000000000006c FlashMainPageProgram
+     /tmp/ccI7MMCo.s:173    .text:00000000000000a0 FlashUpperPageProgram
+     /tmp/ccI7MMCo.s:231    .text:00000000000000ec FlashGet
+     /tmp/ccI7MMCo.s:387    .text:0000000000000194 $d
+     /tmp/ccI7MMCo.s:394    .text:00000000000001a8 $t
+     /tmp/ccI7MMCo.s:446    .text:00000000000001e0 FlashSramSizeGet
+                     .debug_frame:0000000000000010 $d
+                           .group:0000000000000000 wm4.1.08074afb2ccc9da754fae8e3ee0f577b
+                           .group:0000000000000000 wm4.hw_flash_ctrl.h.39.9e1b51558015e13f8d9f8700e513c4a2
+                           .group:0000000000000000 wm4.hw_memmap.h.39.19283c377d449c9bca5fdd8ccb62628c
+                           .group:0000000000000000 wm4.features.h.22.6a4ca7cd053637cc1d0db6c16f39b2d7
+                           .group:0000000000000000 wm4._default_types.h.15.8b2cb27e528498f8ff711db085d6e489
+                           .group:0000000000000000 wm4.stdint.h.20.796e373797e732130a803d4c0338fa1b
+                           .group:0000000000000000 wm4.stdbool.h.29.1c9ee6859ce8145f7838a4f2549ccec2
+                           .group:0000000000000000 wm4.hw_types.h.67.b10589a0806dcc2d274d6fab6b736519
+                           .group:0000000000000000 wm4.flash.h.41.1b4c606036d8f71c3434e1ed199afc8d
+                           .group:0000000000000000 wm4.rom.h.41.9256dfbd546483c9c9bbf100fc16f7e4
+
+NO UNDEFINED SYMBOLS

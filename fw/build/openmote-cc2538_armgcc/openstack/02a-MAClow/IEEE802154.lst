@@ -1,0 +1,1704 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"IEEE802154.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.rodata
+  19              		.align	2
+  22              	rreg_uriquery:
+  23 0000 683D7563 		.ascii	"h=ucb\000"
+  23      6200
+  24 0006 0000     		.align	2
+  27              	infoBoardname:
+  28 0008 43433235 		.ascii	"CC2538\000"
+  28      333800
+  29 000f 00       		.align	2
+  32              	infouCName:
+  33 0010 43433235 		.ascii	"CC2538\000"
+  33      333800
+  34 0017 00       		.align	2
+  37              	infoRadioName:
+  38 0018 43433235 		.ascii	"CC2538 SoC\000"
+  38      33382053 
+  38      6F4300
+  39 0023 00       		.align	2
+  42              	infoStackName:
+  43 0024 4F70656E 		.ascii	"OpenWSN \000"
+  43      57534E20 
+  43      00
+  44 002d 000000   		.align	2
+  47              	chTemplate_default:
+  48 0030 05       		.byte	5
+  49 0031 06       		.byte	6
+  50 0032 0C       		.byte	12
+  51 0033 07       		.byte	7
+  52 0034 0F       		.byte	15
+  53 0035 04       		.byte	4
+  54 0036 0E       		.byte	14
+  55 0037 0B       		.byte	11
+  56 0038 08       		.byte	8
+  57 0039 00       		.byte	0
+  58 003a 01       		.byte	1
+  59 003b 02       		.byte	2
+  60 003c 0D       		.byte	13
+  61 003d 03       		.byte	3
+  62 003e 09       		.byte	9
+  63 003f 0A       		.byte	10
+  64              		.text
+  65              		.align	2
+  66              		.global	ieee802154_prependHeader
+  67              		.thumb
+  68              		.thumb_func
+  70              	ieee802154_prependHeader:
+  71              	.LFB0:
+  72              		.file 1 "build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c"
+   1:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** #include "opendefs.h"
+   2:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** #include "IEEE802154.h"
+   3:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** #include "IEEE802154E.h"
+   4:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** #include "processIE.h" 
+   5:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** #include "packetfunctions.h"
+   6:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** #include "idmanager.h"
+   7:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** #include "openserial.h"
+   8:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** #include "topology.h"
+   9:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** #include "ieee802154_security_driver.h"
+  10:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** 
+  11:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** //=========================== define ==========================================
+  12:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** 
+  13:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** //=========================== variables =======================================
+  14:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** 
+  15:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** //=========================== prototypes ======================================
+  16:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** 
+  17:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** //=========================== public ==========================================
+  18:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** 
+  19:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** /**
+  20:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** \brief Prepend the IEEE802.15.4 MAC header to a (to be transmitted) packet.
+  21:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** 
+  22:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** Note that we are writing the field from the end of the header to the beginning.
+  23:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** 
+  24:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** \param[in,out] msg              The message to append the header to.
+  25:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** \param[in]     frameType        Type of IEEE802.15.4 frame.
+  26:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** \param[in]     payloadIEPresent Is the IE list present?
+  27:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** \param[in]     sequenceNumber   Sequence number of this frame.
+  28:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** \param[in]     nextHop          Address of the next hop
+  29:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** */
+  30:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** void ieee802154_prependHeader(OpenQueueEntry_t* msg,
+  31:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                               uint8_t           frameType,
+  32:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                               bool              payloadIEPresent,
+  33:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                               uint8_t           sequenceNumber,
+  34:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                               open_addr_t*      nextHop) {
+  73              		.loc 1 34 0
+  74              		.cfi_startproc
+  75              		@ args = 4, pretend = 0, frame = 24
+  76              		@ frame_needed = 1, uses_anonymous_args = 0
+  77 0000 80B5     		push	{r7, lr}
+  78              		.cfi_def_cfa_offset 8
+  79              		.cfi_offset 7, -8
+  80              		.cfi_offset 14, -4
+  81 0002 86B0     		sub	sp, sp, #24
+  82              		.cfi_def_cfa_offset 32
+  83 0004 00AF     		add	r7, sp, #0
+  84              		.cfi_def_cfa_register 7
+  85 0006 7860     		str	r0, [r7, #4]
+  86 0008 F970     		strb	r1, [r7, #3]
+  87 000a BA70     		strb	r2, [r7, #2]
+  88 000c 7B70     		strb	r3, [r7, #1]
+  35:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    uint8_t      temp_8b;
+  36:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    uint8_t      ielistpresent = IEEE154_IELIST_NO;
+  89              		.loc 1 36 0
+  90 000e 0023     		movs	r3, #0
+  91 0010 BB75     		strb	r3, [r7, #22]
+  37:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    bool         securityEnabled;
+  38:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    int16_t      timeCorrection;
+  39:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    uint16_t     timeSyncInfo;
+  40:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    header_IE_ht header_desc;
+  41:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    bool         headerIEPresent = FALSE;
+  92              		.loc 1 41 0
+  93 0012 0023     		movs	r3, #0
+  94 0014 BB74     		strb	r3, [r7, #18]
+  42:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    uint8_t      destAddrMode;
+  43:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    
+  44:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    securityEnabled = msg->l2_securityLevel == IEEE154_ASH_SLF_TYPE_NOSEC ? 0 : 1;
+  95              		.loc 1 44 0
+  96 0016 7B68     		ldr	r3, [r7, #4]
+  97 0018 93F86C30 		ldrb	r3, [r3, #108]	@ zero_extendqisi2
+  98 001c 002B     		cmp	r3, #0
+  99 001e 0CBF     		ite	eq
+ 100 0020 0023     		moveq	r3, #0
+ 101 0022 0123     		movne	r3, #1
+ 102 0024 7B74     		strb	r3, [r7, #17]
+  45:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** 
+  46:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    msg->l2_payload = msg->payload; // save the position where to start encrypting if security is en
+ 103              		.loc 1 46 0
+ 104 0026 7B68     		ldr	r3, [r7, #4]
+ 105 0028 5A68     		ldr	r2, [r3, #4]
+ 106 002a 7B68     		ldr	r3, [r7, #4]
+ 107 002c 5A65     		str	r2, [r3, #84]
+  47:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****  
+  48:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    // General IEs here (those that are carried in all packets)
+  49:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    // add termination IE accordingly 
+  50:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    if (payloadIEPresent == TRUE) {
+ 108              		.loc 1 50 0
+ 109 002e BB78     		ldrb	r3, [r7, #2]	@ zero_extendqisi2
+ 110 0030 002B     		cmp	r3, #0
+ 111 0032 0FD0     		beq	.L2
+  51:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****        ielistpresent = IEEE154_IELIST_YES; 
+ 112              		.loc 1 51 0
+ 113 0034 0123     		movs	r3, #1
+ 114 0036 BB75     		strb	r3, [r7, #22]
+  52:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****        //add header termination IE (id=0x7e)
+  53:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****        packetfunctions_reserveHeaderSize(msg,TERMINATIONIE_LEN);
+ 115              		.loc 1 53 0
+ 116 0038 7868     		ldr	r0, [r7, #4]
+ 117 003a 0221     		movs	r1, #2
+ 118 003c FFF7FEFF 		bl	packetfunctions_reserveHeaderSize
+  54:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****        msg->payload[0] = HEADER_TERMINATION_1_IE         & 0xFF;
+ 119              		.loc 1 54 0
+ 120 0040 7B68     		ldr	r3, [r7, #4]
+ 121 0042 5B68     		ldr	r3, [r3, #4]
+ 122 0044 0022     		movs	r2, #0
+ 123 0046 1A70     		strb	r2, [r3]
+  55:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****        msg->payload[1] = (HEADER_TERMINATION_1_IE  >> 8) & 0xFF;
+ 124              		.loc 1 55 0
+ 125 0048 7B68     		ldr	r3, [r7, #4]
+ 126 004a 5B68     		ldr	r3, [r3, #4]
+ 127 004c 0133     		adds	r3, r3, #1
+ 128 004e 3F22     		movs	r2, #63
+ 129 0050 1A70     		strb	r2, [r3]
+ 130 0052 1BE0     		b	.L3
+ 131              	.L2:
+  56:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****        
+  57:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****        
+  58:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    } else {
+  59:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****        // check whether I have payload, if yes, add header termination IE (0x7F)
+  60:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****        // or ternimation IE will be omitted. For example, Keep alive doesn't have
+  61:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****       // any payload, so there is no ternimation IE for it.
+  62:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****        if (msg->length != 0) {
+ 132              		.loc 1 62 0
+ 133 0054 7B68     		ldr	r3, [r7, #4]
+ 134 0056 1B7A     		ldrb	r3, [r3, #8]	@ zero_extendqisi2
+ 135 0058 002B     		cmp	r3, #0
+ 136 005a 12D0     		beq	.L4
+  63:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****            //add header termination IE (id=0x7f)if I have header IE list, OR 
+  64:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****            // no need for termination IE.
+  65:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****            if (headerIEPresent == TRUE){
+ 137              		.loc 1 65 0
+ 138 005c BB7C     		ldrb	r3, [r7, #18]	@ zero_extendqisi2
+ 139 005e 002B     		cmp	r3, #0
+ 140 0060 14D0     		beq	.L3
+  66:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                ielistpresent = IEEE154_IELIST_YES;
+ 141              		.loc 1 66 0
+ 142 0062 0123     		movs	r3, #1
+ 143 0064 BB75     		strb	r3, [r7, #22]
+  67:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                packetfunctions_reserveHeaderSize(msg,TERMINATIONIE_LEN);
+ 144              		.loc 1 67 0
+ 145 0066 7868     		ldr	r0, [r7, #4]
+ 146 0068 0221     		movs	r1, #2
+ 147 006a FFF7FEFF 		bl	packetfunctions_reserveHeaderSize
+  68:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                msg->payload[0] = HEADER_TERMINATION_2_IE        & 0xFF;
+ 148              		.loc 1 68 0
+ 149 006e 7B68     		ldr	r3, [r7, #4]
+ 150 0070 5B68     		ldr	r3, [r3, #4]
+ 151 0072 8022     		movs	r2, #128
+ 152 0074 1A70     		strb	r2, [r3]
+  69:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                msg->payload[1] = (HEADER_TERMINATION_2_IE >> 8) & 0xFF;
+ 153              		.loc 1 69 0
+ 154 0076 7B68     		ldr	r3, [r7, #4]
+ 155 0078 5B68     		ldr	r3, [r3, #4]
+ 156 007a 0133     		adds	r3, r3, #1
+ 157 007c 3F22     		movs	r2, #63
+ 158 007e 1A70     		strb	r2, [r3]
+ 159 0080 04E0     		b	.L3
+ 160              	.L4:
+  70:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****            } else {
+  71:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                // no header IE present, no payload IE, no termination IE
+  72:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****            }
+  73:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****        } else {
+  74:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****            // no payload, termination IE is omitted. check whether timeCorrection IE
+  75:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****            // presents. 
+  76:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****            if (frameType != IEEE154_TYPE_ACK) {
+ 161              		.loc 1 76 0
+ 162 0082 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 163 0084 022B     		cmp	r3, #2
+ 164 0086 01D1     		bne	.L3
+  77:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****            } else {
+  78:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                ielistpresent = IEEE154_IELIST_YES; // I will have a timeCorrection IE later
+ 165              		.loc 1 78 0
+ 166 0088 0123     		movs	r3, #1
+ 167 008a BB75     		strb	r3, [r7, #22]
+ 168              	.L3:
+  79:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****            }
+  80:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****        }
+  81:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****   }
+  82:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** 
+  83:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    if (frameType == IEEE154_TYPE_ACK) {
+ 169              		.loc 1 83 0
+ 170 008c FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 171 008e 022B     		cmp	r3, #2
+ 172 0090 3ED1     		bne	.L5
+  84:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****        timeCorrection = (int16_t)(ieee154e_getTimeCorrection());
+ 173              		.loc 1 84 0
+ 174 0092 FFF7FEFF 		bl	ieee154e_getTimeCorrection
+ 175 0096 0346     		mov	r3, r0
+ 176 0098 FB81     		strh	r3, [r7, #14]	@ movhi
+  85:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****        // add the payload to the ACK (i.e. the timeCorrection)
+  86:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****        packetfunctions_reserveHeaderSize(msg,sizeof(timecorrection_IE_ht));
+ 177              		.loc 1 86 0
+ 178 009a 7868     		ldr	r0, [r7, #4]
+ 179 009c 0221     		movs	r1, #2
+ 180 009e FFF7FEFF 		bl	packetfunctions_reserveHeaderSize
+  87:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****        timeCorrection *= US_PER_TICK;
+ 181              		.loc 1 87 0
+ 182 00a2 FB89     		ldrh	r3, [r7, #14]
+ 183 00a4 1A46     		mov	r2, r3	@ movhi
+ 184 00a6 1201     		lsls	r2, r2, #4
+ 185 00a8 D31A     		subs	r3, r2, r3
+ 186 00aa 5B00     		lsls	r3, r3, #1
+ 187 00ac 9BB2     		uxth	r3, r3
+ 188 00ae FB81     		strh	r3, [r7, #14]	@ movhi
+  88:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****        timeSyncInfo  = ((uint16_t)timeCorrection) & 0x0fff;
+ 189              		.loc 1 88 0
+ 190 00b0 FB89     		ldrh	r3, [r7, #14]
+ 191 00b2 C3F30B03 		ubfx	r3, r3, #0, #12
+ 192 00b6 BB82     		strh	r3, [r7, #20]	@ movhi
+  89:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****        if (msg->l2_isNegativeACK){
+ 193              		.loc 1 89 0
+ 194 00b8 7B68     		ldr	r3, [r7, #4]
+ 195 00ba 93F86830 		ldrb	r3, [r3, #104]	@ zero_extendqisi2
+ 196 00be 002B     		cmp	r3, #0
+ 197 00c0 05D0     		beq	.L6
+  90:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****           timeSyncInfo |= 0x8000;
+ 198              		.loc 1 90 0
+ 199 00c2 BB8A     		ldrh	r3, [r7, #20]	@ movhi
+ 200 00c4 6FEA4343 		mvn	r3, r3, lsl #17
+ 201 00c8 6FEA5343 		mvn	r3, r3, lsr #17
+ 202 00cc BB82     		strh	r3, [r7, #20]	@ movhi
+ 203              	.L6:
+  91:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****        }
+  92:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****        msg->payload[0] = (uint8_t)(((timeSyncInfo)   ) & 0xff);
+ 204              		.loc 1 92 0
+ 205 00ce 7B68     		ldr	r3, [r7, #4]
+ 206 00d0 5B68     		ldr	r3, [r3, #4]
+ 207 00d2 BA8A     		ldrh	r2, [r7, #20]	@ movhi
+ 208 00d4 D2B2     		uxtb	r2, r2
+ 209 00d6 1A70     		strb	r2, [r3]
+  93:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****        msg->payload[1] = (uint8_t)(((timeSyncInfo)>>8) & 0xff);
+ 210              		.loc 1 93 0
+ 211 00d8 7B68     		ldr	r3, [r7, #4]
+ 212 00da 5B68     		ldr	r3, [r3, #4]
+ 213 00dc 0133     		adds	r3, r3, #1
+ 214 00de BA8A     		ldrh	r2, [r7, #20]
+ 215 00e0 120A     		lsrs	r2, r2, #8
+ 216 00e2 92B2     		uxth	r2, r2
+ 217 00e4 D2B2     		uxtb	r2, r2
+ 218 00e6 1A70     		strb	r2, [r3]
+  94:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** 
+  95:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****        // add header IE header -- xv poipoi -- pkt is filled in reverse order..
+  96:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****        packetfunctions_reserveHeaderSize(msg,sizeof(header_IE_ht));
+ 219              		.loc 1 96 0
+ 220 00e8 7868     		ldr	r0, [r7, #4]
+ 221 00ea 0221     		movs	r1, #2
+ 222 00ec FFF7FEFF 		bl	packetfunctions_reserveHeaderSize
+  97:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****        //create the header for ack IE
+  98:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****        header_desc.length_elementid_type=sizeof(timecorrection_IE_ht)|
+ 223              		.loc 1 98 0
+ 224 00f0 40F60273 		movw	r3, #3842
+ 225 00f4 BB81     		strh	r3, [r7, #12]	@ movhi
+  99:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                                          (IEEE802154E_ACK_NACK_TIMECORRECTION_ELEMENTID << IEEE8021
+ 100:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                                          (IEEE802154E_DESC_TYPE_SHORT << IEEE802154E_DESC_TYPE_IE_S
+ 101:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****        msg->payload[0] = (header_desc.length_elementid_type)        & 0xFF;
+ 226              		.loc 1 101 0
+ 227 00f6 7B68     		ldr	r3, [r7, #4]
+ 228 00f8 5B68     		ldr	r3, [r3, #4]
+ 229 00fa BA89     		ldrh	r2, [r7, #12]
+ 230 00fc D2B2     		uxtb	r2, r2
+ 231 00fe 1A70     		strb	r2, [r3]
+ 102:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****        msg->payload[1] = ((header_desc.length_elementid_type) >> 8) & 0xFF;
+ 232              		.loc 1 102 0
+ 233 0100 7B68     		ldr	r3, [r7, #4]
+ 234 0102 5B68     		ldr	r3, [r3, #4]
+ 235 0104 0133     		adds	r3, r3, #1
+ 236 0106 BA89     		ldrh	r2, [r7, #12]
+ 237 0108 120A     		lsrs	r2, r2, #8
+ 238 010a 92B2     		uxth	r2, r2
+ 239 010c D2B2     		uxtb	r2, r2
+ 240 010e 1A70     		strb	r2, [r3]
+ 241              	.L5:
+ 103:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    }
+ 104:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    
+ 105:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    //if security is enabled, the Auxiliary Security Header need to be added to the IEEE802.15.4 MAC
+ 106:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    if(securityEnabled){
+ 242              		.loc 1 106 0
+ 243 0110 7B7C     		ldrb	r3, [r7, #17]	@ zero_extendqisi2
+ 244 0112 002B     		cmp	r3, #0
+ 245 0114 06D0     		beq	.L7
+ 107:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****       IEEE802154_SECURITY.prependAuxiliarySecurityHeader(msg);
+ 246              		.loc 1 107 0
+ 247 0116 40F20003 		movw	r3, #:lower16:IEEE802154_dummy_security
+ 248 011a C0F20003 		movt	r3, #:upper16:IEEE802154_dummy_security
+ 249 011e 5B68     		ldr	r3, [r3, #4]
+ 250 0120 7868     		ldr	r0, [r7, #4]
+ 251 0122 9847     		blx	r3
+ 252              	.L7:
+ 108:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    }
+ 109:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** 
+ 110:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    // previousHop address (always 64-bit)
+ 111:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    packetfunctions_writeAddress(msg,idmanager_getMyID(ADDR_64B),OW_LITTLE_ENDIAN);
+ 253              		.loc 1 111 0
+ 254 0124 0220     		movs	r0, #2
+ 255 0126 FFF7FEFF 		bl	idmanager_getMyID
+ 256 012a 0346     		mov	r3, r0
+ 257 012c 7868     		ldr	r0, [r7, #4]
+ 258 012e 1946     		mov	r1, r3
+ 259 0130 0122     		movs	r2, #1
+ 260 0132 FFF7FEFF 		bl	packetfunctions_writeAddress
+ 112:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    // nextHop address
+ 113:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    if (packetfunctions_isBroadcastMulticast(nextHop)) {
+ 261              		.loc 1 113 0
+ 262 0136 386A     		ldr	r0, [r7, #32]
+ 263 0138 FFF7FEFF 		bl	packetfunctions_isBroadcastMulticast
+ 264 013c 0346     		mov	r3, r0
+ 265 013e 002B     		cmp	r3, #0
+ 266 0140 10D0     		beq	.L8
+ 114:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****       //broadcast address is always 16-bit
+ 115:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****       packetfunctions_reserveHeaderSize(msg,sizeof(uint8_t));
+ 267              		.loc 1 115 0
+ 268 0142 7868     		ldr	r0, [r7, #4]
+ 269 0144 0121     		movs	r1, #1
+ 270 0146 FFF7FEFF 		bl	packetfunctions_reserveHeaderSize
+ 116:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****       *((uint8_t*)(msg->payload)) = 0xFF;
+ 271              		.loc 1 116 0
+ 272 014a 7B68     		ldr	r3, [r7, #4]
+ 273 014c 5B68     		ldr	r3, [r3, #4]
+ 274 014e FF22     		movs	r2, #255
+ 275 0150 1A70     		strb	r2, [r3]
+ 117:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****       packetfunctions_reserveHeaderSize(msg,sizeof(uint8_t));
+ 276              		.loc 1 117 0
+ 277 0152 7868     		ldr	r0, [r7, #4]
+ 278 0154 0121     		movs	r1, #1
+ 279 0156 FFF7FEFF 		bl	packetfunctions_reserveHeaderSize
+ 118:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****       *((uint8_t*)(msg->payload)) = 0xFF;
+ 280              		.loc 1 118 0
+ 281 015a 7B68     		ldr	r3, [r7, #4]
+ 282 015c 5B68     		ldr	r3, [r3, #4]
+ 283 015e FF22     		movs	r2, #255
+ 284 0160 1A70     		strb	r2, [r3]
+ 285 0162 12E0     		b	.L9
+ 286              	.L8:
+ 119:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    } else {
+ 120:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****       switch (nextHop->type) {
+ 287              		.loc 1 120 0
+ 288 0164 3B6A     		ldr	r3, [r7, #32]
+ 289 0166 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 290 0168 013B     		subs	r3, r3, #1
+ 291 016a 012B     		cmp	r3, #1
+ 292 016c 05D8     		bhi	.L10
+ 121:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****          case ADDR_16B:
+ 122:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****          case ADDR_64B:
+ 123:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****             packetfunctions_writeAddress(msg,nextHop,OW_LITTLE_ENDIAN);
+ 293              		.loc 1 123 0
+ 294 016e 7868     		ldr	r0, [r7, #4]
+ 295 0170 396A     		ldr	r1, [r7, #32]
+ 296 0172 0122     		movs	r2, #1
+ 297 0174 FFF7FEFF 		bl	packetfunctions_writeAddress
+ 124:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****             break;
+ 298              		.loc 1 124 0
+ 299 0178 07E0     		b	.L9
+ 300              	.L10:
+ 125:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****          default:
+ 126:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****             openserial_printCritical(COMPONENT_IEEE802154,ERR_WRONG_ADDR_TYPE,
+ 127:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                                   (errorparameter_t)nextHop->type,
+ 301              		.loc 1 127 0
+ 302 017a 3B6A     		ldr	r3, [r7, #32]
+ 303 017c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 126:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                                   (errorparameter_t)nextHop->type,
+ 304              		.loc 1 126 0
+ 305 017e 0820     		movs	r0, #8
+ 306 0180 3121     		movs	r1, #49
+ 307 0182 1A46     		mov	r2, r3
+ 308 0184 0123     		movs	r3, #1
+ 309 0186 FFF7FEFF 		bl	openserial_printCritical
+ 310              	.L9:
+ 128:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                                   (errorparameter_t)1);
+ 129:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****       }
+ 130:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****       
+ 131:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    }
+ 132:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    // destpan -- se page 41 of 15.4-2011 std. DEST PANID only sent as it is equal to SRC PANID
+ 133:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    packetfunctions_writeAddress(msg,idmanager_getMyID(ADDR_PANID),OW_LITTLE_ENDIAN);
+ 311              		.loc 1 133 0
+ 312 018a 0420     		movs	r0, #4
+ 313 018c FFF7FEFF 		bl	idmanager_getMyID
+ 314 0190 0346     		mov	r3, r0
+ 315 0192 7868     		ldr	r0, [r7, #4]
+ 316 0194 1946     		mov	r1, r3
+ 317 0196 0122     		movs	r2, #1
+ 318 0198 FFF7FEFF 		bl	packetfunctions_writeAddress
+ 134:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    
+ 135:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    //dsn
+ 136:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    packetfunctions_reserveHeaderSize(msg,sizeof(uint8_t));
+ 319              		.loc 1 136 0
+ 320 019c 7868     		ldr	r0, [r7, #4]
+ 321 019e 0121     		movs	r1, #1
+ 322 01a0 FFF7FEFF 		bl	packetfunctions_reserveHeaderSize
+ 137:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    *((uint8_t*)(msg->payload)) = sequenceNumber;
+ 323              		.loc 1 137 0
+ 324 01a4 7B68     		ldr	r3, [r7, #4]
+ 325 01a6 5B68     		ldr	r3, [r3, #4]
+ 326 01a8 7A78     		ldrb	r2, [r7, #1]
+ 327 01aa 1A70     		strb	r2, [r3]
+ 138:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** 
+ 139:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    //fcf (2nd byte)
+ 140:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    packetfunctions_reserveHeaderSize(msg,sizeof(uint8_t));
+ 328              		.loc 1 140 0
+ 329 01ac 7868     		ldr	r0, [r7, #4]
+ 330 01ae 0121     		movs	r1, #1
+ 331 01b0 FFF7FEFF 		bl	packetfunctions_reserveHeaderSize
+ 141:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    temp_8b              = 0;
+ 332              		.loc 1 141 0
+ 333 01b4 0023     		movs	r3, #0
+ 334 01b6 FB75     		strb	r3, [r7, #23]
+ 142:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    if (packetfunctions_isBroadcastMulticast(nextHop)) {
+ 335              		.loc 1 142 0
+ 336 01b8 386A     		ldr	r0, [r7, #32]
+ 337 01ba FFF7FEFF 		bl	packetfunctions_isBroadcastMulticast
+ 338 01be 0346     		mov	r3, r0
+ 339 01c0 002B     		cmp	r3, #0
+ 340 01c2 06D0     		beq	.L12
+ 143:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****       temp_8b          |= IEEE154_ADDR_SHORT              << IEEE154_FCF_DEST_ADDR_MODE;
+ 341              		.loc 1 143 0
+ 342 01c4 FB7D     		ldrb	r3, [r7, #23]
+ 343 01c6 43F00803 		orr	r3, r3, #8
+ 344 01ca FB75     		strb	r3, [r7, #23]
+ 144:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****       destAddrMode      = IEEE154_ADDR_SHORT;
+ 345              		.loc 1 144 0
+ 346 01cc 0223     		movs	r3, #2
+ 347 01ce FB74     		strb	r3, [r7, #19]
+ 348 01d0 14E0     		b	.L13
+ 349              	.L12:
+ 145:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    } else {
+ 146:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****       switch (nextHop->type) {
+ 350              		.loc 1 146 0
+ 351 01d2 3B6A     		ldr	r3, [r7, #32]
+ 352 01d4 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 353 01d6 012B     		cmp	r3, #1
+ 354 01d8 02D0     		beq	.L14
+ 355 01da 022B     		cmp	r3, #2
+ 356 01dc 07D0     		beq	.L15
+ 357 01de 0DE0     		b	.L13
+ 358              	.L14:
+ 147:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****          case ADDR_16B:
+ 148:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****             temp_8b    |= IEEE154_ADDR_SHORT              << IEEE154_FCF_DEST_ADDR_MODE;
+ 359              		.loc 1 148 0
+ 360 01e0 FB7D     		ldrb	r3, [r7, #23]
+ 361 01e2 43F00803 		orr	r3, r3, #8
+ 362 01e6 FB75     		strb	r3, [r7, #23]
+ 149:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****             destAddrMode= IEEE154_ADDR_SHORT;
+ 363              		.loc 1 149 0
+ 364 01e8 0223     		movs	r3, #2
+ 365 01ea FB74     		strb	r3, [r7, #19]
+ 150:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****             break;
+ 366              		.loc 1 150 0
+ 367 01ec 06E0     		b	.L13
+ 368              	.L15:
+ 151:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****          case ADDR_64B:
+ 152:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****             temp_8b    |= IEEE154_ADDR_EXT                << IEEE154_FCF_DEST_ADDR_MODE;
+ 369              		.loc 1 152 0
+ 370 01ee FB7D     		ldrb	r3, [r7, #23]
+ 371 01f0 43F00C03 		orr	r3, r3, #12
+ 372 01f4 FB75     		strb	r3, [r7, #23]
+ 153:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****             destAddrMode= IEEE154_ADDR_EXT;
+ 373              		.loc 1 153 0
+ 374 01f6 0323     		movs	r3, #3
+ 375 01f8 FB74     		strb	r3, [r7, #19]
+ 154:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****             break;
+ 376              		.loc 1 154 0
+ 377 01fa 00BF     		nop
+ 378              	.L13:
+ 155:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****          // no need for a default, since it would have been caught above.
+ 156:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****       }
+ 157:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    }
+ 158:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    temp_8b             |= IEEE154_ADDR_EXT                << IEEE154_FCF_SRC_ADDR_MODE;
+ 379              		.loc 1 158 0
+ 380 01fc FB7D     		ldrb	r3, [r7, #23]
+ 381 01fe 63F03F03 		orn	r3, r3, #63
+ 382 0202 FB75     		strb	r3, [r7, #23]
+ 159:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    //poipoi xv IE list present
+ 160:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    temp_8b             |= ielistpresent                   << IEEE154_FCF_IELIST_PRESENT;
+ 383              		.loc 1 160 0
+ 384 0204 BB7D     		ldrb	r3, [r7, #22]	@ zero_extendqisi2
+ 385 0206 5B00     		lsls	r3, r3, #1
+ 386 0208 DAB2     		uxtb	r2, r3
+ 387 020a FB7D     		ldrb	r3, [r7, #23]	@ zero_extendqisi2
+ 388 020c 1343     		orrs	r3, r3, r2
+ 389 020e DBB2     		uxtb	r3, r3
+ 390 0210 FB75     		strb	r3, [r7, #23]
+ 161:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    temp_8b             |= IEEE154_FRAMEVERSION_2012       << IEEE154_FCF_FRAME_VERSION;
+ 391              		.loc 1 161 0
+ 392 0212 FB7D     		ldrb	r3, [r7, #23]
+ 393 0214 43F02003 		orr	r3, r3, #32
+ 394 0218 FB75     		strb	r3, [r7, #23]
+ 162:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    temp_8b             |= IEEE154_DSN_SUPPRESSION_NO      << IEEE154_FCF_DSN_SUPPRESSION;
+ 163:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****      
+ 164:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    *((uint8_t*)(msg->payload)) = temp_8b;
+ 395              		.loc 1 164 0
+ 396 021a 7B68     		ldr	r3, [r7, #4]
+ 397 021c 5B68     		ldr	r3, [r3, #4]
+ 398 021e FA7D     		ldrb	r2, [r7, #23]
+ 399 0220 1A70     		strb	r2, [r3]
+ 165:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    //fcf (1st byte)
+ 166:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    packetfunctions_reserveHeaderSize(msg,sizeof(uint8_t));
+ 400              		.loc 1 166 0
+ 401 0222 7868     		ldr	r0, [r7, #4]
+ 402 0224 0121     		movs	r1, #1
+ 403 0226 FFF7FEFF 		bl	packetfunctions_reserveHeaderSize
+ 167:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    temp_8b              = 0;
+ 404              		.loc 1 167 0
+ 405 022a 0023     		movs	r3, #0
+ 406 022c FB75     		strb	r3, [r7, #23]
+ 168:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    temp_8b             |= frameType                       << IEEE154_FCF_FRAME_TYPE;
+ 407              		.loc 1 168 0
+ 408 022e FA7D     		ldrb	r2, [r7, #23]
+ 409 0230 FB78     		ldrb	r3, [r7, #3]
+ 410 0232 1343     		orrs	r3, r3, r2
+ 411 0234 FB75     		strb	r3, [r7, #23]
+ 169:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    temp_8b             |= securityEnabled                 << IEEE154_FCF_SECURITY_ENABLED;
+ 412              		.loc 1 169 0
+ 413 0236 7B7C     		ldrb	r3, [r7, #17]	@ zero_extendqisi2
+ 414 0238 DB00     		lsls	r3, r3, #3
+ 415 023a DAB2     		uxtb	r2, r3
+ 416 023c FB7D     		ldrb	r3, [r7, #23]	@ zero_extendqisi2
+ 417 023e 1343     		orrs	r3, r3, r2
+ 418 0240 DBB2     		uxtb	r3, r3
+ 419 0242 FB75     		strb	r3, [r7, #23]
+ 170:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    temp_8b             |= IEEE154_PENDING_NO_FRAMEPENDING << IEEE154_FCF_FRAME_PENDING;
+ 171:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    if (frameType==IEEE154_TYPE_ACK || packetfunctions_isBroadcastMulticast(nextHop)) {
+ 420              		.loc 1 171 0
+ 421 0244 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 422 0246 022B     		cmp	r3, #2
+ 423 0248 05D0     		beq	.L16
+ 424              		.loc 1 171 0 is_stmt 0 discriminator 1
+ 425 024a 386A     		ldr	r0, [r7, #32]
+ 426 024c FFF7FEFF 		bl	packetfunctions_isBroadcastMulticast
+ 427 0250 0346     		mov	r3, r0
+ 428 0252 002B     		cmp	r3, #0
+ 429 0254 00D0     		beq	.L17
+ 430              	.L16:
+ 172:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****       temp_8b          |= IEEE154_ACK_NO_ACK_REQ          << IEEE154_FCF_ACK_REQ;
+ 431              		.loc 1 172 0 is_stmt 1
+ 432 0256 03E0     		b	.L18
+ 433              	.L17:
+ 173:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    } else {
+ 174:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****       temp_8b          |= IEEE154_ACK_YES_ACK_REQ         << IEEE154_FCF_ACK_REQ;
+ 434              		.loc 1 174 0
+ 435 0258 FB7D     		ldrb	r3, [r7, #23]
+ 436 025a 43F02003 		orr	r3, r3, #32
+ 437 025e FB75     		strb	r3, [r7, #23]
+ 438              	.L18:
+ 175:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    }
+ 176:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    if (destAddrMode == IEEE154_ADDR_SHORT) {
+ 439              		.loc 1 176 0
+ 440 0260 FB7C     		ldrb	r3, [r7, #19]	@ zero_extendqisi2
+ 441 0262 022B     		cmp	r3, #2
+ 442 0264 04D1     		bne	.L19
+ 177:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****        temp_8b         |= IEEE154_PANID_COMPRESSED        << IEEE154_FCF_INTRAPAN;
+ 443              		.loc 1 177 0
+ 444 0266 FB7D     		ldrb	r3, [r7, #23]
+ 445 0268 43F04003 		orr	r3, r3, #64
+ 446 026c FB75     		strb	r3, [r7, #23]
+ 447 026e 01E0     		b	.L20
+ 448              	.L19:
+ 178:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    } else {
+ 179:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****        if (destAddrMode == IEEE154_ADDR_EXT) {
+ 449              		.loc 1 179 0
+ 450 0270 FB7C     		ldrb	r3, [r7, #19]	@ zero_extendqisi2
+ 451 0272 032B     		cmp	r3, #3
+ 452              	.L20:
+ 180:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****            temp_8b     |= IEEE154_PANID_UNCOMPRESSED      << IEEE154_FCF_INTRAPAN;
+ 181:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****        } else {
+ 182:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****            // never happens 
+ 183:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****        }
+ 184:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    }
+ 185:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    *((uint8_t*)(msg->payload)) = temp_8b;
+ 453              		.loc 1 185 0
+ 454 0274 7B68     		ldr	r3, [r7, #4]
+ 455 0276 5B68     		ldr	r3, [r3, #4]
+ 456 0278 FA7D     		ldrb	r2, [r7, #23]
+ 457 027a 1A70     		strb	r2, [r3]
+ 186:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** }
+ 458              		.loc 1 186 0
+ 459 027c 1837     		adds	r7, r7, #24
+ 460 027e BD46     		mov	sp, r7
+ 461              		@ sp needed
+ 462 0280 80BD     		pop	{r7, pc}
+ 463              		.cfi_endproc
+ 464              	.LFE0:
+ 466 0282 00BF     		.align	2
+ 467              		.global	ieee802154_retrieveHeader
+ 468              		.thumb
+ 469              		.thumb_func
+ 471              	ieee802154_retrieveHeader:
+ 472              	.LFB1:
+ 187:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** 
+ 188:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** /**
+ 189:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** \brief Retreieve the IEEE802.15.4 MAC header from a (just received) packet.
+ 190:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** 
+ 191:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** Note We are writing the fields from the begnning of the header to the end.
+ 192:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** 
+ 193:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** \param[in,out] msg            The message just received.
+ 194:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** \param[out] ieee802514_header The internal header to write the data to.
+ 195:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** */
+ 196:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** void ieee802154_retrieveHeader(OpenQueueEntry_t*      msg,
+ 197:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                                ieee802154_header_iht* ieee802514_header) {
+ 473              		.loc 1 197 0
+ 474              		.cfi_startproc
+ 475              		@ args = 0, pretend = 0, frame = 24
+ 476              		@ frame_needed = 1, uses_anonymous_args = 0
+ 477 0284 80B5     		push	{r7, lr}
+ 478              		.cfi_def_cfa_offset 8
+ 479              		.cfi_offset 7, -8
+ 480              		.cfi_offset 14, -4
+ 481 0286 86B0     		sub	sp, sp, #24
+ 482              		.cfi_def_cfa_offset 32
+ 483 0288 00AF     		add	r7, sp, #0
+ 484              		.cfi_def_cfa_register 7
+ 485 028a 7860     		str	r0, [r7, #4]
+ 486 028c 3960     		str	r1, [r7]
+ 198:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    uint8_t  temp_8b;
+ 199:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    uint16_t temp_16b;
+ 200:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    uint16_t len;
+ 201:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    uint8_t  gr_elem_id;
+ 202:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    uint8_t  byte0;
+ 203:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    uint8_t  byte1;
+ 204:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    int16_t  timeCorrection;
+ 205:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    uint16_t timeSyncInfo;
+ 206:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    // by default, let's assume the header is not valid, in case we leave this
+ 207:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    // function because the packet ends up being shorter than the header.
+ 208:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    ieee802514_header->valid=FALSE;
+ 487              		.loc 1 208 0
+ 488 028e 3B68     		ldr	r3, [r7]
+ 489 0290 0022     		movs	r2, #0
+ 490 0292 1A70     		strb	r2, [r3]
+ 209:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    
+ 210:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    ieee802514_header->headerLength = 0;
+ 491              		.loc 1 210 0
+ 492 0294 3B68     		ldr	r3, [r7]
+ 493 0296 0022     		movs	r2, #0
+ 494 0298 5A70     		strb	r2, [r3, #1]
+ 211:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    // fcf, byte 1
+ 212:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    if (ieee802514_header->headerLength>msg->length) { return; } // no more to read!
+ 495              		.loc 1 212 0
+ 496 029a 3B68     		ldr	r3, [r7]
+ 497 029c 5A78     		ldrb	r2, [r3, #1]	@ zero_extendqisi2
+ 498 029e 7B68     		ldr	r3, [r7, #4]
+ 499 02a0 1B7A     		ldrb	r3, [r3, #8]	@ zero_extendqisi2
+ 500 02a2 9A42     		cmp	r2, r3
+ 501 02a4 00D9     		bls	.L22
+ 502              		.loc 1 212 0 is_stmt 0 discriminator 1
+ 503 02a6 51E2     		b	.L21
+ 504              	.L22:
+ 213:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    temp_8b = *((uint8_t*)(msg->payload)+ieee802514_header->headerLength);
+ 505              		.loc 1 213 0 is_stmt 1
+ 506 02a8 7B68     		ldr	r3, [r7, #4]
+ 507 02aa 5A68     		ldr	r2, [r3, #4]
+ 508 02ac 3B68     		ldr	r3, [r7]
+ 509 02ae 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 510 02b0 1344     		add	r3, r3, r2
+ 511 02b2 1B78     		ldrb	r3, [r3]
+ 512 02b4 7B75     		strb	r3, [r7, #21]
+ 214:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    ieee802514_header->frameType         = (temp_8b >> IEEE154_FCF_FRAME_TYPE      ) & 0x07;//3b
+ 513              		.loc 1 214 0
+ 514 02b6 7B7D     		ldrb	r3, [r7, #21]
+ 515 02b8 03F00703 		and	r3, r3, #7
+ 516 02bc DAB2     		uxtb	r2, r3
+ 517 02be 3B68     		ldr	r3, [r7]
+ 518 02c0 9A70     		strb	r2, [r3, #2]
+ 215:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    ieee802514_header->securityEnabled   = (temp_8b >> IEEE154_FCF_SECURITY_ENABLED) & 0x01;//1b
+ 519              		.loc 1 215 0
+ 520 02c2 7B7D     		ldrb	r3, [r7, #21]	@ zero_extendqisi2
+ 521 02c4 DB08     		lsrs	r3, r3, #3
+ 522 02c6 DBB2     		uxtb	r3, r3
+ 523 02c8 03F00103 		and	r3, r3, #1
+ 524 02cc 002B     		cmp	r3, #0
+ 525 02ce 0CBF     		ite	eq
+ 526 02d0 0023     		moveq	r3, #0
+ 527 02d2 0123     		movne	r3, #1
+ 528 02d4 DAB2     		uxtb	r2, r3
+ 529 02d6 3B68     		ldr	r3, [r7]
+ 530 02d8 DA70     		strb	r2, [r3, #3]
+ 216:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    ieee802514_header->framePending      = (temp_8b >> IEEE154_FCF_FRAME_PENDING   ) & 0x01;//1b
+ 531              		.loc 1 216 0
+ 532 02da 7B7D     		ldrb	r3, [r7, #21]	@ zero_extendqisi2
+ 533 02dc 1B09     		lsrs	r3, r3, #4
+ 534 02de DBB2     		uxtb	r3, r3
+ 535 02e0 03F00103 		and	r3, r3, #1
+ 536 02e4 002B     		cmp	r3, #0
+ 537 02e6 0CBF     		ite	eq
+ 538 02e8 0023     		moveq	r3, #0
+ 539 02ea 0123     		movne	r3, #1
+ 540 02ec DAB2     		uxtb	r2, r3
+ 541 02ee 3B68     		ldr	r3, [r7]
+ 542 02f0 1A71     		strb	r2, [r3, #4]
+ 217:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    ieee802514_header->ackRequested      = (temp_8b >> IEEE154_FCF_ACK_REQ         ) & 0x01;//1b
+ 543              		.loc 1 217 0
+ 544 02f2 7B7D     		ldrb	r3, [r7, #21]	@ zero_extendqisi2
+ 545 02f4 5B09     		lsrs	r3, r3, #5
+ 546 02f6 DBB2     		uxtb	r3, r3
+ 547 02f8 03F00103 		and	r3, r3, #1
+ 548 02fc 002B     		cmp	r3, #0
+ 549 02fe 0CBF     		ite	eq
+ 550 0300 0023     		moveq	r3, #0
+ 551 0302 0123     		movne	r3, #1
+ 552 0304 DAB2     		uxtb	r2, r3
+ 553 0306 3B68     		ldr	r3, [r7]
+ 554 0308 5A71     		strb	r2, [r3, #5]
+ 218:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    ieee802514_header->panIDCompression  = (temp_8b >> IEEE154_FCF_INTRAPAN        ) & 0x01;//1b
+ 555              		.loc 1 218 0
+ 556 030a 7B7D     		ldrb	r3, [r7, #21]	@ zero_extendqisi2
+ 557 030c 9B09     		lsrs	r3, r3, #6
+ 558 030e DBB2     		uxtb	r3, r3
+ 559 0310 03F00103 		and	r3, r3, #1
+ 560 0314 002B     		cmp	r3, #0
+ 561 0316 0CBF     		ite	eq
+ 562 0318 0023     		moveq	r3, #0
+ 563 031a 0123     		movne	r3, #1
+ 564 031c DAB2     		uxtb	r2, r3
+ 565 031e 3B68     		ldr	r3, [r7]
+ 566 0320 9A71     		strb	r2, [r3, #6]
+ 219:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    ieee802514_header->headerLength += 1;
+ 567              		.loc 1 219 0
+ 568 0322 3B68     		ldr	r3, [r7]
+ 569 0324 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 570 0326 0133     		adds	r3, r3, #1
+ 571 0328 DAB2     		uxtb	r2, r3
+ 572 032a 3B68     		ldr	r3, [r7]
+ 573 032c 5A70     		strb	r2, [r3, #1]
+ 220:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    // fcf, byte 2
+ 221:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    if (ieee802514_header->headerLength>msg->length) { return; } // no more to read!
+ 574              		.loc 1 221 0
+ 575 032e 3B68     		ldr	r3, [r7]
+ 576 0330 5A78     		ldrb	r2, [r3, #1]	@ zero_extendqisi2
+ 577 0332 7B68     		ldr	r3, [r7, #4]
+ 578 0334 1B7A     		ldrb	r3, [r3, #8]	@ zero_extendqisi2
+ 579 0336 9A42     		cmp	r2, r3
+ 580 0338 00D9     		bls	.L24
+ 581              		.loc 1 221 0 is_stmt 0 discriminator 1
+ 582 033a 07E2     		b	.L21
+ 583              	.L24:
+ 222:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    temp_8b = *((uint8_t*)(msg->payload)+ieee802514_header->headerLength);
+ 584              		.loc 1 222 0 is_stmt 1
+ 585 033c 7B68     		ldr	r3, [r7, #4]
+ 586 033e 5A68     		ldr	r2, [r3, #4]
+ 587 0340 3B68     		ldr	r3, [r7]
+ 588 0342 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 589 0344 1344     		add	r3, r3, r2
+ 590 0346 1B78     		ldrb	r3, [r3]
+ 591 0348 7B75     		strb	r3, [r7, #21]
+ 223:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    //poipoi xv IE list present
+ 224:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    ieee802514_header->ieListPresent  = (temp_8b >> IEEE154_FCF_IELIST_PRESENT     ) & 0x01;//1b
+ 592              		.loc 1 224 0
+ 593 034a 7B7D     		ldrb	r3, [r7, #21]	@ zero_extendqisi2
+ 594 034c 5B08     		lsrs	r3, r3, #1
+ 595 034e DBB2     		uxtb	r3, r3
+ 596 0350 03F00103 		and	r3, r3, #1
+ 597 0354 002B     		cmp	r3, #0
+ 598 0356 0CBF     		ite	eq
+ 599 0358 0023     		moveq	r3, #0
+ 600 035a 0123     		movne	r3, #1
+ 601 035c DAB2     		uxtb	r2, r3
+ 602 035e 3B68     		ldr	r3, [r7]
+ 603 0360 DA71     		strb	r2, [r3, #7]
+ 225:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    ieee802514_header->frameVersion   = (temp_8b >> IEEE154_FCF_FRAME_VERSION      ) & 0x03;//2b
+ 604              		.loc 1 225 0
+ 605 0362 7B7D     		ldrb	r3, [r7, #21]	@ zero_extendqisi2
+ 606 0364 1B09     		lsrs	r3, r3, #4
+ 607 0366 DBB2     		uxtb	r3, r3
+ 608 0368 03F00303 		and	r3, r3, #3
+ 609 036c DAB2     		uxtb	r2, r3
+ 610 036e 3B68     		ldr	r3, [r7]
+ 611 0370 1A72     		strb	r2, [r3, #8]
+ 226:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    ieee802514_header->dsn_suppressed = (temp_8b >> IEEE154_FCF_DSN_SUPPRESSION    ) & 0x01;//1b
+ 612              		.loc 1 226 0
+ 613 0372 7B7D     		ldrb	r3, [r7, #21]	@ zero_extendqisi2
+ 614 0374 03F00103 		and	r3, r3, #1
+ 615 0378 002B     		cmp	r3, #0
+ 616 037a 0CBF     		ite	eq
+ 617 037c 0023     		moveq	r3, #0
+ 618 037e 0123     		movne	r3, #1
+ 619 0380 DAB2     		uxtb	r2, r3
+ 620 0382 3B68     		ldr	r3, [r7]
+ 621 0384 9A72     		strb	r2, [r3, #10]
+ 227:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** 
+ 228:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    if (ieee802514_header->ieListPresent==TRUE && ieee802514_header->frameVersion!=IEEE154_FRAMEVERS
+ 622              		.loc 1 228 0
+ 623 0386 3B68     		ldr	r3, [r7]
+ 624 0388 DB79     		ldrb	r3, [r3, #7]	@ zero_extendqisi2
+ 625 038a 002B     		cmp	r3, #0
+ 626 038c 04D0     		beq	.L25
+ 627              		.loc 1 228 0 is_stmt 0 discriminator 1
+ 628 038e 3B68     		ldr	r3, [r7]
+ 629 0390 1B7A     		ldrb	r3, [r3, #8]	@ zero_extendqisi2
+ 630 0392 022B     		cmp	r3, #2
+ 631 0394 00D0     		beq	.L25
+ 229:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****        return; //invalid packet accordint to p.64 IEEE15.4e
+ 632              		.loc 1 229 0 is_stmt 1
+ 633 0396 D9E1     		b	.L21
+ 634              	.L25:
+ 230:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    }
+ 231:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    
+ 232:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    switch ( (temp_8b >> IEEE154_FCF_DEST_ADDR_MODE ) & 0x03 ) {
+ 635              		.loc 1 232 0
+ 636 0398 7B7D     		ldrb	r3, [r7, #21]	@ zero_extendqisi2
+ 637 039a 9B08     		lsrs	r3, r3, #2
+ 638 039c DBB2     		uxtb	r3, r3
+ 639 039e 03F00303 		and	r3, r3, #3
+ 640 03a2 022B     		cmp	r3, #2
+ 641 03a4 07D0     		beq	.L27
+ 642 03a6 032B     		cmp	r3, #3
+ 643 03a8 09D0     		beq	.L28
+ 644 03aa 002B     		cmp	r3, #0
+ 645 03ac 0BD1     		bne	.L68
+ 233:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****       case IEEE154_ADDR_NONE:
+ 234:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****          ieee802514_header->dest.type = ADDR_NONE;
+ 646              		.loc 1 234 0
+ 647 03ae 3B68     		ldr	r3, [r7]
+ 648 03b0 0022     		movs	r2, #0
+ 649 03b2 1A77     		strb	r2, [r3, #28]
+ 235:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****          break;
+ 650              		.loc 1 235 0
+ 651 03b4 13E0     		b	.L30
+ 652              	.L27:
+ 236:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****       case IEEE154_ADDR_SHORT:
+ 237:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****          ieee802514_header->dest.type = ADDR_16B;
+ 653              		.loc 1 237 0
+ 654 03b6 3B68     		ldr	r3, [r7]
+ 655 03b8 0122     		movs	r2, #1
+ 656 03ba 1A77     		strb	r2, [r3, #28]
+ 238:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****          break;
+ 657              		.loc 1 238 0
+ 658 03bc 0FE0     		b	.L30
+ 659              	.L28:
+ 239:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****       case IEEE154_ADDR_EXT:
+ 240:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****          ieee802514_header->dest.type = ADDR_64B;
+ 660              		.loc 1 240 0
+ 661 03be 3B68     		ldr	r3, [r7]
+ 662 03c0 0222     		movs	r2, #2
+ 663 03c2 1A77     		strb	r2, [r3, #28]
+ 241:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****          break;
+ 664              		.loc 1 241 0
+ 665 03c4 0BE0     		b	.L30
+ 666              	.L68:
+ 242:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****       default:
+ 243:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****          openserial_printError(COMPONENT_IEEE802154,ERR_IEEE154_UNSUPPORTED,
+ 667              		.loc 1 243 0
+ 668 03c6 7B7D     		ldrb	r3, [r7, #21]	@ zero_extendqisi2
+ 669 03c8 9B08     		lsrs	r3, r3, #2
+ 670 03ca DBB2     		uxtb	r3, r3
+ 671 03cc 03F00303 		and	r3, r3, #3
+ 672 03d0 9BB2     		uxth	r3, r3
+ 673 03d2 0820     		movs	r0, #8
+ 674 03d4 1921     		movs	r1, #25
+ 675 03d6 0122     		movs	r2, #1
+ 676 03d8 FFF7FEFF 		bl	openserial_printError
+ 244:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                                (errorparameter_t)1,
+ 245:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                                (errorparameter_t)(temp_8b >> IEEE154_FCF_DEST_ADDR_MODE ) & 0x03);
+ 246:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****          return; // this is an invalid packet, return
+ 677              		.loc 1 246 0
+ 678 03dc B6E1     		b	.L21
+ 679              	.L30:
+ 247:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    }
+ 248:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    switch ( (temp_8b >> IEEE154_FCF_SRC_ADDR_MODE ) & 0x03 ) {
+ 680              		.loc 1 248 0
+ 681 03de 7B7D     		ldrb	r3, [r7, #21]	@ zero_extendqisi2
+ 682 03e0 9B09     		lsrs	r3, r3, #6
+ 683 03e2 DBB2     		uxtb	r3, r3
+ 684 03e4 03F00303 		and	r3, r3, #3
+ 685 03e8 022B     		cmp	r3, #2
+ 686 03ea 08D0     		beq	.L32
+ 687 03ec 032B     		cmp	r3, #3
+ 688 03ee 0BD0     		beq	.L33
+ 689 03f0 002B     		cmp	r3, #0
+ 690 03f2 0ED1     		bne	.L69
+ 249:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****       case IEEE154_ADDR_NONE:
+ 250:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****          ieee802514_header->src.type = ADDR_NONE;
+ 691              		.loc 1 250 0
+ 692 03f4 3B68     		ldr	r3, [r7]
+ 693 03f6 0022     		movs	r2, #0
+ 694 03f8 83F82D20 		strb	r2, [r3, #45]
+ 251:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****          break;
+ 695              		.loc 1 251 0
+ 696 03fc 15E0     		b	.L35
+ 697              	.L32:
+ 252:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****       case IEEE154_ADDR_SHORT:
+ 253:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****          ieee802514_header->src.type = ADDR_16B;
+ 698              		.loc 1 253 0
+ 699 03fe 3B68     		ldr	r3, [r7]
+ 700 0400 0122     		movs	r2, #1
+ 701 0402 83F82D20 		strb	r2, [r3, #45]
+ 254:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****          break;
+ 702              		.loc 1 254 0
+ 703 0406 10E0     		b	.L35
+ 704              	.L33:
+ 255:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****       case IEEE154_ADDR_EXT:
+ 256:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****          ieee802514_header->src.type = ADDR_64B;
+ 705              		.loc 1 256 0
+ 706 0408 3B68     		ldr	r3, [r7]
+ 707 040a 0222     		movs	r2, #2
+ 708 040c 83F82D20 		strb	r2, [r3, #45]
+ 257:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****          break;
+ 709              		.loc 1 257 0
+ 710 0410 0BE0     		b	.L35
+ 711              	.L69:
+ 258:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****       default:
+ 259:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****          openserial_printError(COMPONENT_IEEE802154,ERR_IEEE154_UNSUPPORTED,
+ 712              		.loc 1 259 0
+ 713 0412 7B7D     		ldrb	r3, [r7, #21]	@ zero_extendqisi2
+ 714 0414 9B09     		lsrs	r3, r3, #6
+ 715 0416 DBB2     		uxtb	r3, r3
+ 716 0418 03F00303 		and	r3, r3, #3
+ 717 041c 9BB2     		uxth	r3, r3
+ 718 041e 0820     		movs	r0, #8
+ 719 0420 1921     		movs	r1, #25
+ 720 0422 0222     		movs	r2, #2
+ 721 0424 FFF7FEFF 		bl	openserial_printError
+ 260:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                                (errorparameter_t)2,
+ 261:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                                (errorparameter_t)(temp_8b >> IEEE154_FCF_SRC_ADDR_MODE ) & 0x03);
+ 262:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****          return; // this is an invalid packet, return
+ 722              		.loc 1 262 0
+ 723 0428 90E1     		b	.L21
+ 724              	.L35:
+ 263:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    }
+ 264:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    ieee802514_header->headerLength += 1;
+ 725              		.loc 1 264 0
+ 726 042a 3B68     		ldr	r3, [r7]
+ 727 042c 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 728 042e 0133     		adds	r3, r3, #1
+ 729 0430 DAB2     		uxtb	r2, r3
+ 730 0432 3B68     		ldr	r3, [r7]
+ 731 0434 5A70     		strb	r2, [r3, #1]
+ 265:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    
+ 266:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    if (ieee802514_header->dsn_suppressed==FALSE) {
+ 732              		.loc 1 266 0
+ 733 0436 3B68     		ldr	r3, [r7]
+ 734 0438 9B7A     		ldrb	r3, [r3, #10]	@ zero_extendqisi2
+ 735 043a 83F00103 		eor	r3, r3, #1
+ 736 043e DBB2     		uxtb	r3, r3
+ 737 0440 002B     		cmp	r3, #0
+ 738 0442 14D0     		beq	.L36
+ 267:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****        // sequenceNumber
+ 268:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****        if (ieee802514_header->headerLength>msg->length) { return; } // no more to read!
+ 739              		.loc 1 268 0
+ 740 0444 3B68     		ldr	r3, [r7]
+ 741 0446 5A78     		ldrb	r2, [r3, #1]	@ zero_extendqisi2
+ 742 0448 7B68     		ldr	r3, [r7, #4]
+ 743 044a 1B7A     		ldrb	r3, [r3, #8]	@ zero_extendqisi2
+ 744 044c 9A42     		cmp	r2, r3
+ 745 044e 00D9     		bls	.L37
+ 746              		.loc 1 268 0 is_stmt 0 discriminator 1
+ 747 0450 7CE1     		b	.L21
+ 748              	.L37:
+ 269:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****        ieee802514_header->dsn  = *((uint8_t*)(msg->payload)+ieee802514_header->headerLength);
+ 749              		.loc 1 269 0 is_stmt 1
+ 750 0452 7B68     		ldr	r3, [r7, #4]
+ 751 0454 5A68     		ldr	r2, [r3, #4]
+ 752 0456 3B68     		ldr	r3, [r7]
+ 753 0458 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 754 045a 1344     		add	r3, r3, r2
+ 755 045c 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 756 045e 3B68     		ldr	r3, [r7]
+ 757 0460 5A72     		strb	r2, [r3, #9]
+ 270:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****        ieee802514_header->headerLength += 1;
+ 758              		.loc 1 270 0
+ 759 0462 3B68     		ldr	r3, [r7]
+ 760 0464 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 761 0466 0133     		adds	r3, r3, #1
+ 762 0468 DAB2     		uxtb	r2, r3
+ 763 046a 3B68     		ldr	r3, [r7]
+ 764 046c 5A70     		strb	r2, [r3, #1]
+ 765              	.L36:
+ 271:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    }
+ 272:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    
+ 273:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    // panID
+ 274:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    if (ieee802514_header->headerLength>msg->length) { return; } // no more to read!
+ 766              		.loc 1 274 0
+ 767 046e 3B68     		ldr	r3, [r7]
+ 768 0470 5A78     		ldrb	r2, [r3, #1]	@ zero_extendqisi2
+ 769 0472 7B68     		ldr	r3, [r7, #4]
+ 770 0474 1B7A     		ldrb	r3, [r3, #8]	@ zero_extendqisi2
+ 771 0476 9A42     		cmp	r2, r3
+ 772 0478 00D9     		bls	.L38
+ 773              		.loc 1 274 0 is_stmt 0 discriminator 1
+ 774 047a 67E1     		b	.L21
+ 775              	.L38:
+ 275:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    packetfunctions_readAddress(((uint8_t*)(msg->payload)+ieee802514_header->headerLength),
+ 776              		.loc 1 275 0 is_stmt 1
+ 777 047c 7B68     		ldr	r3, [r7, #4]
+ 778 047e 5A68     		ldr	r2, [r3, #4]
+ 779 0480 3B68     		ldr	r3, [r7]
+ 780 0482 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 781 0484 1A44     		add	r2, r2, r3
+ 782 0486 3B68     		ldr	r3, [r7]
+ 783 0488 0B33     		adds	r3, r3, #11
+ 784 048a 1046     		mov	r0, r2
+ 785 048c 0421     		movs	r1, #4
+ 786 048e 1A46     		mov	r2, r3
+ 787 0490 0123     		movs	r3, #1
+ 788 0492 FFF7FEFF 		bl	packetfunctions_readAddress
+ 276:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                                ADDR_PANID,
+ 277:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                                &ieee802514_header->panid,
+ 278:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                                OW_LITTLE_ENDIAN);
+ 279:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    ieee802514_header->headerLength += 2;
+ 789              		.loc 1 279 0
+ 790 0496 3B68     		ldr	r3, [r7]
+ 791 0498 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 792 049a 0233     		adds	r3, r3, #2
+ 793 049c DAB2     		uxtb	r2, r3
+ 794 049e 3B68     		ldr	r3, [r7]
+ 795 04a0 5A70     		strb	r2, [r3, #1]
+ 280:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    // dest
+ 281:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    if (ieee802514_header->headerLength>msg->length) { return; } // no more to read!
+ 796              		.loc 1 281 0
+ 797 04a2 3B68     		ldr	r3, [r7]
+ 798 04a4 5A78     		ldrb	r2, [r3, #1]	@ zero_extendqisi2
+ 799 04a6 7B68     		ldr	r3, [r7, #4]
+ 800 04a8 1B7A     		ldrb	r3, [r3, #8]	@ zero_extendqisi2
+ 801 04aa 9A42     		cmp	r2, r3
+ 802 04ac 00D9     		bls	.L39
+ 803              		.loc 1 281 0 is_stmt 0 discriminator 1
+ 804 04ae 4DE1     		b	.L21
+ 805              	.L39:
+ 282:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    switch (ieee802514_header->dest.type) {
+ 806              		.loc 1 282 0 is_stmt 1
+ 807 04b0 3B68     		ldr	r3, [r7]
+ 808 04b2 1B7F     		ldrb	r3, [r3, #28]	@ zero_extendqisi2
+ 809 04b4 012B     		cmp	r3, #1
+ 810 04b6 03D0     		beq	.L41
+ 811 04b8 022B     		cmp	r3, #2
+ 812 04ba 1CD0     		beq	.L42
+ 813 04bc 002B     		cmp	r3, #0
+ 283:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****       case ADDR_NONE:
+ 284:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****          break;
+ 814              		.loc 1 284 0
+ 815 04be 35E0     		b	.L40
+ 816              	.L41:
+ 285:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****       case ADDR_16B:
+ 286:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****          packetfunctions_readAddress(
+ 287:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****              ((uint8_t*)(msg->payload)+ieee802514_header->headerLength),
+ 817              		.loc 1 287 0
+ 818 04c0 7B68     		ldr	r3, [r7, #4]
+ 819 04c2 5A68     		ldr	r2, [r3, #4]
+ 820 04c4 3B68     		ldr	r3, [r7]
+ 821 04c6 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 286:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****              ((uint8_t*)(msg->payload)+ieee802514_header->headerLength),
+ 822              		.loc 1 286 0
+ 823 04c8 1A44     		add	r2, r2, r3
+ 824 04ca 3B68     		ldr	r3, [r7]
+ 825 04cc 1C33     		adds	r3, r3, #28
+ 826 04ce 1046     		mov	r0, r2
+ 827 04d0 0121     		movs	r1, #1
+ 828 04d2 1A46     		mov	r2, r3
+ 829 04d4 0123     		movs	r3, #1
+ 830 04d6 FFF7FEFF 		bl	packetfunctions_readAddress
+ 288:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****              ADDR_16B,
+ 289:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****              &ieee802514_header->dest,
+ 290:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****              OW_LITTLE_ENDIAN
+ 291:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****          );
+ 292:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****          ieee802514_header->headerLength += 2;
+ 831              		.loc 1 292 0
+ 832 04da 3B68     		ldr	r3, [r7]
+ 833 04dc 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 834 04de 0233     		adds	r3, r3, #2
+ 835 04e0 DAB2     		uxtb	r2, r3
+ 836 04e2 3B68     		ldr	r3, [r7]
+ 837 04e4 5A70     		strb	r2, [r3, #1]
+ 293:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****          if (ieee802514_header->headerLength>msg->length) {  return; } // no more to read!
+ 838              		.loc 1 293 0
+ 839 04e6 3B68     		ldr	r3, [r7]
+ 840 04e8 5A78     		ldrb	r2, [r3, #1]	@ zero_extendqisi2
+ 841 04ea 7B68     		ldr	r3, [r7, #4]
+ 842 04ec 1B7A     		ldrb	r3, [r3, #8]	@ zero_extendqisi2
+ 843 04ee 9A42     		cmp	r2, r3
+ 844 04f0 00D9     		bls	.L44
+ 845              		.loc 1 293 0 is_stmt 0 discriminator 1
+ 846 04f2 2BE1     		b	.L21
+ 847              	.L44:
+ 294:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****          break;
+ 848              		.loc 1 294 0 is_stmt 1
+ 849 04f4 1AE0     		b	.L40
+ 850              	.L42:
+ 295:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****       case ADDR_64B:
+ 296:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****          packetfunctions_readAddress(((uint8_t*)(msg->payload)+ieee802514_header->headerLength),
+ 851              		.loc 1 296 0
+ 852 04f6 7B68     		ldr	r3, [r7, #4]
+ 853 04f8 5A68     		ldr	r2, [r3, #4]
+ 854 04fa 3B68     		ldr	r3, [r7]
+ 855 04fc 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 856 04fe 1A44     		add	r2, r2, r3
+ 857 0500 3B68     		ldr	r3, [r7]
+ 858 0502 1C33     		adds	r3, r3, #28
+ 859 0504 1046     		mov	r0, r2
+ 860 0506 0221     		movs	r1, #2
+ 861 0508 1A46     		mov	r2, r3
+ 862 050a 0123     		movs	r3, #1
+ 863 050c FFF7FEFF 		bl	packetfunctions_readAddress
+ 297:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                                      ADDR_64B,
+ 298:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                                      &ieee802514_header->dest,
+ 299:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                                      OW_LITTLE_ENDIAN);
+ 300:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****          ieee802514_header->headerLength += 8;
+ 864              		.loc 1 300 0
+ 865 0510 3B68     		ldr	r3, [r7]
+ 866 0512 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 867 0514 0833     		adds	r3, r3, #8
+ 868 0516 DAB2     		uxtb	r2, r3
+ 869 0518 3B68     		ldr	r3, [r7]
+ 870 051a 5A70     		strb	r2, [r3, #1]
+ 301:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****          if (ieee802514_header->headerLength>msg->length) {  return; } // no more to read!
+ 871              		.loc 1 301 0
+ 872 051c 3B68     		ldr	r3, [r7]
+ 873 051e 5A78     		ldrb	r2, [r3, #1]	@ zero_extendqisi2
+ 874 0520 7B68     		ldr	r3, [r7, #4]
+ 875 0522 1B7A     		ldrb	r3, [r3, #8]	@ zero_extendqisi2
+ 876 0524 9A42     		cmp	r2, r3
+ 877 0526 00D9     		bls	.L45
+ 878              		.loc 1 301 0 is_stmt 0 discriminator 1
+ 879 0528 10E1     		b	.L21
+ 880              	.L45:
+ 302:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****          break;
+ 881              		.loc 1 302 0 is_stmt 1
+ 882 052a 00BF     		nop
+ 883              	.L40:
+ 303:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****       // no need for a default, since case would have been caught above
+ 304:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    }
+ 305:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    //src
+ 306:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    switch (ieee802514_header->src.type) {
+ 884              		.loc 1 306 0
+ 885 052c 3B68     		ldr	r3, [r7]
+ 886 052e 93F82D30 		ldrb	r3, [r3, #45]	@ zero_extendqisi2
+ 887 0532 012B     		cmp	r3, #1
+ 888 0534 03D0     		beq	.L47
+ 889 0536 022B     		cmp	r3, #2
+ 890 0538 1CD0     		beq	.L48
+ 891 053a 002B     		cmp	r3, #0
+ 307:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****       case ADDR_NONE:
+ 308:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****          break;
+ 892              		.loc 1 308 0
+ 893 053c 35E0     		b	.L46
+ 894              	.L47:
+ 309:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****       case ADDR_16B:
+ 310:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****          packetfunctions_readAddress(((uint8_t*)(msg->payload)+ieee802514_header->headerLength),
+ 895              		.loc 1 310 0
+ 896 053e 7B68     		ldr	r3, [r7, #4]
+ 897 0540 5A68     		ldr	r2, [r3, #4]
+ 898 0542 3B68     		ldr	r3, [r7]
+ 899 0544 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 900 0546 1A44     		add	r2, r2, r3
+ 901 0548 3B68     		ldr	r3, [r7]
+ 902 054a 2D33     		adds	r3, r3, #45
+ 903 054c 1046     		mov	r0, r2
+ 904 054e 0121     		movs	r1, #1
+ 905 0550 1A46     		mov	r2, r3
+ 906 0552 0123     		movs	r3, #1
+ 907 0554 FFF7FEFF 		bl	packetfunctions_readAddress
+ 311:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                                      ADDR_16B,
+ 312:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                                      &ieee802514_header->src,
+ 313:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                                      OW_LITTLE_ENDIAN);
+ 314:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****          ieee802514_header->headerLength += 2;
+ 908              		.loc 1 314 0
+ 909 0558 3B68     		ldr	r3, [r7]
+ 910 055a 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 911 055c 0233     		adds	r3, r3, #2
+ 912 055e DAB2     		uxtb	r2, r3
+ 913 0560 3B68     		ldr	r3, [r7]
+ 914 0562 5A70     		strb	r2, [r3, #1]
+ 315:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****          if (ieee802514_header->headerLength>msg->length) {  return; } // no more to read!
+ 915              		.loc 1 315 0
+ 916 0564 3B68     		ldr	r3, [r7]
+ 917 0566 5A78     		ldrb	r2, [r3, #1]	@ zero_extendqisi2
+ 918 0568 7B68     		ldr	r3, [r7, #4]
+ 919 056a 1B7A     		ldrb	r3, [r3, #8]	@ zero_extendqisi2
+ 920 056c 9A42     		cmp	r2, r3
+ 921 056e 00D9     		bls	.L50
+ 922              		.loc 1 315 0 is_stmt 0 discriminator 1
+ 923 0570 ECE0     		b	.L21
+ 924              	.L50:
+ 316:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****          break;
+ 925              		.loc 1 316 0 is_stmt 1
+ 926 0572 1AE0     		b	.L46
+ 927              	.L48:
+ 317:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****       case ADDR_64B:
+ 318:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****          packetfunctions_readAddress(((uint8_t*)(msg->payload)+ieee802514_header->headerLength),
+ 928              		.loc 1 318 0
+ 929 0574 7B68     		ldr	r3, [r7, #4]
+ 930 0576 5A68     		ldr	r2, [r3, #4]
+ 931 0578 3B68     		ldr	r3, [r7]
+ 932 057a 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 933 057c 1A44     		add	r2, r2, r3
+ 934 057e 3B68     		ldr	r3, [r7]
+ 935 0580 2D33     		adds	r3, r3, #45
+ 936 0582 1046     		mov	r0, r2
+ 937 0584 0221     		movs	r1, #2
+ 938 0586 1A46     		mov	r2, r3
+ 939 0588 0123     		movs	r3, #1
+ 940 058a FFF7FEFF 		bl	packetfunctions_readAddress
+ 319:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                                      ADDR_64B,
+ 320:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                                      &ieee802514_header->src,
+ 321:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                                      OW_LITTLE_ENDIAN);
+ 322:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****          ieee802514_header->headerLength += 8;
+ 941              		.loc 1 322 0
+ 942 058e 3B68     		ldr	r3, [r7]
+ 943 0590 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 944 0592 0833     		adds	r3, r3, #8
+ 945 0594 DAB2     		uxtb	r2, r3
+ 946 0596 3B68     		ldr	r3, [r7]
+ 947 0598 5A70     		strb	r2, [r3, #1]
+ 323:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****          if (ieee802514_header->headerLength>msg->length) {  return; } // no more to read!
+ 948              		.loc 1 323 0
+ 949 059a 3B68     		ldr	r3, [r7]
+ 950 059c 5A78     		ldrb	r2, [r3, #1]	@ zero_extendqisi2
+ 951 059e 7B68     		ldr	r3, [r7, #4]
+ 952 05a0 1B7A     		ldrb	r3, [r3, #8]	@ zero_extendqisi2
+ 953 05a2 9A42     		cmp	r2, r3
+ 954 05a4 00D9     		bls	.L51
+ 955              		.loc 1 323 0 is_stmt 0 discriminator 1
+ 956 05a6 D1E0     		b	.L21
+ 957              	.L51:
+ 324:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****          break;
+ 958              		.loc 1 324 0 is_stmt 1
+ 959 05a8 00BF     		nop
+ 960              	.L46:
+ 325:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****       // no need for a default, since case would have been caught above
+ 326:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    }
+ 327:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    
+ 328:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    if (ieee802514_header->ieListPresent==TRUE && ieee802514_header->frameVersion!=IEEE154_FRAMEVERS
+ 961              		.loc 1 328 0
+ 962 05aa 3B68     		ldr	r3, [r7]
+ 963 05ac DB79     		ldrb	r3, [r3, #7]	@ zero_extendqisi2
+ 964 05ae 002B     		cmp	r3, #0
+ 965 05b0 04D0     		beq	.L52
+ 966              		.loc 1 328 0 is_stmt 0 discriminator 1
+ 967 05b2 3B68     		ldr	r3, [r7]
+ 968 05b4 1B7A     		ldrb	r3, [r3, #8]	@ zero_extendqisi2
+ 969 05b6 022B     		cmp	r3, #2
+ 970 05b8 00D0     		beq	.L52
+ 329:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****        return; //invalid packet accordint to p.64 IEEE15.4e
+ 971              		.loc 1 329 0 is_stmt 1
+ 972 05ba C7E0     		b	.L21
+ 973              	.L52:
+ 330:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    }
+ 331:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** 
+ 332:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    // security decision tree.
+ 333:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    // pass header parsing iff: 
+ 334:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    // - received unsecured frame and security disabled locally
+ 335:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    // - received secured frame and security is enabled locally
+ 336:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    if (ieee802514_header->securityEnabled && IEEE802154_SECURITY_SUPPORTED) {
+ 337:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****        IEEE802154_SECURITY.retrieveAuxiliarySecurityHeader(msg,ieee802514_header);
+ 338:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    }
+ 339:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    else if (ieee802514_header->securityEnabled != IEEE802154_SECURITY_SUPPORTED) { return; }
+ 974              		.loc 1 339 0
+ 975 05bc 3B68     		ldr	r3, [r7]
+ 976 05be DB78     		ldrb	r3, [r3, #3]	@ zero_extendqisi2
+ 977 05c0 002B     		cmp	r3, #0
+ 978 05c2 00D0     		beq	.L53
+ 979              		.loc 1 339 0 is_stmt 0 discriminator 1
+ 980 05c4 C2E0     		b	.L21
+ 981              	.L53:
+ 340:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** 
+ 341:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    // remove termination IE accordingly 
+ 342:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    if (ieee802514_header->ieListPresent == TRUE) {
+ 982              		.loc 1 342 0 is_stmt 1
+ 983 05c6 3B68     		ldr	r3, [r7]
+ 984 05c8 DB79     		ldrb	r3, [r3, #7]	@ zero_extendqisi2
+ 985 05ca 002B     		cmp	r3, #0
+ 986 05cc 00F0AA80 		beq	.L54
+ 987              	.L66:
+ 343:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****        while(1) {
+ 344:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****            // I have IE in frame. phase the IE in header first
+ 345:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****            temp_8b  = *((uint8_t*)(msg->payload)+ieee802514_header->headerLength);
+ 988              		.loc 1 345 0
+ 989 05d0 7B68     		ldr	r3, [r7, #4]
+ 990 05d2 5A68     		ldr	r2, [r3, #4]
+ 991 05d4 3B68     		ldr	r3, [r7]
+ 992 05d6 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 993 05d8 1344     		add	r3, r3, r2
+ 994 05da 1B78     		ldrb	r3, [r3]
+ 995 05dc 7B75     		strb	r3, [r7, #21]
+ 346:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****            ieee802514_header->headerLength += 1;
+ 996              		.loc 1 346 0
+ 997 05de 3B68     		ldr	r3, [r7]
+ 998 05e0 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 999 05e2 0133     		adds	r3, r3, #1
+ 1000 05e4 DAB2     		uxtb	r2, r3
+ 1001 05e6 3B68     		ldr	r3, [r7]
+ 1002 05e8 5A70     		strb	r2, [r3, #1]
+ 347:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****            temp_16b = temp_8b | (*((uint8_t*)(msg->payload)+ieee802514_header->headerLength) << 8);
+ 1003              		.loc 1 347 0
+ 1004 05ea 7B7D     		ldrb	r3, [r7, #21]	@ zero_extendqisi2
+ 1005 05ec 9AB2     		uxth	r2, r3
+ 1006 05ee 7B68     		ldr	r3, [r7, #4]
+ 1007 05f0 5968     		ldr	r1, [r3, #4]
+ 1008 05f2 3B68     		ldr	r3, [r7]
+ 1009 05f4 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 1010 05f6 0B44     		add	r3, r3, r1
+ 1011 05f8 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1012 05fa 1B02     		lsls	r3, r3, #8
+ 1013 05fc 9BB2     		uxth	r3, r3
+ 1014 05fe 1343     		orrs	r3, r3, r2
+ 1015 0600 9BB2     		uxth	r3, r3
+ 1016 0602 7B82     		strh	r3, [r7, #18]	@ movhi
+ 348:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****            ieee802514_header->headerLength += 1;
+ 1017              		.loc 1 348 0
+ 1018 0604 3B68     		ldr	r3, [r7]
+ 1019 0606 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 1020 0608 0133     		adds	r3, r3, #1
+ 1021 060a DAB2     		uxtb	r2, r3
+ 1022 060c 3B68     		ldr	r3, [r7]
+ 1023 060e 5A70     		strb	r2, [r3, #1]
+ 349:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****            // stop when I got a header termination IE
+ 350:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****            if (temp_16b == HEADER_TERMINATION_1_IE) {
+ 1024              		.loc 1 350 0
+ 1025 0610 7B8A     		ldrh	r3, [r7, #18]
+ 1026 0612 B3F57C5F 		cmp	r3, #16128
+ 1027 0616 04D1     		bne	.L55
+ 351:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                // I have payloadIE following
+ 352:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                msg->l2_payloadIEpresent = TRUE;
+ 1028              		.loc 1 352 0
+ 1029 0618 7B68     		ldr	r3, [r7, #4]
+ 1030 061a 0122     		movs	r2, #1
+ 1031 061c 83F86620 		strb	r2, [r3, #102]
+ 353:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                break;
+ 1032              		.loc 1 353 0
+ 1033 0620 80E0     		b	.L54
+ 1034              	.L55:
+ 354:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****            }
+ 355:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****            if (temp_16b == HEADER_TERMINATION_2_IE) {
+ 1035              		.loc 1 355 0
+ 1036 0622 7B8A     		ldrh	r3, [r7, #18]
+ 1037 0624 B3F57E5F 		cmp	r3, #16256
+ 1038 0628 04D1     		bne	.L56
+ 356:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                // I have payload following
+ 357:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                msg->l2_payloadIEpresent = FALSE;
+ 1039              		.loc 1 357 0
+ 1040 062a 7B68     		ldr	r3, [r7, #4]
+ 1041 062c 0022     		movs	r2, #0
+ 1042 062e 83F86620 		strb	r2, [r3, #102]
+ 358:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                break;
+ 1043              		.loc 1 358 0
+ 1044 0632 77E0     		b	.L54
+ 1045              	.L56:
+ 359:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****            }
+ 360:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****            if ((temp_16b & IEEE802154E_DESC_TYPE_PAYLOAD_IE) != IEEE802154E_DESC_TYPE_PAYLOAD_IE) {
+ 1046              		.loc 1 360 0
+ 1047 0634 7B8A     		ldrh	r3, [r7, #18]
+ 1048 0636 1BB2     		sxth	r3, r3
+ 1049 0638 002B     		cmp	r3, #0
+ 1050 063a 61DB     		blt	.L57
+ 361:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                // only process header IE here
+ 362:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                len          = temp_16b & IEEE802154E_DESC_LEN_HEADER_IE_MASK;
+ 1051              		.loc 1 362 0
+ 1052 063c 7B8A     		ldrh	r3, [r7, #18]	@ movhi
+ 1053 063e 03F07F03 		and	r3, r3, #127
+ 1054 0642 3B82     		strh	r3, [r7, #16]	@ movhi
+ 363:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                gr_elem_id   = (temp_16b & IEEE802154E_DESC_ELEMENTID_HEADER_IE_MASK)>>IEEE802154E_D
+ 1055              		.loc 1 363 0
+ 1056 0644 7B8A     		ldrh	r3, [r7, #18]
+ 1057 0646 03F4FF43 		and	r3, r3, #32640
+ 1058 064a DB11     		asrs	r3, r3, #7
+ 1059 064c FB73     		strb	r3, [r7, #15]
+ 364:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** 
+ 365:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                switch(gr_elem_id){
+ 1060              		.loc 1 365 0
+ 1061 064e FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 1062 0650 1E2B     		cmp	r3, #30
+ 1063 0652 00D0     		beq	.L59
+ 366:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                    case IEEE802154E_ACK_NACK_TIMECORRECTION_ELEMENTID:
+ 367:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                        // timecorrection IE
+ 368:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                        byte0 = *((uint8_t*)(msg->payload)+ieee802514_header->headerLength);
+ 369:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                        byte1 = *((uint8_t*)(msg->payload)+ieee802514_header->headerLength+1);
+ 370:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                        timeSyncInfo    = (uint16_t)byte1<<8 | (uint16_t)byte0;
+ 371:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                        // negative ACK or not
+ 372:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                        if (timeSyncInfo & 0x8000){
+ 373:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                             msg->l2_isNegativeACK = TRUE;
+ 374:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                        } else {
+ 375:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                             msg->l2_isNegativeACK = FALSE;
+ 376:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                        }
+ 377:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                        // negative timeCorrection or not, cast from 12 to 16 bit signed integer
+ 378:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                        if (timeSyncInfo & 0x0800){
+ 379:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                            timeCorrection = timeSyncInfo | 0xf000;
+ 380:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                        } else {
+ 381:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                            timeCorrection = timeSyncInfo & 0x0fff;
+ 382:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                        }
+ 383:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                        timeCorrection  = ((int16_t)timeCorrection / (PORT_SIGNED_INT_WIDTH)US_PER_T
+ 384:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                        
+ 385:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                        ieee802514_header->timeCorrection = timeCorrection;
+ 386:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                        ieee802514_header->headerLength  += len;
+ 387:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** 
+ 388:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                        // Record the position where we should start decrypting the ACK, if security
+ 389:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                        msg->l2_payload = &msg->payload[ieee802514_header->headerLength];
+ 390:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                        break;
+ 391:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                    default:
+ 392:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                        break;
+ 1064              		.loc 1 392 0
+ 1065 0654 54E0     		b	.L57
+ 1066              	.L59:
+ 368:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                        byte1 = *((uint8_t*)(msg->payload)+ieee802514_header->headerLength+1);
+ 1067              		.loc 1 368 0
+ 1068 0656 7B68     		ldr	r3, [r7, #4]
+ 1069 0658 5A68     		ldr	r2, [r3, #4]
+ 1070 065a 3B68     		ldr	r3, [r7]
+ 1071 065c 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 1072 065e 1344     		add	r3, r3, r2
+ 1073 0660 1B78     		ldrb	r3, [r3]
+ 1074 0662 BB73     		strb	r3, [r7, #14]
+ 369:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                        timeSyncInfo    = (uint16_t)byte1<<8 | (uint16_t)byte0;
+ 1075              		.loc 1 369 0
+ 1076 0664 7B68     		ldr	r3, [r7, #4]
+ 1077 0666 5A68     		ldr	r2, [r3, #4]
+ 1078 0668 3B68     		ldr	r3, [r7]
+ 1079 066a 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 1080 066c 0133     		adds	r3, r3, #1
+ 1081 066e 1344     		add	r3, r3, r2
+ 1082 0670 1B78     		ldrb	r3, [r3]
+ 1083 0672 7B73     		strb	r3, [r7, #13]
+ 370:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                        // negative ACK or not
+ 1084              		.loc 1 370 0
+ 1085 0674 7B7B     		ldrb	r3, [r7, #13]	@ zero_extendqisi2
+ 1086 0676 1B02     		lsls	r3, r3, #8
+ 1087 0678 9AB2     		uxth	r2, r3
+ 1088 067a BB7B     		ldrb	r3, [r7, #14]	@ zero_extendqisi2
+ 1089 067c 9BB2     		uxth	r3, r3
+ 1090 067e 1343     		orrs	r3, r3, r2
+ 1091 0680 9BB2     		uxth	r3, r3
+ 1092 0682 7B81     		strh	r3, [r7, #10]	@ movhi
+ 372:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                             msg->l2_isNegativeACK = TRUE;
+ 1093              		.loc 1 372 0
+ 1094 0684 7B89     		ldrh	r3, [r7, #10]
+ 1095 0686 1BB2     		sxth	r3, r3
+ 1096 0688 002B     		cmp	r3, #0
+ 1097 068a 04DA     		bge	.L60
+ 373:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                        } else {
+ 1098              		.loc 1 373 0
+ 1099 068c 7B68     		ldr	r3, [r7, #4]
+ 1100 068e 0122     		movs	r2, #1
+ 1101 0690 83F86820 		strb	r2, [r3, #104]
+ 1102 0694 03E0     		b	.L61
+ 1103              	.L60:
+ 375:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                        }
+ 1104              		.loc 1 375 0
+ 1105 0696 7B68     		ldr	r3, [r7, #4]
+ 1106 0698 0022     		movs	r2, #0
+ 1107 069a 83F86820 		strb	r2, [r3, #104]
+ 1108              	.L61:
+ 378:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                            timeCorrection = timeSyncInfo | 0xf000;
+ 1109              		.loc 1 378 0
+ 1110 069e 7B89     		ldrh	r3, [r7, #10]
+ 1111 06a0 03F40063 		and	r3, r3, #2048
+ 1112 06a4 002B     		cmp	r3, #0
+ 1113 06a6 07D0     		beq	.L62
+ 379:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                        } else {
+ 1114              		.loc 1 379 0
+ 1115 06a8 7B89     		ldrh	r3, [r7, #10]	@ movhi
+ 1116 06aa 6FEA0353 		mvn	r3, r3, lsl #20
+ 1117 06ae 6FEA1353 		mvn	r3, r3, lsr #20
+ 1118 06b2 9BB2     		uxth	r3, r3
+ 1119 06b4 FB82     		strh	r3, [r7, #22]	@ movhi
+ 1120 06b6 03E0     		b	.L63
+ 1121              	.L62:
+ 381:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                        }
+ 1122              		.loc 1 381 0
+ 1123 06b8 7B89     		ldrh	r3, [r7, #10]
+ 1124 06ba C3F30B03 		ubfx	r3, r3, #0, #12
+ 1125 06be FB82     		strh	r3, [r7, #22]	@ movhi
+ 1126              	.L63:
+ 383:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                        
+ 1127              		.loc 1 383 0
+ 1128 06c0 B7F91630 		ldrsh	r3, [r7, #22]
+ 1129 06c4 48F68902 		movw	r2, #34953
+ 1130 06c8 C8F68802 		movt	r2, 34952
+ 1131 06cc 82FB0312 		smull	r1, r2, r2, r3
+ 1132 06d0 1A44     		add	r2, r2, r3
+ 1133 06d2 1211     		asrs	r2, r2, #4
+ 1134 06d4 DB17     		asrs	r3, r3, #31
+ 1135 06d6 D31A     		subs	r3, r2, r3
+ 1136 06d8 FB82     		strh	r3, [r7, #22]	@ movhi
+ 385:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                        ieee802514_header->headerLength  += len;
+ 1137              		.loc 1 385 0
+ 1138 06da 3B68     		ldr	r3, [r7]
+ 1139 06dc FA8A     		ldrh	r2, [r7, #22]	@ movhi
+ 1140 06de DA87     		strh	r2, [r3, #62]	@ movhi
+ 386:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** 
+ 1141              		.loc 1 386 0
+ 1142 06e0 3B68     		ldr	r3, [r7]
+ 1143 06e2 5A78     		ldrb	r2, [r3, #1]	@ zero_extendqisi2
+ 1144 06e4 3B8A     		ldrh	r3, [r7, #16]	@ movhi
+ 1145 06e6 DBB2     		uxtb	r3, r3
+ 1146 06e8 1344     		add	r3, r3, r2
+ 1147 06ea DAB2     		uxtb	r2, r3
+ 1148 06ec 3B68     		ldr	r3, [r7]
+ 1149 06ee 5A70     		strb	r2, [r3, #1]
+ 389:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                        break;
+ 1150              		.loc 1 389 0
+ 1151 06f0 7B68     		ldr	r3, [r7, #4]
+ 1152 06f2 5A68     		ldr	r2, [r3, #4]
+ 1153 06f4 3B68     		ldr	r3, [r7]
+ 1154 06f6 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 1155 06f8 1A44     		add	r2, r2, r3
+ 1156 06fa 7B68     		ldr	r3, [r7, #4]
+ 1157 06fc 5A65     		str	r2, [r3, #84]
+ 390:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                    default:
+ 1158              		.loc 1 390 0
+ 1159 06fe 00BF     		nop
+ 1160              	.L57:
+ 393:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                }
+ 394:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****            }
+ 395:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****            if (ieee802514_header->headerLength==msg->length) {
+ 1161              		.loc 1 395 0
+ 1162 0700 3B68     		ldr	r3, [r7]
+ 1163 0702 5A78     		ldrb	r2, [r3, #1]	@ zero_extendqisi2
+ 1164 0704 7B68     		ldr	r3, [r7, #4]
+ 1165 0706 1B7A     		ldrb	r3, [r3, #8]	@ zero_extendqisi2
+ 1166 0708 9A42     		cmp	r2, r3
+ 1167 070a 03D1     		bne	.L64
+ 396:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                // nothing left, no payloadIE, no payload, this is the end of packet!
+ 397:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** 
+ 398:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                ieee802514_header->valid=TRUE;
+ 1168              		.loc 1 398 0
+ 1169 070c 3B68     		ldr	r3, [r7]
+ 1170 070e 0122     		movs	r2, #1
+ 1171 0710 1A70     		strb	r2, [r3]
+ 399:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****                return;
+ 1172              		.loc 1 399 0
+ 1173 0712 1BE0     		b	.L21
+ 1174              	.L64:
+ 400:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****            }
+ 401:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****            if (ieee802514_header->headerLength>msg->length) {  return; } // no more to read!
+ 1175              		.loc 1 401 0
+ 1176 0714 3B68     		ldr	r3, [r7]
+ 1177 0716 5A78     		ldrb	r2, [r3, #1]	@ zero_extendqisi2
+ 1178 0718 7B68     		ldr	r3, [r7, #4]
+ 1179 071a 1B7A     		ldrb	r3, [r3, #8]	@ zero_extendqisi2
+ 1180 071c 9A42     		cmp	r2, r3
+ 1181 071e 00D9     		bls	.L65
+ 1182              		.loc 1 401 0 is_stmt 0 discriminator 1
+ 1183 0720 14E0     		b	.L21
+ 1184              	.L65:
+ 402:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****        }
+ 1185              		.loc 1 402 0 is_stmt 1
+ 1186 0722 55E7     		b	.L66
+ 1187              	.L54:
+ 403:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    }
+ 404:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** 
+ 405:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    // Record the position where we should start decrypting if security is enabled
+ 406:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    msg->l2_payload = &msg->payload[ieee802514_header->headerLength];
+ 1188              		.loc 1 406 0
+ 1189 0724 7B68     		ldr	r3, [r7, #4]
+ 1190 0726 5A68     		ldr	r2, [r3, #4]
+ 1191 0728 3B68     		ldr	r3, [r7]
+ 1192 072a 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 1193 072c 1A44     		add	r2, r2, r3
+ 1194 072e 7B68     		ldr	r3, [r7, #4]
+ 1195 0730 5A65     		str	r2, [r3, #84]
+ 407:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** 
+ 408:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    // apply topology filter
+ 409:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    if (topology_isAcceptablePacket(ieee802514_header)==FALSE) {
+ 1196              		.loc 1 409 0
+ 1197 0732 3868     		ldr	r0, [r7]
+ 1198 0734 FFF7FEFF 		bl	topology_isAcceptablePacket
+ 1199 0738 0346     		mov	r3, r0
+ 1200 073a 83F00103 		eor	r3, r3, #1
+ 1201 073e DBB2     		uxtb	r3, r3
+ 1202 0740 002B     		cmp	r3, #0
+ 1203 0742 00D0     		beq	.L67
+ 410:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****       // the topology filter does accept this packet, return
+ 411:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****       return;
+ 1204              		.loc 1 411 0
+ 1205 0744 02E0     		b	.L21
+ 1206              	.L67:
+ 412:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    }
+ 413:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    // if you reach this, the header is valid
+ 414:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c ****    ieee802514_header->valid=TRUE;
+ 1207              		.loc 1 414 0
+ 1208 0746 3B68     		ldr	r3, [r7]
+ 1209 0748 0122     		movs	r2, #1
+ 1210 074a 1A70     		strb	r2, [r3]
+ 1211              	.L21:
+ 415:build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.c **** }
+ 1212              		.loc 1 415 0
+ 1213 074c 1837     		adds	r7, r7, #24
+ 1214 074e BD46     		mov	sp, r7
+ 1215              		@ sp needed
+ 1216 0750 80BD     		pop	{r7, pc}
+ 1217              		.cfi_endproc
+ 1218              	.LFE1:
+ 1220              	.Letext0:
+ 1221              		.file 2 "/usr/include/newlib/machine/_default_types.h"
+ 1222              		.file 3 "/usr/include/newlib/stdint.h"
+ 1223              		.file 4 "inc/opendefs.h"
+ 1224              		.file 5 "build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154.h"
+ 1225              		.file 6 "openstack/02b-MAChigh/processIE.h"
+ 1226              		.file 7 "build/openmote-cc2538_armgcc/openstack/02a-MAClow/ieee802154_security_driver.h"
+ 1227              		.file 8 "bsp/boards/openmote-cc2538/board_info.h"
+ 1228              		.file 9 "build/openmote-cc2538_armgcc/openstack/02a-MAClow/IEEE802154E.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 IEEE802154.c
+     /tmp/ccyicojZ.s:19     .rodata:0000000000000000 $d
+     /tmp/ccyicojZ.s:22     .rodata:0000000000000000 rreg_uriquery
+     /tmp/ccyicojZ.s:27     .rodata:0000000000000008 infoBoardname
+     /tmp/ccyicojZ.s:32     .rodata:0000000000000010 infouCName
+     /tmp/ccyicojZ.s:37     .rodata:0000000000000018 infoRadioName
+     /tmp/ccyicojZ.s:42     .rodata:0000000000000024 infoStackName
+     /tmp/ccyicojZ.s:47     .rodata:0000000000000030 chTemplate_default
+     /tmp/ccyicojZ.s:65     .text:0000000000000000 $t
+     /tmp/ccyicojZ.s:70     .text:0000000000000000 ieee802154_prependHeader
+     /tmp/ccyicojZ.s:471    .text:0000000000000284 ieee802154_retrieveHeader
+                     .debug_frame:0000000000000010 $d
+                           .group:0000000000000000 wm4.1.08074afb2ccc9da754fae8e3ee0f577b
+                           .group:0000000000000000 wm4.features.h.22.6a4ca7cd053637cc1d0db6c16f39b2d7
+                           .group:0000000000000000 wm4._default_types.h.15.8b2cb27e528498f8ff711db085d6e489
+                           .group:0000000000000000 wm4.stdint.h.20.796e373797e732130a803d4c0338fa1b
+                           .group:0000000000000000 wm4.toolchain_defs.h.2.e5fd326231d01413e5361944b26cde07
+                           .group:0000000000000000 wm4.newlib.h.8.fec018e441fee7bfa1923812ad010f97
+                           .group:0000000000000000 wm4.config.h.212.4163ef2871a828c674038d036b081cfd
+                           .group:0000000000000000 wm4._ansi.h.23.5644b60c990a4800b02a6e654e88f93a
+                           .group:0000000000000000 wm4.stddef.h.39.daafd3d79fe2f3a84d2d73d7d4e706f8
+                           .group:0000000000000000 wm4.lock.h.2.9bc98482741e5e2a9450b12934a684ea
+                           .group:0000000000000000 wm4._types.h.54.d3d34a3b7f3cc230cd159baf022b4b08
+                           .group:0000000000000000 wm4.stddef.h.158.61317cdbfb4026324507d123a50b0fd6
+                           .group:0000000000000000 wm4.reent.h.17.8bd9e4098e0428508c282cad794fae43
+                           .group:0000000000000000 wm4.cdefs.h.47.339223046f475c9f2d5db3a9118d7c65
+                           .group:0000000000000000 wm4.string.h.15.dab3980bf35408a4c507182805e2de3a
+                           .group:0000000000000000 wm4.stddef.h.158.a7efb00f6cbc6f43213b50e183c9830c
+                           .group:0000000000000000 wm4.string.h.126.6ff3aa59129e7f66b2c273baf353e066
+                           .group:0000000000000000 wm4.stdbool.h.29.1c9ee6859ce8145f7838a4f2549ccec2
+                           .group:0000000000000000 wm4.hw_types.h.67.b10589a0806dcc2d274d6fab6b736519
+                           .group:0000000000000000 wm4.interrupt.h.41.272fc4ec0e276feb439e7974d0f77eaf
+                           .group:0000000000000000 wm4.board_info.h.22.aeb00002354a4949fff54190040e37af
+                           .group:0000000000000000 wm4.opendefs.h.23.16dafe2a30b31097968a5d4db894173a
+                           .group:0000000000000000 wm4.IEEE802154.h.2.38fb510ed33a23a9a0660164e6dfab69
+                           .group:0000000000000000 wm4.schedule.h.2.5f1ce0fba8afc2f4b06da872a2bf3e7d
+                           .group:0000000000000000 wm4.processIE.h.2.f7e3ebe58176b1696c1c10947f24f68e
+                           .group:0000000000000000 wm4.IEEE802154E.h.25.67f34a05c141666eec3d609543338803
+                           .group:0000000000000000 wm4.idmanager.h.2.8c0e2159b32ef3125cbb1e984805cbfe
+                           .group:0000000000000000 wm4.openserial.h.9.0a357d13b4113cc69ceb77572df48861
+                           .group:0000000000000000 wm4.ieee802154_security_driver.h.7.335eded000ce2f24b046d948f4298bed
+
+UNDEFINED SYMBOLS
+packetfunctions_reserveHeaderSize
+ieee154e_getTimeCorrection
+IEEE802154_dummy_security
+idmanager_getMyID
+packetfunctions_writeAddress
+packetfunctions_isBroadcastMulticast
+openserial_printCritical
+openserial_printError
+packetfunctions_readAddress
+topology_isAcceptablePacket

@@ -1,0 +1,297 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"watchdog.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.align	2
+  19              		.global	WatchdogEnable
+  20              		.thumb
+  21              		.thumb_func
+  23              	WatchdogEnable:
+  24              	.LFB0:
+  25              		.file 1 "build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c"
+   1:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** /******************************************************************************
+   2:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** *  Filename:       watchdog.c
+   3:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** *  Revised:        $Date: 2013-04-04 15:31:10 +0200 (Thu, 04 Apr 2013) $
+   4:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** *  Revision:       $Revision: 9634 $
+   5:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** *
+   6:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** *  Description:    Driver for the Watchdog Timer Module.
+   7:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** *
+   8:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** *  Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
+   9:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** *
+  10:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** *
+  11:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** *  Redistribution and use in source and binary forms, with or without
+  12:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** *  modification, are permitted provided that the following conditions
+  13:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** *  are met:
+  14:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** *
+  15:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** *    Redistributions of source code must retain the above copyright
+  16:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** *    notice, this list of conditions and the following disclaimer.
+  17:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** *
+  18:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** *    Redistributions in binary form must reproduce the above copyright
+  19:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** *    notice, this list of conditions and the following disclaimer in the
+  20:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** *    documentation and/or other materials provided with the distribution.
+  21:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** *
+  22:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** *    Neither the name of Texas Instruments Incorporated nor the names of
+  23:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** *    its contributors may be used to endorse or promote products derived
+  24:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** *    from this software without specific prior written permission.
+  25:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** *
+  26:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  27:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  28:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  29:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** *  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  30:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** *  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  31:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** *  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  32:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** *  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  33:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** *  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+  34:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  35:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  36:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** *  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  37:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** *
+  38:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** ******************************************************************************/
+  39:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** 
+  40:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** //*****************************************************************************
+  41:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** //
+  42:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** //! \addtogroup watchdog_api
+  43:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** //! @{
+  44:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** //
+  45:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** //*****************************************************************************
+  46:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** 
+  47:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** #include <headers/hw_ints.h>
+  48:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** #include <headers/hw_memmap.h>
+  49:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** #include <headers/hw_smwdthrosc.h>
+  50:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** #include "debug.h"
+  51:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** #include "interrupt.h"
+  52:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** #include "watchdog.h"
+  53:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** 
+  54:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** //*****************************************************************************
+  55:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** //
+  56:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** //! Enables the watchdog timer
+  57:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** //!
+  58:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** //! \param ui32Interval is the timer interval setting.
+  59:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** //!
+  60:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** //! This function sets the timer interval and enables the watchdog timer.
+  61:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** //! A timeout causes a chip reset.
+  62:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** //!
+  63:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** //! The \e ui32Interval argument must be only one of the following values:
+  64:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** //! \b WATCHDOG_INTERVAL_32768, \b WATCHDOG_INTERVAL_8192,
+  65:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** //! \b WATCHDOG_INTERVAL_512,   \b WATCHDOG_INTERVAL_64.
+  66:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** //!
+  67:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** //! \sa WatchdogDisable()
+  68:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** //!
+  69:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** //! \return None
+  70:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** //
+  71:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** //*****************************************************************************
+  72:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** void
+  73:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** WatchdogEnable(uint32_t ui32Interval)
+  74:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** {
+  26              		.loc 1 74 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 16
+  29              		@ frame_needed = 1, uses_anonymous_args = 0
+  30              		@ link register save eliminated.
+  31 0000 80B4     		push	{r7}
+  32              		.cfi_def_cfa_offset 4
+  33              		.cfi_offset 7, -4
+  34 0002 85B0     		sub	sp, sp, #20
+  35              		.cfi_def_cfa_offset 24
+  36 0004 00AF     		add	r7, sp, #0
+  37              		.cfi_def_cfa_register 7
+  38 0006 7860     		str	r0, [r7, #4]
+  75:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c ****     uint32_t ui32Regval;
+  76:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c ****     //
+  77:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c ****     // Check the arguments.
+  78:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c ****     //
+  79:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c ****     ASSERT(ui32Interval == WATCHDOG_INTERVAL_32768 ||
+  80:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c ****            ui32Interval == WATCHDOG_INTERVAL_8192  ||
+  81:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c ****            ui32Interval == WATCHDOG_INTERVAL_512   ||
+  82:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c ****            ui32Interval == WATCHDOG_INTERVAL_64);
+  83:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** 
+  84:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c ****     // Disable Timer to set interval
+  85:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c ****     HWREG(SMWDTHROSC_WDCTL) &= ~SMWDTHROSC_WDCTL_EN;
+  39              		.loc 1 85 0
+  40 0008 4FF4A043 		mov	r3, #20480
+  41 000c C4F20D03 		movt	r3, 16397
+  42 0010 4FF4A042 		mov	r2, #20480
+  43 0014 C4F20D02 		movt	r2, 16397
+  44 0018 1268     		ldr	r2, [r2]
+  45 001a 22F00802 		bic	r2, r2, #8
+  46 001e 1A60     		str	r2, [r3]
+  86:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c ****     ui32Regval = HWREG(SMWDTHROSC_WDCTL);
+  47              		.loc 1 86 0
+  48 0020 4FF4A043 		mov	r3, #20480
+  49 0024 C4F20D03 		movt	r3, 16397
+  50 0028 1B68     		ldr	r3, [r3]
+  51 002a FB60     		str	r3, [r7, #12]
+  87:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c ****     ui32Regval &= ~SMWDTHROSC_WDCTL_INT_M;
+  52              		.loc 1 87 0
+  53 002c FB68     		ldr	r3, [r7, #12]
+  54 002e 23F00303 		bic	r3, r3, #3
+  55 0032 FB60     		str	r3, [r7, #12]
+  88:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c ****     ui32Regval |= ui32Interval;
+  56              		.loc 1 88 0
+  57 0034 FA68     		ldr	r2, [r7, #12]
+  58 0036 7B68     		ldr	r3, [r7, #4]
+  59 0038 1343     		orrs	r3, r3, r2
+  60 003a FB60     		str	r3, [r7, #12]
+  89:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c ****     HWREG(SMWDTHROSC_WDCTL) = ui32Regval;
+  61              		.loc 1 89 0
+  62 003c 4FF4A043 		mov	r3, #20480
+  63 0040 C4F20D03 		movt	r3, 16397
+  64 0044 FA68     		ldr	r2, [r7, #12]
+  65 0046 1A60     		str	r2, [r3]
+  90:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** 
+  91:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c ****     //
+  92:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c ****     // Enable the watchdog timer module.
+  93:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c ****     //
+  94:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c ****     ui32Regval = HWREG(SMWDTHROSC_WDCTL);
+  66              		.loc 1 94 0
+  67 0048 4FF4A043 		mov	r3, #20480
+  68 004c C4F20D03 		movt	r3, 16397
+  69 0050 1B68     		ldr	r3, [r3]
+  70 0052 FB60     		str	r3, [r7, #12]
+  95:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c ****     ui32Regval &= ~0x4;
+  71              		.loc 1 95 0
+  72 0054 FB68     		ldr	r3, [r7, #12]
+  73 0056 23F00403 		bic	r3, r3, #4
+  74 005a FB60     		str	r3, [r7, #12]
+  96:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c ****     ui32Regval |= SMWDTHROSC_WDCTL_EN;
+  75              		.loc 1 96 0
+  76 005c FB68     		ldr	r3, [r7, #12]
+  77 005e 43F00803 		orr	r3, r3, #8
+  78 0062 FB60     		str	r3, [r7, #12]
+  97:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c ****     HWREG(SMWDTHROSC_WDCTL) = ui32Regval;
+  79              		.loc 1 97 0
+  80 0064 4FF4A043 		mov	r3, #20480
+  81 0068 C4F20D03 		movt	r3, 16397
+  82 006c FA68     		ldr	r2, [r7, #12]
+  83 006e 1A60     		str	r2, [r3]
+  98:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** }
+  84              		.loc 1 98 0
+  85 0070 1437     		adds	r7, r7, #20
+  86 0072 BD46     		mov	sp, r7
+  87              		@ sp needed
+  88 0074 5DF8047B 		ldr	r7, [sp], #4
+  89 0078 7047     		bx	lr
+  90              		.cfi_endproc
+  91              	.LFE0:
+  93 007a 00BF     		.align	2
+  94              		.global	WatchdogClear
+  95              		.thumb
+  96              		.thumb_func
+  98              	WatchdogClear:
+  99              	.LFB1:
+  99:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** 
+ 100:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** //*****************************************************************************
+ 101:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** //
+ 102:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** //! Clear watch dog timer
+ 103:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** //!
+ 104:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** //! This function clears the watch dog timer.
+ 105:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** //! Timer must be enabled for the clear operation to take effect.
+ 106:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** //!
+ 107:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** //! \return None
+ 108:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** //
+ 109:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** //*****************************************************************************
+ 110:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** void
+ 111:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** WatchdogClear(void)
+ 112:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** {
+ 100              		.loc 1 112 0
+ 101              		.cfi_startproc
+ 102              		@ args = 0, pretend = 0, frame = 8
+ 103              		@ frame_needed = 1, uses_anonymous_args = 0
+ 104              		@ link register save eliminated.
+ 105 007c 80B4     		push	{r7}
+ 106              		.cfi_def_cfa_offset 4
+ 107              		.cfi_offset 7, -4
+ 108 007e 83B0     		sub	sp, sp, #12
+ 109              		.cfi_def_cfa_offset 16
+ 110 0080 00AF     		add	r7, sp, #0
+ 111              		.cfi_def_cfa_register 7
+ 113:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c ****     uint32_t ui32Reg1;
+ 114:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c ****     uint32_t ui32Reg2;
+ 115:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** 
+ 116:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c ****     //
+ 117:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c ****     // Write 0xA followed by 0x5 to CLR field
+ 118:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c ****     // (0x5 also clears in timer mode)
+ 119:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c ****     //
+ 120:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c ****     ui32Reg1 = HWREG(SMWDTHROSC_WDCTL);
+ 112              		.loc 1 120 0
+ 113 0082 4FF4A043 		mov	r3, #20480
+ 114 0086 C4F20D03 		movt	r3, 16397
+ 115 008a 1B68     		ldr	r3, [r3]
+ 116 008c 7B60     		str	r3, [r7, #4]
+ 121:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c ****     ui32Reg1 &= ~SMWDTHROSC_WDCTL_CLR_M;
+ 117              		.loc 1 121 0
+ 118 008e 7B68     		ldr	r3, [r7, #4]
+ 119 0090 23F0F003 		bic	r3, r3, #240
+ 120 0094 7B60     		str	r3, [r7, #4]
+ 122:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c ****     ui32Reg2 = ui32Reg1 | (0x5 << SMWDTHROSC_WDCTL_CLR_S);
+ 121              		.loc 1 122 0
+ 122 0096 7B68     		ldr	r3, [r7, #4]
+ 123 0098 43F05003 		orr	r3, r3, #80
+ 124 009c 3B60     		str	r3, [r7]
+ 123:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c ****     ui32Reg1 |= 0xa << SMWDTHROSC_WDCTL_CLR_S;
+ 125              		.loc 1 123 0
+ 126 009e 7B68     		ldr	r3, [r7, #4]
+ 127 00a0 43F0A003 		orr	r3, r3, #160
+ 128 00a4 7B60     		str	r3, [r7, #4]
+ 124:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** 
+ 125:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c ****     //
+ 126:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c ****     // The following two writes must happen within 0.5 cycle of WDT clock!
+ 127:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c ****     // for clear to actually happen.
+ 128:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c ****     // Note:  might need to "safe guard" this zone by disabling interrupts.
+ 129:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c ****     //
+ 130:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c ****     HWREG(SMWDTHROSC_WDCTL) = ui32Reg1;
+ 129              		.loc 1 130 0
+ 130 00a6 4FF4A043 		mov	r3, #20480
+ 131 00aa C4F20D03 		movt	r3, 16397
+ 132 00ae 7A68     		ldr	r2, [r7, #4]
+ 133 00b0 1A60     		str	r2, [r3]
+ 131:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c ****     HWREG(SMWDTHROSC_WDCTL) = ui32Reg2;
+ 134              		.loc 1 131 0
+ 135 00b2 4FF4A043 		mov	r3, #20480
+ 136 00b6 C4F20D03 		movt	r3, 16397
+ 137 00ba 3A68     		ldr	r2, [r7]
+ 138 00bc 1A60     		str	r2, [r3]
+ 132:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/watchdog.c **** }
+ 139              		.loc 1 132 0
+ 140 00be 0C37     		adds	r7, r7, #12
+ 141 00c0 BD46     		mov	sp, r7
+ 142              		@ sp needed
+ 143 00c2 5DF8047B 		ldr	r7, [sp], #4
+ 144 00c6 7047     		bx	lr
+ 145              		.cfi_endproc
+ 146              	.LFE1:
+ 148              	.Letext0:
+ 149              		.file 2 "/usr/include/newlib/machine/_default_types.h"
+ 150              		.file 3 "/usr/include/newlib/stdint.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 watchdog.c
+     /tmp/ccA7trzQ.s:18     .text:0000000000000000 $t
+     /tmp/ccA7trzQ.s:23     .text:0000000000000000 WatchdogEnable
+     /tmp/ccA7trzQ.s:98     .text:000000000000007c WatchdogClear
+                     .debug_frame:0000000000000010 $d
+                           .group:0000000000000000 wm4.1.08074afb2ccc9da754fae8e3ee0f577b
+                           .group:0000000000000000 wm4.hw_ints.h.42.85b9479f2be35b086f1bb7cbb15bc097
+                           .group:0000000000000000 wm4.hw_memmap.h.39.19283c377d449c9bca5fdd8ccb62628c
+                           .group:0000000000000000 wm4.hw_smwdthrosc.h.39.ab42722bc5551495328d9a67238c9bbc
+                           .group:0000000000000000 wm4.features.h.22.6a4ca7cd053637cc1d0db6c16f39b2d7
+                           .group:0000000000000000 wm4._default_types.h.15.8b2cb27e528498f8ff711db085d6e489
+                           .group:0000000000000000 wm4.stdint.h.20.796e373797e732130a803d4c0338fa1b
+                           .group:0000000000000000 wm4.stdbool.h.29.1c9ee6859ce8145f7838a4f2549ccec2
+                           .group:0000000000000000 wm4.hw_types.h.67.b10589a0806dcc2d274d6fab6b736519
+                           .group:0000000000000000 wm4.interrupt.h.41.272fc4ec0e276feb439e7974d0f77eaf
+                           .group:0000000000000000 wm4.watchdog.h.41.4d890ddcf93e25ea4cd0b933e3b6214e
+
+NO UNDEFINED SYMBOLS

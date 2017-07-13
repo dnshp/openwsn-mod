@@ -1,0 +1,337 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"dummy_crypto_engine.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.rodata
+  19              		.align	2
+  22              	rreg_uriquery:
+  23 0000 683D7563 		.ascii	"h=ucb\000"
+  23      6200
+  24 0006 0000     		.align	2
+  27              	infoBoardname:
+  28 0008 43433235 		.ascii	"CC2538\000"
+  28      333800
+  29 000f 00       		.align	2
+  32              	infouCName:
+  33 0010 43433235 		.ascii	"CC2538\000"
+  33      333800
+  34 0017 00       		.align	2
+  37              	infoRadioName:
+  38 0018 43433235 		.ascii	"CC2538 SoC\000"
+  38      33382053 
+  38      6F4300
+  39 0023 00       		.align	2
+  42              	infoStackName:
+  43 0024 4F70656E 		.ascii	"OpenWSN \000"
+  43      57534E20 
+  43      00
+  44              		.text
+  45              		.align	2
+  46              		.thumb
+  47              		.thumb_func
+  49              	aes_cbc_enc_raw_identity:
+  50              	.LFB0:
+  51              		.file 1 "build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c"
+   1:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c **** /**
+   2:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c **** \brief Implementation of a crypto engine that does nothing
+   3:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c **** 
+   4:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c **** \author Malisa Vucinic <malishav@gmail.com>, March 2015.
+   5:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c **** */
+   6:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c **** 
+   7:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c **** #include <stdint.h>
+   8:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c **** #include <string.h>
+   9:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c **** #include "dummy_crypto_engine.h"
+  10:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c **** 
+  11:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c **** static owerror_t aes_cbc_enc_raw_identity(uint8_t* buffer, uint8_t len, uint8_t key[16], uint8_t iv
+  52              		.loc 1 11 0
+  53              		.cfi_startproc
+  54              		@ args = 0, pretend = 0, frame = 16
+  55              		@ frame_needed = 1, uses_anonymous_args = 0
+  56              		@ link register save eliminated.
+  57 0000 80B4     		push	{r7}
+  58              		.cfi_def_cfa_offset 4
+  59              		.cfi_offset 7, -4
+  60 0002 85B0     		sub	sp, sp, #20
+  61              		.cfi_def_cfa_offset 24
+  62 0004 00AF     		add	r7, sp, #0
+  63              		.cfi_def_cfa_register 7
+  64 0006 F860     		str	r0, [r7, #12]
+  65 0008 7A60     		str	r2, [r7, #4]
+  66 000a 3B60     		str	r3, [r7]
+  67 000c 0B46     		mov	r3, r1
+  68 000e FB72     		strb	r3, [r7, #11]
+  12:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c ****    return E_SUCCESS;
+  69              		.loc 1 12 0
+  70 0010 0023     		movs	r3, #0
+  13:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c **** }
+  71              		.loc 1 13 0
+  72 0012 1846     		mov	r0, r3
+  73 0014 1437     		adds	r7, r7, #20
+  74 0016 BD46     		mov	sp, r7
+  75              		@ sp needed
+  76 0018 5DF8047B 		ldr	r7, [sp], #4
+  77 001c 7047     		bx	lr
+  78              		.cfi_endproc
+  79              	.LFE0:
+  81 001e 00BF     		.align	2
+  82              		.thumb
+  83              		.thumb_func
+  85              	aes_ccms_enc_identity:
+  86              	.LFB1:
+  14:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c **** 
+  15:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c **** static owerror_t aes_ccms_enc_identity(uint8_t* a,
+  16:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c ****          uint8_t len_a,
+  17:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c ****          uint8_t* m,
+  18:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c ****          uint8_t* len_m,
+  19:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c ****          uint8_t* nonce,
+  20:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c ****          uint8_t l,
+  21:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c ****          uint8_t key[16],
+  22:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c ****          uint8_t len_mac) {
+  87              		.loc 1 22 0
+  88              		.cfi_startproc
+  89              		@ args = 16, pretend = 0, frame = 16
+  90              		@ frame_needed = 1, uses_anonymous_args = 0
+  91              		@ link register save eliminated.
+  92 0020 80B4     		push	{r7}
+  93              		.cfi_def_cfa_offset 4
+  94              		.cfi_offset 7, -4
+  95 0022 85B0     		sub	sp, sp, #20
+  96              		.cfi_def_cfa_offset 24
+  97 0024 00AF     		add	r7, sp, #0
+  98              		.cfi_def_cfa_register 7
+  99 0026 F860     		str	r0, [r7, #12]
+ 100 0028 7A60     		str	r2, [r7, #4]
+ 101 002a 3B60     		str	r3, [r7]
+ 102 002c 0B46     		mov	r3, r1
+ 103 002e FB72     		strb	r3, [r7, #11]
+  23:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c ****    
+  24:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c ****    return E_SUCCESS;
+ 104              		.loc 1 24 0
+ 105 0030 0023     		movs	r3, #0
+  25:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c **** }
+ 106              		.loc 1 25 0
+ 107 0032 1846     		mov	r0, r3
+ 108 0034 1437     		adds	r7, r7, #20
+ 109 0036 BD46     		mov	sp, r7
+ 110              		@ sp needed
+ 111 0038 5DF8047B 		ldr	r7, [sp], #4
+ 112 003c 7047     		bx	lr
+ 113              		.cfi_endproc
+ 114              	.LFE1:
+ 116 003e 00BF     		.align	2
+ 117              		.thumb
+ 118              		.thumb_func
+ 120              	aes_ccms_dec_identity:
+ 121              	.LFB2:
+  26:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c **** 
+  27:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c **** static owerror_t aes_ccms_dec_identity(uint8_t* a,
+  28:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c ****          uint8_t len_a,
+  29:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c ****          uint8_t* m,
+  30:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c ****          uint8_t* len_m,
+  31:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c ****          uint8_t* nonce,
+  32:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c ****          uint8_t l,
+  33:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c ****          uint8_t key[16],
+  34:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c ****          uint8_t len_mac) {
+ 122              		.loc 1 34 0
+ 123              		.cfi_startproc
+ 124              		@ args = 16, pretend = 0, frame = 16
+ 125              		@ frame_needed = 1, uses_anonymous_args = 0
+ 126              		@ link register save eliminated.
+ 127 0040 80B4     		push	{r7}
+ 128              		.cfi_def_cfa_offset 4
+ 129              		.cfi_offset 7, -4
+ 130 0042 85B0     		sub	sp, sp, #20
+ 131              		.cfi_def_cfa_offset 24
+ 132 0044 00AF     		add	r7, sp, #0
+ 133              		.cfi_def_cfa_register 7
+ 134 0046 F860     		str	r0, [r7, #12]
+ 135 0048 7A60     		str	r2, [r7, #4]
+ 136 004a 3B60     		str	r3, [r7]
+ 137 004c 0B46     		mov	r3, r1
+ 138 004e FB72     		strb	r3, [r7, #11]
+  35:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c ****    
+  36:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c ****    return E_SUCCESS;
+ 139              		.loc 1 36 0
+ 140 0050 0023     		movs	r3, #0
+  37:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c **** }
+ 141              		.loc 1 37 0
+ 142 0052 1846     		mov	r0, r3
+ 143 0054 1437     		adds	r7, r7, #20
+ 144 0056 BD46     		mov	sp, r7
+ 145              		@ sp needed
+ 146 0058 5DF8047B 		ldr	r7, [sp], #4
+ 147 005c 7047     		bx	lr
+ 148              		.cfi_endproc
+ 149              	.LFE2:
+ 151 005e 00BF     		.align	2
+ 152              		.thumb
+ 153              		.thumb_func
+ 155              	aes_ctr_enc_raw_identity:
+ 156              	.LFB3:
+  38:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c **** 
+  39:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c **** static owerror_t aes_ctr_enc_raw_identity(uint8_t* buffer, uint8_t len, uint8_t key[16], uint8_t iv
+ 157              		.loc 1 39 0
+ 158              		.cfi_startproc
+ 159              		@ args = 0, pretend = 0, frame = 16
+ 160              		@ frame_needed = 1, uses_anonymous_args = 0
+ 161              		@ link register save eliminated.
+ 162 0060 80B4     		push	{r7}
+ 163              		.cfi_def_cfa_offset 4
+ 164              		.cfi_offset 7, -4
+ 165 0062 85B0     		sub	sp, sp, #20
+ 166              		.cfi_def_cfa_offset 24
+ 167 0064 00AF     		add	r7, sp, #0
+ 168              		.cfi_def_cfa_register 7
+ 169 0066 F860     		str	r0, [r7, #12]
+ 170 0068 7A60     		str	r2, [r7, #4]
+ 171 006a 3B60     		str	r3, [r7]
+ 172 006c 0B46     		mov	r3, r1
+ 173 006e FB72     		strb	r3, [r7, #11]
+  40:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c ****    return E_SUCCESS;
+ 174              		.loc 1 40 0
+ 175 0070 0023     		movs	r3, #0
+  41:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c **** }
+ 176              		.loc 1 41 0
+ 177 0072 1846     		mov	r0, r3
+ 178 0074 1437     		adds	r7, r7, #20
+ 179 0076 BD46     		mov	sp, r7
+ 180              		@ sp needed
+ 181 0078 5DF8047B 		ldr	r7, [sp], #4
+ 182 007c 7047     		bx	lr
+ 183              		.cfi_endproc
+ 184              	.LFE3:
+ 186 007e 00BF     		.align	2
+ 187              		.thumb
+ 188              		.thumb_func
+ 190              	aes_ecb_enc_identity:
+ 191              	.LFB4:
+  42:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c **** 
+  43:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c **** static owerror_t aes_ecb_enc_identity(uint8_t* buffer, uint8_t* key) {
+ 192              		.loc 1 43 0
+ 193              		.cfi_startproc
+ 194              		@ args = 0, pretend = 0, frame = 8
+ 195              		@ frame_needed = 1, uses_anonymous_args = 0
+ 196              		@ link register save eliminated.
+ 197 0080 80B4     		push	{r7}
+ 198              		.cfi_def_cfa_offset 4
+ 199              		.cfi_offset 7, -4
+ 200 0082 83B0     		sub	sp, sp, #12
+ 201              		.cfi_def_cfa_offset 16
+ 202 0084 00AF     		add	r7, sp, #0
+ 203              		.cfi_def_cfa_register 7
+ 204 0086 7860     		str	r0, [r7, #4]
+ 205 0088 3960     		str	r1, [r7]
+  44:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c ****    return E_SUCCESS;
+ 206              		.loc 1 44 0
+ 207 008a 0023     		movs	r3, #0
+  45:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c **** }
+ 208              		.loc 1 45 0
+ 209 008c 1846     		mov	r0, r3
+ 210 008e 0C37     		adds	r7, r7, #12
+ 211 0090 BD46     		mov	sp, r7
+ 212              		@ sp needed
+ 213 0092 5DF8047B 		ldr	r7, [sp], #4
+ 214 0096 7047     		bx	lr
+ 215              		.cfi_endproc
+ 216              	.LFE4:
+ 218              		.align	2
+ 219              		.thumb
+ 220              		.thumb_func
+ 222              	init:
+ 223              	.LFB5:
+  46:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c **** 
+  47:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c **** static owerror_t init(void) {
+ 224              		.loc 1 47 0
+ 225              		.cfi_startproc
+ 226              		@ args = 0, pretend = 0, frame = 0
+ 227              		@ frame_needed = 1, uses_anonymous_args = 0
+ 228              		@ link register save eliminated.
+ 229 0098 80B4     		push	{r7}
+ 230              		.cfi_def_cfa_offset 4
+ 231              		.cfi_offset 7, -4
+ 232 009a 00AF     		add	r7, sp, #0
+ 233              		.cfi_def_cfa_register 7
+  48:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c ****    return E_SUCCESS;
+ 234              		.loc 1 48 0
+ 235 009c 0023     		movs	r3, #0
+  49:build/openmote-cc2538_armgcc/bsp/boards/common/dummy_crypto_engine.c **** }
+ 236              		.loc 1 49 0
+ 237 009e 1846     		mov	r0, r3
+ 238 00a0 BD46     		mov	sp, r7
+ 239              		@ sp needed
+ 240 00a2 5DF8047B 		ldr	r7, [sp], #4
+ 241 00a6 7047     		bx	lr
+ 242              		.cfi_endproc
+ 243              	.LFE5:
+ 245              		.global	dummy_crypto_engine
+ 246              		.section	.rodata
+ 247 002d 000000   		.align	2
+ 250              	dummy_crypto_engine:
+ 251 0030 00000000 		.word	aes_ccms_enc_identity
+ 252 0034 00000000 		.word	aes_ccms_dec_identity
+ 253 0038 00000000 		.word	aes_cbc_enc_raw_identity
+ 254 003c 00000000 		.word	aes_ctr_enc_raw_identity
+ 255 0040 00000000 		.word	aes_ecb_enc_identity
+ 256 0044 00000000 		.word	init
+ 257              		.text
+ 258              	.Letext0:
+ 259              		.file 2 "/usr/include/newlib/machine/_default_types.h"
+ 260              		.file 3 "/usr/include/newlib/stdint.h"
+ 261              		.file 4 "inc/opendefs.h"
+ 262              		.file 5 "bsp/boards/crypto_engine.h"
+ 263              		.file 6 "bsp/boards/openmote-cc2538/board_info.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 dummy_crypto_engine.c
+     /tmp/ccvSgzjy.s:19     .rodata:0000000000000000 $d
+     /tmp/ccvSgzjy.s:22     .rodata:0000000000000000 rreg_uriquery
+     /tmp/ccvSgzjy.s:27     .rodata:0000000000000008 infoBoardname
+     /tmp/ccvSgzjy.s:32     .rodata:0000000000000010 infouCName
+     /tmp/ccvSgzjy.s:37     .rodata:0000000000000018 infoRadioName
+     /tmp/ccvSgzjy.s:42     .rodata:0000000000000024 infoStackName
+     /tmp/ccvSgzjy.s:45     .text:0000000000000000 $t
+     /tmp/ccvSgzjy.s:49     .text:0000000000000000 aes_cbc_enc_raw_identity
+     /tmp/ccvSgzjy.s:85     .text:0000000000000020 aes_ccms_enc_identity
+     /tmp/ccvSgzjy.s:120    .text:0000000000000040 aes_ccms_dec_identity
+     /tmp/ccvSgzjy.s:155    .text:0000000000000060 aes_ctr_enc_raw_identity
+     /tmp/ccvSgzjy.s:190    .text:0000000000000080 aes_ecb_enc_identity
+     /tmp/ccvSgzjy.s:222    .text:0000000000000098 init
+     /tmp/ccvSgzjy.s:250    .rodata:0000000000000030 dummy_crypto_engine
+                     .debug_frame:0000000000000010 $d
+                           .group:0000000000000000 wm4.1.08074afb2ccc9da754fae8e3ee0f577b
+                           .group:0000000000000000 wm4.features.h.22.6a4ca7cd053637cc1d0db6c16f39b2d7
+                           .group:0000000000000000 wm4._default_types.h.15.8b2cb27e528498f8ff711db085d6e489
+                           .group:0000000000000000 wm4.stdint.h.20.796e373797e732130a803d4c0338fa1b
+                           .group:0000000000000000 wm4.newlib.h.8.fec018e441fee7bfa1923812ad010f97
+                           .group:0000000000000000 wm4.config.h.212.4163ef2871a828c674038d036b081cfd
+                           .group:0000000000000000 wm4._ansi.h.23.5644b60c990a4800b02a6e654e88f93a
+                           .group:0000000000000000 wm4.stddef.h.39.daafd3d79fe2f3a84d2d73d7d4e706f8
+                           .group:0000000000000000 wm4.lock.h.2.9bc98482741e5e2a9450b12934a684ea
+                           .group:0000000000000000 wm4._types.h.54.d3d34a3b7f3cc230cd159baf022b4b08
+                           .group:0000000000000000 wm4.stddef.h.158.61317cdbfb4026324507d123a50b0fd6
+                           .group:0000000000000000 wm4.reent.h.17.8bd9e4098e0428508c282cad794fae43
+                           .group:0000000000000000 wm4.cdefs.h.47.339223046f475c9f2d5db3a9118d7c65
+                           .group:0000000000000000 wm4.string.h.15.dab3980bf35408a4c507182805e2de3a
+                           .group:0000000000000000 wm4.stddef.h.158.a7efb00f6cbc6f43213b50e183c9830c
+                           .group:0000000000000000 wm4.string.h.126.6ff3aa59129e7f66b2c273baf353e066
+                           .group:0000000000000000 wm4.toolchain_defs.h.2.e5fd326231d01413e5361944b26cde07
+                           .group:0000000000000000 wm4.stdbool.h.29.1c9ee6859ce8145f7838a4f2549ccec2
+                           .group:0000000000000000 wm4.hw_types.h.67.b10589a0806dcc2d274d6fab6b736519
+                           .group:0000000000000000 wm4.interrupt.h.41.272fc4ec0e276feb439e7974d0f77eaf
+                           .group:0000000000000000 wm4.board_info.h.22.aeb00002354a4949fff54190040e37af
+                           .group:0000000000000000 wm4.opendefs.h.23.16dafe2a30b31097968a5d4db894173a
+                           .group:0000000000000000 wm4.crypto_engine.h.17.23540fa955a265a0c9d1c1216a5a854b
+
+NO UNDEFINED SYMBOLS

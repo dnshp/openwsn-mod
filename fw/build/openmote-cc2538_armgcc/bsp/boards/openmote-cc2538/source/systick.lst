@@ -1,0 +1,596 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"systick.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.align	2
+  19              		.global	SysTickEnable
+  20              		.thumb
+  21              		.thumb_func
+  23              	SysTickEnable:
+  24              	.LFB0:
+  25              		.file 1 "build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c"
+   1:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** /******************************************************************************
+   2:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** *  Filename:       systick.c
+   3:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** *  Revised:        $Date: 2013-01-21 15:25:21 +0100 (Mon, 21 Jan 2013) $
+   4:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** *  Revision:       $Revision: 9178 $
+   5:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** *
+   6:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** *  Description:    Driver for the SysTick timer in NVIC.
+   7:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** *
+   8:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** *  Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
+   9:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** *
+  10:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** *
+  11:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** *  Redistribution and use in source and binary forms, with or without
+  12:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** *  modification, are permitted provided that the following conditions
+  13:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** *  are met:
+  14:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** *
+  15:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** *    Redistributions of source code must retain the above copyright
+  16:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** *    notice, this list of conditions and the following disclaimer.
+  17:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** *
+  18:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** *    Redistributions in binary form must reproduce the above copyright
+  19:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** *    notice, this list of conditions and the following disclaimer in the
+  20:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** *    documentation and/or other materials provided with the distribution.
+  21:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** *
+  22:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** *    Neither the name of Texas Instruments Incorporated nor the names of
+  23:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** *    its contributors may be used to endorse or promote products derived
+  24:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** *    from this software without specific prior written permission.
+  25:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** *
+  26:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  27:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  28:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  29:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** *  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  30:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** *  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  31:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** *  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  32:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** *  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  33:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** *  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+  34:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  35:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  36:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** *  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  37:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** *
+  38:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** ******************************************************************************/
+  39:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** 
+  40:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //*****************************************************************************
+  41:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //
+  42:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! \addtogroup systick_api
+  43:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! @{
+  44:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //
+  45:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //*****************************************************************************
+  46:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** 
+  47:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** #include <headers/hw_ints.h>
+  48:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** #include <headers/hw_nvic.h>
+  49:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** #include "debug.h"
+  50:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** #include "interrupt.h"
+  51:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** #include "systick.h"
+  52:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** 
+  53:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //*****************************************************************************
+  54:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //
+  55:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! Enables the SysTick counter
+  56:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //!
+  57:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! This function starts the SysTick counter.  If an interrupt handler has been
+  58:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! registered, it is called when the SysTick counter rolls over.
+  59:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //!
+  60:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! \note Calling this function causes the SysTick counter to (re)commence
+  61:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! counting from its current value.  The counter is not automatically reloaded
+  62:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! with the period as specified in a previous call to SysTickPeriodSet().  If
+  63:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! an immediate reload is required, the \b NVIC_ST_CURRENT register must be
+  64:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! written to force the reload.  Any write to this register clears the SysTick
+  65:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! counter to 0 and causes a reload with the supplied period on the next
+  66:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! clock.
+  67:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //!
+  68:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! \return None
+  69:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //
+  70:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //*****************************************************************************
+  71:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** void
+  72:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** SysTickEnable(void)
+  73:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** {
+  26              		.loc 1 73 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 0
+  29              		@ frame_needed = 1, uses_anonymous_args = 0
+  30              		@ link register save eliminated.
+  31 0000 80B4     		push	{r7}
+  32              		.cfi_def_cfa_offset 4
+  33              		.cfi_offset 7, -4
+  34 0002 00AF     		add	r7, sp, #0
+  35              		.cfi_def_cfa_register 7
+  74:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     //
+  75:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     // Enable SysTick.
+  76:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     //
+  77:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     HWREG(NVIC_ST_CTRL) |= NVIC_ST_CTRL_CLK_SRC | NVIC_ST_CTRL_ENABLE;
+  36              		.loc 1 77 0
+  37 0004 4EF21003 		movw	r3, #57360
+  38 0008 CEF20003 		movt	r3, 57344
+  39 000c 4EF21002 		movw	r2, #57360
+  40 0010 CEF20002 		movt	r2, 57344
+  41 0014 1268     		ldr	r2, [r2]
+  42 0016 42F00502 		orr	r2, r2, #5
+  43 001a 1A60     		str	r2, [r3]
+  78:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** }
+  44              		.loc 1 78 0
+  45 001c BD46     		mov	sp, r7
+  46              		@ sp needed
+  47 001e 5DF8047B 		ldr	r7, [sp], #4
+  48 0022 7047     		bx	lr
+  49              		.cfi_endproc
+  50              	.LFE0:
+  52              		.align	2
+  53              		.global	SysTickDisable
+  54              		.thumb
+  55              		.thumb_func
+  57              	SysTickDisable:
+  58              	.LFB1:
+  79:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** 
+  80:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //*****************************************************************************
+  81:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //
+  82:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! Disables the SysTick counter
+  83:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //!
+  84:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! This will stop the SysTick counter.  If an interrupt handler has been
+  85:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! registered, it will no longer be called until SysTick is restarted.
+  86:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //!
+  87:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! \return None
+  88:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //
+  89:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //*****************************************************************************
+  90:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** void
+  91:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** SysTickDisable(void)
+  92:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** {
+  59              		.loc 1 92 0
+  60              		.cfi_startproc
+  61              		@ args = 0, pretend = 0, frame = 0
+  62              		@ frame_needed = 1, uses_anonymous_args = 0
+  63              		@ link register save eliminated.
+  64 0024 80B4     		push	{r7}
+  65              		.cfi_def_cfa_offset 4
+  66              		.cfi_offset 7, -4
+  67 0026 00AF     		add	r7, sp, #0
+  68              		.cfi_def_cfa_register 7
+  93:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     //
+  94:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     // Disable SysTick.
+  95:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     //
+  96:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     HWREG(NVIC_ST_CTRL) &= ~(NVIC_ST_CTRL_ENABLE);
+  69              		.loc 1 96 0
+  70 0028 4EF21003 		movw	r3, #57360
+  71 002c CEF20003 		movt	r3, 57344
+  72 0030 4EF21002 		movw	r2, #57360
+  73 0034 CEF20002 		movt	r2, 57344
+  74 0038 1268     		ldr	r2, [r2]
+  75 003a 22F00102 		bic	r2, r2, #1
+  76 003e 1A60     		str	r2, [r3]
+  97:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** }
+  77              		.loc 1 97 0
+  78 0040 BD46     		mov	sp, r7
+  79              		@ sp needed
+  80 0042 5DF8047B 		ldr	r7, [sp], #4
+  81 0046 7047     		bx	lr
+  82              		.cfi_endproc
+  83              	.LFE1:
+  85              		.align	2
+  86              		.global	SysTickIntRegister
+  87              		.thumb
+  88              		.thumb_func
+  90              	SysTickIntRegister:
+  91              	.LFB2:
+  98:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** 
+  99:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //*****************************************************************************
+ 100:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //
+ 101:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! Registers an interrupt handler for the SysTick interrupt
+ 102:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //!
+ 103:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! \param pfnHandler is a pointer to the function to be called when the
+ 104:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! SysTick interrupt occurs.
+ 105:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //!
+ 106:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! This sets the handler to be called when a SysTick interrupt occurs.
+ 107:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //!
+ 108:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! \sa See IntRegister() for important information about registering interrupt
+ 109:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! handlers.
+ 110:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //!
+ 111:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! \return None
+ 112:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //
+ 113:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //*****************************************************************************
+ 114:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** void
+ 115:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** SysTickIntRegister(void (*pfnHandler)(void))
+ 116:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** {
+  92              		.loc 1 116 0
+  93              		.cfi_startproc
+  94              		@ args = 0, pretend = 0, frame = 8
+  95              		@ frame_needed = 1, uses_anonymous_args = 0
+  96 0048 80B5     		push	{r7, lr}
+  97              		.cfi_def_cfa_offset 8
+  98              		.cfi_offset 7, -8
+  99              		.cfi_offset 14, -4
+ 100 004a 82B0     		sub	sp, sp, #8
+ 101              		.cfi_def_cfa_offset 16
+ 102 004c 00AF     		add	r7, sp, #0
+ 103              		.cfi_def_cfa_register 7
+ 104 004e 7860     		str	r0, [r7, #4]
+ 117:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     //
+ 118:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     // Register the interrupt handler, returning an error if an error occurs.
+ 119:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     //
+ 120:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     IntRegister(FAULT_SYSTICK, pfnHandler);
+ 105              		.loc 1 120 0
+ 106 0050 0F20     		movs	r0, #15
+ 107 0052 7968     		ldr	r1, [r7, #4]
+ 108 0054 FFF7FEFF 		bl	IntRegister
+ 121:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** 
+ 122:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     //
+ 123:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     // Enable the SysTick interrupt.
+ 124:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     //
+ 125:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     HWREG(NVIC_ST_CTRL) |= NVIC_ST_CTRL_INTEN;
+ 109              		.loc 1 125 0
+ 110 0058 4EF21003 		movw	r3, #57360
+ 111 005c CEF20003 		movt	r3, 57344
+ 112 0060 4EF21002 		movw	r2, #57360
+ 113 0064 CEF20002 		movt	r2, 57344
+ 114 0068 1268     		ldr	r2, [r2]
+ 115 006a 42F00202 		orr	r2, r2, #2
+ 116 006e 1A60     		str	r2, [r3]
+ 126:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** }
+ 117              		.loc 1 126 0
+ 118 0070 0837     		adds	r7, r7, #8
+ 119 0072 BD46     		mov	sp, r7
+ 120              		@ sp needed
+ 121 0074 80BD     		pop	{r7, pc}
+ 122              		.cfi_endproc
+ 123              	.LFE2:
+ 125 0076 00BF     		.align	2
+ 126              		.global	SysTickIntUnregister
+ 127              		.thumb
+ 128              		.thumb_func
+ 130              	SysTickIntUnregister:
+ 131              	.LFB3:
+ 127:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** 
+ 128:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //*****************************************************************************
+ 129:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //
+ 130:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! Unregisters the interrupt handler for the SysTick interrupt
+ 131:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //!
+ 132:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! This function will clear the handler to be called when a SysTick interrupt
+ 133:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! occurs.
+ 134:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //!
+ 135:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! \sa See IntRegister() for important information about registering interrupt
+ 136:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! handlers.
+ 137:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //!
+ 138:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! \return None
+ 139:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //
+ 140:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //*****************************************************************************
+ 141:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** void
+ 142:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** SysTickIntUnregister(void)
+ 143:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** {
+ 132              		.loc 1 143 0
+ 133              		.cfi_startproc
+ 134              		@ args = 0, pretend = 0, frame = 0
+ 135              		@ frame_needed = 1, uses_anonymous_args = 0
+ 136 0078 80B5     		push	{r7, lr}
+ 137              		.cfi_def_cfa_offset 8
+ 138              		.cfi_offset 7, -8
+ 139              		.cfi_offset 14, -4
+ 140 007a 00AF     		add	r7, sp, #0
+ 141              		.cfi_def_cfa_register 7
+ 144:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     //
+ 145:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     // Disable the SysTick interrupt.
+ 146:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     //
+ 147:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     HWREG(NVIC_ST_CTRL) &= ~(NVIC_ST_CTRL_INTEN);
+ 142              		.loc 1 147 0
+ 143 007c 4EF21003 		movw	r3, #57360
+ 144 0080 CEF20003 		movt	r3, 57344
+ 145 0084 4EF21002 		movw	r2, #57360
+ 146 0088 CEF20002 		movt	r2, 57344
+ 147 008c 1268     		ldr	r2, [r2]
+ 148 008e 22F00202 		bic	r2, r2, #2
+ 149 0092 1A60     		str	r2, [r3]
+ 148:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** 
+ 149:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     //
+ 150:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     // Unregister the interrupt handler.
+ 151:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     //
+ 152:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     IntUnregister(FAULT_SYSTICK);
+ 150              		.loc 1 152 0
+ 151 0094 0F20     		movs	r0, #15
+ 152 0096 FFF7FEFF 		bl	IntUnregister
+ 153:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** }
+ 153              		.loc 1 153 0
+ 154 009a 80BD     		pop	{r7, pc}
+ 155              		.cfi_endproc
+ 156              	.LFE3:
+ 158              		.align	2
+ 159              		.global	SysTickIntEnable
+ 160              		.thumb
+ 161              		.thumb_func
+ 163              	SysTickIntEnable:
+ 164              	.LFB4:
+ 154:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** 
+ 155:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //*****************************************************************************
+ 156:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //
+ 157:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! Enables the SysTick interrupt
+ 158:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //!
+ 159:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! This function will enable the SysTick interrupt, allowing it to be
+ 160:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! reflected to the processor.
+ 161:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //!
+ 162:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! \note The SysTick interrupt handler does not need to clear the SysTick
+ 163:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! interrupt source as this is done automatically by NVIC when the interrupt
+ 164:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! handler is called.
+ 165:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //!
+ 166:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! \return None
+ 167:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //
+ 168:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //*****************************************************************************
+ 169:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** void
+ 170:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** SysTickIntEnable(void)
+ 171:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** {
+ 165              		.loc 1 171 0
+ 166              		.cfi_startproc
+ 167              		@ args = 0, pretend = 0, frame = 0
+ 168              		@ frame_needed = 1, uses_anonymous_args = 0
+ 169              		@ link register save eliminated.
+ 170 009c 80B4     		push	{r7}
+ 171              		.cfi_def_cfa_offset 4
+ 172              		.cfi_offset 7, -4
+ 173 009e 00AF     		add	r7, sp, #0
+ 174              		.cfi_def_cfa_register 7
+ 172:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     //
+ 173:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     // Enable the SysTick interrupt.
+ 174:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     //
+ 175:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     HWREG(NVIC_ST_CTRL) |= NVIC_ST_CTRL_INTEN;
+ 175              		.loc 1 175 0
+ 176 00a0 4EF21003 		movw	r3, #57360
+ 177 00a4 CEF20003 		movt	r3, 57344
+ 178 00a8 4EF21002 		movw	r2, #57360
+ 179 00ac CEF20002 		movt	r2, 57344
+ 180 00b0 1268     		ldr	r2, [r2]
+ 181 00b2 42F00202 		orr	r2, r2, #2
+ 182 00b6 1A60     		str	r2, [r3]
+ 176:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** }
+ 183              		.loc 1 176 0
+ 184 00b8 BD46     		mov	sp, r7
+ 185              		@ sp needed
+ 186 00ba 5DF8047B 		ldr	r7, [sp], #4
+ 187 00be 7047     		bx	lr
+ 188              		.cfi_endproc
+ 189              	.LFE4:
+ 191              		.align	2
+ 192              		.global	SysTickIntDisable
+ 193              		.thumb
+ 194              		.thumb_func
+ 196              	SysTickIntDisable:
+ 197              	.LFB5:
+ 177:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** 
+ 178:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //*****************************************************************************
+ 179:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //
+ 180:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! Disables the SysTick interrupt
+ 181:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //!
+ 182:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! This function will disable the SysTick interrupt, preventing it from being
+ 183:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! reflected to the processor.
+ 184:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //!
+ 185:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! \return None
+ 186:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //
+ 187:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //*****************************************************************************
+ 188:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** void
+ 189:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** SysTickIntDisable(void)
+ 190:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** {
+ 198              		.loc 1 190 0
+ 199              		.cfi_startproc
+ 200              		@ args = 0, pretend = 0, frame = 0
+ 201              		@ frame_needed = 1, uses_anonymous_args = 0
+ 202              		@ link register save eliminated.
+ 203 00c0 80B4     		push	{r7}
+ 204              		.cfi_def_cfa_offset 4
+ 205              		.cfi_offset 7, -4
+ 206 00c2 00AF     		add	r7, sp, #0
+ 207              		.cfi_def_cfa_register 7
+ 191:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     //
+ 192:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     // Disable the SysTick interrupt.
+ 193:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     //
+ 194:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     HWREG(NVIC_ST_CTRL) &= ~(NVIC_ST_CTRL_INTEN);
+ 208              		.loc 1 194 0
+ 209 00c4 4EF21003 		movw	r3, #57360
+ 210 00c8 CEF20003 		movt	r3, 57344
+ 211 00cc 4EF21002 		movw	r2, #57360
+ 212 00d0 CEF20002 		movt	r2, 57344
+ 213 00d4 1268     		ldr	r2, [r2]
+ 214 00d6 22F00202 		bic	r2, r2, #2
+ 215 00da 1A60     		str	r2, [r3]
+ 195:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** }
+ 216              		.loc 1 195 0
+ 217 00dc BD46     		mov	sp, r7
+ 218              		@ sp needed
+ 219 00de 5DF8047B 		ldr	r7, [sp], #4
+ 220 00e2 7047     		bx	lr
+ 221              		.cfi_endproc
+ 222              	.LFE5:
+ 224              		.align	2
+ 225              		.global	SysTickPeriodSet
+ 226              		.thumb
+ 227              		.thumb_func
+ 229              	SysTickPeriodSet:
+ 230              	.LFB6:
+ 196:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** 
+ 197:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //*****************************************************************************
+ 198:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //
+ 199:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! Sets the period of the SysTick counter
+ 200:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //!
+ 201:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! \param ui32Period is the number of clock ticks in each period of the SysTick
+ 202:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! counter; must be between 1 and 16,777,216, inclusive.
+ 203:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //!
+ 204:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! This function sets the rate at which the SysTick counter wraps; this
+ 205:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! equates to the number of processor clocks between interrupts.
+ 206:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //!
+ 207:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! \note Calling this function does not cause the SysTick counter to reload
+ 208:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! immediately.  If an immediate reload is required, the \b NVIC_ST_CURRENT
+ 209:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! register must be written.  Any write to this register clears the SysTick
+ 210:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! counter to 0 and will cause a reload with the \e ui32Period supplied here on
+ 211:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! the next clock after the SysTick is enabled.
+ 212:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //!
+ 213:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! \return None
+ 214:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //
+ 215:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //*****************************************************************************
+ 216:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** void
+ 217:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** SysTickPeriodSet(uint32_t ui32Period)
+ 218:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** {
+ 231              		.loc 1 218 0
+ 232              		.cfi_startproc
+ 233              		@ args = 0, pretend = 0, frame = 8
+ 234              		@ frame_needed = 1, uses_anonymous_args = 0
+ 235              		@ link register save eliminated.
+ 236 00e4 80B4     		push	{r7}
+ 237              		.cfi_def_cfa_offset 4
+ 238              		.cfi_offset 7, -4
+ 239 00e6 83B0     		sub	sp, sp, #12
+ 240              		.cfi_def_cfa_offset 16
+ 241 00e8 00AF     		add	r7, sp, #0
+ 242              		.cfi_def_cfa_register 7
+ 243 00ea 7860     		str	r0, [r7, #4]
+ 219:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     //
+ 220:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     // Check the arguments.
+ 221:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     //
+ 222:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     ASSERT((ui32Period > 0) && (ui32Period <= 16777216));
+ 223:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** 
+ 224:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     //
+ 225:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     // Set the period of the SysTick counter.
+ 226:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     //
+ 227:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     HWREG(NVIC_ST_RELOAD) = ui32Period - 1;
+ 244              		.loc 1 227 0
+ 245 00ec 4EF21403 		movw	r3, #57364
+ 246 00f0 CEF20003 		movt	r3, 57344
+ 247 00f4 7A68     		ldr	r2, [r7, #4]
+ 248 00f6 013A     		subs	r2, r2, #1
+ 249 00f8 1A60     		str	r2, [r3]
+ 228:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** }
+ 250              		.loc 1 228 0
+ 251 00fa 0C37     		adds	r7, r7, #12
+ 252 00fc BD46     		mov	sp, r7
+ 253              		@ sp needed
+ 254 00fe 5DF8047B 		ldr	r7, [sp], #4
+ 255 0102 7047     		bx	lr
+ 256              		.cfi_endproc
+ 257              	.LFE6:
+ 259              		.align	2
+ 260              		.global	SysTickPeriodGet
+ 261              		.thumb
+ 262              		.thumb_func
+ 264              	SysTickPeriodGet:
+ 265              	.LFB7:
+ 229:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** 
+ 230:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //*****************************************************************************
+ 231:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //
+ 232:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! Gets the period of the SysTick counter
+ 233:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //!
+ 234:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! This function returns the rate at which the SysTick counter wraps; this
+ 235:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! equates to the number of processor clocks between interrupts.
+ 236:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //!
+ 237:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! \return Returns the period of the SysTick counter.
+ 238:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //
+ 239:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //*****************************************************************************
+ 240:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** uint32_t
+ 241:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** SysTickPeriodGet(void)
+ 242:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** {
+ 266              		.loc 1 242 0
+ 267              		.cfi_startproc
+ 268              		@ args = 0, pretend = 0, frame = 0
+ 269              		@ frame_needed = 1, uses_anonymous_args = 0
+ 270              		@ link register save eliminated.
+ 271 0104 80B4     		push	{r7}
+ 272              		.cfi_def_cfa_offset 4
+ 273              		.cfi_offset 7, -4
+ 274 0106 00AF     		add	r7, sp, #0
+ 275              		.cfi_def_cfa_register 7
+ 243:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     //
+ 244:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     // Return the period of the SysTick counter.
+ 245:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     //
+ 246:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     return(HWREG(NVIC_ST_RELOAD) + 1);
+ 276              		.loc 1 246 0
+ 277 0108 4EF21403 		movw	r3, #57364
+ 278 010c CEF20003 		movt	r3, 57344
+ 279 0110 1B68     		ldr	r3, [r3]
+ 280 0112 0133     		adds	r3, r3, #1
+ 247:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** }
+ 281              		.loc 1 247 0
+ 282 0114 1846     		mov	r0, r3
+ 283 0116 BD46     		mov	sp, r7
+ 284              		@ sp needed
+ 285 0118 5DF8047B 		ldr	r7, [sp], #4
+ 286 011c 7047     		bx	lr
+ 287              		.cfi_endproc
+ 288              	.LFE7:
+ 290 011e 00BF     		.align	2
+ 291              		.global	SysTickValueGet
+ 292              		.thumb
+ 293              		.thumb_func
+ 295              	SysTickValueGet:
+ 296              	.LFB8:
+ 248:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** 
+ 249:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //*****************************************************************************
+ 250:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //
+ 251:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! Gets the current value of the SysTick counter
+ 252:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //!
+ 253:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! This function returns the current value of the SysTick counter; this will
+ 254:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! be a value between the period - 1 and zero, inclusive.
+ 255:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //!
+ 256:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //! \return Returns the current value of the SysTick counter.
+ 257:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //
+ 258:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** //*****************************************************************************
+ 259:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** uint32_t
+ 260:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** SysTickValueGet(void)
+ 261:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** {
+ 297              		.loc 1 261 0
+ 298              		.cfi_startproc
+ 299              		@ args = 0, pretend = 0, frame = 0
+ 300              		@ frame_needed = 1, uses_anonymous_args = 0
+ 301              		@ link register save eliminated.
+ 302 0120 80B4     		push	{r7}
+ 303              		.cfi_def_cfa_offset 4
+ 304              		.cfi_offset 7, -4
+ 305 0122 00AF     		add	r7, sp, #0
+ 306              		.cfi_def_cfa_register 7
+ 262:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     //
+ 263:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     // Return the current value of the SysTick counter.
+ 264:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     //
+ 265:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c ****     return(HWREG(NVIC_ST_CURRENT));
+ 307              		.loc 1 265 0
+ 308 0124 4EF21803 		movw	r3, #57368
+ 309 0128 CEF20003 		movt	r3, 57344
+ 310 012c 1B68     		ldr	r3, [r3]
+ 266:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/systick.c **** }
+ 311              		.loc 1 266 0
+ 312 012e 1846     		mov	r0, r3
+ 313 0130 BD46     		mov	sp, r7
+ 314              		@ sp needed
+ 315 0132 5DF8047B 		ldr	r7, [sp], #4
+ 316 0136 7047     		bx	lr
+ 317              		.cfi_endproc
+ 318              	.LFE8:
+ 320              	.Letext0:
+ 321              		.file 2 "/usr/include/newlib/machine/_default_types.h"
+ 322              		.file 3 "/usr/include/newlib/stdint.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 systick.c
+     /tmp/ccNwXdOw.s:18     .text:0000000000000000 $t
+     /tmp/ccNwXdOw.s:23     .text:0000000000000000 SysTickEnable
+     /tmp/ccNwXdOw.s:57     .text:0000000000000024 SysTickDisable
+     /tmp/ccNwXdOw.s:90     .text:0000000000000048 SysTickIntRegister
+     /tmp/ccNwXdOw.s:130    .text:0000000000000078 SysTickIntUnregister
+     /tmp/ccNwXdOw.s:163    .text:000000000000009c SysTickIntEnable
+     /tmp/ccNwXdOw.s:196    .text:00000000000000c0 SysTickIntDisable
+     /tmp/ccNwXdOw.s:229    .text:00000000000000e4 SysTickPeriodSet
+     /tmp/ccNwXdOw.s:264    .text:0000000000000104 SysTickPeriodGet
+     /tmp/ccNwXdOw.s:295    .text:0000000000000120 SysTickValueGet
+                     .debug_frame:0000000000000010 $d
+                           .group:0000000000000000 wm4.1.08074afb2ccc9da754fae8e3ee0f577b
+                           .group:0000000000000000 wm4.hw_ints.h.42.85b9479f2be35b086f1bb7cbb15bc097
+                           .group:0000000000000000 wm4.hw_nvic.h.42.f3b9efa2537e728866c85de74b3e5811
+                           .group:0000000000000000 wm4.features.h.22.6a4ca7cd053637cc1d0db6c16f39b2d7
+                           .group:0000000000000000 wm4._default_types.h.15.8b2cb27e528498f8ff711db085d6e489
+                           .group:0000000000000000 wm4.stdint.h.20.796e373797e732130a803d4c0338fa1b
+                           .group:0000000000000000 wm4.stdbool.h.29.1c9ee6859ce8145f7838a4f2549ccec2
+                           .group:0000000000000000 wm4.hw_types.h.67.b10589a0806dcc2d274d6fab6b736519
+                           .group:0000000000000000 wm4.interrupt.h.41.272fc4ec0e276feb439e7974d0f77eaf
+
+UNDEFINED SYMBOLS
+IntRegister
+IntUnregister

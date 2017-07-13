@@ -1,0 +1,230 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"aes_cbc.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.rodata
+  19              		.align	2
+  22              	rreg_uriquery:
+  23 0000 683D7563 		.ascii	"h=ucb\000"
+  23      6200
+  24 0006 0000     		.align	2
+  27              	infoBoardname:
+  28 0008 43433235 		.ascii	"CC2538\000"
+  28      333800
+  29 000f 00       		.align	2
+  32              	infouCName:
+  33 0010 43433235 		.ascii	"CC2538\000"
+  33      333800
+  34 0017 00       		.align	2
+  37              	infoRadioName:
+  38 0018 43433235 		.ascii	"CC2538 SoC\000"
+  38      33382053 
+  38      6F4300
+  39 0023 00       		.align	2
+  42              	infoStackName:
+  43 0024 4F70656E 		.ascii	"OpenWSN \000"
+  43      57534E20 
+  43      00
+  44 002d 000000   		.text
+  45              		.align	2
+  46              		.global	aes_cbc_enc_raw
+  47              		.thumb
+  48              		.thumb_func
+  50              	aes_cbc_enc_raw:
+  51              	.LFB0:
+  52              		.file 1 "build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c"
+   1:build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c **** /**
+   2:build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c **** \brief AES CBC implementation
+   3:build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c ****   
+   4:build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c **** \author Marcelo Barros de Almeida <marcelobarrosalmeida@gmail.com>, March 2015.
+   5:build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c **** \author Malisa Vucinic <malishav@gmail.com>, March 2015.
+   6:build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c **** */
+   7:build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c **** #include <string.h>
+   8:build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c **** #include <stdint.h>
+   9:build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c **** #include "opendefs.h"
+  10:build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c **** #include "aes_cbc.h"
+  11:build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c **** #include "crypto_engine.h"
+  12:build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c **** 
+  13:build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c **** /**
+  14:build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c **** \brief Raw AES-CBC encryption.
+  15:build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c **** \param[in,out] buffer Message to be encrypted. Will be overwritten by ciphertext.
+  16:build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c **** \param[in] len Message length. Must be multiple of 16 octets.
+  17:build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c **** \param[in] key Buffer containing the secret key (16 octets).
+  18:build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c **** \param[in] iv Buffer containing the Initialization Vector (16 octets).
+  19:build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c **** 
+  20:build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c **** \returns E_SUCCESS when the encryption was successful. 
+  21:build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c **** */
+  22:build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c **** owerror_t aes_cbc_enc_raw(uint8_t* buffer, uint8_t len, uint8_t key[16], uint8_t iv[16]) {
+  53              		.loc 1 22 0
+  54              		.cfi_startproc
+  55              		@ args = 0, pretend = 0, frame = 32
+  56              		@ frame_needed = 1, uses_anonymous_args = 0
+  57 0000 80B5     		push	{r7, lr}
+  58              		.cfi_def_cfa_offset 8
+  59              		.cfi_offset 7, -8
+  60              		.cfi_offset 14, -4
+  61 0002 88B0     		sub	sp, sp, #32
+  62              		.cfi_def_cfa_offset 40
+  63 0004 00AF     		add	r7, sp, #0
+  64              		.cfi_def_cfa_register 7
+  65 0006 F860     		str	r0, [r7, #12]
+  66 0008 7A60     		str	r2, [r7, #4]
+  67 000a 3B60     		str	r3, [r7]
+  68 000c 0B46     		mov	r3, r1
+  69 000e FB72     		strb	r3, [r7, #11]
+  23:build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c ****    uint8_t  n;
+  24:build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c ****    uint8_t  k;
+  25:build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c ****    uint8_t  nb;
+  26:build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c ****    uint8_t* pbuf;
+  27:build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c ****    uint8_t* pxor;
+  28:build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c **** 
+  29:build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c ****    nb = len >> 4;
+  70              		.loc 1 29 0
+  71 0010 FB7A     		ldrb	r3, [r7, #11]	@ zero_extendqisi2
+  72 0012 1B09     		lsrs	r3, r3, #4
+  73 0014 FB75     		strb	r3, [r7, #23]
+  30:build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c ****    pxor = iv;
+  74              		.loc 1 30 0
+  75 0016 3B68     		ldr	r3, [r7]
+  76 0018 BB61     		str	r3, [r7, #24]
+  31:build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c ****    for (n = 0; n < nb; n++) {
+  77              		.loc 1 31 0
+  78 001a 0023     		movs	r3, #0
+  79 001c FB77     		strb	r3, [r7, #31]
+  80 001e 28E0     		b	.L2
+  81              	.L5:
+  32:build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c ****       pbuf = &buffer[16 * n];
+  82              		.loc 1 32 0
+  83 0020 FB7F     		ldrb	r3, [r7, #31]	@ zero_extendqisi2
+  84 0022 1B01     		lsls	r3, r3, #4
+  85 0024 FA68     		ldr	r2, [r7, #12]
+  86 0026 1344     		add	r3, r3, r2
+  87 0028 3B61     		str	r3, [r7, #16]
+  33:build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c ****       // may be faster if vector are aligned to 4 bytes (use long instead char in xor)
+  34:build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c ****       for (k = 0; k < 16; k++) {
+  88              		.loc 1 34 0
+  89 002a 0023     		movs	r3, #0
+  90 002c BB77     		strb	r3, [r7, #30]
+  91 002e 10E0     		b	.L3
+  92              	.L4:
+  35:build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c ****             pbuf[k] ^= pxor[k];
+  93              		.loc 1 35 0 discriminator 2
+  94 0030 BB7F     		ldrb	r3, [r7, #30]	@ zero_extendqisi2
+  95 0032 3A69     		ldr	r2, [r7, #16]
+  96 0034 1344     		add	r3, r3, r2
+  97 0036 BA7F     		ldrb	r2, [r7, #30]	@ zero_extendqisi2
+  98 0038 3969     		ldr	r1, [r7, #16]
+  99 003a 0A44     		add	r2, r2, r1
+ 100 003c 1178     		ldrb	r1, [r2]	@ zero_extendqisi2
+ 101 003e BA7F     		ldrb	r2, [r7, #30]	@ zero_extendqisi2
+ 102 0040 B869     		ldr	r0, [r7, #24]
+ 103 0042 0244     		add	r2, r2, r0
+ 104 0044 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+ 105 0046 4A40     		eors	r2, r2, r1
+ 106 0048 D2B2     		uxtb	r2, r2
+ 107 004a 1A70     		strb	r2, [r3]
+  34:build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c ****             pbuf[k] ^= pxor[k];
+ 108              		.loc 1 34 0 discriminator 2
+ 109 004c BB7F     		ldrb	r3, [r7, #30]	@ zero_extendqisi2
+ 110 004e 0133     		adds	r3, r3, #1
+ 111 0050 BB77     		strb	r3, [r7, #30]
+ 112              	.L3:
+  34:build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c ****             pbuf[k] ^= pxor[k];
+ 113              		.loc 1 34 0 is_stmt 0 discriminator 1
+ 114 0052 BB7F     		ldrb	r3, [r7, #30]	@ zero_extendqisi2
+ 115 0054 0F2B     		cmp	r3, #15
+ 116 0056 EBD9     		bls	.L4
+  36:build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c ****       }
+  37:build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c ****       CRYPTO_ENGINE.aes_ecb_enc(pbuf,key);
+ 117              		.loc 1 37 0 is_stmt 1
+ 118 0058 40F20003 		movw	r3, #:lower16:board_crypto_engine
+ 119 005c C0F20003 		movt	r3, #:upper16:board_crypto_engine
+ 120 0060 1B69     		ldr	r3, [r3, #16]
+ 121 0062 3869     		ldr	r0, [r7, #16]
+ 122 0064 7968     		ldr	r1, [r7, #4]
+ 123 0066 9847     		blx	r3
+  38:build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c ****       pxor = pbuf;
+ 124              		.loc 1 38 0
+ 125 0068 3B69     		ldr	r3, [r7, #16]
+ 126 006a BB61     		str	r3, [r7, #24]
+  31:build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c ****       pbuf = &buffer[16 * n];
+ 127              		.loc 1 31 0
+ 128 006c FB7F     		ldrb	r3, [r7, #31]	@ zero_extendqisi2
+ 129 006e 0133     		adds	r3, r3, #1
+ 130 0070 FB77     		strb	r3, [r7, #31]
+ 131              	.L2:
+  31:build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c ****       pbuf = &buffer[16 * n];
+ 132              		.loc 1 31 0 is_stmt 0 discriminator 1
+ 133 0072 FA7F     		ldrb	r2, [r7, #31]	@ zero_extendqisi2
+ 134 0074 FB7D     		ldrb	r3, [r7, #23]	@ zero_extendqisi2
+ 135 0076 9A42     		cmp	r2, r3
+ 136 0078 D2D3     		bcc	.L5
+  39:build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c ****    }
+  40:build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c ****    return E_SUCCESS;
+ 137              		.loc 1 40 0 is_stmt 1
+ 138 007a 0023     		movs	r3, #0
+  41:build/openmote-cc2538_armgcc/bsp/boards/common/aes_cbc.c **** }
+ 139              		.loc 1 41 0
+ 140 007c 1846     		mov	r0, r3
+ 141 007e 2037     		adds	r7, r7, #32
+ 142 0080 BD46     		mov	sp, r7
+ 143              		@ sp needed
+ 144 0082 80BD     		pop	{r7, pc}
+ 145              		.cfi_endproc
+ 146              	.LFE0:
+ 148              	.Letext0:
+ 149              		.file 2 "/usr/include/newlib/machine/_default_types.h"
+ 150              		.file 3 "/usr/include/newlib/stdint.h"
+ 151              		.file 4 "inc/opendefs.h"
+ 152              		.file 5 "bsp/boards/crypto_engine.h"
+ 153              		.file 6 "bsp/boards/openmote-cc2538/board_info.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 aes_cbc.c
+     /tmp/cclphMr3.s:19     .rodata:0000000000000000 $d
+     /tmp/cclphMr3.s:22     .rodata:0000000000000000 rreg_uriquery
+     /tmp/cclphMr3.s:27     .rodata:0000000000000008 infoBoardname
+     /tmp/cclphMr3.s:32     .rodata:0000000000000010 infouCName
+     /tmp/cclphMr3.s:37     .rodata:0000000000000018 infoRadioName
+     /tmp/cclphMr3.s:42     .rodata:0000000000000024 infoStackName
+     /tmp/cclphMr3.s:45     .text:0000000000000000 $t
+     /tmp/cclphMr3.s:50     .text:0000000000000000 aes_cbc_enc_raw
+                     .debug_frame:0000000000000010 $d
+                           .group:0000000000000000 wm4.1.08074afb2ccc9da754fae8e3ee0f577b
+                           .group:0000000000000000 wm4.newlib.h.8.fec018e441fee7bfa1923812ad010f97
+                           .group:0000000000000000 wm4.features.h.22.6a4ca7cd053637cc1d0db6c16f39b2d7
+                           .group:0000000000000000 wm4.config.h.212.4163ef2871a828c674038d036b081cfd
+                           .group:0000000000000000 wm4._ansi.h.23.5644b60c990a4800b02a6e654e88f93a
+                           .group:0000000000000000 wm4.stddef.h.39.daafd3d79fe2f3a84d2d73d7d4e706f8
+                           .group:0000000000000000 wm4._default_types.h.6.9e4229723f5523536bc8f574589d6a99
+                           .group:0000000000000000 wm4.lock.h.2.9bc98482741e5e2a9450b12934a684ea
+                           .group:0000000000000000 wm4._types.h.54.d3d34a3b7f3cc230cd159baf022b4b08
+                           .group:0000000000000000 wm4.stddef.h.158.61317cdbfb4026324507d123a50b0fd6
+                           .group:0000000000000000 wm4.reent.h.17.8bd9e4098e0428508c282cad794fae43
+                           .group:0000000000000000 wm4.cdefs.h.47.339223046f475c9f2d5db3a9118d7c65
+                           .group:0000000000000000 wm4.string.h.15.dab3980bf35408a4c507182805e2de3a
+                           .group:0000000000000000 wm4.stddef.h.158.a7efb00f6cbc6f43213b50e183c9830c
+                           .group:0000000000000000 wm4.string.h.126.6ff3aa59129e7f66b2c273baf353e066
+                           .group:0000000000000000 wm4.stdint.h.10.d0f8e374834fcfc2e296d5d5fe82f02a
+                           .group:0000000000000000 wm4.toolchain_defs.h.2.e5fd326231d01413e5361944b26cde07
+                           .group:0000000000000000 wm4.stdbool.h.29.1c9ee6859ce8145f7838a4f2549ccec2
+                           .group:0000000000000000 wm4.hw_types.h.67.b10589a0806dcc2d274d6fab6b736519
+                           .group:0000000000000000 wm4.interrupt.h.41.272fc4ec0e276feb439e7974d0f77eaf
+                           .group:0000000000000000 wm4.board_info.h.22.aeb00002354a4949fff54190040e37af
+                           .group:0000000000000000 wm4.opendefs.h.23.16dafe2a30b31097968a5d4db894173a
+                           .group:0000000000000000 wm4.crypto_engine.h.8.a3dd976cbcb92c44f852cc7aa252f659
+
+UNDEFINED SYMBOLS
+board_crypto_engine

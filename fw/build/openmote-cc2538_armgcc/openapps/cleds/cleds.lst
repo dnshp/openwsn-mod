@@ -1,0 +1,562 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"cleds.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.rodata
+  19              		.align	2
+  22              	rreg_uriquery:
+  23 0000 683D7563 		.ascii	"h=ucb\000"
+  23      6200
+  24 0006 0000     		.align	2
+  27              	infoBoardname:
+  28 0008 43433235 		.ascii	"CC2538\000"
+  28      333800
+  29 000f 00       		.align	2
+  32              	infouCName:
+  33 0010 43433235 		.ascii	"CC2538\000"
+  33      333800
+  34 0017 00       		.align	2
+  37              	infoRadioName:
+  38 0018 43433235 		.ascii	"CC2538 SoC\000"
+  38      33382053 
+  38      6F4300
+  39 0023 00       		.align	2
+  42              	infoStackName:
+  43 0024 4F70656E 		.ascii	"OpenWSN \000"
+  43      57534E20 
+  43      00
+  44 002d 000000   		.align	2
+  47              	ipAddr_ipsoRD:
+  48 0030 26       		.byte	38
+  49 0031 07       		.byte	7
+  50 0032 F7       		.byte	-9
+  51 0033 40       		.byte	64
+  52 0034 00       		.byte	0
+  53 0035 00       		.byte	0
+  54 0036 00       		.byte	0
+  55 0037 3F       		.byte	63
+  56 0038 00       		.byte	0
+  57 0039 00       		.byte	0
+  58 003a 00       		.byte	0
+  59 003b 00       		.byte	0
+  60 003c 00       		.byte	0
+  61 003d 00       		.byte	0
+  62 003e 0E       		.byte	14
+  63 003f 29       		.byte	41
+  64              		.align	2
+  67              	ipAddr_motesEecs:
+  68 0040 20       		.byte	32
+  69 0041 01       		.byte	1
+  70 0042 04       		.byte	4
+  71 0043 70       		.byte	112
+  72 0044 00       		.byte	0
+  73 0045 66       		.byte	102
+  74 0046 00       		.byte	0
+  75 0047 19       		.byte	25
+  76 0048 00       		.byte	0
+  77 0049 00       		.byte	0
+  78 004a 00       		.byte	0
+  79 004b 00       		.byte	0
+  80 004c 00       		.byte	0
+  81 004d 00       		.byte	0
+  82 004e 00       		.byte	0
+  83 004f 02       		.byte	2
+  84              		.align	2
+  87              	ipAddr_local:
+  88 0050 26       		.byte	38
+  89 0051 07       		.byte	7
+  90 0052 F1       		.byte	-15
+  91 0053 40       		.byte	64
+  92 0054 04       		.byte	4
+  93 0055 00       		.byte	0
+  94 0056 10       		.byte	16
+  95 0057 36       		.byte	54
+  96 0058 4D       		.byte	77
+  97 0059 CD       		.byte	-51
+  98 005a AB       		.byte	-85
+  99 005b 54       		.byte	84
+ 100 005c 81       		.byte	-127
+ 101 005d 99       		.byte	-103
+ 102 005e C1       		.byte	-63
+ 103 005f F7       		.byte	-9
+ 104              		.align	2
+ 107              	ipAddr_motedata:
+ 108 0060 20       		.byte	32
+ 109 0061 01       		.byte	1
+ 110 0062 04       		.byte	4
+ 111 0063 70       		.byte	112
+ 112 0064 00       		.byte	0
+ 113 0065 66       		.byte	102
+ 114 0066 00       		.byte	0
+ 115 0067 17       		.byte	23
+ 116 0068 00       		.byte	0
+ 117 0069 00       		.byte	0
+ 118 006a 00       		.byte	0
+ 119 006b 00       		.byte	0
+ 120 006c 00       		.byte	0
+ 121 006d 00       		.byte	0
+ 122 006e 00       		.byte	0
+ 123 006f 02       		.byte	2
+ 124              		.align	2
+ 127              	ipAddr_ringmaster:
+ 128 0070 BB       		.byte	-69
+ 129 0071 BB       		.byte	-69
+ 130 0072 00       		.byte	0
+ 131 0073 00       		.byte	0
+ 132 0074 00       		.byte	0
+ 133 0075 00       		.byte	0
+ 134 0076 00       		.byte	0
+ 135 0077 00       		.byte	0
+ 136 0078 00       		.byte	0
+ 137 0079 00       		.byte	0
+ 138 007a 00       		.byte	0
+ 139 007b 00       		.byte	0
+ 140 007c 00       		.byte	0
+ 141 007d 00       		.byte	0
+ 142 007e 00       		.byte	0
+ 143 007f 01       		.byte	1
+ 144              		.comm	cleds_vars,48,4
+ 145              		.global	cleds_path0
+ 146              		.align	2
+ 149              	cleds_path0:
+ 150 0080 6C00     		.ascii	"l\000"
+ 151 0082 0000     		.text
+ 152              		.align	2
+ 153              		.global	cleds__init
+ 154              		.thumb
+ 155              		.thumb_func
+ 157              	cleds__init:
+ 158              	.LFB0:
+ 159              		.file 1 "build/openmote-cc2538_armgcc/openapps/cleds/cleds.c"
+   1:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** /**
+   2:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** \brief A CoAP resource which allows an application to GET/SET the state of the
+   3:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****    error LED.
+   4:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** */
+   5:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** 
+   6:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** #include "opendefs.h"
+   7:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** #include "cleds.h"
+   8:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** #include "opencoap.h"
+   9:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** #include "packetfunctions.h"
+  10:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** #include "leds.h"
+  11:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** #include "openqueue.h"
+  12:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** #include "debugpins.h"
+  13:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** 
+  14:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** //=========================== variables =======================================
+  15:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** 
+  16:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** cleds_vars_t cleds_vars;
+  17:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** 
+  18:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** const uint8_t cleds_path0[]       = "l";
+  19:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** 
+  20:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** //=========================== prototypes ======================================
+  21:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** 
+  22:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** owerror_t cleds_receive(
+  23:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****    OpenQueueEntry_t* msg,
+  24:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****    coap_header_iht*  coap_header,
+  25:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****    coap_option_iht*  coap_options
+  26:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** );
+  27:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** void     cleds_sendDone(
+  28:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****    OpenQueueEntry_t* msg,
+  29:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****    owerror_t error
+  30:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** );
+  31:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** 
+  32:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** //=========================== public ==========================================
+  33:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** 
+  34:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** void cleds__init() {
+ 160              		.loc 1 34 0
+ 161              		.cfi_startproc
+ 162              		@ args = 0, pretend = 0, frame = 0
+ 163              		@ frame_needed = 1, uses_anonymous_args = 0
+ 164 0000 80B5     		push	{r7, lr}
+ 165              		.cfi_def_cfa_offset 8
+ 166              		.cfi_offset 7, -8
+ 167              		.cfi_offset 14, -4
+ 168 0002 00AF     		add	r7, sp, #0
+ 169              		.cfi_def_cfa_register 7
+  35:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****    
+  36:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****    // prepare the resource descriptor for the /l path
+  37:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****    cleds_vars.desc.path0len            = sizeof(cleds_path0)-1;
+ 170              		.loc 1 37 0
+ 171 0004 40F20003 		movw	r3, #:lower16:cleds_vars
+ 172 0008 C0F20003 		movt	r3, #:upper16:cleds_vars
+ 173 000c 0122     		movs	r2, #1
+ 174 000e 1A70     		strb	r2, [r3]
+  38:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****    cleds_vars.desc.path0val            = (uint8_t*)(&cleds_path0);
+ 175              		.loc 1 38 0
+ 176 0010 40F20003 		movw	r3, #:lower16:cleds_vars
+ 177 0014 C0F20003 		movt	r3, #:upper16:cleds_vars
+ 178 0018 40F20002 		movw	r2, #:lower16:cleds_path0
+ 179 001c C0F20002 		movt	r2, #:upper16:cleds_path0
+ 180 0020 5A60     		str	r2, [r3, #4]
+  39:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****    cleds_vars.desc.path1len            = 0;
+ 181              		.loc 1 39 0
+ 182 0022 40F20003 		movw	r3, #:lower16:cleds_vars
+ 183 0026 C0F20003 		movt	r3, #:upper16:cleds_vars
+ 184 002a 0022     		movs	r2, #0
+ 185 002c 1A72     		strb	r2, [r3, #8]
+  40:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****    cleds_vars.desc.path1val            = NULL;
+ 186              		.loc 1 40 0
+ 187 002e 40F20003 		movw	r3, #:lower16:cleds_vars
+ 188 0032 C0F20003 		movt	r3, #:upper16:cleds_vars
+ 189 0036 0022     		movs	r2, #0
+ 190 0038 DA60     		str	r2, [r3, #12]
+  41:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****    cleds_vars.desc.componentID         = COMPONENT_CLEDS;
+ 191              		.loc 1 41 0
+ 192 003a 40F20003 		movw	r3, #:lower16:cleds_vars
+ 193 003e C0F20003 		movt	r3, #:upper16:cleds_vars
+ 194 0042 1D22     		movs	r2, #29
+ 195 0044 1A74     		strb	r2, [r3, #16]
+  42:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****    cleds_vars.desc.discoverable        = TRUE;
+ 196              		.loc 1 42 0
+ 197 0046 40F20003 		movw	r3, #:lower16:cleds_vars
+ 198 004a C0F20003 		movt	r3, #:upper16:cleds_vars
+ 199 004e 0122     		movs	r2, #1
+ 200 0050 5A74     		strb	r2, [r3, #17]
+  43:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****    cleds_vars.desc.callbackRx          = &cleds_receive;
+ 201              		.loc 1 43 0
+ 202 0052 40F20003 		movw	r3, #:lower16:cleds_vars
+ 203 0056 C0F20003 		movt	r3, #:upper16:cleds_vars
+ 204 005a 40F20002 		movw	r2, #:lower16:cleds_receive
+ 205 005e C0F20002 		movt	r2, #:upper16:cleds_receive
+ 206 0062 5A61     		str	r2, [r3, #20]
+  44:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****    cleds_vars.desc.callbackSendDone    = &cleds_sendDone;
+ 207              		.loc 1 44 0
+ 208 0064 40F20003 		movw	r3, #:lower16:cleds_vars
+ 209 0068 C0F20003 		movt	r3, #:upper16:cleds_vars
+ 210 006c 40F20002 		movw	r2, #:lower16:cleds_sendDone
+ 211 0070 C0F20002 		movt	r2, #:upper16:cleds_sendDone
+ 212 0074 9A61     		str	r2, [r3, #24]
+  45:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****    
+  46:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****    // register with the CoAP module
+  47:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****    opencoap_register(&cleds_vars.desc);
+ 213              		.loc 1 47 0
+ 214 0076 40F20000 		movw	r0, #:lower16:cleds_vars
+ 215 007a C0F20000 		movt	r0, #:upper16:cleds_vars
+ 216 007e FFF7FEFF 		bl	opencoap_register
+  48:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** }
+ 217              		.loc 1 48 0
+ 218 0082 80BD     		pop	{r7, pc}
+ 219              		.cfi_endproc
+ 220              	.LFE0:
+ 222              		.align	2
+ 223              		.global	cleds_receive
+ 224              		.thumb
+ 225              		.thumb_func
+ 227              	cleds_receive:
+ 228              	.LFB1:
+  49:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** 
+  50:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** //=========================== private =========================================
+  51:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** 
+  52:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** /**
+  53:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** \brief Called when a CoAP message is received for this resource.
+  54:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** 
+  55:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** \param[in] msg          The received message. CoAP header and options already
+  56:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****    parsed.
+  57:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** \param[in] coap_header  The CoAP header contained in the message.
+  58:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** \param[in] coap_options The CoAP options contained in the message.
+  59:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** 
+  60:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** \return Whether the response is prepared successfully.
+  61:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** */
+  62:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** owerror_t cleds_receive(
+  63:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****       OpenQueueEntry_t* msg,
+  64:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****       coap_header_iht*  coap_header,
+  65:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****       coap_option_iht*  coap_options
+  66:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****    ) {
+ 229              		.loc 1 66 0
+ 230              		.cfi_startproc
+ 231              		@ args = 0, pretend = 0, frame = 24
+ 232              		@ frame_needed = 1, uses_anonymous_args = 0
+ 233 0084 80B5     		push	{r7, lr}
+ 234              		.cfi_def_cfa_offset 8
+ 235              		.cfi_offset 7, -8
+ 236              		.cfi_offset 14, -4
+ 237 0086 86B0     		sub	sp, sp, #24
+ 238              		.cfi_def_cfa_offset 32
+ 239 0088 00AF     		add	r7, sp, #0
+ 240              		.cfi_def_cfa_register 7
+ 241 008a F860     		str	r0, [r7, #12]
+ 242 008c B960     		str	r1, [r7, #8]
+ 243 008e 7A60     		str	r2, [r7, #4]
+  67:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****    owerror_t outcome;
+  68:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****    
+  69:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****    switch (coap_header->Code) {
+ 244              		.loc 1 69 0
+ 245 0090 BB68     		ldr	r3, [r7, #8]
+ 246 0092 DB78     		ldrb	r3, [r3, #3]	@ zero_extendqisi2
+ 247 0094 012B     		cmp	r3, #1
+ 248 0096 02D0     		beq	.L4
+ 249 0098 032B     		cmp	r3, #3
+ 250 009a 26D0     		beq	.L5
+ 251 009c 45E0     		b	.L13
+ 252              	.L4:
+  70:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****       case COAP_CODE_REQ_GET:
+  71:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****          // reset packet payload
+  72:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****          msg->payload                     = &(msg->packet[127]);
+ 253              		.loc 1 72 0
+ 254 009e FB68     		ldr	r3, [r7, #12]
+ 255 00a0 03F20B12 		addw	r2, r3, #267
+ 256 00a4 FB68     		ldr	r3, [r7, #12]
+ 257 00a6 5A60     		str	r2, [r3, #4]
+  73:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****          msg->length                      = 0;
+ 258              		.loc 1 73 0
+ 259 00a8 FB68     		ldr	r3, [r7, #12]
+ 260 00aa 0022     		movs	r2, #0
+ 261 00ac 1A72     		strb	r2, [r3, #8]
+  74:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****          
+  75:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****          // add CoAP payload
+  76:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****          packetfunctions_reserveHeaderSize(msg,2);
+ 262              		.loc 1 76 0
+ 263 00ae F868     		ldr	r0, [r7, #12]
+ 264 00b0 0221     		movs	r1, #2
+ 265 00b2 FFF7FEFF 		bl	packetfunctions_reserveHeaderSize
+  77:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****          msg->payload[0]                  = COAP_PAYLOAD_MARKER;
+ 266              		.loc 1 77 0
+ 267 00b6 FB68     		ldr	r3, [r7, #12]
+ 268 00b8 5B68     		ldr	r3, [r3, #4]
+ 269 00ba FF22     		movs	r2, #255
+ 270 00bc 1A70     		strb	r2, [r3]
+  78:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** 
+  79:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****          if (leds_error_isOn()==1) {
+ 271              		.loc 1 79 0
+ 272 00be FFF7FEFF 		bl	leds_error_isOn
+ 273 00c2 0346     		mov	r3, r0
+ 274 00c4 012B     		cmp	r3, #1
+ 275 00c6 05D1     		bne	.L6
+  80:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****             msg->payload[1]               = '1';
+ 276              		.loc 1 80 0
+ 277 00c8 FB68     		ldr	r3, [r7, #12]
+ 278 00ca 5B68     		ldr	r3, [r3, #4]
+ 279 00cc 0133     		adds	r3, r3, #1
+ 280 00ce 3122     		movs	r2, #49
+ 281 00d0 1A70     		strb	r2, [r3]
+ 282 00d2 04E0     		b	.L7
+ 283              	.L6:
+  81:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****          } else {
+  82:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****             msg->payload[1]               = '0';
+ 284              		.loc 1 82 0
+ 285 00d4 FB68     		ldr	r3, [r7, #12]
+ 286 00d6 5B68     		ldr	r3, [r3, #4]
+ 287 00d8 0133     		adds	r3, r3, #1
+ 288 00da 3022     		movs	r2, #48
+ 289 00dc 1A70     		strb	r2, [r3]
+ 290              	.L7:
+  83:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****          }
+  84:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****             
+  85:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****          // set the CoAP header
+  86:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****          coap_header->Code                = COAP_CODE_RESP_CONTENT;
+ 291              		.loc 1 86 0
+ 292 00de BB68     		ldr	r3, [r7, #8]
+ 293 00e0 4522     		movs	r2, #69
+ 294 00e2 DA70     		strb	r2, [r3, #3]
+  87:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****          
+  88:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****          outcome                          = E_SUCCESS;
+ 295              		.loc 1 88 0
+ 296 00e4 0023     		movs	r3, #0
+ 297 00e6 FB75     		strb	r3, [r7, #23]
+  89:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****          break;
+ 298              		.loc 1 89 0
+ 299 00e8 22E0     		b	.L8
+ 300              	.L5:
+  90:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****       
+  91:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****       case COAP_CODE_REQ_PUT:
+  92:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****       
+  93:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****          // change the LED's state
+  94:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****          if (msg->payload[0]=='1') {
+ 301              		.loc 1 94 0
+ 302 00ea FB68     		ldr	r3, [r7, #12]
+ 303 00ec 5B68     		ldr	r3, [r3, #4]
+ 304 00ee 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 305 00f0 312B     		cmp	r3, #49
+ 306 00f2 02D1     		bne	.L9
+  95:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****             leds_error_on();
+ 307              		.loc 1 95 0
+ 308 00f4 FFF7FEFF 		bl	leds_error_on
+ 309 00f8 09E0     		b	.L10
+ 310              	.L9:
+  96:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****          } else if (msg->payload[0]=='2') {
+ 311              		.loc 1 96 0
+ 312 00fa FB68     		ldr	r3, [r7, #12]
+ 313 00fc 5B68     		ldr	r3, [r3, #4]
+ 314 00fe 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 315 0100 322B     		cmp	r3, #50
+ 316 0102 02D1     		bne	.L11
+  97:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****             //leds_error_toggle();
+  98:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****             debugpins_gpio1_toggle();
+ 317              		.loc 1 98 0
+ 318 0104 FFF7FEFF 		bl	debugpins_gpio1_toggle
+ 319 0108 01E0     		b	.L10
+ 320              	.L11:
+  99:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****          } else {
+ 100:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****             leds_error_off();
+ 321              		.loc 1 100 0
+ 322 010a FFF7FEFF 		bl	leds_error_off
+ 323              	.L10:
+ 101:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****          }
+ 102:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****          
+ 103:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****          // reset packet payload
+ 104:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****          msg->payload                     = &(msg->packet[127]);
+ 324              		.loc 1 104 0
+ 325 010e FB68     		ldr	r3, [r7, #12]
+ 326 0110 03F20B12 		addw	r2, r3, #267
+ 327 0114 FB68     		ldr	r3, [r7, #12]
+ 328 0116 5A60     		str	r2, [r3, #4]
+ 105:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****          msg->length                      = 0;
+ 329              		.loc 1 105 0
+ 330 0118 FB68     		ldr	r3, [r7, #12]
+ 331 011a 0022     		movs	r2, #0
+ 332 011c 1A72     		strb	r2, [r3, #8]
+ 106:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****          
+ 107:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****          // set the CoAP header
+ 108:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****          coap_header->Code                = COAP_CODE_RESP_CHANGED;
+ 333              		.loc 1 108 0
+ 334 011e BB68     		ldr	r3, [r7, #8]
+ 335 0120 4422     		movs	r2, #68
+ 336 0122 DA70     		strb	r2, [r3, #3]
+ 109:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****          
+ 110:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****          outcome                          = E_SUCCESS;
+ 337              		.loc 1 110 0
+ 338 0124 0023     		movs	r3, #0
+ 339 0126 FB75     		strb	r3, [r7, #23]
+ 111:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****          break;
+ 340              		.loc 1 111 0
+ 341 0128 02E0     		b	.L8
+ 342              	.L13:
+ 112:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****          
+ 113:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****       default:
+ 114:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****          outcome                          = E_FAIL;
+ 343              		.loc 1 114 0
+ 344 012a 0123     		movs	r3, #1
+ 345 012c FB75     		strb	r3, [r7, #23]
+ 115:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****          break;
+ 346              		.loc 1 115 0
+ 347 012e 00BF     		nop
+ 348              	.L8:
+ 116:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****    }
+ 117:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****    
+ 118:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****    return outcome;
+ 349              		.loc 1 118 0
+ 350 0130 FB7D     		ldrb	r3, [r7, #23]	@ zero_extendqisi2
+ 119:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** }
+ 351              		.loc 1 119 0
+ 352 0132 1846     		mov	r0, r3
+ 353 0134 1837     		adds	r7, r7, #24
+ 354 0136 BD46     		mov	sp, r7
+ 355              		@ sp needed
+ 356 0138 80BD     		pop	{r7, pc}
+ 357              		.cfi_endproc
+ 358              	.LFE1:
+ 360 013a 00BF     		.align	2
+ 361              		.global	cleds_sendDone
+ 362              		.thumb
+ 363              		.thumb_func
+ 365              	cleds_sendDone:
+ 366              	.LFB2:
+ 120:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** 
+ 121:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** /**
+ 122:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** \brief The stack indicates that the packet was sent.
+ 123:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** 
+ 124:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** \param[in] msg The CoAP message just sent.
+ 125:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** \param[in] error The outcome of sending it.
+ 126:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** */
+ 127:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** void cleds_sendDone(OpenQueueEntry_t* msg, owerror_t error) {
+ 367              		.loc 1 127 0
+ 368              		.cfi_startproc
+ 369              		@ args = 0, pretend = 0, frame = 8
+ 370              		@ frame_needed = 1, uses_anonymous_args = 0
+ 371 013c 80B5     		push	{r7, lr}
+ 372              		.cfi_def_cfa_offset 8
+ 373              		.cfi_offset 7, -8
+ 374              		.cfi_offset 14, -4
+ 375 013e 82B0     		sub	sp, sp, #8
+ 376              		.cfi_def_cfa_offset 16
+ 377 0140 00AF     		add	r7, sp, #0
+ 378              		.cfi_def_cfa_register 7
+ 379 0142 7860     		str	r0, [r7, #4]
+ 380 0144 0B46     		mov	r3, r1
+ 381 0146 FB70     		strb	r3, [r7, #3]
+ 128:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c ****    openqueue_freePacketBuffer(msg);
+ 382              		.loc 1 128 0
+ 383 0148 7868     		ldr	r0, [r7, #4]
+ 384 014a FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 129:build/openmote-cc2538_armgcc/openapps/cleds/cleds.c **** }
+ 385              		.loc 1 129 0
+ 386 014e 0837     		adds	r7, r7, #8
+ 387 0150 BD46     		mov	sp, r7
+ 388              		@ sp needed
+ 389 0152 80BD     		pop	{r7, pc}
+ 390              		.cfi_endproc
+ 391              	.LFE2:
+ 393              	.Letext0:
+ 394              		.file 2 "/usr/include/newlib/machine/_default_types.h"
+ 395              		.file 3 "/usr/include/newlib/stdint.h"
+ 396              		.file 4 "inc/opendefs.h"
+ 397              		.file 5 "openapps/opencoap/opencoap.h"
+ 398              		.file 6 "build/openmote-cc2538_armgcc/openapps/cleds/cleds.h"
+ 399              		.file 7 "bsp/boards/openmote-cc2538/board_info.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 cleds.c
+     /tmp/ccv4YT89.s:19     .rodata:0000000000000000 $d
+     /tmp/ccv4YT89.s:22     .rodata:0000000000000000 rreg_uriquery
+     /tmp/ccv4YT89.s:27     .rodata:0000000000000008 infoBoardname
+     /tmp/ccv4YT89.s:32     .rodata:0000000000000010 infouCName
+     /tmp/ccv4YT89.s:37     .rodata:0000000000000018 infoRadioName
+     /tmp/ccv4YT89.s:42     .rodata:0000000000000024 infoStackName
+     /tmp/ccv4YT89.s:47     .rodata:0000000000000030 ipAddr_ipsoRD
+     /tmp/ccv4YT89.s:67     .rodata:0000000000000040 ipAddr_motesEecs
+     /tmp/ccv4YT89.s:87     .rodata:0000000000000050 ipAddr_local
+     /tmp/ccv4YT89.s:107    .rodata:0000000000000060 ipAddr_motedata
+     /tmp/ccv4YT89.s:127    .rodata:0000000000000070 ipAddr_ringmaster
+                            *COM*:0000000000000030 cleds_vars
+     /tmp/ccv4YT89.s:149    .rodata:0000000000000080 cleds_path0
+     /tmp/ccv4YT89.s:152    .text:0000000000000000 $t
+     /tmp/ccv4YT89.s:157    .text:0000000000000000 cleds__init
+     /tmp/ccv4YT89.s:227    .text:0000000000000084 cleds_receive
+     /tmp/ccv4YT89.s:365    .text:000000000000013c cleds_sendDone
+                     .debug_frame:0000000000000010 $d
+                           .group:0000000000000000 wm4.1.08074afb2ccc9da754fae8e3ee0f577b
+                           .group:0000000000000000 wm4.features.h.22.6a4ca7cd053637cc1d0db6c16f39b2d7
+                           .group:0000000000000000 wm4._default_types.h.15.8b2cb27e528498f8ff711db085d6e489
+                           .group:0000000000000000 wm4.stdint.h.20.796e373797e732130a803d4c0338fa1b
+                           .group:0000000000000000 wm4.toolchain_defs.h.2.e5fd326231d01413e5361944b26cde07
+                           .group:0000000000000000 wm4.newlib.h.8.fec018e441fee7bfa1923812ad010f97
+                           .group:0000000000000000 wm4.config.h.212.4163ef2871a828c674038d036b081cfd
+                           .group:0000000000000000 wm4._ansi.h.23.5644b60c990a4800b02a6e654e88f93a
+                           .group:0000000000000000 wm4.stddef.h.39.daafd3d79fe2f3a84d2d73d7d4e706f8
+                           .group:0000000000000000 wm4.lock.h.2.9bc98482741e5e2a9450b12934a684ea
+                           .group:0000000000000000 wm4._types.h.54.d3d34a3b7f3cc230cd159baf022b4b08
+                           .group:0000000000000000 wm4.stddef.h.158.61317cdbfb4026324507d123a50b0fd6
+                           .group:0000000000000000 wm4.reent.h.17.8bd9e4098e0428508c282cad794fae43
+                           .group:0000000000000000 wm4.cdefs.h.47.339223046f475c9f2d5db3a9118d7c65
+                           .group:0000000000000000 wm4.string.h.15.dab3980bf35408a4c507182805e2de3a
+                           .group:0000000000000000 wm4.stddef.h.158.a7efb00f6cbc6f43213b50e183c9830c
+                           .group:0000000000000000 wm4.string.h.126.6ff3aa59129e7f66b2c273baf353e066
+                           .group:0000000000000000 wm4.stdbool.h.29.1c9ee6859ce8145f7838a4f2549ccec2
+                           .group:0000000000000000 wm4.hw_types.h.67.b10589a0806dcc2d274d6fab6b736519
+                           .group:0000000000000000 wm4.interrupt.h.41.272fc4ec0e276feb439e7974d0f77eaf
+                           .group:0000000000000000 wm4.board_info.h.22.aeb00002354a4949fff54190040e37af
+                           .group:0000000000000000 wm4.opendefs.h.23.16dafe2a30b31097968a5d4db894173a
+                           .group:0000000000000000 wm4.opentimers.h.8.044f2d040a134cdb0ddb58adfc2508be
+                           .group:0000000000000000 wm4.opencoap.h.32.54fb4d751dc200645403fc22b4aec840
+                           .group:0000000000000000 wm4.IEEE802154.h.2.38fb510ed33a23a9a0660164e6dfab69
+                           .group:0000000000000000 wm4.debugpins.h.2.168f994fccba2f52a412ce9d5a7d1e98
+
+UNDEFINED SYMBOLS
+opencoap_register
+packetfunctions_reserveHeaderSize
+leds_error_isOn
+leds_error_on
+debugpins_gpio1_toggle
+leds_error_off
+openqueue_freePacketBuffer

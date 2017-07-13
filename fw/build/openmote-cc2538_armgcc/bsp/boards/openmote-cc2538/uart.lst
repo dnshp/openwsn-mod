@@ -1,0 +1,729 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"uart.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.rodata
+  19              		.align	2
+  22              	rreg_uriquery:
+  23 0000 683D7563 		.ascii	"h=ucb\000"
+  23      6200
+  24 0006 0000     		.align	2
+  27              	infoBoardname:
+  28 0008 43433235 		.ascii	"CC2538\000"
+  28      333800
+  29 000f 00       		.align	2
+  32              	infouCName:
+  33 0010 43433235 		.ascii	"CC2538\000"
+  33      333800
+  34 0017 00       		.align	2
+  37              	infoRadioName:
+  38 0018 43433235 		.ascii	"CC2538 SoC\000"
+  38      33382053 
+  38      6F4300
+  39 0023 00       		.align	2
+  42              	infoStackName:
+  43 0024 4F70656E 		.ascii	"OpenWSN \000"
+  43      57534E20 
+  43      00
+  44              		.comm	uart_vars,8,4
+  45 002d 000000   		.text
+  46              		.align	2
+  47              		.global	uart_init
+  48              		.thumb
+  49              		.thumb_func
+  51              	uart_init:
+  52              	.LFB0:
+  53              		.file 1 "build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c"
+   1:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** /**
+   2:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****  * Author: Xavier Vilajosana (xvilajosana@eecs.berkeley.edu)
+   3:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****  *         Pere Tuset (peretuset@openmote.com)
+   4:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****  * Date:   July 2013
+   5:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****  * Description: CC2538-specific definition of the "uart" bsp module.
+   6:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****  */
+   7:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 
+   8:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** #include <stdint.h>
+   9:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** #include <stdio.h>
+  10:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** #include <string.h>
+  11:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 
+  12:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** #include <headers/hw_ints.h>
+  13:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** #include <headers/hw_ioc.h>
+  14:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** #include <headers/hw_memmap.h>
+  15:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** #include <headers/hw_types.h>
+  16:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 
+  17:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** #include <source/gpio.h>
+  18:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** #include <source/interrupt.h>
+  19:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** #include <source/ioc.h>
+  20:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** #include <source/sys_ctrl.h>
+  21:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** #include <source/uarthal.h>
+  22:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 
+  23:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 
+  24:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** #include "board.h"
+  25:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** #include "debugpins.h"
+  26:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** #include "uart.h"
+  27:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 
+  28:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** //=========================== defines =========================================
+  29:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 
+  30:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** #define PIN_UART_RXD            GPIO_PIN_0 // PA0 is UART RX
+  31:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** #define PIN_UART_TXD            GPIO_PIN_1 // PA1 is UART TX
+  32:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 
+  33:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** //=========================== variables =======================================
+  34:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 
+  35:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** typedef struct {
+  36:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****    uart_tx_cbt txCb;
+  37:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****    uart_rx_cbt rxCb;
+  38:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** } uart_vars_t;
+  39:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 
+  40:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** uart_vars_t uart_vars;
+  41:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 
+  42:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** //=========================== prototypes ======================================
+  43:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 
+  44:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** static void uart_isr_private(void);
+  45:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 
+  46:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** //=========================== public ==========================================
+  47:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 
+  48:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** void uart_init() { 
+  54              		.loc 1 48 0
+  55              		.cfi_startproc
+  56              		@ args = 0, pretend = 0, frame = 0
+  57              		@ frame_needed = 1, uses_anonymous_args = 0
+  58 0000 80B5     		push	{r7, lr}
+  59              		.cfi_def_cfa_offset 8
+  60              		.cfi_offset 7, -8
+  61              		.cfi_offset 14, -4
+  62 0002 00AF     		add	r7, sp, #0
+  63              		.cfi_def_cfa_register 7
+  49:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****    // reset local variables
+  50:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****    memset(&uart_vars,0,sizeof(uart_vars_t));
+  64              		.loc 1 50 0
+  65 0004 40F20000 		movw	r0, #:lower16:uart_vars
+  66 0008 C0F20000 		movt	r0, #:upper16:uart_vars
+  67 000c 0021     		movs	r1, #0
+  68 000e 0822     		movs	r2, #8
+  69 0010 FFF7FEFF 		bl	memset
+  51:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****    
+  52:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****    // Disable UART function
+  53:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****    UARTDisable(UART0_BASE);
+  70              		.loc 1 53 0
+  71 0014 4FF44040 		mov	r0, #49152
+  72 0018 C4F20000 		movt	r0, 16384
+  73 001c FFF7FEFF 		bl	UARTDisable
+  54:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 
+  55:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****    // Disable all UART module interrupts
+  56:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****    UARTIntDisable(UART0_BASE, 0x1FFF);
+  74              		.loc 1 56 0
+  75 0020 4FF44040 		mov	r0, #49152
+  76 0024 C4F20000 		movt	r0, 16384
+  77 0028 41F6FF71 		movw	r1, #8191
+  78 002c FFF7FEFF 		bl	UARTIntDisable
+  57:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 
+  58:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****    // Set IO clock as UART clock source
+  59:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****    UARTClockSourceSet(UART0_BASE, UART_CLOCK_PIOSC);
+  79              		.loc 1 59 0
+  80 0030 4FF44040 		mov	r0, #49152
+  81 0034 C4F20000 		movt	r0, 16384
+  82 0038 0121     		movs	r1, #1
+  83 003a FFF7FEFF 		bl	UARTClockSourceSet
+  60:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 
+  61:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****    // Map UART signals to the correct GPIO pins and configure them as
+  62:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****    // hardware controlled. GPIO-A pin 0 and 1
+  63:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****    IOCPinConfigPeriphOutput(GPIO_A_BASE, PIN_UART_TXD, IOC_MUX_OUT_SEL_UART0_TXD);
+  84              		.loc 1 63 0
+  85 003e 4FF41040 		mov	r0, #36864
+  86 0042 C4F20D00 		movt	r0, 16397
+  87 0046 0221     		movs	r1, #2
+  88 0048 0022     		movs	r2, #0
+  89 004a FFF7FEFF 		bl	IOCPinConfigPeriphOutput
+  64:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****    GPIOPinTypeUARTOutput(GPIO_A_BASE, PIN_UART_TXD);
+  90              		.loc 1 64 0
+  91 004e 4FF41040 		mov	r0, #36864
+  92 0052 C4F20D00 		movt	r0, 16397
+  93 0056 0221     		movs	r1, #2
+  94 0058 FFF7FEFF 		bl	GPIOPinTypeUARTOutput
+  65:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****    IOCPinConfigPeriphInput(GPIO_A_BASE, PIN_UART_RXD, IOC_UARTRXD_UART0);
+  95              		.loc 1 65 0
+  96 005c 4FF41040 		mov	r0, #36864
+  97 0060 C4F20D00 		movt	r0, 16397
+  98 0064 0121     		movs	r1, #1
+  99 0066 4FF48242 		mov	r2, #16640
+ 100 006a C4F20D02 		movt	r2, 16397
+ 101 006e FFF7FEFF 		bl	IOCPinConfigPeriphInput
+  66:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****    GPIOPinTypeUARTInput(GPIO_A_BASE, PIN_UART_RXD);
+ 102              		.loc 1 66 0
+ 103 0072 4FF41040 		mov	r0, #36864
+ 104 0076 C4F20D00 		movt	r0, 16397
+ 105 007a 0121     		movs	r1, #1
+ 106 007c FFF7FEFF 		bl	GPIOPinTypeUARTInput
+  67:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 
+  68:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****    // Configure the UART for 115,200, 8-N-1 operation.
+  69:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****    // This function uses SysCtrlClockGet() to get the system clock
+  70:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****    // frequency.  This could be also be a variable or hard coded value
+  71:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****    // instead of a function call.
+  72:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****    UARTConfigSetExpClk(UART0_BASE, SysCtrlIOClockGet(), 115200,
+ 107              		.loc 1 72 0
+ 108 0080 FFF7FEFF 		bl	SysCtrlIOClockGet
+ 109 0084 0346     		mov	r3, r0
+ 110 0086 4FF44040 		mov	r0, #49152
+ 111 008a C4F20000 		movt	r0, 16384
+ 112 008e 1946     		mov	r1, r3
+ 113 0090 4FF4E132 		mov	r2, #115200
+ 114 0094 6023     		movs	r3, #96
+ 115 0096 FFF7FEFF 		bl	UARTConfigSetExpClk
+  73:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****                       (UART_CONFIG_WLEN_8 | UART_CONFIG_STOP_ONE |
+  74:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****                        UART_CONFIG_PAR_NONE));
+  75:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 
+  76:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****    // Enable UART hardware
+  77:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****    UARTEnable(UART0_BASE);
+ 116              		.loc 1 77 0
+ 117 009a 4FF44040 		mov	r0, #49152
+ 118 009e C4F20000 		movt	r0, 16384
+ 119 00a2 FFF7FEFF 		bl	UARTEnable
+  78:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 
+  79:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****    // Disable FIFO as we only one 1byte buffer
+  80:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****    UARTFIFODisable(UART0_BASE);
+ 120              		.loc 1 80 0
+ 121 00a6 4FF44040 		mov	r0, #49152
+ 122 00aa C4F20000 		movt	r0, 16384
+ 123 00ae FFF7FEFF 		bl	UARTFIFODisable
+  81:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 
+  82:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****    // Raise interrupt at end of tx (not by fifo)
+  83:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****    UARTTxIntModeSet(UART0_BASE, UART_TXINT_MODE_EOT);
+ 124              		.loc 1 83 0
+ 125 00b2 4FF44040 		mov	r0, #49152
+ 126 00b6 C4F20000 		movt	r0, 16384
+ 127 00ba 1021     		movs	r1, #16
+ 128 00bc FFF7FEFF 		bl	UARTTxIntModeSet
+  84:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 
+  85:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****    // Register isr in the nvic and enable isr at the nvic
+  86:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****    UARTIntRegister(UART0_BASE, uart_isr_private);
+ 129              		.loc 1 86 0
+ 130 00c0 4FF44040 		mov	r0, #49152
+ 131 00c4 C4F20000 		movt	r0, 16384
+ 132 00c8 40F20001 		movw	r1, #:lower16:uart_isr_private
+ 133 00cc C0F20001 		movt	r1, #:upper16:uart_isr_private
+ 134 00d0 FFF7FEFF 		bl	UARTIntRegister
+  87:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 
+  88:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****    // Enable the UART0 interrupt
+  89:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****    IntEnable(INT_UART0);
+ 135              		.loc 1 89 0
+ 136 00d4 1520     		movs	r0, #21
+ 137 00d6 FFF7FEFF 		bl	IntEnable
+  90:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** }
+ 138              		.loc 1 90 0
+ 139 00da 80BD     		pop	{r7, pc}
+ 140              		.cfi_endproc
+ 141              	.LFE0:
+ 143              		.align	2
+ 144              		.global	uart_setCallbacks
+ 145              		.thumb
+ 146              		.thumb_func
+ 148              	uart_setCallbacks:
+ 149              	.LFB1:
+  91:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 
+  92:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** void uart_setCallbacks(uart_tx_cbt txCb, uart_rx_cbt rxCb) {
+ 150              		.loc 1 92 0
+ 151              		.cfi_startproc
+ 152              		@ args = 0, pretend = 0, frame = 8
+ 153              		@ frame_needed = 1, uses_anonymous_args = 0
+ 154              		@ link register save eliminated.
+ 155 00dc 80B4     		push	{r7}
+ 156              		.cfi_def_cfa_offset 4
+ 157              		.cfi_offset 7, -4
+ 158 00de 83B0     		sub	sp, sp, #12
+ 159              		.cfi_def_cfa_offset 16
+ 160 00e0 00AF     		add	r7, sp, #0
+ 161              		.cfi_def_cfa_register 7
+ 162 00e2 7860     		str	r0, [r7, #4]
+ 163 00e4 3960     		str	r1, [r7]
+  93:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****     uart_vars.txCb = txCb;
+ 164              		.loc 1 93 0
+ 165 00e6 40F20003 		movw	r3, #:lower16:uart_vars
+ 166 00ea C0F20003 		movt	r3, #:upper16:uart_vars
+ 167 00ee 7A68     		ldr	r2, [r7, #4]
+ 168 00f0 1A60     		str	r2, [r3]
+  94:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****     uart_vars.rxCb = rxCb;
+ 169              		.loc 1 94 0
+ 170 00f2 40F20003 		movw	r3, #:lower16:uart_vars
+ 171 00f6 C0F20003 		movt	r3, #:upper16:uart_vars
+ 172 00fa 3A68     		ldr	r2, [r7]
+ 173 00fc 5A60     		str	r2, [r3, #4]
+  95:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** }
+ 174              		.loc 1 95 0
+ 175 00fe 0C37     		adds	r7, r7, #12
+ 176 0100 BD46     		mov	sp, r7
+ 177              		@ sp needed
+ 178 0102 5DF8047B 		ldr	r7, [sp], #4
+ 179 0106 7047     		bx	lr
+ 180              		.cfi_endproc
+ 181              	.LFE1:
+ 183              		.align	2
+ 184              		.global	uart_enableInterrupts
+ 185              		.thumb
+ 186              		.thumb_func
+ 188              	uart_enableInterrupts:
+ 189              	.LFB2:
+  96:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 
+  97:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** void uart_enableInterrupts(){
+ 190              		.loc 1 97 0
+ 191              		.cfi_startproc
+ 192              		@ args = 0, pretend = 0, frame = 0
+ 193              		@ frame_needed = 1, uses_anonymous_args = 0
+ 194 0108 80B5     		push	{r7, lr}
+ 195              		.cfi_def_cfa_offset 8
+ 196              		.cfi_offset 7, -8
+ 197              		.cfi_offset 14, -4
+ 198 010a 00AF     		add	r7, sp, #0
+ 199              		.cfi_def_cfa_register 7
+  98:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****     UARTIntEnable(UART0_BASE, UART_INT_RX | UART_INT_TX | UART_INT_RT);
+ 200              		.loc 1 98 0
+ 201 010c 4FF44040 		mov	r0, #49152
+ 202 0110 C4F20000 		movt	r0, 16384
+ 203 0114 7021     		movs	r1, #112
+ 204 0116 FFF7FEFF 		bl	UARTIntEnable
+  99:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** }
+ 205              		.loc 1 99 0
+ 206 011a 80BD     		pop	{r7, pc}
+ 207              		.cfi_endproc
+ 208              	.LFE2:
+ 210              		.align	2
+ 211              		.global	uart_disableInterrupts
+ 212              		.thumb
+ 213              		.thumb_func
+ 215              	uart_disableInterrupts:
+ 216              	.LFB3:
+ 100:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 
+ 101:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** void uart_disableInterrupts(){
+ 217              		.loc 1 101 0
+ 218              		.cfi_startproc
+ 219              		@ args = 0, pretend = 0, frame = 0
+ 220              		@ frame_needed = 1, uses_anonymous_args = 0
+ 221 011c 80B5     		push	{r7, lr}
+ 222              		.cfi_def_cfa_offset 8
+ 223              		.cfi_offset 7, -8
+ 224              		.cfi_offset 14, -4
+ 225 011e 00AF     		add	r7, sp, #0
+ 226              		.cfi_def_cfa_register 7
+ 102:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****     UARTIntDisable(UART0_BASE, UART_INT_RX | UART_INT_TX | UART_INT_RT);
+ 227              		.loc 1 102 0
+ 228 0120 4FF44040 		mov	r0, #49152
+ 229 0124 C4F20000 		movt	r0, 16384
+ 230 0128 7021     		movs	r1, #112
+ 231 012a FFF7FEFF 		bl	UARTIntDisable
+ 103:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** }
+ 232              		.loc 1 103 0
+ 233 012e 80BD     		pop	{r7, pc}
+ 234              		.cfi_endproc
+ 235              	.LFE3:
+ 237              		.align	2
+ 238              		.global	uart_clearRxInterrupts
+ 239              		.thumb
+ 240              		.thumb_func
+ 242              	uart_clearRxInterrupts:
+ 243              	.LFB4:
+ 104:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 
+ 105:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** void uart_clearRxInterrupts(){
+ 244              		.loc 1 105 0
+ 245              		.cfi_startproc
+ 246              		@ args = 0, pretend = 0, frame = 0
+ 247              		@ frame_needed = 1, uses_anonymous_args = 0
+ 248 0130 80B5     		push	{r7, lr}
+ 249              		.cfi_def_cfa_offset 8
+ 250              		.cfi_offset 7, -8
+ 251              		.cfi_offset 14, -4
+ 252 0132 00AF     		add	r7, sp, #0
+ 253              		.cfi_def_cfa_register 7
+ 106:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****     UARTIntClear(UART0_BASE, UART_INT_RX | UART_INT_RT);
+ 254              		.loc 1 106 0
+ 255 0134 4FF44040 		mov	r0, #49152
+ 256 0138 C4F20000 		movt	r0, 16384
+ 257 013c 5021     		movs	r1, #80
+ 258 013e FFF7FEFF 		bl	UARTIntClear
+ 107:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** }
+ 259              		.loc 1 107 0
+ 260 0142 80BD     		pop	{r7, pc}
+ 261              		.cfi_endproc
+ 262              	.LFE4:
+ 264              		.align	2
+ 265              		.global	uart_clearTxInterrupts
+ 266              		.thumb
+ 267              		.thumb_func
+ 269              	uart_clearTxInterrupts:
+ 270              	.LFB5:
+ 108:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 
+ 109:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** void uart_clearTxInterrupts(){
+ 271              		.loc 1 109 0
+ 272              		.cfi_startproc
+ 273              		@ args = 0, pretend = 0, frame = 0
+ 274              		@ frame_needed = 1, uses_anonymous_args = 0
+ 275 0144 80B5     		push	{r7, lr}
+ 276              		.cfi_def_cfa_offset 8
+ 277              		.cfi_offset 7, -8
+ 278              		.cfi_offset 14, -4
+ 279 0146 00AF     		add	r7, sp, #0
+ 280              		.cfi_def_cfa_register 7
+ 110:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****     UARTIntClear(UART0_BASE, UART_INT_TX);
+ 281              		.loc 1 110 0
+ 282 0148 4FF44040 		mov	r0, #49152
+ 283 014c C4F20000 		movt	r0, 16384
+ 284 0150 2021     		movs	r1, #32
+ 285 0152 FFF7FEFF 		bl	UARTIntClear
+ 111:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** }
+ 286              		.loc 1 111 0
+ 287 0156 80BD     		pop	{r7, pc}
+ 288              		.cfi_endproc
+ 289              	.LFE5:
+ 291              		.align	2
+ 292              		.global	uart_writeByte
+ 293              		.thumb
+ 294              		.thumb_func
+ 296              	uart_writeByte:
+ 297              	.LFB6:
+ 112:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 
+ 113:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** void  uart_writeByte(uint8_t byteToWrite){
+ 298              		.loc 1 113 0
+ 299              		.cfi_startproc
+ 300              		@ args = 0, pretend = 0, frame = 8
+ 301              		@ frame_needed = 1, uses_anonymous_args = 0
+ 302 0158 80B5     		push	{r7, lr}
+ 303              		.cfi_def_cfa_offset 8
+ 304              		.cfi_offset 7, -8
+ 305              		.cfi_offset 14, -4
+ 306 015a 82B0     		sub	sp, sp, #8
+ 307              		.cfi_def_cfa_offset 16
+ 308 015c 00AF     		add	r7, sp, #0
+ 309              		.cfi_def_cfa_register 7
+ 310 015e 0346     		mov	r3, r0
+ 311 0160 FB71     		strb	r3, [r7, #7]
+ 114:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 	UARTCharPut(UART0_BASE, byteToWrite);
+ 312              		.loc 1 114 0
+ 313 0162 FB79     		ldrb	r3, [r7, #7]	@ zero_extendqisi2
+ 314 0164 4FF44040 		mov	r0, #49152
+ 315 0168 C4F20000 		movt	r0, 16384
+ 316 016c 1946     		mov	r1, r3
+ 317 016e FFF7FEFF 		bl	UARTCharPut
+ 115:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** }
+ 318              		.loc 1 115 0
+ 319 0172 0837     		adds	r7, r7, #8
+ 320 0174 BD46     		mov	sp, r7
+ 321              		@ sp needed
+ 322 0176 80BD     		pop	{r7, pc}
+ 323              		.cfi_endproc
+ 324              	.LFE6:
+ 326              		.align	2
+ 327              		.global	uart_readByte
+ 328              		.thumb
+ 329              		.thumb_func
+ 331              	uart_readByte:
+ 332              	.LFB7:
+ 116:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 
+ 117:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** uint8_t uart_readByte(){
+ 333              		.loc 1 117 0
+ 334              		.cfi_startproc
+ 335              		@ args = 0, pretend = 0, frame = 8
+ 336              		@ frame_needed = 1, uses_anonymous_args = 0
+ 337 0178 80B5     		push	{r7, lr}
+ 338              		.cfi_def_cfa_offset 8
+ 339              		.cfi_offset 7, -8
+ 340              		.cfi_offset 14, -4
+ 341 017a 82B0     		sub	sp, sp, #8
+ 342              		.cfi_def_cfa_offset 16
+ 343 017c 00AF     		add	r7, sp, #0
+ 344              		.cfi_def_cfa_register 7
+ 118:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 	 int32_t i32Char;
+ 119:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****      i32Char = UARTCharGet(UART0_BASE);
+ 345              		.loc 1 119 0
+ 346 017e 4FF44040 		mov	r0, #49152
+ 347 0182 C4F20000 		movt	r0, 16384
+ 348 0186 FFF7FEFF 		bl	UARTCharGet
+ 349 018a 7860     		str	r0, [r7, #4]
+ 120:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 	 return (uint8_t)(i32Char & 0xFF);
+ 350              		.loc 1 120 0
+ 351 018c 7B68     		ldr	r3, [r7, #4]
+ 352 018e DBB2     		uxtb	r3, r3
+ 121:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** }
+ 353              		.loc 1 121 0
+ 354 0190 1846     		mov	r0, r3
+ 355 0192 0837     		adds	r7, r7, #8
+ 356 0194 BD46     		mov	sp, r7
+ 357              		@ sp needed
+ 358 0196 80BD     		pop	{r7, pc}
+ 359              		.cfi_endproc
+ 360              	.LFE7:
+ 362              		.align	2
+ 363              		.thumb
+ 364              		.thumb_func
+ 366              	uart_isr_private:
+ 367              	.LFB8:
+ 122:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 
+ 123:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** //=========================== interrupt handlers ==============================
+ 124:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 
+ 125:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** static void uart_isr_private(void){
+ 368              		.loc 1 125 0
+ 369              		.cfi_startproc
+ 370              		@ args = 0, pretend = 0, frame = 8
+ 371              		@ frame_needed = 1, uses_anonymous_args = 0
+ 372 0198 80B5     		push	{r7, lr}
+ 373              		.cfi_def_cfa_offset 8
+ 374              		.cfi_offset 7, -8
+ 375              		.cfi_offset 14, -4
+ 376 019a 82B0     		sub	sp, sp, #8
+ 377              		.cfi_def_cfa_offset 16
+ 378 019c 00AF     		add	r7, sp, #0
+ 379              		.cfi_def_cfa_register 7
+ 126:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 	uint32_t reg;
+ 127:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 	debugpins_isr_set();
+ 380              		.loc 1 127 0
+ 381 019e FFF7FEFF 		bl	debugpins_isr_set
+ 128:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 
+ 129:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 	// Read interrupt source
+ 130:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 	reg = UARTIntStatus(UART0_BASE, true);
+ 382              		.loc 1 130 0
+ 383 01a2 4FF44040 		mov	r0, #49152
+ 384 01a6 C4F20000 		movt	r0, 16384
+ 385 01aa 0121     		movs	r1, #1
+ 386 01ac FFF7FEFF 		bl	UARTIntStatus
+ 387 01b0 7860     		str	r0, [r7, #4]
+ 131:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 
+ 132:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 	// Clear UART interrupt in the NVIC
+ 133:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 	IntPendClear(INT_UART0);
+ 388              		.loc 1 133 0
+ 389 01b2 1520     		movs	r0, #21
+ 390 01b4 FFF7FEFF 		bl	IntPendClear
+ 134:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 
+ 135:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 	// Process TX interrupt
+ 136:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 	if(reg & UART_INT_TX){
+ 391              		.loc 1 136 0
+ 392 01b8 7B68     		ldr	r3, [r7, #4]
+ 393 01ba 03F02003 		and	r3, r3, #32
+ 394 01be 002B     		cmp	r3, #0
+ 395 01c0 01D0     		beq	.L11
+ 137:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 	     uart_tx_isr();
+ 396              		.loc 1 137 0
+ 397 01c2 FFF7FEFF 		bl	uart_tx_isr
+ 398              	.L11:
+ 138:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 	}
+ 139:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 
+ 140:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 	// Process RX interrupt
+ 141:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 	if((reg & (UART_INT_RX)) || (reg & (UART_INT_RT))) {
+ 399              		.loc 1 141 0
+ 400 01c6 7B68     		ldr	r3, [r7, #4]
+ 401 01c8 03F01003 		and	r3, r3, #16
+ 402 01cc 002B     		cmp	r3, #0
+ 403 01ce 04D1     		bne	.L12
+ 404              		.loc 1 141 0 is_stmt 0 discriminator 1
+ 405 01d0 7B68     		ldr	r3, [r7, #4]
+ 406 01d2 03F04003 		and	r3, r3, #64
+ 407 01d6 002B     		cmp	r3, #0
+ 408 01d8 01D0     		beq	.L13
+ 409              	.L12:
+ 142:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 		uart_rx_isr();
+ 410              		.loc 1 142 0 is_stmt 1
+ 411 01da FFF7FEFF 		bl	uart_rx_isr
+ 412              	.L13:
+ 143:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 	}
+ 144:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 
+ 145:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 	debugpins_isr_clr();
+ 413              		.loc 1 145 0
+ 414 01de FFF7FEFF 		bl	debugpins_isr_clr
+ 146:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** }
+ 415              		.loc 1 146 0
+ 416 01e2 0837     		adds	r7, r7, #8
+ 417 01e4 BD46     		mov	sp, r7
+ 418              		@ sp needed
+ 419 01e6 80BD     		pop	{r7, pc}
+ 420              		.cfi_endproc
+ 421              	.LFE8:
+ 423              		.align	2
+ 424              		.global	uart_tx_isr
+ 425              		.thumb
+ 426              		.thumb_func
+ 428              	uart_tx_isr:
+ 429              	.LFB9:
+ 147:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 
+ 148:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** kick_scheduler_t uart_tx_isr() {
+ 430              		.loc 1 148 0
+ 431              		.cfi_startproc
+ 432              		@ args = 0, pretend = 0, frame = 0
+ 433              		@ frame_needed = 1, uses_anonymous_args = 0
+ 434 01e8 80B5     		push	{r7, lr}
+ 435              		.cfi_def_cfa_offset 8
+ 436              		.cfi_offset 7, -8
+ 437              		.cfi_offset 14, -4
+ 438 01ea 00AF     		add	r7, sp, #0
+ 439              		.cfi_def_cfa_register 7
+ 149:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****    uart_clearTxInterrupts(); // TODO: do not clear, but disable when done
+ 440              		.loc 1 149 0
+ 441 01ec FFF7FEFF 		bl	uart_clearTxInterrupts
+ 150:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****    if (uart_vars.txCb != NULL) {
+ 442              		.loc 1 150 0
+ 443 01f0 40F20003 		movw	r3, #:lower16:uart_vars
+ 444 01f4 C0F20003 		movt	r3, #:upper16:uart_vars
+ 445 01f8 1B68     		ldr	r3, [r3]
+ 446 01fa 002B     		cmp	r3, #0
+ 447 01fc 05D0     		beq	.L15
+ 151:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****        uart_vars.txCb();
+ 448              		.loc 1 151 0
+ 449 01fe 40F20003 		movw	r3, #:lower16:uart_vars
+ 450 0202 C0F20003 		movt	r3, #:upper16:uart_vars
+ 451 0206 1B68     		ldr	r3, [r3]
+ 452 0208 9847     		blx	r3
+ 453              	.L15:
+ 152:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****    }
+ 153:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****    return DO_NOT_KICK_SCHEDULER;
+ 454              		.loc 1 153 0
+ 455 020a 0023     		movs	r3, #0
+ 154:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** }
+ 456              		.loc 1 154 0
+ 457 020c 1846     		mov	r0, r3
+ 458 020e 80BD     		pop	{r7, pc}
+ 459              		.cfi_endproc
+ 460              	.LFE9:
+ 462              		.align	2
+ 463              		.global	uart_rx_isr
+ 464              		.thumb
+ 465              		.thumb_func
+ 467              	uart_rx_isr:
+ 468              	.LFB10:
+ 155:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** 
+ 156:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** kick_scheduler_t uart_rx_isr() {
+ 469              		.loc 1 156 0
+ 470              		.cfi_startproc
+ 471              		@ args = 0, pretend = 0, frame = 0
+ 472              		@ frame_needed = 1, uses_anonymous_args = 0
+ 473 0210 80B5     		push	{r7, lr}
+ 474              		.cfi_def_cfa_offset 8
+ 475              		.cfi_offset 7, -8
+ 476              		.cfi_offset 14, -4
+ 477 0212 00AF     		add	r7, sp, #0
+ 478              		.cfi_def_cfa_register 7
+ 157:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****    uart_clearRxInterrupts(); // TODO: do not clear, but disable when done
+ 479              		.loc 1 157 0
+ 480 0214 FFF7FEFF 		bl	uart_clearRxInterrupts
+ 158:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****    if (uart_vars.rxCb != NULL) {
+ 481              		.loc 1 158 0
+ 482 0218 40F20003 		movw	r3, #:lower16:uart_vars
+ 483 021c C0F20003 		movt	r3, #:upper16:uart_vars
+ 484 0220 5B68     		ldr	r3, [r3, #4]
+ 485 0222 002B     		cmp	r3, #0
+ 486 0224 05D0     		beq	.L18
+ 159:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****        uart_vars.rxCb();
+ 487              		.loc 1 159 0
+ 488 0226 40F20003 		movw	r3, #:lower16:uart_vars
+ 489 022a C0F20003 		movt	r3, #:upper16:uart_vars
+ 490 022e 5B68     		ldr	r3, [r3, #4]
+ 491 0230 9847     		blx	r3
+ 492              	.L18:
+ 160:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****    }
+ 161:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c ****    return DO_NOT_KICK_SCHEDULER;
+ 493              		.loc 1 161 0
+ 494 0232 0023     		movs	r3, #0
+ 162:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/uart.c **** }
+ 495              		.loc 1 162 0
+ 496 0234 1846     		mov	r0, r3
+ 497 0236 80BD     		pop	{r7, pc}
+ 498              		.cfi_endproc
+ 499              	.LFE10:
+ 501              	.Letext0:
+ 502              		.file 2 "/usr/include/newlib/machine/_default_types.h"
+ 503              		.file 3 "/usr/include/newlib/stdint.h"
+ 504              		.file 4 "bsp/boards/board.h"
+ 505              		.file 5 "bsp/boards/uart.h"
+ 506              		.file 6 "bsp/boards/openmote-cc2538/board_info.h"
+ 507              		.file 7 "inc/opendefs.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 uart.c
+     /tmp/ccuFCu9K.s:19     .rodata:0000000000000000 $d
+     /tmp/ccuFCu9K.s:22     .rodata:0000000000000000 rreg_uriquery
+     /tmp/ccuFCu9K.s:27     .rodata:0000000000000008 infoBoardname
+     /tmp/ccuFCu9K.s:32     .rodata:0000000000000010 infouCName
+     /tmp/ccuFCu9K.s:37     .rodata:0000000000000018 infoRadioName
+     /tmp/ccuFCu9K.s:42     .rodata:0000000000000024 infoStackName
+                            *COM*:0000000000000008 uart_vars
+     /tmp/ccuFCu9K.s:46     .text:0000000000000000 $t
+     /tmp/ccuFCu9K.s:51     .text:0000000000000000 uart_init
+     /tmp/ccuFCu9K.s:366    .text:0000000000000198 uart_isr_private
+     /tmp/ccuFCu9K.s:148    .text:00000000000000dc uart_setCallbacks
+     /tmp/ccuFCu9K.s:188    .text:0000000000000108 uart_enableInterrupts
+     /tmp/ccuFCu9K.s:215    .text:000000000000011c uart_disableInterrupts
+     /tmp/ccuFCu9K.s:242    .text:0000000000000130 uart_clearRxInterrupts
+     /tmp/ccuFCu9K.s:269    .text:0000000000000144 uart_clearTxInterrupts
+     /tmp/ccuFCu9K.s:296    .text:0000000000000158 uart_writeByte
+     /tmp/ccuFCu9K.s:331    .text:0000000000000178 uart_readByte
+     /tmp/ccuFCu9K.s:428    .text:00000000000001e8 uart_tx_isr
+     /tmp/ccuFCu9K.s:467    .text:0000000000000210 uart_rx_isr
+                     .debug_frame:0000000000000010 $d
+                           .group:0000000000000000 wm4.1.08074afb2ccc9da754fae8e3ee0f577b
+                           .group:0000000000000000 wm4.features.h.22.6a4ca7cd053637cc1d0db6c16f39b2d7
+                           .group:0000000000000000 wm4._default_types.h.15.8b2cb27e528498f8ff711db085d6e489
+                           .group:0000000000000000 wm4.stdint.h.20.796e373797e732130a803d4c0338fa1b
+                           .group:0000000000000000 wm4.newlib.h.8.fec018e441fee7bfa1923812ad010f97
+                           .group:0000000000000000 wm4.config.h.212.4163ef2871a828c674038d036b081cfd
+                           .group:0000000000000000 wm4._ansi.h.23.5644b60c990a4800b02a6e654e88f93a
+                           .group:0000000000000000 wm4.stdio.h.31.7c0e28c411445f3f9c5b11accf882760
+                           .group:0000000000000000 wm4.stddef.h.184.159df79b4ca79c76561572a55985524c
+                           .group:0000000000000000 wm4.stdarg.h.34.3a23a216c0c293b3d2ea2e89281481e6
+                           .group:0000000000000000 wm4.stddef.h.39.7e3d906ac58942e0b374c527445f5de5
+                           .group:0000000000000000 wm4.lock.h.2.9bc98482741e5e2a9450b12934a684ea
+                           .group:0000000000000000 wm4._types.h.54.d3d34a3b7f3cc230cd159baf022b4b08
+                           .group:0000000000000000 wm4.stddef.h.158.61317cdbfb4026324507d123a50b0fd6
+                           .group:0000000000000000 wm4.reent.h.17.8bd9e4098e0428508c282cad794fae43
+                           .group:0000000000000000 wm4.types.h.23.0d949686bbcadd1621462d4fa1f884f9
+                           .group:0000000000000000 wm4.types.h.2.e9cec8c90ab35f77d9f499e06ae02400
+                           .group:0000000000000000 wm4.types.h.80.56707660962b21991903f1fee7c13bb3
+                           .group:0000000000000000 wm4.stdio.h.2.4aa87247282eca6c8f36f9de33d8df1a
+                           .group:0000000000000000 wm4.stdio.h.64.0f05fa42cfe2db7fc44729a52d3ba948
+                           .group:0000000000000000 wm4.cdefs.h.47.339223046f475c9f2d5db3a9118d7c65
+                           .group:0000000000000000 wm4.string.h.15.dab3980bf35408a4c507182805e2de3a
+                           .group:0000000000000000 wm4.stddef.h.158.a7efb00f6cbc6f43213b50e183c9830c
+                           .group:0000000000000000 wm4.string.h.126.6ff3aa59129e7f66b2c273baf353e066
+                           .group:0000000000000000 wm4.hw_ints.h.42.85b9479f2be35b086f1bb7cbb15bc097
+                           .group:0000000000000000 wm4.hw_ioc.h.39.7722cce4a3cc0e3380c3cd135aee3b21
+                           .group:0000000000000000 wm4.hw_memmap.h.39.19283c377d449c9bca5fdd8ccb62628c
+                           .group:0000000000000000 wm4.stdbool.h.29.1c9ee6859ce8145f7838a4f2549ccec2
+                           .group:0000000000000000 wm4.hw_types.h.67.b10589a0806dcc2d274d6fab6b736519
+                           .group:0000000000000000 wm4.gpio.h.41.604fa3d9f70fb140a75ada50bffeaeff
+                           .group:0000000000000000 wm4.interrupt.h.41.272fc4ec0e276feb439e7974d0f77eaf
+                           .group:0000000000000000 wm4.ioc.h.41.7444fe7016a1d045dd9fea497d615b28
+                           .group:0000000000000000 wm4.sys_ctrl.h.41.c6bbd4dace326d685c1afa45bc1ba1e2
+                           .group:0000000000000000 wm4.uarthal.h.41.25db9539abdf5c44b7896bf33c1e7f12
+                           .group:0000000000000000 wm4.board_info.h.22.aeb00002354a4949fff54190040e37af
+                           .group:0000000000000000 wm4.toolchain_defs.h.2.1de8df52ab2567aa1aa0a288d2325900
+                           .group:0000000000000000 wm4.opendefs.h.23.16dafe2a30b31097968a5d4db894173a
+                           .group:0000000000000000 wm4.opentimers.h.22.96cfa97d1f5564118f54ad8599fc1867
+
+UNDEFINED SYMBOLS
+memset
+UARTDisable
+UARTIntDisable
+UARTClockSourceSet
+IOCPinConfigPeriphOutput
+GPIOPinTypeUARTOutput
+IOCPinConfigPeriphInput
+GPIOPinTypeUARTInput
+SysCtrlIOClockGet
+UARTConfigSetExpClk
+UARTEnable
+UARTFIFODisable
+UARTTxIntModeSet
+UARTIntRegister
+IntEnable
+UARTIntEnable
+UARTIntClear
+UARTCharPut
+UARTCharGet
+debugpins_isr_set
+UARTIntStatus
+IntPendClear
+debugpins_isr_clr

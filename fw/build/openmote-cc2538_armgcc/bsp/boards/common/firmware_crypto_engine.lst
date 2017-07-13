@@ -1,0 +1,144 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"firmware_crypto_engine.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.rodata
+  19              		.align	2
+  22              	rreg_uriquery:
+  23 0000 683D7563 		.ascii	"h=ucb\000"
+  23      6200
+  24 0006 0000     		.align	2
+  27              	infoBoardname:
+  28 0008 43433235 		.ascii	"CC2538\000"
+  28      333800
+  29 000f 00       		.align	2
+  32              	infouCName:
+  33 0010 43433235 		.ascii	"CC2538\000"
+  33      333800
+  34 0017 00       		.align	2
+  37              	infoRadioName:
+  38 0018 43433235 		.ascii	"CC2538 SoC\000"
+  38      33382053 
+  38      6F4300
+  39 0023 00       		.align	2
+  42              	infoStackName:
+  43 0024 4F70656E 		.ascii	"OpenWSN \000"
+  43      57534E20 
+  43      00
+  44              		.text
+  45              		.align	2
+  46              		.thumb
+  47              		.thumb_func
+  49              	init:
+  50              	.LFB0:
+  51              		.file 1 "build/openmote-cc2538_armgcc/bsp/boards/common/firmware_crypto_engine.c"
+   1:build/openmote-cc2538_armgcc/bsp/boards/common/firmware_crypto_engine.c **** /**
+   2:build/openmote-cc2538_armgcc/bsp/boards/common/firmware_crypto_engine.c **** \brief Crypto engine initialization
+   3:build/openmote-cc2538_armgcc/bsp/boards/common/firmware_crypto_engine.c ****   
+   4:build/openmote-cc2538_armgcc/bsp/boards/common/firmware_crypto_engine.c **** \author Marcelo Barros de Almeida <marcelobarrosalmeida@gmail.com>, March 2015.
+   5:build/openmote-cc2538_armgcc/bsp/boards/common/firmware_crypto_engine.c **** \author Malisa Vucinic <malishav@gmail.com>, March 2015.
+   6:build/openmote-cc2538_armgcc/bsp/boards/common/firmware_crypto_engine.c **** */
+   7:build/openmote-cc2538_armgcc/bsp/boards/common/firmware_crypto_engine.c **** #include <stdint.h>
+   8:build/openmote-cc2538_armgcc/bsp/boards/common/firmware_crypto_engine.c **** #include <string.h>
+   9:build/openmote-cc2538_armgcc/bsp/boards/common/firmware_crypto_engine.c **** #include "opendefs.h"
+  10:build/openmote-cc2538_armgcc/bsp/boards/common/firmware_crypto_engine.c **** #include "firmware_crypto_engine.h"
+  11:build/openmote-cc2538_armgcc/bsp/boards/common/firmware_crypto_engine.c **** #include "aes_ccms.h"
+  12:build/openmote-cc2538_armgcc/bsp/boards/common/firmware_crypto_engine.c **** #include "aes_ctr.h"
+  13:build/openmote-cc2538_armgcc/bsp/boards/common/firmware_crypto_engine.c **** #include "aes_cbc.h"
+  14:build/openmote-cc2538_armgcc/bsp/boards/common/firmware_crypto_engine.c **** #include "aes_ecb.h"
+  15:build/openmote-cc2538_armgcc/bsp/boards/common/firmware_crypto_engine.c **** 
+  16:build/openmote-cc2538_armgcc/bsp/boards/common/firmware_crypto_engine.c **** static owerror_t init(void) {
+  52              		.loc 1 16 0
+  53              		.cfi_startproc
+  54              		@ args = 0, pretend = 0, frame = 0
+  55              		@ frame_needed = 1, uses_anonymous_args = 0
+  56              		@ link register save eliminated.
+  57 0000 80B4     		push	{r7}
+  58              		.cfi_def_cfa_offset 4
+  59              		.cfi_offset 7, -4
+  60 0002 00AF     		add	r7, sp, #0
+  61              		.cfi_def_cfa_register 7
+  17:build/openmote-cc2538_armgcc/bsp/boards/common/firmware_crypto_engine.c ****    return E_SUCCESS;
+  62              		.loc 1 17 0
+  63 0004 0023     		movs	r3, #0
+  18:build/openmote-cc2538_armgcc/bsp/boards/common/firmware_crypto_engine.c **** }
+  64              		.loc 1 18 0
+  65 0006 1846     		mov	r0, r3
+  66 0008 BD46     		mov	sp, r7
+  67              		@ sp needed
+  68 000a 5DF8047B 		ldr	r7, [sp], #4
+  69 000e 7047     		bx	lr
+  70              		.cfi_endproc
+  71              	.LFE0:
+  73              		.global	firmware_crypto_engine
+  74              		.section	.rodata
+  75 002d 000000   		.align	2
+  78              	firmware_crypto_engine:
+  79 0030 00000000 		.word	aes_ccms_enc
+  80 0034 00000000 		.word	aes_ccms_dec
+  81 0038 00000000 		.word	aes_cbc_enc_raw
+  82 003c 00000000 		.word	aes_ctr_enc_raw
+  83 0040 00000000 		.word	aes_ecb_enc
+  84 0044 00000000 		.word	init
+  85              		.text
+  86              	.Letext0:
+  87              		.file 2 "/usr/include/newlib/machine/_default_types.h"
+  88              		.file 3 "/usr/include/newlib/stdint.h"
+  89              		.file 4 "inc/opendefs.h"
+  90              		.file 5 "bsp/boards/crypto_engine.h"
+  91              		.file 6 "bsp/boards/openmote-cc2538/board_info.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 firmware_crypto_engine.c
+     /tmp/cciNzIlu.s:19     .rodata:0000000000000000 $d
+     /tmp/cciNzIlu.s:22     .rodata:0000000000000000 rreg_uriquery
+     /tmp/cciNzIlu.s:27     .rodata:0000000000000008 infoBoardname
+     /tmp/cciNzIlu.s:32     .rodata:0000000000000010 infouCName
+     /tmp/cciNzIlu.s:37     .rodata:0000000000000018 infoRadioName
+     /tmp/cciNzIlu.s:42     .rodata:0000000000000024 infoStackName
+     /tmp/cciNzIlu.s:45     .text:0000000000000000 $t
+     /tmp/cciNzIlu.s:49     .text:0000000000000000 init
+     /tmp/cciNzIlu.s:78     .rodata:0000000000000030 firmware_crypto_engine
+                     .debug_frame:0000000000000010 $d
+                           .group:0000000000000000 wm4.1.08074afb2ccc9da754fae8e3ee0f577b
+                           .group:0000000000000000 wm4.features.h.22.6a4ca7cd053637cc1d0db6c16f39b2d7
+                           .group:0000000000000000 wm4._default_types.h.15.8b2cb27e528498f8ff711db085d6e489
+                           .group:0000000000000000 wm4.stdint.h.20.796e373797e732130a803d4c0338fa1b
+                           .group:0000000000000000 wm4.newlib.h.8.fec018e441fee7bfa1923812ad010f97
+                           .group:0000000000000000 wm4.config.h.212.4163ef2871a828c674038d036b081cfd
+                           .group:0000000000000000 wm4._ansi.h.23.5644b60c990a4800b02a6e654e88f93a
+                           .group:0000000000000000 wm4.stddef.h.39.daafd3d79fe2f3a84d2d73d7d4e706f8
+                           .group:0000000000000000 wm4.lock.h.2.9bc98482741e5e2a9450b12934a684ea
+                           .group:0000000000000000 wm4._types.h.54.d3d34a3b7f3cc230cd159baf022b4b08
+                           .group:0000000000000000 wm4.stddef.h.158.61317cdbfb4026324507d123a50b0fd6
+                           .group:0000000000000000 wm4.reent.h.17.8bd9e4098e0428508c282cad794fae43
+                           .group:0000000000000000 wm4.cdefs.h.47.339223046f475c9f2d5db3a9118d7c65
+                           .group:0000000000000000 wm4.string.h.15.dab3980bf35408a4c507182805e2de3a
+                           .group:0000000000000000 wm4.stddef.h.158.a7efb00f6cbc6f43213b50e183c9830c
+                           .group:0000000000000000 wm4.string.h.126.6ff3aa59129e7f66b2c273baf353e066
+                           .group:0000000000000000 wm4.toolchain_defs.h.2.e5fd326231d01413e5361944b26cde07
+                           .group:0000000000000000 wm4.stdbool.h.29.1c9ee6859ce8145f7838a4f2549ccec2
+                           .group:0000000000000000 wm4.hw_types.h.67.b10589a0806dcc2d274d6fab6b736519
+                           .group:0000000000000000 wm4.interrupt.h.41.272fc4ec0e276feb439e7974d0f77eaf
+                           .group:0000000000000000 wm4.board_info.h.22.aeb00002354a4949fff54190040e37af
+                           .group:0000000000000000 wm4.opendefs.h.23.16dafe2a30b31097968a5d4db894173a
+                           .group:0000000000000000 wm4.crypto_engine.h.8.a3dd976cbcb92c44f852cc7aa252f659
+
+UNDEFINED SYMBOLS
+aes_ccms_enc
+aes_ccms_dec
+aes_cbc_enc_raw
+aes_ctr_enc_raw
+aes_ecb_enc

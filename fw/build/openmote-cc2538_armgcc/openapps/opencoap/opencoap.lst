@@ -1,0 +1,2039 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"opencoap.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.rodata
+  19              		.align	2
+  22              	rreg_uriquery:
+  23 0000 683D7563 		.ascii	"h=ucb\000"
+  23      6200
+  24 0006 0000     		.align	2
+  27              	infoBoardname:
+  28 0008 43433235 		.ascii	"CC2538\000"
+  28      333800
+  29 000f 00       		.align	2
+  32              	infouCName:
+  33 0010 43433235 		.ascii	"CC2538\000"
+  33      333800
+  34 0017 00       		.align	2
+  37              	infoRadioName:
+  38 0018 43433235 		.ascii	"CC2538 SoC\000"
+  38      33382053 
+  38      6F4300
+  39 0023 00       		.align	2
+  42              	infoStackName:
+  43 0024 4F70656E 		.ascii	"OpenWSN \000"
+  43      57534E20 
+  43      00
+  44 002d 000000   		.align	2
+  47              	ipAddr_ipsoRD:
+  48 0030 26       		.byte	38
+  49 0031 07       		.byte	7
+  50 0032 F7       		.byte	-9
+  51 0033 40       		.byte	64
+  52 0034 00       		.byte	0
+  53 0035 00       		.byte	0
+  54 0036 00       		.byte	0
+  55 0037 3F       		.byte	63
+  56 0038 00       		.byte	0
+  57 0039 00       		.byte	0
+  58 003a 00       		.byte	0
+  59 003b 00       		.byte	0
+  60 003c 00       		.byte	0
+  61 003d 00       		.byte	0
+  62 003e 0E       		.byte	14
+  63 003f 29       		.byte	41
+  64              		.align	2
+  67              	ipAddr_motesEecs:
+  68 0040 20       		.byte	32
+  69 0041 01       		.byte	1
+  70 0042 04       		.byte	4
+  71 0043 70       		.byte	112
+  72 0044 00       		.byte	0
+  73 0045 66       		.byte	102
+  74 0046 00       		.byte	0
+  75 0047 19       		.byte	25
+  76 0048 00       		.byte	0
+  77 0049 00       		.byte	0
+  78 004a 00       		.byte	0
+  79 004b 00       		.byte	0
+  80 004c 00       		.byte	0
+  81 004d 00       		.byte	0
+  82 004e 00       		.byte	0
+  83 004f 02       		.byte	2
+  84              		.align	2
+  87              	ipAddr_local:
+  88 0050 26       		.byte	38
+  89 0051 07       		.byte	7
+  90 0052 F1       		.byte	-15
+  91 0053 40       		.byte	64
+  92 0054 04       		.byte	4
+  93 0055 00       		.byte	0
+  94 0056 10       		.byte	16
+  95 0057 36       		.byte	54
+  96 0058 4D       		.byte	77
+  97 0059 CD       		.byte	-51
+  98 005a AB       		.byte	-85
+  99 005b 54       		.byte	84
+ 100 005c 81       		.byte	-127
+ 101 005d 99       		.byte	-103
+ 102 005e C1       		.byte	-63
+ 103 005f F7       		.byte	-9
+ 104              		.align	2
+ 107              	ipAddr_motedata:
+ 108 0060 20       		.byte	32
+ 109 0061 01       		.byte	1
+ 110 0062 04       		.byte	4
+ 111 0063 70       		.byte	112
+ 112 0064 00       		.byte	0
+ 113 0065 66       		.byte	102
+ 114 0066 00       		.byte	0
+ 115 0067 17       		.byte	23
+ 116 0068 00       		.byte	0
+ 117 0069 00       		.byte	0
+ 118 006a 00       		.byte	0
+ 119 006b 00       		.byte	0
+ 120 006c 00       		.byte	0
+ 121 006d 00       		.byte	0
+ 122 006e 00       		.byte	0
+ 123 006f 02       		.byte	2
+ 124              		.align	2
+ 127              	ipAddr_ringmaster:
+ 128 0070 BB       		.byte	-69
+ 129 0071 BB       		.byte	-69
+ 130 0072 00       		.byte	0
+ 131 0073 00       		.byte	0
+ 132 0074 00       		.byte	0
+ 133 0075 00       		.byte	0
+ 134 0076 00       		.byte	0
+ 135 0077 00       		.byte	0
+ 136 0078 00       		.byte	0
+ 137 0079 00       		.byte	0
+ 138 007a 00       		.byte	0
+ 139 007b 00       		.byte	0
+ 140 007c 00       		.byte	0
+ 141 007d 00       		.byte	0
+ 142 007e 00       		.byte	0
+ 143 007f 01       		.byte	1
+ 144              		.comm	opencoap_vars,24,4
+ 145              		.text
+ 146              		.align	2
+ 147              		.global	opencoap_init
+ 148              		.thumb
+ 149              		.thumb_func
+ 151              	opencoap_init:
+ 152              	.LFB0:
+ 153              		.file 1 "build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c"
+   1:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** #include "opendefs.h"
+   2:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** #include "opencoap.h"
+   3:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** #include "openqueue.h"
+   4:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** #include "openserial.h"
+   5:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** #include "openrandom.h"
+   6:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** #include "packetfunctions.h"
+   7:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** #include "idmanager.h"
+   8:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** #include "opentimers.h"
+   9:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** #include "scheduler.h"
+  10:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** 
+  11:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** //=========================== defines =========================================
+  12:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** 
+  13:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** //=========================== variables =======================================
+  14:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** 
+  15:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** opencoap_vars_t opencoap_vars;
+  16:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** 
+  17:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** //=========================== prototype =======================================
+  18:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** 
+  19:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** //=========================== public ==========================================
+  20:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** 
+  21:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** //===== from stack
+  22:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** 
+  23:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** /**
+  24:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** \brief Initialize this module.
+  25:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** */
+  26:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** void opencoap_init() {
+ 154              		.loc 1 26 0
+ 155              		.cfi_startproc
+ 156              		@ args = 0, pretend = 0, frame = 0
+ 157              		@ frame_needed = 1, uses_anonymous_args = 0
+ 158 0000 80B5     		push	{r7, lr}
+ 159              		.cfi_def_cfa_offset 8
+ 160              		.cfi_offset 7, -8
+ 161              		.cfi_offset 14, -4
+ 162 0002 00AF     		add	r7, sp, #0
+ 163              		.cfi_def_cfa_register 7
+  27:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    // initialize the resource linked list
+  28:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    opencoap_vars.resources     = NULL;
+ 164              		.loc 1 28 0
+ 165 0004 40F20003 		movw	r3, #:lower16:opencoap_vars
+ 166 0008 C0F20003 		movt	r3, #:upper16:opencoap_vars
+ 167 000c 0022     		movs	r2, #0
+ 168 000e 1A61     		str	r2, [r3, #16]
+  29:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    
+  30:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    // initialize the messageID
+  31:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    opencoap_vars.messageID     = openrandom_get16b();
+ 169              		.loc 1 31 0
+ 170 0010 FFF7FEFF 		bl	openrandom_get16b
+ 171 0014 0346     		mov	r3, r0
+ 172 0016 1A46     		mov	r2, r3
+ 173 0018 40F20003 		movw	r3, #:lower16:opencoap_vars
+ 174 001c C0F20003 		movt	r3, #:upper16:opencoap_vars
+ 175 0020 DA82     		strh	r2, [r3, #22]	@ movhi
+  32:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** 
+  33:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    // register at UDP stack
+  34:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    opencoap_vars.desc.port              = WKP_UDP_COAP;
+ 176              		.loc 1 34 0
+ 177 0022 40F20003 		movw	r3, #:lower16:opencoap_vars
+ 178 0026 C0F20003 		movt	r3, #:upper16:opencoap_vars
+ 179 002a 41F23362 		movw	r2, #5683
+ 180 002e 1A80     		strh	r2, [r3]	@ movhi
+  35:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    opencoap_vars.desc.callbackReceive   = &opencoap_receive;
+ 181              		.loc 1 35 0
+ 182 0030 40F20003 		movw	r3, #:lower16:opencoap_vars
+ 183 0034 C0F20003 		movt	r3, #:upper16:opencoap_vars
+ 184 0038 40F20002 		movw	r2, #:lower16:opencoap_receive
+ 185 003c C0F20002 		movt	r2, #:upper16:opencoap_receive
+ 186 0040 5A60     		str	r2, [r3, #4]
+  36:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    opencoap_vars.desc.callbackSendDone  = opencoap_sendDone;
+ 187              		.loc 1 36 0
+ 188 0042 40F20003 		movw	r3, #:lower16:opencoap_vars
+ 189 0046 C0F20003 		movt	r3, #:upper16:opencoap_vars
+ 190 004a 40F20002 		movw	r2, #:lower16:opencoap_sendDone
+ 191 004e C0F20002 		movt	r2, #:upper16:opencoap_sendDone
+ 192 0052 9A60     		str	r2, [r3, #8]
+  37:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    openudp_register(&opencoap_vars.desc);
+ 193              		.loc 1 37 0
+ 194 0054 40F20000 		movw	r0, #:lower16:opencoap_vars
+ 195 0058 C0F20000 		movt	r0, #:upper16:opencoap_vars
+ 196 005c FFF7FEFF 		bl	openudp_register
+  38:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** }
+ 197              		.loc 1 38 0
+ 198 0060 80BD     		pop	{r7, pc}
+ 199              		.cfi_endproc
+ 200              	.LFE0:
+ 202 0062 00BF     		.align	2
+ 203              		.global	opencoap_receive
+ 204              		.thumb
+ 205              		.thumb_func
+ 207              	opencoap_receive:
+ 208              	.LFB1:
+  39:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** 
+  40:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** /**
+  41:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** \brief Indicate a CoAP messages was received.
+  42:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** 
+  43:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** A "CoAP message" is simply a UDP datagram received on the CoAP UDP port.
+  44:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** 
+  45:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** This function will call the appropriate resource, and send back its answer. The
+  46:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** received packetbuffer is reused to contain the response (or error code).
+  47:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** 
+  48:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** \param[in] msg The received CoAP message.
+  49:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** */
+  50:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** void opencoap_receive(OpenQueueEntry_t* msg) {
+ 209              		.loc 1 50 0
+ 210              		.cfi_startproc
+ 211              		@ args = 0, pretend = 0, frame = 120
+ 212              		@ frame_needed = 1, uses_anonymous_args = 0
+ 213 0064 80B5     		push	{r7, lr}
+ 214              		.cfi_def_cfa_offset 8
+ 215              		.cfi_offset 7, -8
+ 216              		.cfi_offset 14, -4
+ 217 0066 9EB0     		sub	sp, sp, #120
+ 218              		.cfi_def_cfa_offset 128
+ 219 0068 00AF     		add	r7, sp, #0
+ 220              		.cfi_def_cfa_register 7
+ 221 006a 7860     		str	r0, [r7, #4]
+  51:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    uint16_t                  temp_l4_destination_port;
+  52:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    uint8_t                   i;
+  53:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    uint8_t                   index;
+  54:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    coap_option_t             last_option;
+  55:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    coap_resource_desc_t*     temp_desc;
+  56:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    bool                      found;
+  57:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    owerror_t                 outcome = 0;
+ 222              		.loc 1 57 0
+ 223 006c 0023     		movs	r3, #0
+ 224 006e 87F86E30 		strb	r3, [r7, #110]
+  58:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    coap_type_t               response_type;
+  59:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    // local variables passed to the handlers (with msg)
+  60:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    coap_header_iht           coap_header;
+  61:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    coap_option_iht           coap_options[MAX_COAP_OPTIONS];
+  62:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    
+  63:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    // take ownership over the received packet
+  64:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    msg->owner                = COMPONENT_OPENCOAP;
+ 225              		.loc 1 64 0
+ 226 0072 7B68     		ldr	r3, [r7, #4]
+ 227 0074 1922     		movs	r2, #25
+ 228 0076 5A70     		strb	r2, [r3, #1]
+  65:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    
+  66:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    //=== step 1. parse the packet
+  67:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    
+  68:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    // parse the CoAP header and remove from packet
+  69:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    index = 0;
+ 229              		.loc 1 69 0
+ 230 0078 0023     		movs	r3, #0
+ 231 007a 87F87630 		strb	r3, [r7, #118]
+  70:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    coap_header.Ver           = (msg->payload[index] & 0xc0) >> 6;
+ 232              		.loc 1 70 0
+ 233 007e 7B68     		ldr	r3, [r7, #4]
+ 234 0080 5A68     		ldr	r2, [r3, #4]
+ 235 0082 97F87630 		ldrb	r3, [r7, #118]	@ zero_extendqisi2
+ 236 0086 1344     		add	r3, r3, r2
+ 237 0088 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 238 008a 9B09     		lsrs	r3, r3, #6
+ 239 008c DBB2     		uxtb	r3, r3
+ 240 008e 87F85C30 		strb	r3, [r7, #92]
+  71:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    coap_header.T             = (coap_type_t)((msg->payload[index] & 0x30) >> 4);
+ 241              		.loc 1 71 0
+ 242 0092 7B68     		ldr	r3, [r7, #4]
+ 243 0094 5A68     		ldr	r2, [r3, #4]
+ 244 0096 97F87630 		ldrb	r3, [r7, #118]	@ zero_extendqisi2
+ 245 009a 1344     		add	r3, r3, r2
+ 246 009c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 247 009e 03F03003 		and	r3, r3, #48
+ 248 00a2 1B11     		asrs	r3, r3, #4
+ 249 00a4 DBB2     		uxtb	r3, r3
+ 250 00a6 87F85D30 		strb	r3, [r7, #93]
+  72:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    coap_header.TKL           = (msg->payload[index] & 0x0f);
+ 251              		.loc 1 72 0
+ 252 00aa 7B68     		ldr	r3, [r7, #4]
+ 253 00ac 5A68     		ldr	r2, [r3, #4]
+ 254 00ae 97F87630 		ldrb	r3, [r7, #118]	@ zero_extendqisi2
+ 255 00b2 1344     		add	r3, r3, r2
+ 256 00b4 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 257 00b6 03F00F03 		and	r3, r3, #15
+ 258 00ba DBB2     		uxtb	r3, r3
+ 259 00bc 87F85E30 		strb	r3, [r7, #94]
+  73:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    index++;
+ 260              		.loc 1 73 0
+ 261 00c0 97F87630 		ldrb	r3, [r7, #118]	@ zero_extendqisi2
+ 262 00c4 0133     		adds	r3, r3, #1
+ 263 00c6 87F87630 		strb	r3, [r7, #118]
+  74:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    coap_header.Code          = (coap_code_t)(msg->payload[index]);
+ 264              		.loc 1 74 0
+ 265 00ca 7B68     		ldr	r3, [r7, #4]
+ 266 00cc 5A68     		ldr	r2, [r3, #4]
+ 267 00ce 97F87630 		ldrb	r3, [r7, #118]	@ zero_extendqisi2
+ 268 00d2 1344     		add	r3, r3, r2
+ 269 00d4 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 270 00d6 87F85F30 		strb	r3, [r7, #95]
+  75:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    index++;
+ 271              		.loc 1 75 0
+ 272 00da 97F87630 		ldrb	r3, [r7, #118]	@ zero_extendqisi2
+ 273 00de 0133     		adds	r3, r3, #1
+ 274 00e0 87F87630 		strb	r3, [r7, #118]
+  76:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    coap_header.messageID     = msg->payload[index]*256+msg->payload[index+1];
+ 275              		.loc 1 76 0
+ 276 00e4 7B68     		ldr	r3, [r7, #4]
+ 277 00e6 5A68     		ldr	r2, [r3, #4]
+ 278 00e8 97F87630 		ldrb	r3, [r7, #118]	@ zero_extendqisi2
+ 279 00ec 1344     		add	r3, r3, r2
+ 280 00ee 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 281 00f0 1B02     		lsls	r3, r3, #8
+ 282 00f2 9AB2     		uxth	r2, r3
+ 283 00f4 7B68     		ldr	r3, [r7, #4]
+ 284 00f6 5968     		ldr	r1, [r3, #4]
+ 285 00f8 97F87630 		ldrb	r3, [r7, #118]	@ zero_extendqisi2
+ 286 00fc 0133     		adds	r3, r3, #1
+ 287 00fe 0B44     		add	r3, r3, r1
+ 288 0100 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 289 0102 1344     		add	r3, r3, r2
+ 290 0104 9BB2     		uxth	r3, r3
+ 291 0106 A7F86030 		strh	r3, [r7, #96]	@ movhi
+  77:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    index+=2;
+ 292              		.loc 1 77 0
+ 293 010a 97F87630 		ldrb	r3, [r7, #118]
+ 294 010e 0233     		adds	r3, r3, #2
+ 295 0110 87F87630 		strb	r3, [r7, #118]
+  78:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    
+  79:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    // reject unsupported header
+  80:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    if (coap_header.Ver!=COAP_VERSION || coap_header.TKL>COAP_MAX_TKL) {
+ 296              		.loc 1 80 0
+ 297 0114 97F85C30 		ldrb	r3, [r7, #92]	@ zero_extendqisi2
+ 298 0118 012B     		cmp	r3, #1
+ 299 011a 03D1     		bne	.L3
+ 300              		.loc 1 80 0 is_stmt 0 discriminator 1
+ 301 011c 97F85E30 		ldrb	r3, [r7, #94]	@ zero_extendqisi2
+ 302 0120 082B     		cmp	r3, #8
+ 303 0122 0AD9     		bls	.L4
+ 304              	.L3:
+  81:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       openserial_printError(
+  82:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          COMPONENT_OPENCOAP,ERR_WRONG_TRAN_PROTOCOL,
+  83:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          (errorparameter_t)0,
+  84:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          (errorparameter_t)coap_header.Ver
+ 305              		.loc 1 84 0 is_stmt 1
+ 306 0124 97F85C30 		ldrb	r3, [r7, #92]	@ zero_extendqisi2
+  81:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       openserial_printError(
+ 307              		.loc 1 81 0
+ 308 0128 1920     		movs	r0, #25
+ 309 012a 0621     		movs	r1, #6
+ 310 012c 0022     		movs	r2, #0
+ 311 012e FFF7FEFF 		bl	openserial_printError
+  85:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       );
+  86:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       openqueue_freePacketBuffer(msg);
+ 312              		.loc 1 86 0
+ 313 0132 7868     		ldr	r0, [r7, #4]
+ 314 0134 FFF7FEFF 		bl	openqueue_freePacketBuffer
+  87:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       return;
+ 315              		.loc 1 87 0
+ 316 0138 33E2     		b	.L2
+ 317              	.L4:
+  88:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    }
+  89:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    
+  90:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    // record the token
+  91:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    memcpy(&coap_header.token[0], &msg->payload[index], coap_header.TKL);
+ 318              		.loc 1 91 0
+ 319 013a 7B68     		ldr	r3, [r7, #4]
+ 320 013c 5A68     		ldr	r2, [r3, #4]
+ 321 013e 97F87630 		ldrb	r3, [r7, #118]	@ zero_extendqisi2
+ 322 0142 1A44     		add	r2, r2, r3
+ 323 0144 97F85E30 		ldrb	r3, [r7, #94]	@ zero_extendqisi2
+ 324 0148 07F15C01 		add	r1, r7, #92
+ 325 014c 0631     		adds	r1, r1, #6
+ 326 014e 0846     		mov	r0, r1
+ 327 0150 1146     		mov	r1, r2
+ 328 0152 1A46     		mov	r2, r3
+ 329 0154 FFF7FEFF 		bl	memcpy
+  92:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    index += coap_header.TKL;
+ 330              		.loc 1 92 0
+ 331 0158 97F85E20 		ldrb	r2, [r7, #94]	@ zero_extendqisi2
+ 332 015c 97F87630 		ldrb	r3, [r7, #118]
+ 333 0160 1344     		add	r3, r3, r2
+ 334 0162 87F87630 		strb	r3, [r7, #118]
+  93:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    
+  94:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    // initialize the coap_options
+  95:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    for (i=0;i<MAX_COAP_OPTIONS;i++) {
+ 335              		.loc 1 95 0
+ 336 0166 0023     		movs	r3, #0
+ 337 0168 87F87730 		strb	r3, [r7, #119]
+ 338 016c 0DE0     		b	.L6
+ 339              	.L7:
+  96:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       coap_options[i].type = COAP_OPTION_NONE;
+ 340              		.loc 1 96 0 discriminator 2
+ 341 016e 97F87730 		ldrb	r3, [r7, #119]	@ zero_extendqisi2
+ 342 0172 DB00     		lsls	r3, r3, #3
+ 343 0174 07F17801 		add	r1, r7, #120
+ 344 0178 0B44     		add	r3, r3, r1
+ 345 017a 0022     		movs	r2, #0
+ 346 017c 03F86C2C 		strb	r2, [r3, #-108]
+  95:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       coap_options[i].type = COAP_OPTION_NONE;
+ 347              		.loc 1 95 0 discriminator 2
+ 348 0180 97F87730 		ldrb	r3, [r7, #119]	@ zero_extendqisi2
+ 349 0184 0133     		adds	r3, r3, #1
+ 350 0186 87F87730 		strb	r3, [r7, #119]
+ 351              	.L6:
+  95:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       coap_options[i].type = COAP_OPTION_NONE;
+ 352              		.loc 1 95 0 is_stmt 0 discriminator 1
+ 353 018a 97F87730 		ldrb	r3, [r7, #119]	@ zero_extendqisi2
+ 354 018e 092B     		cmp	r3, #9
+ 355 0190 EDD9     		bls	.L7
+  97:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    }
+  98:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    
+  99:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    // fill in the coap_options
+ 100:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    last_option = COAP_OPTION_NONE;
+ 356              		.loc 1 100 0 is_stmt 1
+ 357 0192 0023     		movs	r3, #0
+ 358 0194 87F87530 		strb	r3, [r7, #117]
+ 101:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    for (i=0;i<MAX_COAP_OPTIONS;i++) {
+ 359              		.loc 1 101 0
+ 360 0198 0023     		movs	r3, #0
+ 361 019a 87F87730 		strb	r3, [r7, #119]
+ 362 019e 67E0     		b	.L8
+ 363              	.L12:
+ 102:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       
+ 103:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       // detect when done parsing options
+ 104:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       if (msg->payload[index]==COAP_PAYLOAD_MARKER) {
+ 364              		.loc 1 104 0
+ 365 01a0 7B68     		ldr	r3, [r7, #4]
+ 366 01a2 5A68     		ldr	r2, [r3, #4]
+ 367 01a4 97F87630 		ldrb	r3, [r7, #118]	@ zero_extendqisi2
+ 368 01a8 1344     		add	r3, r3, r2
+ 369 01aa 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 370 01ac FF2B     		cmp	r3, #255
+ 371 01ae 05D1     		bne	.L9
+ 105:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          // found the payload marker, done parsing options.
+ 106:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          index++; // skip marker and stop parsing options
+ 372              		.loc 1 106 0
+ 373 01b0 97F87630 		ldrb	r3, [r7, #118]	@ zero_extendqisi2
+ 374 01b4 0133     		adds	r3, r3, #1
+ 375 01b6 87F87630 		strb	r3, [r7, #118]
+ 107:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          break;
+ 376              		.loc 1 107 0
+ 377 01ba 5DE0     		b	.L10
+ 378              	.L9:
+ 108:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       }
+ 109:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       if (msg->length<=index) {
+ 379              		.loc 1 109 0
+ 380 01bc 7B68     		ldr	r3, [r7, #4]
+ 381 01be 1B7A     		ldrb	r3, [r3, #8]	@ zero_extendqisi2
+ 382 01c0 97F87620 		ldrb	r2, [r7, #118]	@ zero_extendqisi2
+ 383 01c4 9A42     		cmp	r2, r3
+ 384 01c6 00D3     		bcc	.L11
+ 110:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          // end of message, no payload
+ 111:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          break;
+ 385              		.loc 1 111 0
+ 386 01c8 56E0     		b	.L10
+ 387              	.L11:
+ 112:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       }
+ 113:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       
+ 114:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       // parse this option
+ 115:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       coap_options[i].type        = (coap_option_t)((uint8_t)last_option+(uint8_t)((msg->payload[in
+ 388              		.loc 1 115 0
+ 389 01ca 97F87730 		ldrb	r3, [r7, #119]	@ zero_extendqisi2
+ 390 01ce 7A68     		ldr	r2, [r7, #4]
+ 391 01d0 5168     		ldr	r1, [r2, #4]
+ 392 01d2 97F87620 		ldrb	r2, [r7, #118]	@ zero_extendqisi2
+ 393 01d6 0A44     		add	r2, r2, r1
+ 394 01d8 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+ 395 01da 1209     		lsrs	r2, r2, #4
+ 396 01dc D1B2     		uxtb	r1, r2
+ 397 01de 97F87520 		ldrb	r2, [r7, #117]
+ 398 01e2 0A44     		add	r2, r2, r1
+ 399 01e4 D2B2     		uxtb	r2, r2
+ 400 01e6 DB00     		lsls	r3, r3, #3
+ 401 01e8 07F17801 		add	r1, r7, #120
+ 402 01ec 0B44     		add	r3, r3, r1
+ 403 01ee 03F86C2C 		strb	r2, [r3, #-108]
+ 116:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       last_option                 = coap_options[i].type;
+ 404              		.loc 1 116 0
+ 405 01f2 97F87730 		ldrb	r3, [r7, #119]	@ zero_extendqisi2
+ 406 01f6 DB00     		lsls	r3, r3, #3
+ 407 01f8 07F17802 		add	r2, r7, #120
+ 408 01fc 1344     		add	r3, r3, r2
+ 409 01fe 13F86C3C 		ldrb	r3, [r3, #-108]
+ 410 0202 87F87530 		strb	r3, [r7, #117]
+ 117:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       coap_options[i].length      = (msg->payload[index] & 0x0f);
+ 411              		.loc 1 117 0
+ 412 0206 97F87730 		ldrb	r3, [r7, #119]	@ zero_extendqisi2
+ 413 020a 7A68     		ldr	r2, [r7, #4]
+ 414 020c 5168     		ldr	r1, [r2, #4]
+ 415 020e 97F87620 		ldrb	r2, [r7, #118]	@ zero_extendqisi2
+ 416 0212 0A44     		add	r2, r2, r1
+ 417 0214 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+ 418 0216 02F00F02 		and	r2, r2, #15
+ 419 021a D2B2     		uxtb	r2, r2
+ 420 021c DB00     		lsls	r3, r3, #3
+ 421 021e 07F17801 		add	r1, r7, #120
+ 422 0222 0B44     		add	r3, r3, r1
+ 423 0224 03F86B2C 		strb	r2, [r3, #-107]
+ 118:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       index++;
+ 424              		.loc 1 118 0
+ 425 0228 97F87630 		ldrb	r3, [r7, #118]	@ zero_extendqisi2
+ 426 022c 0133     		adds	r3, r3, #1
+ 427 022e 87F87630 		strb	r3, [r7, #118]
+ 119:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       coap_options[i].pValue      = &(msg->payload[index]);
+ 428              		.loc 1 119 0
+ 429 0232 97F87730 		ldrb	r3, [r7, #119]	@ zero_extendqisi2
+ 430 0236 7A68     		ldr	r2, [r7, #4]
+ 431 0238 5168     		ldr	r1, [r2, #4]
+ 432 023a 97F87620 		ldrb	r2, [r7, #118]	@ zero_extendqisi2
+ 433 023e 0A44     		add	r2, r2, r1
+ 434 0240 DB00     		lsls	r3, r3, #3
+ 435 0242 07F17801 		add	r1, r7, #120
+ 436 0246 0B44     		add	r3, r3, r1
+ 437 0248 43F8682C 		str	r2, [r3, #-104]
+ 120:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       index                      += coap_options[i].length; //includes length as well
+ 438              		.loc 1 120 0
+ 439 024c 97F87730 		ldrb	r3, [r7, #119]	@ zero_extendqisi2
+ 440 0250 DB00     		lsls	r3, r3, #3
+ 441 0252 07F17802 		add	r2, r7, #120
+ 442 0256 1344     		add	r3, r3, r2
+ 443 0258 13F86B2C 		ldrb	r2, [r3, #-107]	@ zero_extendqisi2
+ 444 025c 97F87630 		ldrb	r3, [r7, #118]
+ 445 0260 1344     		add	r3, r3, r2
+ 446 0262 87F87630 		strb	r3, [r7, #118]
+ 101:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       
+ 447              		.loc 1 101 0
+ 448 0266 97F87730 		ldrb	r3, [r7, #119]	@ zero_extendqisi2
+ 449 026a 0133     		adds	r3, r3, #1
+ 450 026c 87F87730 		strb	r3, [r7, #119]
+ 451              	.L8:
+ 101:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       
+ 452              		.loc 1 101 0 is_stmt 0 discriminator 1
+ 453 0270 97F87730 		ldrb	r3, [r7, #119]	@ zero_extendqisi2
+ 454 0274 092B     		cmp	r3, #9
+ 455 0276 93D9     		bls	.L12
+ 456              	.L10:
+ 121:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    }
+ 122:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    
+ 123:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    // remove the CoAP header+options
+ 124:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    packetfunctions_tossHeader(msg,index);
+ 457              		.loc 1 124 0 is_stmt 1
+ 458 0278 97F87630 		ldrb	r3, [r7, #118]	@ zero_extendqisi2
+ 459 027c 7868     		ldr	r0, [r7, #4]
+ 460 027e 1946     		mov	r1, r3
+ 461 0280 FFF7FEFF 		bl	packetfunctions_tossHeader
+ 125:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    
+ 126:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    //=== step 2. find the resource to handle the packet
+ 127:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    
+ 128:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    // find the resource this applies to
+ 129:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    found = FALSE;
+ 462              		.loc 1 129 0
+ 463 0284 0023     		movs	r3, #0
+ 464 0286 87F86F30 		strb	r3, [r7, #111]
+ 130:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    
+ 131:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    if (
+ 132:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          coap_header.Code>=COAP_CODE_REQ_GET &&
+ 465              		.loc 1 132 0
+ 466 028a 97F85F30 		ldrb	r3, [r7, #95]	@ zero_extendqisi2
+ 131:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          coap_header.Code>=COAP_CODE_REQ_GET &&
+ 467              		.loc 1 131 0
+ 468 028e 002B     		cmp	r3, #0
+ 469 0290 00F08880 		beq	.L13
+ 133:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          coap_header.Code<=COAP_CODE_REQ_DELETE
+ 470              		.loc 1 133 0
+ 471 0294 97F85F30 		ldrb	r3, [r7, #95]	@ zero_extendqisi2
+ 132:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          coap_header.Code<=COAP_CODE_REQ_DELETE
+ 472              		.loc 1 132 0
+ 473 0298 042B     		cmp	r3, #4
+ 474 029a 00F28380 		bhi	.L13
+ 134:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       ) {
+ 135:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       // this is a request: target resource is indicated as COAP_OPTION_LOCATIONPATH option(s)
+ 136:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       // find the resource which matches
+ 137:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       
+ 138:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       // start with the first resource in the linked list
+ 139:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       temp_desc = opencoap_vars.resources;
+ 475              		.loc 1 139 0
+ 476 029e 40F20003 		movw	r3, #:lower16:opencoap_vars
+ 477 02a2 C0F20003 		movt	r3, #:upper16:opencoap_vars
+ 478 02a6 1B69     		ldr	r3, [r3, #16]
+ 479 02a8 3B67     		str	r3, [r7, #112]
+ 140:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       
+ 141:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       // iterate until matching resource found, or no match
+ 142:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       while (found==FALSE) {
+ 480              		.loc 1 142 0
+ 481 02aa 6EE0     		b	.L14
+ 482              	.L20:
+ 143:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          if (
+ 144:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                coap_options[0].type==COAP_OPTION_NUM_URIPATH    &&
+ 483              		.loc 1 144 0
+ 484 02ac 3B7B     		ldrb	r3, [r7, #12]	@ zero_extendqisi2
+ 143:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          if (
+ 485              		.loc 1 143 0
+ 486 02ae 0B2B     		cmp	r3, #11
+ 487 02b0 3BD1     		bne	.L15
+ 145:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                coap_options[1].type==COAP_OPTION_NUM_URIPATH    &&
+ 488              		.loc 1 145 0
+ 489 02b2 3B7D     		ldrb	r3, [r7, #20]	@ zero_extendqisi2
+ 144:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                coap_options[1].type==COAP_OPTION_NUM_URIPATH    &&
+ 490              		.loc 1 144 0
+ 491 02b4 0B2B     		cmp	r3, #11
+ 492 02b6 38D1     		bne	.L15
+ 146:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                temp_desc->path0len>0                            &&
+ 493              		.loc 1 146 0
+ 494 02b8 3B6F     		ldr	r3, [r7, #112]
+ 495 02ba 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 145:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                coap_options[1].type==COAP_OPTION_NUM_URIPATH    &&
+ 496              		.loc 1 145 0
+ 497 02bc 002B     		cmp	r3, #0
+ 498 02be 34D0     		beq	.L15
+ 147:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                temp_desc->path0val!=NULL                        &&
+ 499              		.loc 1 147 0
+ 500 02c0 3B6F     		ldr	r3, [r7, #112]
+ 501 02c2 5B68     		ldr	r3, [r3, #4]
+ 146:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                temp_desc->path0len>0                            &&
+ 502              		.loc 1 146 0
+ 503 02c4 002B     		cmp	r3, #0
+ 504 02c6 30D0     		beq	.L15
+ 148:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                temp_desc->path1len>0                            &&
+ 505              		.loc 1 148 0
+ 506 02c8 3B6F     		ldr	r3, [r7, #112]
+ 507 02ca 1B7A     		ldrb	r3, [r3, #8]	@ zero_extendqisi2
+ 147:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                temp_desc->path0val!=NULL                        &&
+ 508              		.loc 1 147 0
+ 509 02cc 002B     		cmp	r3, #0
+ 510 02ce 2CD0     		beq	.L15
+ 149:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                temp_desc->path1val!=NULL
+ 511              		.loc 1 149 0
+ 512 02d0 3B6F     		ldr	r3, [r7, #112]
+ 513 02d2 DB68     		ldr	r3, [r3, #12]
+ 148:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                temp_desc->path1len>0                            &&
+ 514              		.loc 1 148 0
+ 515 02d4 002B     		cmp	r3, #0
+ 516 02d6 28D0     		beq	.L15
+ 150:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****             ) {
+ 151:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****             // resource has a path of form path0/path1
+ 152:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                
+ 153:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****             if (
+ 154:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                   coap_options[0].length==temp_desc->path0len                               &&
+ 517              		.loc 1 154 0
+ 518 02d8 7A7B     		ldrb	r2, [r7, #13]	@ zero_extendqisi2
+ 519 02da 3B6F     		ldr	r3, [r7, #112]
+ 520 02dc 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 153:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                   coap_options[0].length==temp_desc->path0len                               &&
+ 521              		.loc 1 153 0
+ 522 02de 9A42     		cmp	r2, r3
+ 523 02e0 22D1     		bne	.L16
+ 155:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                   memcmp(coap_options[0].pValue,temp_desc->path0val,temp_desc->path0len)==0 &&
+ 524              		.loc 1 155 0
+ 525 02e2 3969     		ldr	r1, [r7, #16]
+ 526 02e4 3B6F     		ldr	r3, [r7, #112]
+ 527 02e6 5A68     		ldr	r2, [r3, #4]
+ 528 02e8 3B6F     		ldr	r3, [r7, #112]
+ 529 02ea 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 530 02ec 0846     		mov	r0, r1
+ 531 02ee 1146     		mov	r1, r2
+ 532 02f0 1A46     		mov	r2, r3
+ 533 02f2 FFF7FEFF 		bl	memcmp
+ 534 02f6 0346     		mov	r3, r0
+ 154:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                   memcmp(coap_options[0].pValue,temp_desc->path0val,temp_desc->path0len)==0 &&
+ 535              		.loc 1 154 0
+ 536 02f8 002B     		cmp	r3, #0
+ 537 02fa 15D1     		bne	.L16
+ 156:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                   coap_options[1].length==temp_desc->path1len                               &&
+ 538              		.loc 1 156 0
+ 539 02fc 7A7D     		ldrb	r2, [r7, #21]	@ zero_extendqisi2
+ 540 02fe 3B6F     		ldr	r3, [r7, #112]
+ 541 0300 1B7A     		ldrb	r3, [r3, #8]	@ zero_extendqisi2
+ 155:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                   memcmp(coap_options[0].pValue,temp_desc->path0val,temp_desc->path0len)==0 &&
+ 542              		.loc 1 155 0
+ 543 0302 9A42     		cmp	r2, r3
+ 544 0304 10D1     		bne	.L16
+ 157:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                   memcmp(coap_options[1].pValue,temp_desc->path1val,temp_desc->path1len)==0
+ 545              		.loc 1 157 0
+ 546 0306 B969     		ldr	r1, [r7, #24]
+ 547 0308 3B6F     		ldr	r3, [r7, #112]
+ 548 030a DA68     		ldr	r2, [r3, #12]
+ 549 030c 3B6F     		ldr	r3, [r7, #112]
+ 550 030e 1B7A     		ldrb	r3, [r3, #8]	@ zero_extendqisi2
+ 551 0310 0846     		mov	r0, r1
+ 552 0312 1146     		mov	r1, r2
+ 553 0314 1A46     		mov	r2, r3
+ 554 0316 FFF7FEFF 		bl	memcmp
+ 555 031a 0346     		mov	r3, r0
+ 156:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                   coap_options[1].length==temp_desc->path1len                               &&
+ 556              		.loc 1 156 0
+ 557 031c 002B     		cmp	r3, #0
+ 558 031e 03D1     		bne	.L16
+ 158:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                ) {
+ 159:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                found = TRUE;
+ 559              		.loc 1 159 0
+ 560 0320 0123     		movs	r3, #1
+ 561 0322 87F86F30 		strb	r3, [r7, #111]
+ 153:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                   coap_options[0].length==temp_desc->path0len                               &&
+ 562              		.loc 1 153 0
+ 563 0326 20E0     		b	.L17
+ 564              	.L16:
+ 153:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                   coap_options[0].length==temp_desc->path0len                               &&
+ 565              		.loc 1 153 0 is_stmt 0 discriminator 1
+ 566 0328 1FE0     		b	.L17
+ 567              	.L15:
+ 160:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****             };
+ 161:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          
+ 162:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          } else if (
+ 163:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                coap_options[0].type==COAP_OPTION_NUM_URIPATH    &&
+ 568              		.loc 1 163 0 is_stmt 1
+ 569 032a 3B7B     		ldrb	r3, [r7, #12]	@ zero_extendqisi2
+ 162:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                coap_options[0].type==COAP_OPTION_NUM_URIPATH    &&
+ 570              		.loc 1 162 0
+ 571 032c 0B2B     		cmp	r3, #11
+ 572 032e 1CD1     		bne	.L17
+ 164:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                temp_desc->path0len>0                            &&
+ 573              		.loc 1 164 0
+ 574 0330 3B6F     		ldr	r3, [r7, #112]
+ 575 0332 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 163:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                temp_desc->path0len>0                            &&
+ 576              		.loc 1 163 0
+ 577 0334 002B     		cmp	r3, #0
+ 578 0336 18D0     		beq	.L17
+ 165:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                temp_desc->path0val!=NULL
+ 579              		.loc 1 165 0
+ 580 0338 3B6F     		ldr	r3, [r7, #112]
+ 581 033a 5B68     		ldr	r3, [r3, #4]
+ 164:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                temp_desc->path0len>0                            &&
+ 582              		.loc 1 164 0
+ 583 033c 002B     		cmp	r3, #0
+ 584 033e 14D0     		beq	.L17
+ 166:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****             ) {
+ 167:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****             // resource has a path of form path0
+ 168:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                
+ 169:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****             if (
+ 170:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                   coap_options[0].length==temp_desc->path0len                               &&
+ 585              		.loc 1 170 0
+ 586 0340 7A7B     		ldrb	r2, [r7, #13]	@ zero_extendqisi2
+ 587 0342 3B6F     		ldr	r3, [r7, #112]
+ 588 0344 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 169:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                   coap_options[0].length==temp_desc->path0len                               &&
+ 589              		.loc 1 169 0
+ 590 0346 9A42     		cmp	r2, r3
+ 591 0348 0FD1     		bne	.L17
+ 171:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                   memcmp(coap_options[0].pValue,temp_desc->path0val,temp_desc->path0len)==0
+ 592              		.loc 1 171 0
+ 593 034a 3969     		ldr	r1, [r7, #16]
+ 594 034c 3B6F     		ldr	r3, [r7, #112]
+ 595 034e 5A68     		ldr	r2, [r3, #4]
+ 596 0350 3B6F     		ldr	r3, [r7, #112]
+ 597 0352 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 598 0354 0846     		mov	r0, r1
+ 599 0356 1146     		mov	r1, r2
+ 600 0358 1A46     		mov	r2, r3
+ 601 035a FFF7FEFF 		bl	memcmp
+ 602 035e 0346     		mov	r3, r0
+ 170:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                   memcmp(coap_options[0].pValue,temp_desc->path0val,temp_desc->path0len)==0
+ 603              		.loc 1 170 0
+ 604 0360 002B     		cmp	r3, #0
+ 605 0362 02D1     		bne	.L17
+ 172:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                ) {
+ 173:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                found = TRUE;
+ 606              		.loc 1 173 0
+ 607 0364 0123     		movs	r3, #1
+ 608 0366 87F86F30 		strb	r3, [r7, #111]
+ 609              	.L17:
+ 174:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****             };
+ 175:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          };
+ 176:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          
+ 177:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          // iterate to next resource, if not found
+ 178:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          if (found==FALSE) {
+ 610              		.loc 1 178 0
+ 611 036a 97F86F30 		ldrb	r3, [r7, #111]
+ 612 036e 83F00103 		eor	r3, r3, #1
+ 613 0372 DBB2     		uxtb	r3, r3
+ 614 0374 002B     		cmp	r3, #0
+ 615 0376 08D0     		beq	.L14
+ 179:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****             if (temp_desc->next!=NULL) {
+ 616              		.loc 1 179 0
+ 617 0378 3B6F     		ldr	r3, [r7, #112]
+ 618 037a DB6A     		ldr	r3, [r3, #44]
+ 619 037c 002B     		cmp	r3, #0
+ 620 037e 03D0     		beq	.L18
+ 180:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                temp_desc = temp_desc->next;
+ 621              		.loc 1 180 0
+ 622 0380 3B6F     		ldr	r3, [r7, #112]
+ 623 0382 DB6A     		ldr	r3, [r3, #44]
+ 624 0384 3B67     		str	r3, [r7, #112]
+ 625 0386 00E0     		b	.L14
+ 626              	.L18:
+ 181:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****             } else {
+ 182:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                break;
+ 627              		.loc 1 182 0
+ 628 0388 06E0     		b	.L19
+ 629              	.L14:
+ 142:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          if (
+ 630              		.loc 1 142 0 discriminator 1
+ 631 038a 97F86F30 		ldrb	r3, [r7, #111]
+ 632 038e 83F00103 		eor	r3, r3, #1
+ 633 0392 DBB2     		uxtb	r3, r3
+ 634 0394 002B     		cmp	r3, #0
+ 635 0396 89D1     		bne	.L20
+ 636              	.L19:
+ 131:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          coap_header.Code>=COAP_CODE_REQ_GET &&
+ 637              		.loc 1 131 0
+ 638 0398 00BF     		nop
+ 183:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****             }
+ 184:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          }
+ 185:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       }
+ 186:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    
+ 187:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    } else {
+ 188:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       // this is a response: target resource is indicated by token, and message ID
+ 189:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       // if an ack for a confirmable message, or a reset
+ 190:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       // find the resource which matches
+ 191:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       
+ 192:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       // start with the first resource in the linked list
+ 193:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       temp_desc = opencoap_vars.resources;
+ 194:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       
+ 195:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       // iterate until matching resource found, or no match
+ 196:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       while (found==FALSE) {
+ 197:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          
+ 198:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          if (
+ 199:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                 coap_header.TKL==temp_desc->last_request.TKL                                       
+ 200:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                 memcmp(&coap_header.token[0],&temp_desc->last_request.token[0],coap_header.TKL)==0
+ 201:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****             ) {
+ 202:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                 
+ 203:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****             if (coap_header.T==COAP_TYPE_ACK || coap_header.T==COAP_TYPE_RES) {
+ 204:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                 if (coap_header.messageID==temp_desc->last_request.messageID) {
+ 205:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                     found=TRUE;
+ 206:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                 }
+ 207:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****             } else {
+ 208:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                 found=TRUE;
+ 209:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****             }
+ 210:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****             
+ 211:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****             // call the resource's callback
+ 212:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****             if (found==TRUE && temp_desc->callbackRx!=NULL) {
+ 213:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                temp_desc->callbackRx(msg,&coap_header,&coap_options[0]);
+ 214:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****             }
+ 215:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          }
+ 216:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          
+ 217:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          // iterate to next resource, if not found
+ 218:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          if (found==FALSE) {
+ 219:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****             if (temp_desc->next!=NULL) {
+ 220:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                temp_desc = temp_desc->next;
+ 221:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****             } else {
+ 222:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                break;
+ 223:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****             }
+ 224:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          }
+ 225:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       };
+ 226:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       
+ 227:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       // free the received packet
+ 228:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       openqueue_freePacketBuffer(msg);
+ 229:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       
+ 230:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       // stop here: will will not respond to a response
+ 231:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       return;
+ 232:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    }
+ 233:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    
+ 234:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    //=== step 3. ask the resource to prepare response
+ 235:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    
+ 236:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    if (found==TRUE) {
+ 639              		.loc 1 236 0
+ 640 039a 97F86F30 		ldrb	r3, [r7, #111]	@ zero_extendqisi2
+ 641 039e 002B     		cmp	r3, #0
+ 642 03a0 6AD0     		beq	.L31
+ 643 03a2 5DE0     		b	.L40
+ 644              	.L13:
+ 193:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       
+ 645              		.loc 1 193 0
+ 646 03a4 40F20003 		movw	r3, #:lower16:opencoap_vars
+ 647 03a8 C0F20003 		movt	r3, #:upper16:opencoap_vars
+ 648 03ac 1B69     		ldr	r3, [r3, #16]
+ 649 03ae 3B67     		str	r3, [r7, #112]
+ 196:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          
+ 650              		.loc 1 196 0
+ 651 03b0 4BE0     		b	.L22
+ 652              	.L30:
+ 199:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                 memcmp(&coap_header.token[0],&temp_desc->last_request.token[0],coap_header.TKL)==0
+ 653              		.loc 1 199 0
+ 654 03b2 97F85E20 		ldrb	r2, [r7, #94]	@ zero_extendqisi2
+ 655 03b6 3B6F     		ldr	r3, [r7, #112]
+ 656 03b8 9B7F     		ldrb	r3, [r3, #30]	@ zero_extendqisi2
+ 198:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                 coap_header.TKL==temp_desc->last_request.TKL                                       
+ 657              		.loc 1 198 0
+ 658 03ba 9A42     		cmp	r2, r3
+ 659 03bc 35D1     		bne	.L23
+ 200:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****             ) {
+ 660              		.loc 1 200 0
+ 661 03be 3B6F     		ldr	r3, [r7, #112]
+ 662 03c0 03F12202 		add	r2, r3, #34
+ 663 03c4 97F85E30 		ldrb	r3, [r7, #94]	@ zero_extendqisi2
+ 664 03c8 07F15C01 		add	r1, r7, #92
+ 665 03cc 0631     		adds	r1, r1, #6
+ 666 03ce 0846     		mov	r0, r1
+ 667 03d0 1146     		mov	r1, r2
+ 668 03d2 1A46     		mov	r2, r3
+ 669 03d4 FFF7FEFF 		bl	memcmp
+ 670 03d8 0346     		mov	r3, r0
+ 199:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                 memcmp(&coap_header.token[0],&temp_desc->last_request.token[0],coap_header.TKL)==0
+ 671              		.loc 1 199 0
+ 672 03da 002B     		cmp	r3, #0
+ 673 03dc 25D1     		bne	.L23
+ 203:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                 if (coap_header.messageID==temp_desc->last_request.messageID) {
+ 674              		.loc 1 203 0
+ 675 03de 97F85D30 		ldrb	r3, [r7, #93]	@ zero_extendqisi2
+ 676 03e2 022B     		cmp	r3, #2
+ 677 03e4 03D0     		beq	.L24
+ 203:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                 if (coap_header.messageID==temp_desc->last_request.messageID) {
+ 678              		.loc 1 203 0 is_stmt 0 discriminator 1
+ 679 03e6 97F85D30 		ldrb	r3, [r7, #93]	@ zero_extendqisi2
+ 680 03ea 032B     		cmp	r3, #3
+ 681 03ec 0AD1     		bne	.L25
+ 682              	.L24:
+ 204:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                     found=TRUE;
+ 683              		.loc 1 204 0 is_stmt 1
+ 684 03ee B7F86020 		ldrh	r2, [r7, #96]
+ 685 03f2 3B6F     		ldr	r3, [r7, #112]
+ 686 03f4 1B8C     		ldrh	r3, [r3, #32]
+ 687 03f6 9A42     		cmp	r2, r3
+ 688 03f8 03D1     		bne	.L26
+ 205:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                 }
+ 689              		.loc 1 205 0
+ 690 03fa 0123     		movs	r3, #1
+ 691 03fc 87F86F30 		strb	r3, [r7, #111]
+ 204:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                     found=TRUE;
+ 692              		.loc 1 204 0
+ 693 0400 03E0     		b	.L27
+ 694              	.L26:
+ 204:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                     found=TRUE;
+ 695              		.loc 1 204 0 is_stmt 0 discriminator 1
+ 696 0402 02E0     		b	.L27
+ 697              	.L25:
+ 208:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****             }
+ 698              		.loc 1 208 0 is_stmt 1
+ 699 0404 0123     		movs	r3, #1
+ 700 0406 87F86F30 		strb	r3, [r7, #111]
+ 701              	.L27:
+ 212:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                temp_desc->callbackRx(msg,&coap_header,&coap_options[0]);
+ 702              		.loc 1 212 0
+ 703 040a 97F86F30 		ldrb	r3, [r7, #111]	@ zero_extendqisi2
+ 704 040e 002B     		cmp	r3, #0
+ 705 0410 0BD0     		beq	.L23
+ 212:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                temp_desc->callbackRx(msg,&coap_header,&coap_options[0]);
+ 706              		.loc 1 212 0 is_stmt 0 discriminator 1
+ 707 0412 3B6F     		ldr	r3, [r7, #112]
+ 708 0414 5B69     		ldr	r3, [r3, #20]
+ 709 0416 002B     		cmp	r3, #0
+ 710 0418 07D0     		beq	.L23
+ 213:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****             }
+ 711              		.loc 1 213 0 is_stmt 1
+ 712 041a 3B6F     		ldr	r3, [r7, #112]
+ 713 041c 5B69     		ldr	r3, [r3, #20]
+ 714 041e 07F15C01 		add	r1, r7, #92
+ 715 0422 07F10C02 		add	r2, r7, #12
+ 716 0426 7868     		ldr	r0, [r7, #4]
+ 717 0428 9847     		blx	r3
+ 718              	.L23:
+ 218:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****             if (temp_desc->next!=NULL) {
+ 719              		.loc 1 218 0
+ 720 042a 97F86F30 		ldrb	r3, [r7, #111]
+ 721 042e 83F00103 		eor	r3, r3, #1
+ 722 0432 DBB2     		uxtb	r3, r3
+ 723 0434 002B     		cmp	r3, #0
+ 724 0436 08D0     		beq	.L22
+ 219:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                temp_desc = temp_desc->next;
+ 725              		.loc 1 219 0
+ 726 0438 3B6F     		ldr	r3, [r7, #112]
+ 727 043a DB6A     		ldr	r3, [r3, #44]
+ 728 043c 002B     		cmp	r3, #0
+ 729 043e 03D0     		beq	.L28
+ 220:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****             } else {
+ 730              		.loc 1 220 0
+ 731 0440 3B6F     		ldr	r3, [r7, #112]
+ 732 0442 DB6A     		ldr	r3, [r3, #44]
+ 733 0444 3B67     		str	r3, [r7, #112]
+ 734 0446 00E0     		b	.L22
+ 735              	.L28:
+ 222:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****             }
+ 736              		.loc 1 222 0
+ 737 0448 06E0     		b	.L29
+ 738              	.L22:
+ 196:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          
+ 739              		.loc 1 196 0 discriminator 1
+ 740 044a 97F86F30 		ldrb	r3, [r7, #111]
+ 741 044e 83F00103 		eor	r3, r3, #1
+ 742 0452 DBB2     		uxtb	r3, r3
+ 743 0454 002B     		cmp	r3, #0
+ 744 0456 ACD1     		bne	.L30
+ 745              	.L29:
+ 228:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       
+ 746              		.loc 1 228 0
+ 747 0458 7868     		ldr	r0, [r7, #4]
+ 748 045a FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 231:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    }
+ 749              		.loc 1 231 0
+ 750 045e A0E0     		b	.L2
+ 751              	.L40:
+ 237:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       
+ 238:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       // call the resource's callback
+ 239:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       outcome = temp_desc->callbackRx(msg,&coap_header,&coap_options[0]);
+ 752              		.loc 1 239 0
+ 753 0460 3B6F     		ldr	r3, [r7, #112]
+ 754 0462 5B69     		ldr	r3, [r3, #20]
+ 755 0464 07F15C01 		add	r1, r7, #92
+ 756 0468 07F10C02 		add	r2, r7, #12
+ 757 046c 7868     		ldr	r0, [r7, #4]
+ 758 046e 9847     		blx	r3
+ 759 0470 0346     		mov	r3, r0
+ 760 0472 87F86E30 		strb	r3, [r7, #110]
+ 761 0476 0DE0     		b	.L32
+ 762              	.L31:
+ 240:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    } else {
+ 241:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       // reset packet payload (DO NOT DELETE, we will reuse same buffer for response)
+ 242:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       msg->payload                     = &(msg->packet[127]);
+ 763              		.loc 1 242 0
+ 764 0478 7B68     		ldr	r3, [r7, #4]
+ 765 047a 03F20B12 		addw	r2, r3, #267
+ 766 047e 7B68     		ldr	r3, [r7, #4]
+ 767 0480 5A60     		str	r2, [r3, #4]
+ 243:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       msg->length                      = 0;
+ 768              		.loc 1 243 0
+ 769 0482 7B68     		ldr	r3, [r7, #4]
+ 770 0484 0022     		movs	r2, #0
+ 771 0486 1A72     		strb	r2, [r3, #8]
+ 244:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       // set the CoAP header
+ 245:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       coap_header.TKL                  = 0;
+ 772              		.loc 1 245 0
+ 773 0488 0023     		movs	r3, #0
+ 774 048a 87F85E30 		strb	r3, [r7, #94]
+ 246:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       coap_header.Code                 = COAP_CODE_RESP_NOTFOUND;
+ 775              		.loc 1 246 0
+ 776 048e 8423     		movs	r3, #132
+ 777 0490 87F85F30 		strb	r3, [r7, #95]
+ 778              	.L32:
+ 247:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    }
+ 248:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    
+ 249:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    if (outcome==E_FAIL) {
+ 779              		.loc 1 249 0
+ 780 0494 97F86E30 		ldrb	r3, [r7, #110]	@ zero_extendqisi2
+ 781 0498 012B     		cmp	r3, #1
+ 782 049a 0DD1     		bne	.L33
+ 250:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       // reset packet payload (DO NOT DELETE, we will reuse same buffer for response)
+ 251:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       msg->payload                     = &(msg->packet[127]);
+ 783              		.loc 1 251 0
+ 784 049c 7B68     		ldr	r3, [r7, #4]
+ 785 049e 03F20B12 		addw	r2, r3, #267
+ 786 04a2 7B68     		ldr	r3, [r7, #4]
+ 787 04a4 5A60     		str	r2, [r3, #4]
+ 252:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       msg->length                      = 0;
+ 788              		.loc 1 252 0
+ 789 04a6 7B68     		ldr	r3, [r7, #4]
+ 790 04a8 0022     		movs	r2, #0
+ 791 04aa 1A72     		strb	r2, [r3, #8]
+ 253:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       // set the CoAP header
+ 254:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       coap_header.TKL                  = 0;
+ 792              		.loc 1 254 0
+ 793 04ac 0023     		movs	r3, #0
+ 794 04ae 87F85E30 		strb	r3, [r7, #94]
+ 255:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       coap_header.Code                 = COAP_CODE_RESP_METHODNOTALLOWED;
+ 795              		.loc 1 255 0
+ 796 04b2 8523     		movs	r3, #133
+ 797 04b4 87F85F30 		strb	r3, [r7, #95]
+ 798              	.L33:
+ 256:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    }
+ 257:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** 
+ 258:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    if (coap_header.T == COAP_TYPE_CON) {
+ 799              		.loc 1 258 0
+ 800 04b8 97F85D30 		ldrb	r3, [r7, #93]	@ zero_extendqisi2
+ 801 04bc 002B     		cmp	r3, #0
+ 802 04be 03D1     		bne	.L34
+ 259:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****        response_type = COAP_TYPE_ACK;
+ 803              		.loc 1 259 0
+ 804 04c0 0223     		movs	r3, #2
+ 805 04c2 87F86D30 		strb	r3, [r7, #109]
+ 806 04c6 02E0     		b	.L35
+ 807              	.L34:
+ 260:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    } else {
+ 261:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****        response_type = COAP_TYPE_NON;
+ 808              		.loc 1 261 0
+ 809 04c8 0123     		movs	r3, #1
+ 810 04ca 87F86D30 		strb	r3, [r7, #109]
+ 811              	.L35:
+ 262:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    }
+ 263:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    
+ 264:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    //=== step 4. send that packet back
+ 265:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    
+ 266:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    // fill in packet metadata
+ 267:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    if (found==TRUE) {
+ 812              		.loc 1 267 0
+ 813 04ce 97F86F30 		ldrb	r3, [r7, #111]	@ zero_extendqisi2
+ 814 04d2 002B     		cmp	r3, #0
+ 815 04d4 04D0     		beq	.L36
+ 268:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       msg->creator                     = temp_desc->componentID;
+ 816              		.loc 1 268 0
+ 817 04d6 3B6F     		ldr	r3, [r7, #112]
+ 818 04d8 1A7C     		ldrb	r2, [r3, #16]	@ zero_extendqisi2
+ 819 04da 7B68     		ldr	r3, [r7, #4]
+ 820 04dc 1A70     		strb	r2, [r3]
+ 821 04de 02E0     		b	.L37
+ 822              	.L36:
+ 269:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    } else {
+ 270:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       msg->creator                     = COMPONENT_OPENCOAP;
+ 823              		.loc 1 270 0
+ 824 04e0 7B68     		ldr	r3, [r7, #4]
+ 825 04e2 1922     		movs	r2, #25
+ 826 04e4 1A70     		strb	r2, [r3]
+ 827              	.L37:
+ 271:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    }
+ 272:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    msg->l4_protocol                    = IANA_UDP;
+ 828              		.loc 1 272 0
+ 829 04e6 7B68     		ldr	r3, [r7, #4]
+ 830 04e8 1122     		movs	r2, #17
+ 831 04ea 5A72     		strb	r2, [r3, #9]
+ 273:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    temp_l4_destination_port            = msg->l4_destination_port;
+ 832              		.loc 1 273 0
+ 833 04ec 7B68     		ldr	r3, [r7, #4]
+ 834 04ee DB89     		ldrh	r3, [r3, #14]	@ movhi
+ 835 04f0 A7F86A30 		strh	r3, [r7, #106]	@ movhi
+ 274:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    msg->l4_destination_port            = msg->l4_sourcePortORicmpv6Type;
+ 836              		.loc 1 274 0
+ 837 04f4 7B68     		ldr	r3, [r7, #4]
+ 838 04f6 9A89     		ldrh	r2, [r3, #12]
+ 839 04f8 7B68     		ldr	r3, [r7, #4]
+ 840 04fa DA81     		strh	r2, [r3, #14]	@ movhi
+ 275:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    msg->l4_sourcePortORicmpv6Type      = temp_l4_destination_port;
+ 841              		.loc 1 275 0
+ 842 04fc 7B68     		ldr	r3, [r7, #4]
+ 843 04fe B7F86A20 		ldrh	r2, [r7, #106]	@ movhi
+ 844 0502 9A81     		strh	r2, [r3, #12]	@ movhi
+ 276:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    
+ 277:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    // set destination address as the current source
+ 278:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    msg->l3_destinationAdd.type         = ADDR_128B;
+ 845              		.loc 1 278 0
+ 846 0504 7B68     		ldr	r3, [r7, #4]
+ 847 0506 0322     		movs	r2, #3
+ 848 0508 5A75     		strb	r2, [r3, #21]
+ 279:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    memcpy(&msg->l3_destinationAdd.addr_128b[0],&msg->l3_sourceAdd.addr_128b[0],LENGTH_ADDR128b);
+ 849              		.loc 1 279 0
+ 850 050a 7B68     		ldr	r3, [r7, #4]
+ 851 050c 03F11602 		add	r2, r3, #22
+ 852 0510 7B68     		ldr	r3, [r7, #4]
+ 853 0512 2733     		adds	r3, r3, #39
+ 854 0514 1046     		mov	r0, r2
+ 855 0516 1946     		mov	r1, r3
+ 856 0518 1022     		movs	r2, #16
+ 857 051a FFF7FEFF 		bl	memcpy
+ 280:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    
+ 281:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    // fill in CoAP header
+ 282:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    packetfunctions_reserveHeaderSize(msg,4+coap_header.TKL);
+ 858              		.loc 1 282 0
+ 859 051e 97F85E30 		ldrb	r3, [r7, #94]	@ zero_extendqisi2
+ 860 0522 0433     		adds	r3, r3, #4
+ 861 0524 DBB2     		uxtb	r3, r3
+ 862 0526 7868     		ldr	r0, [r7, #4]
+ 863 0528 1946     		mov	r1, r3
+ 864 052a FFF7FEFF 		bl	packetfunctions_reserveHeaderSize
+ 283:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    msg->payload[0]                  = (COAP_VERSION    << 6) |
+ 865              		.loc 1 283 0
+ 866 052e 7B68     		ldr	r3, [r7, #4]
+ 867 0530 5B68     		ldr	r3, [r3, #4]
+ 284:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                                       (response_type   << 4) |
+ 868              		.loc 1 284 0
+ 869 0532 97F86D20 		ldrb	r2, [r7, #109]	@ zero_extendqisi2
+ 870 0536 1201     		lsls	r2, r2, #4
+ 283:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    msg->payload[0]                  = (COAP_VERSION    << 6) |
+ 871              		.loc 1 283 0
+ 872 0538 D1B2     		uxtb	r1, r2
+ 285:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                                       (coap_header.TKL << 0);
+ 873              		.loc 1 285 0
+ 874 053a 97F85E20 		ldrb	r2, [r7, #94]	@ zero_extendqisi2
+ 283:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    msg->payload[0]                  = (COAP_VERSION    << 6) |
+ 875              		.loc 1 283 0
+ 876 053e 0A43     		orrs	r2, r2, r1
+ 877 0540 D2B2     		uxtb	r2, r2
+ 878 0542 42F04002 		orr	r2, r2, #64
+ 879 0546 D2B2     		uxtb	r2, r2
+ 880 0548 1A70     		strb	r2, [r3]
+ 286:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    msg->payload[1]                  = coap_header.Code;
+ 881              		.loc 1 286 0
+ 882 054a 7B68     		ldr	r3, [r7, #4]
+ 883 054c 5B68     		ldr	r3, [r3, #4]
+ 884 054e 0133     		adds	r3, r3, #1
+ 885 0550 97F85F20 		ldrb	r2, [r7, #95]	@ zero_extendqisi2
+ 886 0554 1A70     		strb	r2, [r3]
+ 287:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    msg->payload[2]                  = coap_header.messageID/256;
+ 887              		.loc 1 287 0
+ 888 0556 7B68     		ldr	r3, [r7, #4]
+ 889 0558 5B68     		ldr	r3, [r3, #4]
+ 890 055a 0233     		adds	r3, r3, #2
+ 891 055c B7F86020 		ldrh	r2, [r7, #96]
+ 892 0560 120A     		lsrs	r2, r2, #8
+ 893 0562 92B2     		uxth	r2, r2
+ 894 0564 D2B2     		uxtb	r2, r2
+ 895 0566 1A70     		strb	r2, [r3]
+ 288:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    msg->payload[3]                  = coap_header.messageID%256;
+ 896              		.loc 1 288 0
+ 897 0568 7B68     		ldr	r3, [r7, #4]
+ 898 056a 5B68     		ldr	r3, [r3, #4]
+ 899 056c 0333     		adds	r3, r3, #3
+ 900 056e B7F86020 		ldrh	r2, [r7, #96]
+ 901 0572 D2B2     		uxtb	r2, r2
+ 902 0574 1A70     		strb	r2, [r3]
+ 289:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    memcpy(&msg->payload[4], &coap_header.token[0], coap_header.TKL);
+ 903              		.loc 1 289 0
+ 904 0576 7B68     		ldr	r3, [r7, #4]
+ 905 0578 5B68     		ldr	r3, [r3, #4]
+ 906 057a 191D     		adds	r1, r3, #4
+ 907 057c 97F85E30 		ldrb	r3, [r7, #94]	@ zero_extendqisi2
+ 908 0580 07F15C02 		add	r2, r7, #92
+ 909 0584 0632     		adds	r2, r2, #6
+ 910 0586 0846     		mov	r0, r1
+ 911 0588 1146     		mov	r1, r2
+ 912 058a 1A46     		mov	r2, r3
+ 913 058c FFF7FEFF 		bl	memcpy
+ 290:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    
+ 291:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    if ((openudp_send(msg))==E_FAIL) {
+ 914              		.loc 1 291 0
+ 915 0590 7868     		ldr	r0, [r7, #4]
+ 916 0592 FFF7FEFF 		bl	openudp_send
+ 917 0596 0346     		mov	r3, r0
+ 918 0598 012B     		cmp	r3, #1
+ 919 059a 02D1     		bne	.L2
+ 292:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       openqueue_freePacketBuffer(msg);
+ 920              		.loc 1 292 0
+ 921 059c 7868     		ldr	r0, [r7, #4]
+ 922 059e FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 923              	.L2:
+ 293:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    }
+ 294:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** }
+ 924              		.loc 1 294 0
+ 925 05a2 7837     		adds	r7, r7, #120
+ 926 05a4 BD46     		mov	sp, r7
+ 927              		@ sp needed
+ 928 05a6 80BD     		pop	{r7, pc}
+ 929              		.cfi_endproc
+ 930              	.LFE1:
+ 932              		.align	2
+ 933              		.global	opencoap_sendDone
+ 934              		.thumb
+ 935              		.thumb_func
+ 937              	opencoap_sendDone:
+ 938              	.LFB2:
+ 295:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** 
+ 296:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** /**
+ 297:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** \brief Indicates that the CoAP response has been sent.
+ 298:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** 
+ 299:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** \param[in] msg A pointer to the message which was sent.
+ 300:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** \param[in] error The outcome of the send function.
+ 301:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** */
+ 302:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** void opencoap_sendDone(OpenQueueEntry_t* msg, owerror_t error) {
+ 939              		.loc 1 302 0
+ 940              		.cfi_startproc
+ 941              		@ args = 0, pretend = 0, frame = 16
+ 942              		@ frame_needed = 1, uses_anonymous_args = 0
+ 943 05a8 80B5     		push	{r7, lr}
+ 944              		.cfi_def_cfa_offset 8
+ 945              		.cfi_offset 7, -8
+ 946              		.cfi_offset 14, -4
+ 947 05aa 84B0     		sub	sp, sp, #16
+ 948              		.cfi_def_cfa_offset 24
+ 949 05ac 00AF     		add	r7, sp, #0
+ 950              		.cfi_def_cfa_register 7
+ 951 05ae 7860     		str	r0, [r7, #4]
+ 952 05b0 0B46     		mov	r3, r1
+ 953 05b2 FB70     		strb	r3, [r7, #3]
+ 303:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    coap_resource_desc_t* temp_resource;
+ 304:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    
+ 305:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    // take ownership over that packet
+ 306:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    msg->owner = COMPONENT_OPENCOAP;
+ 954              		.loc 1 306 0
+ 955 05b4 7B68     		ldr	r3, [r7, #4]
+ 956 05b6 1922     		movs	r2, #25
+ 957 05b8 5A70     		strb	r2, [r3, #1]
+ 307:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    
+ 308:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    // indicate sendDone to creator of that packet
+ 309:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    //=== mine
+ 310:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    if (msg->creator==COMPONENT_OPENCOAP) {
+ 958              		.loc 1 310 0
+ 959 05ba 7B68     		ldr	r3, [r7, #4]
+ 960 05bc 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 961 05be 192B     		cmp	r3, #25
+ 962 05c0 03D1     		bne	.L42
+ 311:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       openqueue_freePacketBuffer(msg);
+ 963              		.loc 1 311 0
+ 964 05c2 7868     		ldr	r0, [r7, #4]
+ 965 05c4 FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 312:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       return;
+ 966              		.loc 1 312 0
+ 967 05c8 26E0     		b	.L41
+ 968              	.L42:
+ 313:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    }
+ 314:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    //=== someone else's
+ 315:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    temp_resource = opencoap_vars.resources;
+ 969              		.loc 1 315 0
+ 970 05ca 40F20003 		movw	r3, #:lower16:opencoap_vars
+ 971 05ce C0F20003 		movt	r3, #:upper16:opencoap_vars
+ 972 05d2 1B69     		ldr	r3, [r3, #16]
+ 973 05d4 FB60     		str	r3, [r7, #12]
+ 316:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    while (temp_resource!=NULL) {
+ 974              		.loc 1 316 0
+ 975 05d6 13E0     		b	.L44
+ 976              	.L46:
+ 317:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       if (
+ 318:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          temp_resource->componentID==msg->creator &&
+ 977              		.loc 1 318 0
+ 978 05d8 FB68     		ldr	r3, [r7, #12]
+ 979 05da 1A7C     		ldrb	r2, [r3, #16]	@ zero_extendqisi2
+ 980 05dc 7B68     		ldr	r3, [r7, #4]
+ 981 05de 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 317:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       if (
+ 982              		.loc 1 317 0
+ 983 05e0 9A42     		cmp	r2, r3
+ 984 05e2 0AD1     		bne	.L45
+ 319:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          temp_resource->callbackSendDone!=NULL
+ 985              		.loc 1 319 0
+ 986 05e4 FB68     		ldr	r3, [r7, #12]
+ 987 05e6 9B69     		ldr	r3, [r3, #24]
+ 318:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          temp_resource->callbackSendDone!=NULL
+ 988              		.loc 1 318 0
+ 989 05e8 002B     		cmp	r3, #0
+ 990 05ea 06D0     		beq	.L45
+ 320:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          ) {
+ 321:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          temp_resource->callbackSendDone(msg,error);
+ 991              		.loc 1 321 0
+ 992 05ec FB68     		ldr	r3, [r7, #12]
+ 993 05ee 9B69     		ldr	r3, [r3, #24]
+ 994 05f0 FA78     		ldrb	r2, [r7, #3]	@ zero_extendqisi2
+ 995 05f2 7868     		ldr	r0, [r7, #4]
+ 996 05f4 1146     		mov	r1, r2
+ 997 05f6 9847     		blx	r3
+ 322:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          return;
+ 998              		.loc 1 322 0
+ 999 05f8 0EE0     		b	.L41
+ 1000              	.L45:
+ 323:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       }
+ 324:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       temp_resource = temp_resource->next;
+ 1001              		.loc 1 324 0
+ 1002 05fa FB68     		ldr	r3, [r7, #12]
+ 1003 05fc DB6A     		ldr	r3, [r3, #44]
+ 1004 05fe FB60     		str	r3, [r7, #12]
+ 1005              	.L44:
+ 316:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       if (
+ 1006              		.loc 1 316 0 discriminator 1
+ 1007 0600 FB68     		ldr	r3, [r7, #12]
+ 1008 0602 002B     		cmp	r3, #0
+ 1009 0604 E8D1     		bne	.L46
+ 325:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    }
+ 326:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    
+ 327:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    // if you get here, no valid creator was found
+ 328:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    
+ 329:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    openserial_printError(
+ 1010              		.loc 1 329 0
+ 1011 0606 1920     		movs	r0, #25
+ 1012 0608 2B21     		movs	r1, #43
+ 1013 060a 0022     		movs	r2, #0
+ 1014 060c 0023     		movs	r3, #0
+ 1015 060e FFF7FEFF 		bl	openserial_printError
+ 330:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       COMPONENT_OPENCOAP,ERR_UNEXPECTED_SENDDONE,
+ 331:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       (errorparameter_t)0,
+ 332:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       (errorparameter_t)0
+ 333:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    );
+ 334:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    openqueue_freePacketBuffer(msg);
+ 1016              		.loc 1 334 0
+ 1017 0612 7868     		ldr	r0, [r7, #4]
+ 1018 0614 FFF7FEFF 		bl	openqueue_freePacketBuffer
+ 1019              	.L41:
+ 335:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** }
+ 1020              		.loc 1 335 0
+ 1021 0618 1037     		adds	r7, r7, #16
+ 1022 061a BD46     		mov	sp, r7
+ 1023              		@ sp needed
+ 1024 061c 80BD     		pop	{r7, pc}
+ 1025              		.cfi_endproc
+ 1026              	.LFE2:
+ 1028 061e 00BF     		.align	2
+ 1029              		.global	opencoap_writeLinks
+ 1030              		.thumb
+ 1031              		.thumb_func
+ 1033              	opencoap_writeLinks:
+ 1034              	.LFB3:
+ 336:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** 
+ 337:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** //===== from CoAP resources
+ 338:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** 
+ 339:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** /**
+ 340:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** \brief Writes the links to all the resources on this mote into the message.
+ 341:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** 
+ 342:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** \param[out] msg The messge to write the links to.
+ 343:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** \param[in] componentID The componentID calling this function.
+ 344:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** 
+ 345:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** \post After this function returns, the msg contains 
+ 346:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** */
+ 347:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** void opencoap_writeLinks(OpenQueueEntry_t* msg, uint8_t componentID) {
+ 1035              		.loc 1 347 0
+ 1036              		.cfi_startproc
+ 1037              		@ args = 0, pretend = 0, frame = 16
+ 1038              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1039 0620 80B5     		push	{r7, lr}
+ 1040              		.cfi_def_cfa_offset 8
+ 1041              		.cfi_offset 7, -8
+ 1042              		.cfi_offset 14, -4
+ 1043 0622 84B0     		sub	sp, sp, #16
+ 1044              		.cfi_def_cfa_offset 24
+ 1045 0624 00AF     		add	r7, sp, #0
+ 1046              		.cfi_def_cfa_register 7
+ 1047 0626 7860     		str	r0, [r7, #4]
+ 1048 0628 0B46     		mov	r3, r1
+ 1049 062a FB70     		strb	r3, [r7, #3]
+ 348:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    coap_resource_desc_t* temp_resource;
+ 349:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    
+ 350:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    // start with the first resource in the linked list
+ 351:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    temp_resource = opencoap_vars.resources;
+ 1050              		.loc 1 351 0
+ 1051 062c 40F20003 		movw	r3, #:lower16:opencoap_vars
+ 1052 0630 C0F20003 		movt	r3, #:upper16:opencoap_vars
+ 1053 0634 1B69     		ldr	r3, [r3, #16]
+ 1054 0636 FB60     		str	r3, [r7, #12]
+ 352:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    
+ 353:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    // iterate through all resources
+ 354:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    while (temp_resource!=NULL) {
+ 1055              		.loc 1 354 0
+ 1056 0638 65E0     		b	.L48
+ 1057              	.L53:
+ 355:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       
+ 356:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       if (  
+ 357:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****             (temp_resource->discoverable==TRUE) &&
+ 1058              		.loc 1 357 0
+ 1059 063a FB68     		ldr	r3, [r7, #12]
+ 1060 063c 5B7C     		ldrb	r3, [r3, #17]	@ zero_extendqisi2
+ 356:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****             (temp_resource->discoverable==TRUE) &&
+ 1061              		.loc 1 356 0
+ 1062 063e 002B     		cmp	r3, #0
+ 1063 0640 5ED0     		beq	.L49
+ 1064              		.loc 1 357 0
+ 1065 0642 FB78     		ldrb	r3, [r7, #3]	@ zero_extendqisi2
+ 1066 0644 202B     		cmp	r3, #32
+ 1067 0646 03D1     		bne	.L50
+ 358:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****             (
+ 359:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                ((componentID==COMPONENT_CWELLKNOWN) && (temp_resource->path1len==0))
+ 1068              		.loc 1 359 0
+ 1069 0648 FB68     		ldr	r3, [r7, #12]
+ 1070 064a 1B7A     		ldrb	r3, [r3, #8]	@ zero_extendqisi2
+ 1071 064c 002B     		cmp	r3, #0
+ 1072 064e 08D0     		beq	.L51
+ 1073              	.L50:
+ 360:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                || 
+ 361:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                ((componentID==temp_resource->componentID) && (temp_resource->path1len!=0))
+ 1074              		.loc 1 361 0
+ 1075 0650 FB68     		ldr	r3, [r7, #12]
+ 1076 0652 1B7C     		ldrb	r3, [r3, #16]	@ zero_extendqisi2
+ 360:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                || 
+ 1077              		.loc 1 360 0
+ 1078 0654 FA78     		ldrb	r2, [r7, #3]	@ zero_extendqisi2
+ 1079 0656 9A42     		cmp	r2, r3
+ 1080 0658 52D1     		bne	.L49
+ 1081              		.loc 1 361 0
+ 1082 065a FB68     		ldr	r3, [r7, #12]
+ 1083 065c 1B7A     		ldrb	r3, [r3, #8]	@ zero_extendqisi2
+ 1084 065e 002B     		cmp	r3, #0
+ 1085 0660 4ED0     		beq	.L49
+ 1086              	.L51:
+ 362:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****             )
+ 363:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          ) {
+ 364:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****           
+ 365:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          // write ending '>'
+ 366:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          packetfunctions_reserveHeaderSize(msg,1);
+ 1087              		.loc 1 366 0
+ 1088 0662 7868     		ldr	r0, [r7, #4]
+ 1089 0664 0121     		movs	r1, #1
+ 1090 0666 FFF7FEFF 		bl	packetfunctions_reserveHeaderSize
+ 367:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          msg->payload[0] = '>';
+ 1091              		.loc 1 367 0
+ 1092 066a 7B68     		ldr	r3, [r7, #4]
+ 1093 066c 5B68     		ldr	r3, [r3, #4]
+ 1094 066e 3E22     		movs	r2, #62
+ 1095 0670 1A70     		strb	r2, [r3]
+ 368:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          
+ 369:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          // write path1
+ 370:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          if (temp_resource->path1len>0) {
+ 1096              		.loc 1 370 0
+ 1097 0672 FB68     		ldr	r3, [r7, #12]
+ 1098 0674 1B7A     		ldrb	r3, [r3, #8]	@ zero_extendqisi2
+ 1099 0676 002B     		cmp	r3, #0
+ 1100 0678 18D0     		beq	.L52
+ 371:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****             packetfunctions_reserveHeaderSize(msg,temp_resource->path1len);
+ 1101              		.loc 1 371 0
+ 1102 067a FB68     		ldr	r3, [r7, #12]
+ 1103 067c 1B7A     		ldrb	r3, [r3, #8]	@ zero_extendqisi2
+ 1104 067e 7868     		ldr	r0, [r7, #4]
+ 1105 0680 1946     		mov	r1, r3
+ 1106 0682 FFF7FEFF 		bl	packetfunctions_reserveHeaderSize
+ 372:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****             memcpy(&msg->payload[0],temp_resource->path1val,temp_resource->path1len);
+ 1107              		.loc 1 372 0
+ 1108 0686 7B68     		ldr	r3, [r7, #4]
+ 1109 0688 5968     		ldr	r1, [r3, #4]
+ 1110 068a FB68     		ldr	r3, [r7, #12]
+ 1111 068c DA68     		ldr	r2, [r3, #12]
+ 1112 068e FB68     		ldr	r3, [r7, #12]
+ 1113 0690 1B7A     		ldrb	r3, [r3, #8]	@ zero_extendqisi2
+ 1114 0692 0846     		mov	r0, r1
+ 1115 0694 1146     		mov	r1, r2
+ 1116 0696 1A46     		mov	r2, r3
+ 1117 0698 FFF7FEFF 		bl	memcpy
+ 373:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****             packetfunctions_reserveHeaderSize(msg,1);
+ 1118              		.loc 1 373 0
+ 1119 069c 7868     		ldr	r0, [r7, #4]
+ 1120 069e 0121     		movs	r1, #1
+ 1121 06a0 FFF7FEFF 		bl	packetfunctions_reserveHeaderSize
+ 374:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****             msg->payload[0] = '/';
+ 1122              		.loc 1 374 0
+ 1123 06a4 7B68     		ldr	r3, [r7, #4]
+ 1124 06a6 5B68     		ldr	r3, [r3, #4]
+ 1125 06a8 2F22     		movs	r2, #47
+ 1126 06aa 1A70     		strb	r2, [r3]
+ 1127              	.L52:
+ 375:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          }
+ 376:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          
+ 377:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          // write path0
+ 378:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          packetfunctions_reserveHeaderSize(msg,temp_resource->path0len);
+ 1128              		.loc 1 378 0
+ 1129 06ac FB68     		ldr	r3, [r7, #12]
+ 1130 06ae 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1131 06b0 7868     		ldr	r0, [r7, #4]
+ 1132 06b2 1946     		mov	r1, r3
+ 1133 06b4 FFF7FEFF 		bl	packetfunctions_reserveHeaderSize
+ 379:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          memcpy(msg->payload,temp_resource->path0val,temp_resource->path0len);
+ 1134              		.loc 1 379 0
+ 1135 06b8 7B68     		ldr	r3, [r7, #4]
+ 1136 06ba 5968     		ldr	r1, [r3, #4]
+ 1137 06bc FB68     		ldr	r3, [r7, #12]
+ 1138 06be 5A68     		ldr	r2, [r3, #4]
+ 1139 06c0 FB68     		ldr	r3, [r7, #12]
+ 1140 06c2 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1141 06c4 0846     		mov	r0, r1
+ 1142 06c6 1146     		mov	r1, r2
+ 1143 06c8 1A46     		mov	r2, r3
+ 1144 06ca FFF7FEFF 		bl	memcpy
+ 380:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          packetfunctions_reserveHeaderSize(msg,2);
+ 1145              		.loc 1 380 0
+ 1146 06ce 7868     		ldr	r0, [r7, #4]
+ 1147 06d0 0221     		movs	r1, #2
+ 1148 06d2 FFF7FEFF 		bl	packetfunctions_reserveHeaderSize
+ 381:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          msg->payload[1] = '/';
+ 1149              		.loc 1 381 0
+ 1150 06d6 7B68     		ldr	r3, [r7, #4]
+ 1151 06d8 5B68     		ldr	r3, [r3, #4]
+ 1152 06da 0133     		adds	r3, r3, #1
+ 1153 06dc 2F22     		movs	r2, #47
+ 1154 06de 1A70     		strb	r2, [r3]
+ 382:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          
+ 383:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          // write opening '>'
+ 384:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          msg->payload[0] = '<';
+ 1155              		.loc 1 384 0
+ 1156 06e0 7B68     		ldr	r3, [r7, #4]
+ 1157 06e2 5B68     		ldr	r3, [r3, #4]
+ 1158 06e4 3C22     		movs	r2, #60
+ 1159 06e6 1A70     		strb	r2, [r3]
+ 385:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          
+ 386:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          // write separator between links
+ 387:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          if (temp_resource->next!=NULL) {
+ 1160              		.loc 1 387 0
+ 1161 06e8 FB68     		ldr	r3, [r7, #12]
+ 1162 06ea DB6A     		ldr	r3, [r3, #44]
+ 1163 06ec 002B     		cmp	r3, #0
+ 1164 06ee 07D0     		beq	.L49
+ 388:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****             packetfunctions_reserveHeaderSize(msg,1);
+ 1165              		.loc 1 388 0
+ 1166 06f0 7868     		ldr	r0, [r7, #4]
+ 1167 06f2 0121     		movs	r1, #1
+ 1168 06f4 FFF7FEFF 		bl	packetfunctions_reserveHeaderSize
+ 389:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****             msg->payload[0] = ',';
+ 1169              		.loc 1 389 0
+ 1170 06f8 7B68     		ldr	r3, [r7, #4]
+ 1171 06fa 5B68     		ldr	r3, [r3, #4]
+ 1172 06fc 2C22     		movs	r2, #44
+ 1173 06fe 1A70     		strb	r2, [r3]
+ 1174              	.L49:
+ 390:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****          }
+ 391:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       }
+ 392:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       // iterate to next resource
+ 393:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       temp_resource = temp_resource->next;
+ 1175              		.loc 1 393 0
+ 1176 0700 FB68     		ldr	r3, [r7, #12]
+ 1177 0702 DB6A     		ldr	r3, [r3, #44]
+ 1178 0704 FB60     		str	r3, [r7, #12]
+ 1179              	.L48:
+ 354:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       
+ 1180              		.loc 1 354 0 discriminator 1
+ 1181 0706 FB68     		ldr	r3, [r7, #12]
+ 1182 0708 002B     		cmp	r3, #0
+ 1183 070a 96D1     		bne	.L53
+ 394:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    }
+ 395:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** }
+ 1184              		.loc 1 395 0
+ 1185 070c 1037     		adds	r7, r7, #16
+ 1186 070e BD46     		mov	sp, r7
+ 1187              		@ sp needed
+ 1188 0710 80BD     		pop	{r7, pc}
+ 1189              		.cfi_endproc
+ 1190              	.LFE3:
+ 1192 0712 00BF     		.align	2
+ 1193              		.global	opencoap_register
+ 1194              		.thumb
+ 1195              		.thumb_func
+ 1197              	opencoap_register:
+ 1198              	.LFB4:
+ 396:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** 
+ 397:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** /**
+ 398:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** \brief Register a new CoAP resource.
+ 399:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** 
+ 400:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** This function is called by a CoAP resource when it starts, allowing it to
+ 401:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** receive data sent to that resource.
+ 402:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** 
+ 403:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** Registration consists in adding a new resource at the end of the linked list
+ 404:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** of resources.
+ 405:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** 
+ 406:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** \param[in] desc The description of the CoAP resource.
+ 407:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** */
+ 408:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** void opencoap_register(coap_resource_desc_t* desc) {
+ 1199              		.loc 1 408 0
+ 1200              		.cfi_startproc
+ 1201              		@ args = 0, pretend = 0, frame = 16
+ 1202              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1203              		@ link register save eliminated.
+ 1204 0714 80B4     		push	{r7}
+ 1205              		.cfi_def_cfa_offset 4
+ 1206              		.cfi_offset 7, -4
+ 1207 0716 85B0     		sub	sp, sp, #20
+ 1208              		.cfi_def_cfa_offset 24
+ 1209 0718 00AF     		add	r7, sp, #0
+ 1210              		.cfi_def_cfa_register 7
+ 1211 071a 7860     		str	r0, [r7, #4]
+ 409:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    coap_resource_desc_t* last_elem;
+ 410:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    
+ 411:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    // since this CoAP resource will be at the end of the list, its next element
+ 412:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    // should point to NULL, indicating the end of the linked list.
+ 413:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    desc->next = NULL;
+ 1212              		.loc 1 413 0
+ 1213 071c 7B68     		ldr	r3, [r7, #4]
+ 1214 071e 0022     		movs	r2, #0
+ 1215 0720 DA62     		str	r2, [r3, #44]
+ 414:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    
+ 415:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    // if this is the first resource, simply have resources point to it
+ 416:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    if (opencoap_vars.resources==NULL) {
+ 1216              		.loc 1 416 0
+ 1217 0722 40F20003 		movw	r3, #:lower16:opencoap_vars
+ 1218 0726 C0F20003 		movt	r3, #:upper16:opencoap_vars
+ 1219 072a 1B69     		ldr	r3, [r3, #16]
+ 1220 072c 002B     		cmp	r3, #0
+ 1221 072e 06D1     		bne	.L55
+ 417:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       opencoap_vars.resources = desc;
+ 1222              		.loc 1 417 0
+ 1223 0730 40F20003 		movw	r3, #:lower16:opencoap_vars
+ 1224 0734 C0F20003 		movt	r3, #:upper16:opencoap_vars
+ 1225 0738 7A68     		ldr	r2, [r7, #4]
+ 1226 073a 1A61     		str	r2, [r3, #16]
+ 418:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       return;
+ 1227              		.loc 1 418 0
+ 1228 073c 10E0     		b	.L54
+ 1229              	.L55:
+ 419:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    }
+ 420:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    
+ 421:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    // if not, add to the end of the resource linked list
+ 422:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    last_elem = opencoap_vars.resources;
+ 1230              		.loc 1 422 0
+ 1231 073e 40F20003 		movw	r3, #:lower16:opencoap_vars
+ 1232 0742 C0F20003 		movt	r3, #:upper16:opencoap_vars
+ 1233 0746 1B69     		ldr	r3, [r3, #16]
+ 1234 0748 FB60     		str	r3, [r7, #12]
+ 423:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    while (last_elem->next!=NULL) {
+ 1235              		.loc 1 423 0
+ 1236 074a 02E0     		b	.L57
+ 1237              	.L58:
+ 424:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       last_elem = last_elem->next;
+ 1238              		.loc 1 424 0
+ 1239 074c FB68     		ldr	r3, [r7, #12]
+ 1240 074e DB6A     		ldr	r3, [r3, #44]
+ 1241 0750 FB60     		str	r3, [r7, #12]
+ 1242              	.L57:
+ 423:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    while (last_elem->next!=NULL) {
+ 1243              		.loc 1 423 0 discriminator 1
+ 1244 0752 FB68     		ldr	r3, [r7, #12]
+ 1245 0754 DB6A     		ldr	r3, [r3, #44]
+ 1246 0756 002B     		cmp	r3, #0
+ 1247 0758 F8D1     		bne	.L58
+ 425:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    }
+ 426:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    last_elem->next = desc;
+ 1248              		.loc 1 426 0
+ 1249 075a FB68     		ldr	r3, [r7, #12]
+ 1250 075c 7A68     		ldr	r2, [r7, #4]
+ 1251 075e DA62     		str	r2, [r3, #44]
+ 1252              	.L54:
+ 427:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** }
+ 1253              		.loc 1 427 0
+ 1254 0760 1437     		adds	r7, r7, #20
+ 1255 0762 BD46     		mov	sp, r7
+ 1256              		@ sp needed
+ 1257 0764 5DF8047B 		ldr	r7, [sp], #4
+ 1258 0768 7047     		bx	lr
+ 1259              		.cfi_endproc
+ 1260              	.LFE4:
+ 1262 076a 00BF     		.align	2
+ 1263              		.global	opencoap_send
+ 1264              		.thumb
+ 1265              		.thumb_func
+ 1267              	opencoap_send:
+ 1268              	.LFB5:
+ 428:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** 
+ 429:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** /**
+ 430:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** \brief Send a CoAP request.
+ 431:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** 
+ 432:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** This function is called by a CoAP resource when it wants to send some data.
+ 433:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** This function is NOT called for a response.
+ 434:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** 
+ 435:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** \param[in] msg The message to be sent. This messages should not contain the
+ 436:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    CoAP header.
+ 437:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** \param[in] type The CoAP type of the message.
+ 438:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** \param[in] code The CoAP code of the message.
+ 439:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** \param[in] TKL  The Token Length of the message, sanitized to a max of COAP_MAX_TKL (8).
+ 440:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** \param[out] descSender A pointer to the description of the calling CoAP
+ 441:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    resource.
+ 442:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** 
+ 443:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** \post After returning, this function will have written the messageID and TOKEN
+ 444:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    used in the descSender parameter.
+ 445:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** 
+ 446:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** \return The outcome of sending the packet.
+ 447:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** */
+ 448:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** owerror_t opencoap_send(
+ 449:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       OpenQueueEntry_t*      msg,
+ 450:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       coap_type_t            type,
+ 451:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       coap_code_t            code,
+ 452:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       uint8_t                TKL,
+ 453:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       coap_resource_desc_t*  descSender
+ 454:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    ) {
+ 1269              		.loc 1 454 0
+ 1270              		.cfi_startproc
+ 1271              		@ args = 4, pretend = 0, frame = 24
+ 1272              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1273 076c 80B5     		push	{r7, lr}
+ 1274              		.cfi_def_cfa_offset 8
+ 1275              		.cfi_offset 7, -8
+ 1276              		.cfi_offset 14, -4
+ 1277 076e 86B0     		sub	sp, sp, #24
+ 1278              		.cfi_def_cfa_offset 32
+ 1279 0770 00AF     		add	r7, sp, #0
+ 1280              		.cfi_def_cfa_register 7
+ 1281 0772 7860     		str	r0, [r7, #4]
+ 1282 0774 F970     		strb	r1, [r7, #3]
+ 1283 0776 BA70     		strb	r2, [r7, #2]
+ 1284 0778 7B70     		strb	r3, [r7, #1]
+ 455:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    uint16_t token;
+ 456:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    uint8_t tokenPos=0;
+ 1285              		.loc 1 456 0
+ 1286 077a 0023     		movs	r3, #0
+ 1287 077c FB75     		strb	r3, [r7, #23]
+ 457:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    coap_header_iht* request;
+ 458:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    
+ 459:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    // increment the (global) messageID
+ 460:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    if (opencoap_vars.messageID++ == 0xffff) {
+ 1288              		.loc 1 460 0
+ 1289 077e 40F20003 		movw	r3, #:lower16:opencoap_vars
+ 1290 0782 C0F20003 		movt	r3, #:upper16:opencoap_vars
+ 1291 0786 DA8A     		ldrh	r2, [r3, #22]
+ 1292 0788 531C     		adds	r3, r2, #1
+ 1293 078a 99B2     		uxth	r1, r3
+ 1294 078c 40F20003 		movw	r3, #:lower16:opencoap_vars
+ 1295 0790 C0F20003 		movt	r3, #:upper16:opencoap_vars
+ 1296 0794 D982     		strh	r1, [r3, #22]	@ movhi
+ 1297 0796 4FF6FF73 		movw	r3, #65535
+ 1298 079a 9A42     		cmp	r2, r3
+ 1299 079c 05D1     		bne	.L60
+ 461:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****       opencoap_vars.messageID = 0;
+ 1300              		.loc 1 461 0
+ 1301 079e 40F20003 		movw	r3, #:lower16:opencoap_vars
+ 1302 07a2 C0F20003 		movt	r3, #:upper16:opencoap_vars
+ 1303 07a6 0022     		movs	r2, #0
+ 1304 07a8 DA82     		strh	r2, [r3, #22]	@ movhi
+ 1305              	.L60:
+ 462:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    }
+ 463:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    
+ 464:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    // take ownership over the packet
+ 465:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    msg->owner                       = COMPONENT_OPENCOAP;
+ 1306              		.loc 1 465 0
+ 1307 07aa 7B68     		ldr	r3, [r7, #4]
+ 1308 07ac 1922     		movs	r2, #25
+ 1309 07ae 5A70     		strb	r2, [r3, #1]
+ 466:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    
+ 467:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    // fill in packet metadata
+ 468:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    msg->l4_sourcePortORicmpv6Type   = WKP_UDP_COAP;
+ 1310              		.loc 1 468 0
+ 1311 07b0 7B68     		ldr	r3, [r7, #4]
+ 1312 07b2 41F23362 		movw	r2, #5683
+ 1313 07b6 9A81     		strh	r2, [r3, #12]	@ movhi
+ 469:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    
+ 470:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    // update the last_request header
+ 471:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    request                          = &descSender->last_request;
+ 1314              		.loc 1 471 0
+ 1315 07b8 3B6A     		ldr	r3, [r7, #32]
+ 1316 07ba 1C33     		adds	r3, r3, #28
+ 1317 07bc 3B61     		str	r3, [r7, #16]
+ 472:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    request->T                       = type;
+ 1318              		.loc 1 472 0
+ 1319 07be 3B69     		ldr	r3, [r7, #16]
+ 1320 07c0 FA78     		ldrb	r2, [r7, #3]
+ 1321 07c2 5A70     		strb	r2, [r3, #1]
+ 473:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    request->Code                    = code;
+ 1322              		.loc 1 473 0
+ 1323 07c4 3B69     		ldr	r3, [r7, #16]
+ 1324 07c6 BA78     		ldrb	r2, [r7, #2]
+ 1325 07c8 DA70     		strb	r2, [r3, #3]
+ 474:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    request->messageID               = opencoap_vars.messageID;
+ 1326              		.loc 1 474 0
+ 1327 07ca 40F20003 		movw	r3, #:lower16:opencoap_vars
+ 1328 07ce C0F20003 		movt	r3, #:upper16:opencoap_vars
+ 1329 07d2 DA8A     		ldrh	r2, [r3, #22]
+ 1330 07d4 3B69     		ldr	r3, [r7, #16]
+ 1331 07d6 9A80     		strh	r2, [r3, #4]	@ movhi
+ 475:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    request->TKL                     = TKL<COAP_MAX_TKL ? TKL : COAP_MAX_TKL;
+ 1332              		.loc 1 475 0
+ 1333 07d8 7B78     		ldrb	r3, [r7, #1]	@ zero_extendqisi2
+ 1334 07da 082B     		cmp	r3, #8
+ 1335 07dc 28BF     		it	cs
+ 1336 07de 0823     		movcs	r3, #8
+ 1337 07e0 DAB2     		uxtb	r2, r3
+ 1338 07e2 3B69     		ldr	r3, [r7, #16]
+ 1339 07e4 9A70     		strb	r2, [r3, #2]
+ 476:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    
+ 477:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    while (tokenPos<request->TKL) {
+ 1340              		.loc 1 477 0
+ 1341 07e6 11E0     		b	.L61
+ 1342              	.L62:
+ 478:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****        token = openrandom_get16b();
+ 1343              		.loc 1 478 0
+ 1344 07e8 FFF7FEFF 		bl	openrandom_get16b
+ 1345 07ec 0346     		mov	r3, r0
+ 1346 07ee FB81     		strh	r3, [r7, #14]	@ movhi
+ 479:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****        memcpy(&request->token[tokenPos],&token,2);
+ 1347              		.loc 1 479 0
+ 1348 07f0 FB7D     		ldrb	r3, [r7, #23]	@ zero_extendqisi2
+ 1349 07f2 3A69     		ldr	r2, [r7, #16]
+ 1350 07f4 1344     		add	r3, r3, r2
+ 1351 07f6 9A1D     		adds	r2, r3, #6
+ 1352 07f8 07F10E03 		add	r3, r7, #14
+ 1353 07fc 1046     		mov	r0, r2
+ 1354 07fe 1946     		mov	r1, r3
+ 1355 0800 0222     		movs	r2, #2
+ 1356 0802 FFF7FEFF 		bl	memcpy
+ 480:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****        tokenPos+=2;
+ 1357              		.loc 1 480 0
+ 1358 0806 FB7D     		ldrb	r3, [r7, #23]
+ 1359 0808 0233     		adds	r3, r3, #2
+ 1360 080a FB75     		strb	r3, [r7, #23]
+ 1361              	.L61:
+ 477:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****        token = openrandom_get16b();
+ 1362              		.loc 1 477 0 discriminator 1
+ 1363 080c 3B69     		ldr	r3, [r7, #16]
+ 1364 080e 9B78     		ldrb	r3, [r3, #2]	@ zero_extendqisi2
+ 1365 0810 FA7D     		ldrb	r2, [r7, #23]	@ zero_extendqisi2
+ 1366 0812 9A42     		cmp	r2, r3
+ 1367 0814 E8D3     		bcc	.L62
+ 481:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    }
+ 482:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    
+ 483:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    // pre-pend CoAP header (version,type,TKL,code,messageID,Token)
+ 484:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    packetfunctions_reserveHeaderSize(msg,4+request->TKL);
+ 1368              		.loc 1 484 0
+ 1369 0816 3B69     		ldr	r3, [r7, #16]
+ 1370 0818 9B78     		ldrb	r3, [r3, #2]	@ zero_extendqisi2
+ 1371 081a 0433     		adds	r3, r3, #4
+ 1372 081c DBB2     		uxtb	r3, r3
+ 1373 081e 7868     		ldr	r0, [r7, #4]
+ 1374 0820 1946     		mov	r1, r3
+ 1375 0822 FFF7FEFF 		bl	packetfunctions_reserveHeaderSize
+ 485:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    msg->payload[0]                  = (COAP_VERSION   << 6) |
+ 1376              		.loc 1 485 0
+ 1377 0826 7B68     		ldr	r3, [r7, #4]
+ 1378 0828 5B68     		ldr	r3, [r3, #4]
+ 486:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                                       (type           << 4) |
+ 1379              		.loc 1 486 0
+ 1380 082a FA78     		ldrb	r2, [r7, #3]	@ zero_extendqisi2
+ 1381 082c 1201     		lsls	r2, r2, #4
+ 485:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    msg->payload[0]                  = (COAP_VERSION   << 6) |
+ 1382              		.loc 1 485 0
+ 1383 082e D1B2     		uxtb	r1, r2
+ 487:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****                                       (request->TKL   << 0);
+ 1384              		.loc 1 487 0
+ 1385 0830 3A69     		ldr	r2, [r7, #16]
+ 1386 0832 9278     		ldrb	r2, [r2, #2]	@ zero_extendqisi2
+ 485:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    msg->payload[0]                  = (COAP_VERSION   << 6) |
+ 1387              		.loc 1 485 0
+ 1388 0834 0A43     		orrs	r2, r2, r1
+ 1389 0836 D2B2     		uxtb	r2, r2
+ 1390 0838 42F04002 		orr	r2, r2, #64
+ 1391 083c D2B2     		uxtb	r2, r2
+ 1392 083e 1A70     		strb	r2, [r3]
+ 488:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    msg->payload[1]                  = code;
+ 1393              		.loc 1 488 0
+ 1394 0840 7B68     		ldr	r3, [r7, #4]
+ 1395 0842 5B68     		ldr	r3, [r3, #4]
+ 1396 0844 0133     		adds	r3, r3, #1
+ 1397 0846 BA78     		ldrb	r2, [r7, #2]
+ 1398 0848 1A70     		strb	r2, [r3]
+ 489:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    msg->payload[2]                  = (request->messageID>>8) & 0xff;
+ 1399              		.loc 1 489 0
+ 1400 084a 7B68     		ldr	r3, [r7, #4]
+ 1401 084c 5B68     		ldr	r3, [r3, #4]
+ 1402 084e 0233     		adds	r3, r3, #2
+ 1403 0850 3A69     		ldr	r2, [r7, #16]
+ 1404 0852 9288     		ldrh	r2, [r2, #4]
+ 1405 0854 120A     		lsrs	r2, r2, #8
+ 1406 0856 92B2     		uxth	r2, r2
+ 1407 0858 D2B2     		uxtb	r2, r2
+ 1408 085a 1A70     		strb	r2, [r3]
+ 490:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    msg->payload[3]                  = (request->messageID>>0) & 0xff;
+ 1409              		.loc 1 490 0
+ 1410 085c 7B68     		ldr	r3, [r7, #4]
+ 1411 085e 5B68     		ldr	r3, [r3, #4]
+ 1412 0860 0333     		adds	r3, r3, #3
+ 1413 0862 3A69     		ldr	r2, [r7, #16]
+ 1414 0864 9288     		ldrh	r2, [r2, #4]
+ 1415 0866 D2B2     		uxtb	r2, r2
+ 1416 0868 1A70     		strb	r2, [r3]
+ 491:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** 
+ 492:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    memcpy(&msg->payload[4],&token,request->TKL);
+ 1417              		.loc 1 492 0
+ 1418 086a 7B68     		ldr	r3, [r7, #4]
+ 1419 086c 5B68     		ldr	r3, [r3, #4]
+ 1420 086e 191D     		adds	r1, r3, #4
+ 1421 0870 3B69     		ldr	r3, [r7, #16]
+ 1422 0872 9B78     		ldrb	r3, [r3, #2]	@ zero_extendqisi2
+ 1423 0874 07F10E02 		add	r2, r7, #14
+ 1424 0878 0846     		mov	r0, r1
+ 1425 087a 1146     		mov	r1, r2
+ 1426 087c 1A46     		mov	r2, r3
+ 1427 087e FFF7FEFF 		bl	memcpy
+ 493:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    
+ 494:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c ****    return openudp_send(msg);
+ 1428              		.loc 1 494 0
+ 1429 0882 7868     		ldr	r0, [r7, #4]
+ 1430 0884 FFF7FEFF 		bl	openudp_send
+ 1431 0888 0346     		mov	r3, r0
+ 495:build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.c **** }
+ 1432              		.loc 1 495 0
+ 1433 088a 1846     		mov	r0, r3
+ 1434 088c 1837     		adds	r7, r7, #24
+ 1435 088e BD46     		mov	sp, r7
+ 1436              		@ sp needed
+ 1437 0890 80BD     		pop	{r7, pc}
+ 1438              		.cfi_endproc
+ 1439              	.LFE5:
+ 1441              	.Letext0:
+ 1442              		.file 2 "/usr/include/newlib/machine/_default_types.h"
+ 1443              		.file 3 "/usr/include/newlib/stdint.h"
+ 1444              		.file 4 "inc/opendefs.h"
+ 1445              		.file 5 "openstack/04-TRAN/openudp.h"
+ 1446              		.file 6 "build/openmote-cc2538_armgcc/openapps/opencoap/opencoap.h"
+ 1447              		.file 7 "bsp/boards/openmote-cc2538/board_info.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 opencoap.c
+     /tmp/ccpdis1N.s:19     .rodata:0000000000000000 $d
+     /tmp/ccpdis1N.s:22     .rodata:0000000000000000 rreg_uriquery
+     /tmp/ccpdis1N.s:27     .rodata:0000000000000008 infoBoardname
+     /tmp/ccpdis1N.s:32     .rodata:0000000000000010 infouCName
+     /tmp/ccpdis1N.s:37     .rodata:0000000000000018 infoRadioName
+     /tmp/ccpdis1N.s:42     .rodata:0000000000000024 infoStackName
+     /tmp/ccpdis1N.s:47     .rodata:0000000000000030 ipAddr_ipsoRD
+     /tmp/ccpdis1N.s:67     .rodata:0000000000000040 ipAddr_motesEecs
+     /tmp/ccpdis1N.s:87     .rodata:0000000000000050 ipAddr_local
+     /tmp/ccpdis1N.s:107    .rodata:0000000000000060 ipAddr_motedata
+     /tmp/ccpdis1N.s:127    .rodata:0000000000000070 ipAddr_ringmaster
+                            *COM*:0000000000000018 opencoap_vars
+     /tmp/ccpdis1N.s:146    .text:0000000000000000 $t
+     /tmp/ccpdis1N.s:151    .text:0000000000000000 opencoap_init
+     /tmp/ccpdis1N.s:207    .text:0000000000000064 opencoap_receive
+     /tmp/ccpdis1N.s:937    .text:00000000000005a8 opencoap_sendDone
+     /tmp/ccpdis1N.s:1033   .text:0000000000000620 opencoap_writeLinks
+     /tmp/ccpdis1N.s:1197   .text:0000000000000714 opencoap_register
+     /tmp/ccpdis1N.s:1267   .text:000000000000076c opencoap_send
+                     .debug_frame:0000000000000010 $d
+                           .group:0000000000000000 wm4.1.08074afb2ccc9da754fae8e3ee0f577b
+                           .group:0000000000000000 wm4.features.h.22.6a4ca7cd053637cc1d0db6c16f39b2d7
+                           .group:0000000000000000 wm4._default_types.h.15.8b2cb27e528498f8ff711db085d6e489
+                           .group:0000000000000000 wm4.stdint.h.20.796e373797e732130a803d4c0338fa1b
+                           .group:0000000000000000 wm4.toolchain_defs.h.2.e5fd326231d01413e5361944b26cde07
+                           .group:0000000000000000 wm4.newlib.h.8.fec018e441fee7bfa1923812ad010f97
+                           .group:0000000000000000 wm4.config.h.212.4163ef2871a828c674038d036b081cfd
+                           .group:0000000000000000 wm4._ansi.h.23.5644b60c990a4800b02a6e654e88f93a
+                           .group:0000000000000000 wm4.stddef.h.39.daafd3d79fe2f3a84d2d73d7d4e706f8
+                           .group:0000000000000000 wm4.lock.h.2.9bc98482741e5e2a9450b12934a684ea
+                           .group:0000000000000000 wm4._types.h.54.d3d34a3b7f3cc230cd159baf022b4b08
+                           .group:0000000000000000 wm4.stddef.h.158.61317cdbfb4026324507d123a50b0fd6
+                           .group:0000000000000000 wm4.reent.h.17.8bd9e4098e0428508c282cad794fae43
+                           .group:0000000000000000 wm4.cdefs.h.47.339223046f475c9f2d5db3a9118d7c65
+                           .group:0000000000000000 wm4.string.h.15.dab3980bf35408a4c507182805e2de3a
+                           .group:0000000000000000 wm4.stddef.h.158.a7efb00f6cbc6f43213b50e183c9830c
+                           .group:0000000000000000 wm4.string.h.126.6ff3aa59129e7f66b2c273baf353e066
+                           .group:0000000000000000 wm4.stdbool.h.29.1c9ee6859ce8145f7838a4f2549ccec2
+                           .group:0000000000000000 wm4.hw_types.h.67.b10589a0806dcc2d274d6fab6b736519
+                           .group:0000000000000000 wm4.interrupt.h.41.272fc4ec0e276feb439e7974d0f77eaf
+                           .group:0000000000000000 wm4.board_info.h.22.aeb00002354a4949fff54190040e37af
+                           .group:0000000000000000 wm4.opendefs.h.23.16dafe2a30b31097968a5d4db894173a
+                           .group:0000000000000000 wm4.opentimers.h.8.044f2d040a134cdb0ddb58adfc2508be
+                           .group:0000000000000000 wm4.opencoap.h.32.54fb4d751dc200645403fc22b4aec840
+                           .group:0000000000000000 wm4.IEEE802154.h.2.38fb510ed33a23a9a0660164e6dfab69
+                           .group:0000000000000000 wm4.openserial.h.9.0a357d13b4113cc69ceb77572df48861
+                           .group:0000000000000000 wm4.idmanager.h.2.8c0e2159b32ef3125cbb1e984805cbfe
+                           .group:0000000000000000 wm4.scheduler.h.2.d8d85f436d0d4b3991926a15b8490cf4
+
+UNDEFINED SYMBOLS
+openrandom_get16b
+openudp_register
+openserial_printError
+openqueue_freePacketBuffer
+memcpy
+packetfunctions_tossHeader
+memcmp
+packetfunctions_reserveHeaderSize
+openudp_send

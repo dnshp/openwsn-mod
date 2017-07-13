@@ -1,0 +1,1620 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"sha256.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.align	2
+  19              		.global	SHA256Init
+  20              		.thumb
+  21              		.thumb_func
+  23              	SHA256Init:
+  24              	.LFB0:
+  25              		.file 1 "build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c"
+   1:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** /******************************************************************************
+   2:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** *  Filename:       sha256.c
+   3:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** *  Revised:        $Date: 2013-04-03 14:12:40 +0200 (Wed, 03 Apr 2013) $
+   4:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** *  Revision:       $Revision: 9611 $
+   5:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** *
+   6:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** *  Description:    Support for Hardware SHA 256
+   7:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** *
+   8:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** *  Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
+   9:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** *
+  10:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** *
+  11:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** *  Redistribution and use in source and binary forms, with or without
+  12:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** *  modification, are permitted provided that the following conditions
+  13:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** *  are met:
+  14:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** *
+  15:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** *    Redistributions of source code must retain the above copyright
+  16:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** *    notice, this list of conditions and the following disclaimer.
+  17:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** *
+  18:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** *    Redistributions in binary form must reproduce the above copyright
+  19:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** *    notice, this list of conditions and the following disclaimer in the
+  20:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** *    documentation and/or other materials provided with the distribution.
+  21:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** *
+  22:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** *    Neither the name of Texas Instruments Incorporated nor the names of
+  23:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** *    its contributors may be used to endorse or promote products derived
+  24:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** *    from this software without specific prior written permission.
+  25:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** *
+  26:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  27:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  28:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  29:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** *  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  30:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** *  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  31:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** *  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  32:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** *  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  33:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** *  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+  34:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** *  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  35:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** *  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  36:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** *  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  37:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** *
+  38:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** ******************************************************************************/
+  39:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** 
+  40:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //*****************************************************************************
+  41:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //
+  42:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //! \addtogroup sha256_api
+  43:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //! @{
+  44:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //
+  45:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //*****************************************************************************
+  46:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** 
+  47:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** #include "aes.h"
+  48:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** #include "sha256.h"
+  49:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** #include <string.h>
+  50:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** 
+  51:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** static uint8_t SHA256HashResume(tSHA256State * psMd, uint8_t *ui8In, uint8_t *ui8Out);
+  52:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** static uint8_t SHA256HashNew(tSHA256State * psMd, uint8_t *ui8In, uint8_t *ui8Out);
+  53:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** 
+  54:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //*****************************************************************************
+  55:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //
+  56:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //! SHA256init initializes the hash state.
+  57:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //!
+  58:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //! \param psMd is the pointer to hash state you wish to initialize.
+  59:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //!
+  60:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //! For the pointer to hash state parameter \e psMd the calling function has to
+  61:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //! allocate the hash state structure and pass the pointer to the structure.
+  62:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //!
+  63:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //! \return  SHA256_SUCCESS if successful.
+  64:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //
+  65:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //*****************************************************************************
+  66:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** uint8_t SHA256Init(tSHA256State * psMd)
+  67:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** {
+  26              		.loc 1 67 0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 8
+  29              		@ frame_needed = 1, uses_anonymous_args = 0
+  30              		@ link register save eliminated.
+  31 0000 80B4     		push	{r7}
+  32              		.cfi_def_cfa_offset 4
+  33              		.cfi_offset 7, -4
+  34 0002 83B0     		sub	sp, sp, #12
+  35              		.cfi_def_cfa_offset 16
+  36 0004 00AF     		add	r7, sp, #0
+  37              		.cfi_def_cfa_register 7
+  38 0006 7860     		str	r0, [r7, #4]
+  68:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     if(psMd == NULL)
+  39              		.loc 1 68 0
+  40 0008 7B68     		ldr	r3, [r7, #4]
+  41 000a 002B     		cmp	r3, #0
+  42 000c 01D1     		bne	.L2
+  69:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     {
+  70:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****         return (SHA256_NULL_ERROR);
+  43              		.loc 1 70 0
+  44 000e 0923     		movs	r3, #9
+  45 0010 12E0     		b	.L3
+  46              	.L2:
+  71:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     }
+  72:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** 
+  73:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     psMd->curlen = 0;
+  47              		.loc 1 73 0
+  48 0012 7B68     		ldr	r3, [r7, #4]
+  49 0014 0022     		movs	r2, #0
+  50 0016 9A62     		str	r2, [r3, #40]
+  74:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     psMd->length = 0;
+  51              		.loc 1 74 0
+  52 0018 7968     		ldr	r1, [r7, #4]
+  53 001a 4FF00002 		mov	r2, #0
+  54 001e 4FF00003 		mov	r3, #0
+  55 0022 C1E90023 		strd	r2, [r1]
+  75:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     psMd->new_digest = true;
+  56              		.loc 1 75 0
+  57 0026 7B68     		ldr	r3, [r7, #4]
+  58 0028 0122     		movs	r2, #1
+  59 002a 83F86C20 		strb	r2, [r3, #108]
+  76:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     psMd->final_digest = false;
+  60              		.loc 1 76 0
+  61 002e 7B68     		ldr	r3, [r7, #4]
+  62 0030 0022     		movs	r2, #0
+  63 0032 83F86D20 		strb	r2, [r3, #109]
+  77:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     return (SHA256_SUCCESS);
+  64              		.loc 1 77 0
+  65 0036 0023     		movs	r3, #0
+  66              	.L3:
+  78:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** }
+  67              		.loc 1 78 0
+  68 0038 1846     		mov	r0, r3
+  69 003a 0C37     		adds	r7, r7, #12
+  70 003c BD46     		mov	sp, r7
+  71              		@ sp needed
+  72 003e 5DF8047B 		ldr	r7, [sp], #4
+  73 0042 7047     		bx	lr
+  74              		.cfi_endproc
+  75              	.LFE0:
+  77              		.align	2
+  78              		.global	SHA256Process
+  79              		.thumb
+  80              		.thumb_func
+  82              	SHA256Process:
+  83              	.LFB1:
+  79:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** 
+  80:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //*****************************************************************************
+  81:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //
+  82:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //! SHA256Process processes a block of memory through the hash. This
+  83:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //! function must be called only after SHA256init().
+  84:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //!
+  85:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //! \param   psMd is the pointer to hash state.
+  86:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //! \param   ui8In is the pointer to the data to hash.
+  87:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //! \param   ui32InLen is the length of the data to hash ui8In bytes (octets).
+  88:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //!
+  89:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //! For the pointer to hash state parameter \e psMd the calling function must
+  90:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //! allocate the hash state structure and pass the pointer to the structure.
+  91:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //!
+  92:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //! \return  SHA256_SUCCESS if successful.
+  93:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //
+  94:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //*****************************************************************************
+  95:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** uint8_t SHA256Process(tSHA256State * psMd, uint8_t *ui8In, uint32_t ui32InLen)
+  96:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** {
+  84              		.loc 1 96 0
+  85              		.cfi_startproc
+  86              		@ args = 0, pretend = 0, frame = 32
+  87              		@ frame_needed = 1, uses_anonymous_args = 0
+  88 0044 80B5     		push	{r7, lr}
+  89              		.cfi_def_cfa_offset 8
+  90              		.cfi_offset 7, -8
+  91              		.cfi_offset 14, -4
+  92 0046 88B0     		sub	sp, sp, #32
+  93              		.cfi_def_cfa_offset 40
+  94 0048 00AF     		add	r7, sp, #0
+  95              		.cfi_def_cfa_register 7
+  96 004a F860     		str	r0, [r7, #12]
+  97 004c B960     		str	r1, [r7, #8]
+  98 004e 7A60     		str	r2, [r7, #4]
+  97:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     uint8_t  ui8Err;
+  98:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     uint32_t ui32N, ui32I;
+  99:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** 
+ 100:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     if(psMd == NULL)
+  99              		.loc 1 100 0
+ 100 0050 FB68     		ldr	r3, [r7, #12]
+ 101 0052 002B     		cmp	r3, #0
+ 102 0054 01D1     		bne	.L5
+ 101:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     {
+ 102:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****         return (SHA256_NULL_ERROR);
+ 103              		.loc 1 102 0
+ 104 0056 0923     		movs	r3, #9
+ 105 0058 6CE1     		b	.L6
+ 106              	.L5:
+ 103:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     }
+ 104:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     if(ui8In == NULL)
+ 107              		.loc 1 104 0
+ 108 005a BB68     		ldr	r3, [r7, #8]
+ 109 005c 002B     		cmp	r3, #0
+ 110 005e 01D1     		bne	.L7
+ 105:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     {
+ 106:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****         return (SHA256_NULL_ERROR);
+ 111              		.loc 1 106 0
+ 112 0060 0923     		movs	r3, #9
+ 113 0062 67E1     		b	.L6
+ 114              	.L7:
+ 107:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     }
+ 108:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** 
+ 109:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     if(psMd->curlen > sizeof(psMd->buf))
+ 115              		.loc 1 109 0
+ 116 0064 FB68     		ldr	r3, [r7, #12]
+ 117 0066 9B6A     		ldr	r3, [r3, #40]
+ 118 0068 402B     		cmp	r3, #64
+ 119 006a 01D9     		bls	.L8
+ 110:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     {
+ 111:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****         return (SHA256_INVALID_PARAM);
+ 120              		.loc 1 111 0
+ 121 006c 0623     		movs	r3, #6
+ 122 006e 61E1     		b	.L6
+ 123              	.L8:
+ 112:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     }
+ 113:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** 
+ 114:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     g_ui8CurrentAESOp = AES_SHA256;
+ 124              		.loc 1 114 0
+ 125 0070 40F20003 		movw	r3, #:lower16:g_ui8CurrentAESOp
+ 126 0074 C0F20003 		movt	r3, #:upper16:g_ui8CurrentAESOp
+ 127 0078 0422     		movs	r2, #4
+ 128 007a 1A70     		strb	r2, [r3]
+ 115:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     if(ui32InLen > 0 && psMd->new_digest == true)
+ 129              		.loc 1 115 0
+ 130 007c 7B68     		ldr	r3, [r7, #4]
+ 131 007e 002B     		cmp	r3, #0
+ 132 0080 00F0AB80 		beq	.L9
+ 133              		.loc 1 115 0 is_stmt 0 discriminator 1
+ 134 0084 FB68     		ldr	r3, [r7, #12]
+ 135 0086 93F86C30 		ldrb	r3, [r3, #108]	@ zero_extendqisi2
+ 136 008a 012B     		cmp	r3, #1
+ 137 008c 40F0A580 		bne	.L9
+ 116:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     {
+ 117:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****         if(psMd->curlen == 0 && ui32InLen > SHA256_BLOCK_SIZE)
+ 138              		.loc 1 117 0 is_stmt 1
+ 139 0090 FB68     		ldr	r3, [r7, #12]
+ 140 0092 9B6A     		ldr	r3, [r3, #40]
+ 141 0094 002B     		cmp	r3, #0
+ 142 0096 43D1     		bne	.L10
+ 143              		.loc 1 117 0 is_stmt 0 discriminator 1
+ 144 0098 7B68     		ldr	r3, [r7, #4]
+ 145 009a 402B     		cmp	r3, #64
+ 146 009c 40D9     		bls	.L10
+ 118:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****         {
+ 119:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             for(ui32I = 0; ui32I < SHA256_BLOCK_SIZE; ui32I++)
+ 147              		.loc 1 119 0 is_stmt 1
+ 148 009e 0023     		movs	r3, #0
+ 149 00a0 FB61     		str	r3, [r7, #28]
+ 150 00a2 0EE0     		b	.L11
+ 151              	.L12:
+ 120:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             {
+ 121:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****                 psMd->buf[psMd->curlen + ui32I] = ui8In[ui32I];
+ 152              		.loc 1 121 0 discriminator 2
+ 153 00a4 FB68     		ldr	r3, [r7, #12]
+ 154 00a6 9A6A     		ldr	r2, [r3, #40]
+ 155 00a8 FB69     		ldr	r3, [r7, #28]
+ 156 00aa 1344     		add	r3, r3, r2
+ 157 00ac B968     		ldr	r1, [r7, #8]
+ 158 00ae FA69     		ldr	r2, [r7, #28]
+ 159 00b0 0A44     		add	r2, r2, r1
+ 160 00b2 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+ 161 00b4 F968     		ldr	r1, [r7, #12]
+ 162 00b6 0B44     		add	r3, r3, r1
+ 163 00b8 83F82C20 		strb	r2, [r3, #44]
+ 119:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             {
+ 164              		.loc 1 119 0 discriminator 2
+ 165 00bc FB69     		ldr	r3, [r7, #28]
+ 166 00be 0133     		adds	r3, r3, #1
+ 167 00c0 FB61     		str	r3, [r7, #28]
+ 168              	.L11:
+ 119:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             {
+ 169              		.loc 1 119 0 is_stmt 0 discriminator 1
+ 170 00c2 FB69     		ldr	r3, [r7, #28]
+ 171 00c4 3F2B     		cmp	r3, #63
+ 172 00c6 EDD9     		bls	.L12
+ 122:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             }
+ 123:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             if((ui8Err = SHA256HashNew(psMd, (uint8_t *)psMd->buf,
+ 173              		.loc 1 123 0 is_stmt 1
+ 174 00c8 FB68     		ldr	r3, [r7, #12]
+ 175 00ca 03F12C02 		add	r2, r3, #44
+ 124:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****                                        (uint8_t *)psMd->state)) != SHA256_SUCCESS)
+ 176              		.loc 1 124 0
+ 177 00ce FB68     		ldr	r3, [r7, #12]
+ 178 00d0 0833     		adds	r3, r3, #8
+ 123:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****                                        (uint8_t *)psMd->state)) != SHA256_SUCCESS)
+ 179              		.loc 1 123 0
+ 180 00d2 F868     		ldr	r0, [r7, #12]
+ 181 00d4 1146     		mov	r1, r2
+ 182 00d6 1A46     		mov	r2, r3
+ 183 00d8 00F09CF9 		bl	SHA256HashNew
+ 184 00dc 0346     		mov	r3, r0
+ 185 00de FB76     		strb	r3, [r7, #27]
+ 186 00e0 FB7E     		ldrb	r3, [r7, #27]	@ zero_extendqisi2
+ 187 00e2 002B     		cmp	r3, #0
+ 188 00e4 07D0     		beq	.L13
+ 125:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             {
+ 126:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****                 g_ui8CurrentAESOp = AES_NONE;
+ 189              		.loc 1 126 0
+ 190 00e6 40F20003 		movw	r3, #:lower16:g_ui8CurrentAESOp
+ 191 00ea C0F20003 		movt	r3, #:upper16:g_ui8CurrentAESOp
+ 192 00ee 0022     		movs	r2, #0
+ 193 00f0 1A70     		strb	r2, [r3]
+ 127:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****                 return (ui8Err);
+ 194              		.loc 1 127 0
+ 195 00f2 FB7E     		ldrb	r3, [r7, #27]	@ zero_extendqisi2
+ 196 00f4 1EE1     		b	.L6
+ 197              	.L13:
+ 128:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             }
+ 129:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             psMd->new_digest = false;
+ 198              		.loc 1 129 0
+ 199 00f6 FB68     		ldr	r3, [r7, #12]
+ 200 00f8 0022     		movs	r2, #0
+ 201 00fa 83F86C20 		strb	r2, [r3, #108]
+ 130:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             psMd->length += SHA256_BLOCK_SIZE * 8;
+ 202              		.loc 1 130 0
+ 203 00fe FB68     		ldr	r3, [r7, #12]
+ 204 0100 D3E90023 		ldrd	r2, [r3]
+ 205 0104 12F50072 		adds	r2, r2, #512
+ 206 0108 43F10003 		adc	r3, r3, #0
+ 207 010c F968     		ldr	r1, [r7, #12]
+ 208 010e C1E90023 		strd	r2, [r1]
+ 131:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             ui32InLen -= SHA256_BLOCK_SIZE;
+ 209              		.loc 1 131 0
+ 210 0112 7B68     		ldr	r3, [r7, #4]
+ 211 0114 403B     		subs	r3, r3, #64
+ 212 0116 7B60     		str	r3, [r7, #4]
+ 132:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             ui8In += SHA256_BLOCK_SIZE;
+ 213              		.loc 1 132 0
+ 214 0118 BB68     		ldr	r3, [r7, #8]
+ 215 011a 4033     		adds	r3, r3, #64
+ 216 011c BB60     		str	r3, [r7, #8]
+ 217 011e 5CE0     		b	.L9
+ 218              	.L10:
+ 133:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** 
+ 134:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****         }
+ 135:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****         else
+ 136:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****         {
+ 137:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             ui32N = MIN(ui32InLen, (SHA256_BLOCK_SIZE - psMd->curlen));
+ 219              		.loc 1 137 0
+ 220 0120 FB68     		ldr	r3, [r7, #12]
+ 221 0122 9B6A     		ldr	r3, [r3, #40]
+ 222 0124 C3F14002 		rsb	r2, r3, #64
+ 223 0128 7B68     		ldr	r3, [r7, #4]
+ 224 012a 9A42     		cmp	r2, r3
+ 225 012c 38BF     		it	cc
+ 226 012e 1346     		movcc	r3, r2
+ 227 0130 7B61     		str	r3, [r7, #20]
+ 138:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             for(ui32I = 0; ui32I < ui32N; ui32I++)
+ 228              		.loc 1 138 0
+ 229 0132 0023     		movs	r3, #0
+ 230 0134 FB61     		str	r3, [r7, #28]
+ 231 0136 0EE0     		b	.L14
+ 232              	.L15:
+ 139:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             {
+ 140:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****                 psMd->buf[psMd->curlen + ui32I] = ui8In[ui32I];
+ 233              		.loc 1 140 0 discriminator 2
+ 234 0138 FB68     		ldr	r3, [r7, #12]
+ 235 013a 9A6A     		ldr	r2, [r3, #40]
+ 236 013c FB69     		ldr	r3, [r7, #28]
+ 237 013e 1344     		add	r3, r3, r2
+ 238 0140 B968     		ldr	r1, [r7, #8]
+ 239 0142 FA69     		ldr	r2, [r7, #28]
+ 240 0144 0A44     		add	r2, r2, r1
+ 241 0146 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+ 242 0148 F968     		ldr	r1, [r7, #12]
+ 243 014a 0B44     		add	r3, r3, r1
+ 244 014c 83F82C20 		strb	r2, [r3, #44]
+ 138:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             for(ui32I = 0; ui32I < ui32N; ui32I++)
+ 245              		.loc 1 138 0 discriminator 2
+ 246 0150 FB69     		ldr	r3, [r7, #28]
+ 247 0152 0133     		adds	r3, r3, #1
+ 248 0154 FB61     		str	r3, [r7, #28]
+ 249              	.L14:
+ 138:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             for(ui32I = 0; ui32I < ui32N; ui32I++)
+ 250              		.loc 1 138 0 is_stmt 0 discriminator 1
+ 251 0156 FA69     		ldr	r2, [r7, #28]
+ 252 0158 7B69     		ldr	r3, [r7, #20]
+ 253 015a 9A42     		cmp	r2, r3
+ 254 015c ECD3     		bcc	.L15
+ 141:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             }
+ 142:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             psMd->curlen += ui32N;
+ 255              		.loc 1 142 0 is_stmt 1
+ 256 015e FB68     		ldr	r3, [r7, #12]
+ 257 0160 9A6A     		ldr	r2, [r3, #40]
+ 258 0162 7B69     		ldr	r3, [r7, #20]
+ 259 0164 1A44     		add	r2, r2, r3
+ 260 0166 FB68     		ldr	r3, [r7, #12]
+ 261 0168 9A62     		str	r2, [r3, #40]
+ 143:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             ui8In          += ui32N;
+ 262              		.loc 1 143 0
+ 263 016a BA68     		ldr	r2, [r7, #8]
+ 264 016c 7B69     		ldr	r3, [r7, #20]
+ 265 016e 1344     		add	r3, r3, r2
+ 266 0170 BB60     		str	r3, [r7, #8]
+ 144:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             ui32InLen       -= ui32N;
+ 267              		.loc 1 144 0
+ 268 0172 7A68     		ldr	r2, [r7, #4]
+ 269 0174 7B69     		ldr	r3, [r7, #20]
+ 270 0176 D31A     		subs	r3, r2, r3
+ 271 0178 7B60     		str	r3, [r7, #4]
+ 145:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             if(psMd->curlen == SHA256_BLOCK_SIZE && ui32InLen > 0)
+ 272              		.loc 1 145 0
+ 273 017a FB68     		ldr	r3, [r7, #12]
+ 274 017c 9B6A     		ldr	r3, [r3, #40]
+ 275 017e 402B     		cmp	r3, #64
+ 276 0180 2BD1     		bne	.L9
+ 277              		.loc 1 145 0 is_stmt 0 discriminator 1
+ 278 0182 7B68     		ldr	r3, [r7, #4]
+ 279 0184 002B     		cmp	r3, #0
+ 280 0186 28D0     		beq	.L9
+ 146:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             {
+ 147:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****                 if((ui8Err = SHA256HashNew(psMd, (uint8_t *)psMd->buf,
+ 281              		.loc 1 147 0 is_stmt 1
+ 282 0188 FB68     		ldr	r3, [r7, #12]
+ 283 018a 03F12C02 		add	r2, r3, #44
+ 148:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****                                            (uint8_t *)psMd->state)) != SHA256_SUCCESS)
+ 284              		.loc 1 148 0
+ 285 018e FB68     		ldr	r3, [r7, #12]
+ 286 0190 0833     		adds	r3, r3, #8
+ 147:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****                                            (uint8_t *)psMd->state)) != SHA256_SUCCESS)
+ 287              		.loc 1 147 0
+ 288 0192 F868     		ldr	r0, [r7, #12]
+ 289 0194 1146     		mov	r1, r2
+ 290 0196 1A46     		mov	r2, r3
+ 291 0198 00F03CF9 		bl	SHA256HashNew
+ 292 019c 0346     		mov	r3, r0
+ 293 019e FB76     		strb	r3, [r7, #27]
+ 294 01a0 FB7E     		ldrb	r3, [r7, #27]	@ zero_extendqisi2
+ 295 01a2 002B     		cmp	r3, #0
+ 296 01a4 07D0     		beq	.L16
+ 149:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****                 {
+ 150:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****                     g_ui8CurrentAESOp = AES_NONE;
+ 297              		.loc 1 150 0
+ 298 01a6 40F20003 		movw	r3, #:lower16:g_ui8CurrentAESOp
+ 299 01aa C0F20003 		movt	r3, #:upper16:g_ui8CurrentAESOp
+ 300 01ae 0022     		movs	r2, #0
+ 301 01b0 1A70     		strb	r2, [r3]
+ 151:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****                     return (ui8Err);
+ 302              		.loc 1 151 0
+ 303 01b2 FB7E     		ldrb	r3, [r7, #27]	@ zero_extendqisi2
+ 304 01b4 BEE0     		b	.L6
+ 305              	.L16:
+ 152:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****                 }
+ 153:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****                 psMd->new_digest = false;
+ 306              		.loc 1 153 0
+ 307 01b6 FB68     		ldr	r3, [r7, #12]
+ 308 01b8 0022     		movs	r2, #0
+ 309 01ba 83F86C20 		strb	r2, [r3, #108]
+ 154:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****                 psMd->length += 8 * SHA256_BLOCK_SIZE;
+ 310              		.loc 1 154 0
+ 311 01be FB68     		ldr	r3, [r7, #12]
+ 312 01c0 D3E90023 		ldrd	r2, [r3]
+ 313 01c4 12F50072 		adds	r2, r2, #512
+ 314 01c8 43F10003 		adc	r3, r3, #0
+ 315 01cc F968     		ldr	r1, [r7, #12]
+ 316 01ce C1E90023 		strd	r2, [r1]
+ 155:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****                 psMd->curlen = 0;
+ 317              		.loc 1 155 0
+ 318 01d2 FB68     		ldr	r3, [r7, #12]
+ 319 01d4 0022     		movs	r2, #0
+ 320 01d6 9A62     		str	r2, [r3, #40]
+ 156:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             }
+ 157:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****         }
+ 158:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     }
+ 159:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** 
+ 160:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     while(ui32InLen > 0 && psMd->new_digest == false)
+ 321              		.loc 1 160 0
+ 322 01d8 9CE0     		b	.L17
+ 323              	.L9:
+ 324 01da 9BE0     		b	.L17
+ 325              	.L26:
+ 161:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     {
+ 162:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****         if(psMd->curlen == 0 && ui32InLen > SHA256_BLOCK_SIZE)
+ 326              		.loc 1 162 0
+ 327 01dc FB68     		ldr	r3, [r7, #12]
+ 328 01de 9B6A     		ldr	r3, [r3, #40]
+ 329 01e0 002B     		cmp	r3, #0
+ 330 01e2 3FD1     		bne	.L18
+ 331              		.loc 1 162 0 is_stmt 0 discriminator 1
+ 332 01e4 7B68     		ldr	r3, [r7, #4]
+ 333 01e6 402B     		cmp	r3, #64
+ 334 01e8 3CD9     		bls	.L18
+ 163:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****         {
+ 164:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             for(ui32I = 0; ui32I < SHA256_BLOCK_SIZE; ui32I++)
+ 335              		.loc 1 164 0 is_stmt 1
+ 336 01ea 0023     		movs	r3, #0
+ 337 01ec FB61     		str	r3, [r7, #28]
+ 338 01ee 0EE0     		b	.L19
+ 339              	.L20:
+ 165:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             {
+ 166:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****                 psMd->buf[psMd->curlen + ui32I] = ui8In[ui32I];
+ 340              		.loc 1 166 0 discriminator 2
+ 341 01f0 FB68     		ldr	r3, [r7, #12]
+ 342 01f2 9A6A     		ldr	r2, [r3, #40]
+ 343 01f4 FB69     		ldr	r3, [r7, #28]
+ 344 01f6 1344     		add	r3, r3, r2
+ 345 01f8 B968     		ldr	r1, [r7, #8]
+ 346 01fa FA69     		ldr	r2, [r7, #28]
+ 347 01fc 0A44     		add	r2, r2, r1
+ 348 01fe 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+ 349 0200 F968     		ldr	r1, [r7, #12]
+ 350 0202 0B44     		add	r3, r3, r1
+ 351 0204 83F82C20 		strb	r2, [r3, #44]
+ 164:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             {
+ 352              		.loc 1 164 0 discriminator 2
+ 353 0208 FB69     		ldr	r3, [r7, #28]
+ 354 020a 0133     		adds	r3, r3, #1
+ 355 020c FB61     		str	r3, [r7, #28]
+ 356              	.L19:
+ 164:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             {
+ 357              		.loc 1 164 0 is_stmt 0 discriminator 1
+ 358 020e FB69     		ldr	r3, [r7, #28]
+ 359 0210 3F2B     		cmp	r3, #63
+ 360 0212 EDD9     		bls	.L20
+ 167:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             }
+ 168:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             if((ui8Err = SHA256HashResume(psMd, (uint8_t *)psMd->buf,
+ 361              		.loc 1 168 0 is_stmt 1
+ 362 0214 FB68     		ldr	r3, [r7, #12]
+ 363 0216 03F12C02 		add	r2, r3, #44
+ 169:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****                                           (uint8_t *)psMd->state)) != SHA256_SUCCESS)
+ 364              		.loc 1 169 0
+ 365 021a FB68     		ldr	r3, [r7, #12]
+ 366 021c 0833     		adds	r3, r3, #8
+ 168:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****                                           (uint8_t *)psMd->state)) != SHA256_SUCCESS)
+ 367              		.loc 1 168 0
+ 368 021e F868     		ldr	r0, [r7, #12]
+ 369 0220 1146     		mov	r1, r2
+ 370 0222 1A46     		mov	r2, r3
+ 371 0224 00F0A8F9 		bl	SHA256HashResume
+ 372 0228 0346     		mov	r3, r0
+ 373 022a FB76     		strb	r3, [r7, #27]
+ 374 022c FB7E     		ldrb	r3, [r7, #27]	@ zero_extendqisi2
+ 375 022e 002B     		cmp	r3, #0
+ 376 0230 07D0     		beq	.L21
+ 170:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             {
+ 171:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****                 g_ui8CurrentAESOp = AES_NONE;
+ 377              		.loc 1 171 0
+ 378 0232 40F20003 		movw	r3, #:lower16:g_ui8CurrentAESOp
+ 379 0236 C0F20003 		movt	r3, #:upper16:g_ui8CurrentAESOp
+ 380 023a 0022     		movs	r2, #0
+ 381 023c 1A70     		strb	r2, [r3]
+ 172:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****                 return (ui8Err);
+ 382              		.loc 1 172 0
+ 383 023e FB7E     		ldrb	r3, [r7, #27]	@ zero_extendqisi2
+ 384 0240 78E0     		b	.L6
+ 385              	.L21:
+ 173:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             }
+ 174:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             psMd->length += SHA256_BLOCK_SIZE * 8;
+ 386              		.loc 1 174 0
+ 387 0242 FB68     		ldr	r3, [r7, #12]
+ 388 0244 D3E90023 		ldrd	r2, [r3]
+ 389 0248 12F50072 		adds	r2, r2, #512
+ 390 024c 43F10003 		adc	r3, r3, #0
+ 391 0250 F968     		ldr	r1, [r7, #12]
+ 392 0252 C1E90023 		strd	r2, [r1]
+ 175:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             ui8In += SHA256_BLOCK_SIZE;
+ 393              		.loc 1 175 0
+ 394 0256 BB68     		ldr	r3, [r7, #8]
+ 395 0258 4033     		adds	r3, r3, #64
+ 396 025a BB60     		str	r3, [r7, #8]
+ 176:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             ui32InLen -= SHA256_BLOCK_SIZE;
+ 397              		.loc 1 176 0
+ 398 025c 7B68     		ldr	r3, [r7, #4]
+ 399 025e 403B     		subs	r3, r3, #64
+ 400 0260 7B60     		str	r3, [r7, #4]
+ 401 0262 57E0     		b	.L17
+ 402              	.L18:
+ 177:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****         }
+ 178:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****         else
+ 179:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****         {
+ 180:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             ui32N = MIN(ui32InLen, (SHA256_BLOCK_SIZE - psMd->curlen));
+ 403              		.loc 1 180 0
+ 404 0264 FB68     		ldr	r3, [r7, #12]
+ 405 0266 9B6A     		ldr	r3, [r3, #40]
+ 406 0268 C3F14002 		rsb	r2, r3, #64
+ 407 026c 7B68     		ldr	r3, [r7, #4]
+ 408 026e 9A42     		cmp	r2, r3
+ 409 0270 38BF     		it	cc
+ 410 0272 1346     		movcc	r3, r2
+ 411 0274 7B61     		str	r3, [r7, #20]
+ 181:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             for(ui32I = 0; ui32I < ui32N; ui32I++)
+ 412              		.loc 1 181 0
+ 413 0276 0023     		movs	r3, #0
+ 414 0278 FB61     		str	r3, [r7, #28]
+ 415 027a 0EE0     		b	.L22
+ 416              	.L23:
+ 182:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             {
+ 183:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****                 psMd->buf[psMd->curlen + ui32I] = ui8In[ui32I];
+ 417              		.loc 1 183 0 discriminator 2
+ 418 027c FB68     		ldr	r3, [r7, #12]
+ 419 027e 9A6A     		ldr	r2, [r3, #40]
+ 420 0280 FB69     		ldr	r3, [r7, #28]
+ 421 0282 1344     		add	r3, r3, r2
+ 422 0284 B968     		ldr	r1, [r7, #8]
+ 423 0286 FA69     		ldr	r2, [r7, #28]
+ 424 0288 0A44     		add	r2, r2, r1
+ 425 028a 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+ 426 028c F968     		ldr	r1, [r7, #12]
+ 427 028e 0B44     		add	r3, r3, r1
+ 428 0290 83F82C20 		strb	r2, [r3, #44]
+ 181:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             for(ui32I = 0; ui32I < ui32N; ui32I++)
+ 429              		.loc 1 181 0 discriminator 2
+ 430 0294 FB69     		ldr	r3, [r7, #28]
+ 431 0296 0133     		adds	r3, r3, #1
+ 432 0298 FB61     		str	r3, [r7, #28]
+ 433              	.L22:
+ 181:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             for(ui32I = 0; ui32I < ui32N; ui32I++)
+ 434              		.loc 1 181 0 is_stmt 0 discriminator 1
+ 435 029a FA69     		ldr	r2, [r7, #28]
+ 436 029c 7B69     		ldr	r3, [r7, #20]
+ 437 029e 9A42     		cmp	r2, r3
+ 438 02a0 ECD3     		bcc	.L23
+ 184:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             }
+ 185:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             psMd->curlen += ui32N;
+ 439              		.loc 1 185 0 is_stmt 1
+ 440 02a2 FB68     		ldr	r3, [r7, #12]
+ 441 02a4 9A6A     		ldr	r2, [r3, #40]
+ 442 02a6 7B69     		ldr	r3, [r7, #20]
+ 443 02a8 1A44     		add	r2, r2, r3
+ 444 02aa FB68     		ldr	r3, [r7, #12]
+ 445 02ac 9A62     		str	r2, [r3, #40]
+ 186:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             ui8In  += ui32N;
+ 446              		.loc 1 186 0
+ 447 02ae BA68     		ldr	r2, [r7, #8]
+ 448 02b0 7B69     		ldr	r3, [r7, #20]
+ 449 02b2 1344     		add	r3, r3, r2
+ 450 02b4 BB60     		str	r3, [r7, #8]
+ 187:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             ui32InLen  -= ui32N;
+ 451              		.loc 1 187 0
+ 452 02b6 7A68     		ldr	r2, [r7, #4]
+ 453 02b8 7B69     		ldr	r3, [r7, #20]
+ 454 02ba D31A     		subs	r3, r2, r3
+ 455 02bc 7B60     		str	r3, [r7, #4]
+ 188:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             if(psMd->curlen == SHA256_BLOCK_SIZE && ui32InLen > 0)
+ 456              		.loc 1 188 0
+ 457 02be FB68     		ldr	r3, [r7, #12]
+ 458 02c0 9B6A     		ldr	r3, [r3, #40]
+ 459 02c2 402B     		cmp	r3, #64
+ 460 02c4 26D1     		bne	.L17
+ 461              		.loc 1 188 0 is_stmt 0 discriminator 1
+ 462 02c6 7B68     		ldr	r3, [r7, #4]
+ 463 02c8 002B     		cmp	r3, #0
+ 464 02ca 23D0     		beq	.L17
+ 189:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             {
+ 190:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****                 if((ui8Err = SHA256HashResume(psMd, (uint8_t *) psMd->buf,
+ 465              		.loc 1 190 0 is_stmt 1
+ 466 02cc FB68     		ldr	r3, [r7, #12]
+ 467 02ce 03F12C02 		add	r2, r3, #44
+ 191:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****                                               (uint8_t *)psMd->state)) != SHA256_SUCCESS)
+ 468              		.loc 1 191 0
+ 469 02d2 FB68     		ldr	r3, [r7, #12]
+ 470 02d4 0833     		adds	r3, r3, #8
+ 190:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****                                               (uint8_t *)psMd->state)) != SHA256_SUCCESS)
+ 471              		.loc 1 190 0
+ 472 02d6 F868     		ldr	r0, [r7, #12]
+ 473 02d8 1146     		mov	r1, r2
+ 474 02da 1A46     		mov	r2, r3
+ 475 02dc 00F04CF9 		bl	SHA256HashResume
+ 476 02e0 0346     		mov	r3, r0
+ 477 02e2 FB76     		strb	r3, [r7, #27]
+ 478 02e4 FB7E     		ldrb	r3, [r7, #27]	@ zero_extendqisi2
+ 479 02e6 002B     		cmp	r3, #0
+ 480 02e8 07D0     		beq	.L24
+ 192:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****                 {
+ 193:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****                     g_ui8CurrentAESOp = AES_NONE;
+ 481              		.loc 1 193 0
+ 482 02ea 40F20003 		movw	r3, #:lower16:g_ui8CurrentAESOp
+ 483 02ee C0F20003 		movt	r3, #:upper16:g_ui8CurrentAESOp
+ 484 02f2 0022     		movs	r2, #0
+ 485 02f4 1A70     		strb	r2, [r3]
+ 194:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****                     return (ui8Err);
+ 486              		.loc 1 194 0
+ 487 02f6 FB7E     		ldrb	r3, [r7, #27]	@ zero_extendqisi2
+ 488 02f8 1CE0     		b	.L6
+ 489              	.L24:
+ 195:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****                 }
+ 196:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****                 psMd->length += 8 * SHA256_BLOCK_SIZE;
+ 490              		.loc 1 196 0
+ 491 02fa FB68     		ldr	r3, [r7, #12]
+ 492 02fc D3E90023 		ldrd	r2, [r3]
+ 493 0300 12F50072 		adds	r2, r2, #512
+ 494 0304 43F10003 		adc	r3, r3, #0
+ 495 0308 F968     		ldr	r1, [r7, #12]
+ 496 030a C1E90023 		strd	r2, [r1]
+ 197:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****                 psMd->curlen = 0;
+ 497              		.loc 1 197 0
+ 498 030e FB68     		ldr	r3, [r7, #12]
+ 499 0310 0022     		movs	r2, #0
+ 500 0312 9A62     		str	r2, [r3, #40]
+ 501              	.L17:
+ 160:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     {
+ 502              		.loc 1 160 0 discriminator 1
+ 503 0314 7B68     		ldr	r3, [r7, #4]
+ 504 0316 002B     		cmp	r3, #0
+ 505 0318 05D0     		beq	.L25
+ 160:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     {
+ 506              		.loc 1 160 0 is_stmt 0 discriminator 2
+ 507 031a FB68     		ldr	r3, [r7, #12]
+ 508 031c 93F86C30 		ldrb	r3, [r3, #108]	@ zero_extendqisi2
+ 509 0320 002B     		cmp	r3, #0
+ 510 0322 3FF45BAF 		beq	.L26
+ 511              	.L25:
+ 198:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             }
+ 199:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****         }
+ 200:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     }
+ 201:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     g_ui8CurrentAESOp = AES_NONE;
+ 512              		.loc 1 201 0 is_stmt 1
+ 513 0326 40F20003 		movw	r3, #:lower16:g_ui8CurrentAESOp
+ 514 032a C0F20003 		movt	r3, #:upper16:g_ui8CurrentAESOp
+ 515 032e 0022     		movs	r2, #0
+ 516 0330 1A70     		strb	r2, [r3]
+ 202:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     return (SHA256_SUCCESS);
+ 517              		.loc 1 202 0
+ 518 0332 0023     		movs	r3, #0
+ 519              	.L6:
+ 203:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** }
+ 520              		.loc 1 203 0
+ 521 0334 1846     		mov	r0, r3
+ 522 0336 2037     		adds	r7, r7, #32
+ 523 0338 BD46     		mov	sp, r7
+ 524              		@ sp needed
+ 525 033a 80BD     		pop	{r7, pc}
+ 526              		.cfi_endproc
+ 527              	.LFE1:
+ 529              		.align	2
+ 530              		.global	SHA256Done
+ 531              		.thumb
+ 532              		.thumb_func
+ 534              	SHA256Done:
+ 535              	.LFB2:
+ 204:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** 
+ 205:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //*****************************************************************************
+ 206:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //
+ 207:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //! SHA256Done function terminates hash session to get the digest. This
+ 208:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //! function must be called only after SHA256Process().
+ 209:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //!
+ 210:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //! \param   psMd is the pointer to hash state.
+ 211:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //! \param   ui8Out is the pointer to hash.
+ 212:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //!
+ 213:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //! For the pointer to hash state parameter \e psMd the calling function has to
+ 214:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //! allocate the hash state structure and pass the pointer to the structure.
+ 215:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //!
+ 216:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //! \return  SHA256_SUCCESS if successful.
+ 217:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //
+ 218:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //*****************************************************************************
+ 219:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** uint8_t SHA256Done(tSHA256State * psMd, uint8_t *ui8Out)
+ 220:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** {
+ 536              		.loc 1 220 0
+ 537              		.cfi_startproc
+ 538              		@ args = 0, pretend = 0, frame = 16
+ 539              		@ frame_needed = 1, uses_anonymous_args = 0
+ 540 033c 80B5     		push	{r7, lr}
+ 541              		.cfi_def_cfa_offset 8
+ 542              		.cfi_offset 7, -8
+ 543              		.cfi_offset 14, -4
+ 544 033e 84B0     		sub	sp, sp, #16
+ 545              		.cfi_def_cfa_offset 24
+ 546 0340 00AF     		add	r7, sp, #0
+ 547              		.cfi_def_cfa_register 7
+ 548 0342 7860     		str	r0, [r7, #4]
+ 549 0344 3960     		str	r1, [r7]
+ 221:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     uint8_t ui8Err;
+ 222:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     if(psMd  == NULL || ui8Out == NULL)
+ 550              		.loc 1 222 0
+ 551 0346 7B68     		ldr	r3, [r7, #4]
+ 552 0348 002B     		cmp	r3, #0
+ 553 034a 02D0     		beq	.L28
+ 554              		.loc 1 222 0 is_stmt 0 discriminator 1
+ 555 034c 3B68     		ldr	r3, [r7]
+ 556 034e 002B     		cmp	r3, #0
+ 557 0350 01D1     		bne	.L29
+ 558              	.L28:
+ 223:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     {
+ 224:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****         return (SHA256_NULL_ERROR);
+ 559              		.loc 1 224 0 is_stmt 1
+ 560 0352 0923     		movs	r3, #9
+ 561 0354 5AE0     		b	.L30
+ 562              	.L29:
+ 225:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     }
+ 226:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** 
+ 227:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     if(psMd->curlen > sizeof(psMd->buf))
+ 563              		.loc 1 227 0
+ 564 0356 7B68     		ldr	r3, [r7, #4]
+ 565 0358 9B6A     		ldr	r3, [r3, #40]
+ 566 035a 402B     		cmp	r3, #64
+ 567 035c 01D9     		bls	.L31
+ 228:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     {
+ 229:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****         return (SHA256_INVALID_PARAM);
+ 568              		.loc 1 229 0
+ 569 035e 0623     		movs	r3, #6
+ 570 0360 54E0     		b	.L30
+ 571              	.L31:
+ 230:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     }
+ 231:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** 
+ 232:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     g_ui8CurrentAESOp = AES_SHA256;
+ 572              		.loc 1 232 0
+ 573 0362 40F20003 		movw	r3, #:lower16:g_ui8CurrentAESOp
+ 574 0366 C0F20003 		movt	r3, #:upper16:g_ui8CurrentAESOp
+ 575 036a 0422     		movs	r2, #4
+ 576 036c 1A70     		strb	r2, [r3]
+ 233:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** 
+ 234:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     // increase the length of the message
+ 235:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     psMd->length += psMd->curlen * 8;
+ 577              		.loc 1 235 0
+ 578 036e 7B68     		ldr	r3, [r7, #4]
+ 579 0370 D3E90001 		ldrd	r0, [r3]
+ 580 0374 7B68     		ldr	r3, [r7, #4]
+ 581 0376 9B6A     		ldr	r3, [r3, #40]
+ 582 0378 DB00     		lsls	r3, r3, #3
+ 583 037a 1A46     		mov	r2, r3
+ 584 037c 4FF00003 		mov	r3, #0
+ 585 0380 1218     		adds	r2, r2, r0
+ 586 0382 43EB0103 		adc	r3, r3, r1
+ 587 0386 7968     		ldr	r1, [r7, #4]
+ 588 0388 C1E90023 		strd	r2, [r1]
+ 236:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     psMd->final_digest = true;
+ 589              		.loc 1 236 0
+ 590 038c 7B68     		ldr	r3, [r7, #4]
+ 591 038e 0122     		movs	r2, #1
+ 592 0390 83F86D20 		strb	r2, [r3, #109]
+ 237:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     if(psMd->new_digest == true)
+ 593              		.loc 1 237 0
+ 594 0394 7B68     		ldr	r3, [r7, #4]
+ 595 0396 93F86C30 		ldrb	r3, [r3, #108]	@ zero_extendqisi2
+ 596 039a 012B     		cmp	r3, #1
+ 597 039c 13D1     		bne	.L32
+ 238:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     {
+ 239:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****         if((ui8Err = SHA256HashNew(psMd, (uint8_t *)psMd->buf,
+ 598              		.loc 1 239 0
+ 599 039e 7B68     		ldr	r3, [r7, #4]
+ 600 03a0 2C33     		adds	r3, r3, #44
+ 601 03a2 7868     		ldr	r0, [r7, #4]
+ 602 03a4 1946     		mov	r1, r3
+ 603 03a6 3A68     		ldr	r2, [r7]
+ 604 03a8 00F034F8 		bl	SHA256HashNew
+ 605 03ac 0346     		mov	r3, r0
+ 606 03ae FB73     		strb	r3, [r7, #15]
+ 607 03b0 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 608 03b2 002B     		cmp	r3, #0
+ 609 03b4 1BD0     		beq	.L33
+ 240:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****                                    (uint8_t *)ui8Out)) != SHA256_SUCCESS)
+ 241:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****         {
+ 242:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             g_ui8CurrentAESOp = AES_NONE;
+ 610              		.loc 1 242 0
+ 611 03b6 40F20003 		movw	r3, #:lower16:g_ui8CurrentAESOp
+ 612 03ba C0F20003 		movt	r3, #:upper16:g_ui8CurrentAESOp
+ 613 03be 0022     		movs	r2, #0
+ 614 03c0 1A70     		strb	r2, [r3]
+ 243:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             return (ui8Err);
+ 615              		.loc 1 243 0
+ 616 03c2 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 617 03c4 22E0     		b	.L30
+ 618              	.L32:
+ 244:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****         }
+ 245:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     }
+ 246:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     else
+ 247:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     {
+ 248:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****         if((ui8Err = SHA256HashResume(psMd, (uint8_t *)psMd->buf,
+ 619              		.loc 1 248 0
+ 620 03c6 7B68     		ldr	r3, [r7, #4]
+ 621 03c8 2C33     		adds	r3, r3, #44
+ 622 03ca 7868     		ldr	r0, [r7, #4]
+ 623 03cc 1946     		mov	r1, r3
+ 624 03ce 3A68     		ldr	r2, [r7]
+ 625 03d0 00F0D2F8 		bl	SHA256HashResume
+ 626 03d4 0346     		mov	r3, r0
+ 627 03d6 FB73     		strb	r3, [r7, #15]
+ 628 03d8 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 629 03da 002B     		cmp	r3, #0
+ 630 03dc 07D0     		beq	.L33
+ 249:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****                                       (uint8_t *)ui8Out)) != SHA256_SUCCESS)
+ 250:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****         {
+ 251:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             g_ui8CurrentAESOp = AES_NONE;
+ 631              		.loc 1 251 0
+ 632 03de 40F20003 		movw	r3, #:lower16:g_ui8CurrentAESOp
+ 633 03e2 C0F20003 		movt	r3, #:upper16:g_ui8CurrentAESOp
+ 634 03e6 0022     		movs	r2, #0
+ 635 03e8 1A70     		strb	r2, [r3]
+ 252:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****             return (ui8Err);
+ 636              		.loc 1 252 0
+ 637 03ea FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 638 03ec 0EE0     		b	.L30
+ 639              	.L33:
+ 253:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****         }
+ 254:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     }
+ 255:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     psMd->new_digest = false;
+ 640              		.loc 1 255 0
+ 641 03ee 7B68     		ldr	r3, [r7, #4]
+ 642 03f0 0022     		movs	r2, #0
+ 643 03f2 83F86C20 		strb	r2, [r3, #108]
+ 256:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     psMd->final_digest = false;
+ 644              		.loc 1 256 0
+ 645 03f6 7B68     		ldr	r3, [r7, #4]
+ 646 03f8 0022     		movs	r2, #0
+ 647 03fa 83F86D20 		strb	r2, [r3, #109]
+ 257:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** 
+ 258:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     g_ui8CurrentAESOp = AES_NONE;
+ 648              		.loc 1 258 0
+ 649 03fe 40F20003 		movw	r3, #:lower16:g_ui8CurrentAESOp
+ 650 0402 C0F20003 		movt	r3, #:upper16:g_ui8CurrentAESOp
+ 651 0406 0022     		movs	r2, #0
+ 652 0408 1A70     		strb	r2, [r3]
+ 259:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     return (SHA256_SUCCESS);
+ 653              		.loc 1 259 0
+ 654 040a 0023     		movs	r3, #0
+ 655              	.L30:
+ 260:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** }
+ 656              		.loc 1 260 0
+ 657 040c 1846     		mov	r0, r3
+ 658 040e 1037     		adds	r7, r7, #16
+ 659 0410 BD46     		mov	sp, r7
+ 660              		@ sp needed
+ 661 0412 80BD     		pop	{r7, pc}
+ 662              		.cfi_endproc
+ 663              	.LFE2:
+ 665              		.align	2
+ 666              		.thumb
+ 667              		.thumb_func
+ 669              	SHA256HashNew:
+ 670              	.LFB3:
+ 261:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** 
+ 262:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //*****************************************************************************
+ 263:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //
+ 264:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //! SHA256HashNew function is to start a new Hash session in hardware.
+ 265:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //!
+ 266:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //! \param   psMd is the hash state.
+ 267:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //! \param   ui8In is the pointer to input message.
+ 268:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //! \param   ui8Out is the destination of the hash (32 bytes).
+ 269:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //!
+ 270:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //! \return  SHA256_SUCCESS if successful.
+ 271:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //
+ 272:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //*****************************************************************************
+ 273:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** uint8_t SHA256HashNew(tSHA256State * psMd, uint8_t *ui8In, uint8_t *ui8Out)
+ 274:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** {
+ 671              		.loc 1 274 0
+ 672              		.cfi_startproc
+ 673              		@ args = 0, pretend = 0, frame = 16
+ 674              		@ frame_needed = 1, uses_anonymous_args = 0
+ 675 0414 B0B5     		push	{r4, r5, r7, lr}
+ 676              		.cfi_def_cfa_offset 16
+ 677              		.cfi_offset 4, -16
+ 678              		.cfi_offset 5, -12
+ 679              		.cfi_offset 7, -8
+ 680              		.cfi_offset 14, -4
+ 681 0416 84B0     		sub	sp, sp, #16
+ 682              		.cfi_def_cfa_offset 32
+ 683 0418 00AF     		add	r7, sp, #0
+ 684              		.cfi_def_cfa_register 7
+ 685 041a F860     		str	r0, [r7, #12]
+ 686 041c B960     		str	r1, [r7, #8]
+ 687 041e 7A60     		str	r2, [r7, #4]
+ 275:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     // workaround for AES registers not retained after PM2
+ 276:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     IntDisable(INT_AES);
+ 688              		.loc 1 276 0
+ 689 0420 9F20     		movs	r0, #159
+ 690 0422 FFF7FEFF 		bl	IntDisable
+ 277:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     HWREG(AES_CTRL_INT_CFG) = AES_CTRL_INT_CFG_LEVEL;
+ 691              		.loc 1 277 0
+ 692 0426 4BF28073 		movw	r3, #46976
+ 693 042a C4F20803 		movt	r3, 16392
+ 694 042e 0122     		movs	r2, #1
+ 695 0430 1A60     		str	r2, [r3]
+ 278:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     HWREG(AES_CTRL_INT_EN)  = (AES_CTRL_INT_EN_RESULT_AV |
+ 696              		.loc 1 278 0
+ 697 0432 4BF28473 		movw	r3, #46980
+ 698 0436 C4F20803 		movt	r3, 16392
+ 699 043a 0322     		movs	r2, #3
+ 700 043c 1A60     		str	r2, [r3]
+ 279:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****                                AES_CTRL_INT_EN_DMA_IN_DONE);
+ 280:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** 
+ 281:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     // configure master control module
+ 282:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     // enable DMA path to the SHA-256 engine + Digest readout
+ 283:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     HWREG(AES_CTRL_ALG_SEL) = (AES_CTRL_ALG_SEL_TAG | AES_CTRL_ALG_SEL_HASH);
+ 701              		.loc 1 283 0
+ 702 043e 4FF43743 		mov	r3, #46848
+ 703 0442 C4F20803 		movt	r3, 16392
+ 704 0446 0422     		movs	r2, #4
+ 705 0448 C8F20002 		movt	r2, 32768
+ 706 044c 1A60     		str	r2, [r3]
+ 284:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     // clear any outstanding events
+ 285:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     HWREG(AES_CTRL_INT_CLR) =  AES_CTRL_INT_CLR_RESULT_AV;
+ 707              		.loc 1 285 0
+ 708 044e 4BF28873 		movw	r3, #46984
+ 709 0452 C4F20803 		movt	r3, 16392
+ 710 0456 0122     		movs	r2, #1
+ 711 0458 1A60     		str	r2, [r3]
+ 286:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** 
+ 287:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     // configure hash engine
+ 288:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     // indicate start of a new hash session and SHA256
+ 289:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     HWREG(AES_HASH_MODE_IN) = (AES_HASH_MODE_IN_SHA256_MODE |
+ 712              		.loc 1 289 0
+ 713 045a 4BF24463 		movw	r3, #46660
+ 714 045e C4F20803 		movt	r3, 16392
+ 715 0462 0922     		movs	r2, #9
+ 716 0464 1A60     		str	r2, [r3]
+ 290:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****                                AES_HASH_MODE_IN_NEW_HASH);
+ 291:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** 
+ 292:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     // if the final digest is required (pad the input DMA data),
+ 293:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     // write the following register
+ 294:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     //
+ 295:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     if(psMd->final_digest)
+ 717              		.loc 1 295 0
+ 718 0466 FB68     		ldr	r3, [r7, #12]
+ 719 0468 93F86D30 		ldrb	r3, [r3, #109]	@ zero_extendqisi2
+ 720 046c 002B     		cmp	r3, #0
+ 721 046e 1BD0     		beq	.L35
+ 296:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     {
+ 297:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****         // write length of the message (lo)
+ 298:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****         HWREG(AES_HASH_LENGTH_IN_L) = (uint32_t)psMd->length;
+ 722              		.loc 1 298 0
+ 723 0470 4BF24863 		movw	r3, #46664
+ 724 0474 C4F20803 		movt	r3, 16392
+ 725 0478 FA68     		ldr	r2, [r7, #12]
+ 726 047a D2E90001 		ldrd	r0, [r2]
+ 727 047e 0246     		mov	r2, r0
+ 728 0480 1A60     		str	r2, [r3]
+ 299:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****         // write length of the message (hi)
+ 300:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****         HWREG(AES_HASH_LENGTH_IN_H) = (uint32_t)(psMd->length >> 16);
+ 729              		.loc 1 300 0
+ 730 0482 4BF24C61 		movw	r1, #46668
+ 731 0486 C4F20801 		movt	r1, 16392
+ 732 048a FB68     		ldr	r3, [r7, #12]
+ 733 048c D3E90023 		ldrd	r2, [r3]
+ 734 0490 140C     		lsrs	r4, r2, #16
+ 735 0492 44EA0344 		orr	r4, r4, r3, lsl #16
+ 736 0496 1D0C     		lsrs	r5, r3, #16
+ 737 0498 2346     		mov	r3, r4
+ 738 049a 0B60     		str	r3, [r1]
+ 301:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****         // pad the DMA-ed data
+ 302:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****         HWREG(AES_HASH_IO_BUF_CTRL) = AES_HASH_IO_BUF_CTRL_PAD_DMA_MESSAGE;
+ 739              		.loc 1 302 0
+ 740 049c 4BF24063 		movw	r3, #46656
+ 741 04a0 C4F20803 		movt	r3, 16392
+ 742 04a4 8022     		movs	r2, #128
+ 743 04a6 1A60     		str	r2, [r3]
+ 744              	.L35:
+ 303:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     }
+ 304:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** 
+ 305:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     // enable DMA channel 0 for message data
+ 306:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     HWREG(AES_DMAC_CH0_CTRL) |= AES_DMAC_CH0_CTRL_EN;
+ 745              		.loc 1 306 0
+ 746 04a8 4FF43043 		mov	r3, #45056
+ 747 04ac C4F20803 		movt	r3, 16392
+ 748 04b0 4FF43042 		mov	r2, #45056
+ 749 04b4 C4F20802 		movt	r2, 16392
+ 750 04b8 1268     		ldr	r2, [r2]
+ 751 04ba 42F00102 		orr	r2, r2, #1
+ 752 04be 1A60     		str	r2, [r3]
+ 307:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     // base address of the data in ext. memory
+ 308:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     HWREG(AES_DMAC_CH0_EXTADDR) = (uint32_t)ui8In;
+ 753              		.loc 1 308 0
+ 754 04c0 4BF20403 		movw	r3, #45060
+ 755 04c4 C4F20803 		movt	r3, 16392
+ 756 04c8 BA68     		ldr	r2, [r7, #8]
+ 757 04ca 1A60     		str	r2, [r3]
+ 309:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     if(psMd->final_digest)
+ 758              		.loc 1 309 0
+ 759 04cc FB68     		ldr	r3, [r7, #12]
+ 760 04ce 93F86D30 		ldrb	r3, [r3, #109]	@ zero_extendqisi2
+ 761 04d2 002B     		cmp	r3, #0
+ 762 04d4 07D0     		beq	.L36
+ 310:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     {
+ 311:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****         // input data length in bytes, equal to the message
+ 312:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****         HWREG(AES_DMAC_CH0_DMALENGTH) = psMd->curlen;
+ 763              		.loc 1 312 0
+ 764 04d6 4BF20C03 		movw	r3, #45068
+ 765 04da C4F20803 		movt	r3, 16392
+ 766 04de FA68     		ldr	r2, [r7, #12]
+ 767 04e0 926A     		ldr	r2, [r2, #40]
+ 768 04e2 1A60     		str	r2, [r3]
+ 769 04e4 05E0     		b	.L37
+ 770              	.L36:
+ 313:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     }
+ 314:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     else
+ 315:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     {
+ 316:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****         HWREG(AES_DMAC_CH0_DMALENGTH) = SHA256_BLOCK_SIZE;
+ 771              		.loc 1 316 0
+ 772 04e6 4BF20C03 		movw	r3, #45068
+ 773 04ea C4F20803 		movt	r3, 16392
+ 774 04ee 4022     		movs	r2, #64
+ 775 04f0 1A60     		str	r2, [r3]
+ 776              	.L37:
+ 317:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     }
+ 318:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** 
+ 319:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     // enable DMA channel 1 for result digest
+ 320:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     HWREG(AES_DMAC_CH1_CTRL) |= AES_DMAC_CH1_CTRL_EN;
+ 777              		.loc 1 320 0
+ 778 04f2 4BF22003 		movw	r3, #45088
+ 779 04f6 C4F20803 		movt	r3, 16392
+ 780 04fa 4BF22002 		movw	r2, #45088
+ 781 04fe C4F20802 		movt	r2, 16392
+ 782 0502 1268     		ldr	r2, [r2]
+ 783 0504 42F00102 		orr	r2, r2, #1
+ 784 0508 1A60     		str	r2, [r3]
+ 321:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     // base address of the digest buffer
+ 322:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     HWREG(AES_DMAC_CH1_EXTADDR) = (uint32_t)ui8Out;
+ 785              		.loc 1 322 0
+ 786 050a 4BF22403 		movw	r3, #45092
+ 787 050e C4F20803 		movt	r3, 16392
+ 788 0512 7A68     		ldr	r2, [r7, #4]
+ 789 0514 1A60     		str	r2, [r3]
+ 323:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     // length of the result digest
+ 324:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     HWREG(AES_DMAC_CH1_DMALENGTH) = SHA256_OUTPUT_LEN;
+ 790              		.loc 1 324 0
+ 791 0516 4BF22C03 		movw	r3, #45100
+ 792 051a C4F20803 		movt	r3, 16392
+ 793 051e 2022     		movs	r2, #32
+ 794 0520 1A60     		str	r2, [r3]
+ 795              	.L38:
+ 325:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** 
+ 326:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     // wait for completion of the operation
+ 327:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     do
+ 328:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     {
+ 329:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****         ASM_NOP;
+ 796              		.loc 1 329 0 discriminator 1
+ 797              	@ 329 "build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c" 1
+ 798 0522 00BF     		NOP
+ 799              	@ 0 "" 2
+ 330:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     }
+ 331:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     while(!(HWREG(AES_CTRL_INT_STAT) & AES_CTRL_INT_STAT_RESULT_AV));
+ 800              		.loc 1 331 0 discriminator 1
+ 801              		.thumb
+ 802 0524 4BF29073 		movw	r3, #46992
+ 803 0528 C4F20803 		movt	r3, 16392
+ 804 052c 1B68     		ldr	r3, [r3]
+ 805 052e 03F00103 		and	r3, r3, #1
+ 806 0532 002B     		cmp	r3, #0
+ 807 0534 F5D0     		beq	.L38
+ 332:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** 
+ 333:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** 
+ 334:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     if((HWREG(AES_CTRL_INT_STAT) & AES_CTRL_INT_STAT_DMA_BUS_ERR))
+ 808              		.loc 1 334 0
+ 809 0536 4BF29073 		movw	r3, #46992
+ 810 053a C4F20803 		movt	r3, 16392
+ 811 053e 1B68     		ldr	r3, [r3]
+ 812 0540 002B     		cmp	r3, #0
+ 813 0542 01DA     		bge	.L39
+ 335:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     {
+ 336:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****         return (AES_DMA_BUS_ERROR);
+ 814              		.loc 1 336 0
+ 815 0544 0323     		movs	r3, #3
+ 816 0546 12E0     		b	.L40
+ 817              	.L39:
+ 337:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     }
+ 338:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** 
+ 339:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     // clear the interrupt
+ 340:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     HWREG(AES_CTRL_INT_CLR) = (AES_CTRL_INT_CLR_DMA_IN_DONE |
+ 818              		.loc 1 340 0
+ 819 0548 4BF28873 		movw	r3, #46984
+ 820 054c C4F20803 		movt	r3, 16392
+ 821 0550 0322     		movs	r2, #3
+ 822 0552 1A60     		str	r2, [r3]
+ 341:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****                                AES_CTRL_INT_CLR_RESULT_AV);
+ 342:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     // disable master control/DMA clock
+ 343:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     HWREG(AES_CTRL_ALG_SEL) = 0x00000000;
+ 823              		.loc 1 343 0
+ 824 0554 4FF43743 		mov	r3, #46848
+ 825 0558 C4F20803 		movt	r3, 16392
+ 826 055c 0022     		movs	r2, #0
+ 827 055e 1A60     		str	r2, [r3]
+ 344:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     // clear mode
+ 345:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     HWREG(AES_AES_CTRL) = 0x00000000;
+ 828              		.loc 1 345 0
+ 829 0560 4BF25053 		movw	r3, #46416
+ 830 0564 C4F20803 		movt	r3, 16392
+ 831 0568 0022     		movs	r2, #0
+ 832 056a 1A60     		str	r2, [r3]
+ 346:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** 
+ 347:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     return (SHA256_SUCCESS);
+ 833              		.loc 1 347 0
+ 834 056c 0023     		movs	r3, #0
+ 835              	.L40:
+ 348:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** }
+ 836              		.loc 1 348 0
+ 837 056e 1846     		mov	r0, r3
+ 838 0570 1037     		adds	r7, r7, #16
+ 839 0572 BD46     		mov	sp, r7
+ 840              		@ sp needed
+ 841 0574 B0BD     		pop	{r4, r5, r7, pc}
+ 842              		.cfi_endproc
+ 843              	.LFE3:
+ 845 0576 00BF     		.align	2
+ 846              		.thumb
+ 847              		.thumb_func
+ 849              	SHA256HashResume:
+ 850              	.LFB4:
+ 349:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** 
+ 350:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //*****************************************************************************
+ 351:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //
+ 352:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //! SHA256HashResume function resumes an already started hash session in
+ 353:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //! hardware.
+ 354:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //!
+ 355:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //! \param   psMd is the hash state.
+ 356:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //! \param   ui8In is the pointer to the input message.
+ 357:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //! \param   ui8Out is the pointer to the destination of the hash (32 bytes).
+ 358:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //!
+ 359:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //! \return  SHA256_SUCCESS if successful.
+ 360:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //
+ 361:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** //*****************************************************************************
+ 362:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** uint8_t SHA256HashResume(tSHA256State * psMd, uint8_t *ui8In, uint8_t *ui8Out)
+ 363:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** {
+ 851              		.loc 1 363 0
+ 852              		.cfi_startproc
+ 853              		@ args = 0, pretend = 0, frame = 16
+ 854              		@ frame_needed = 1, uses_anonymous_args = 0
+ 855 0578 B0B5     		push	{r4, r5, r7, lr}
+ 856              		.cfi_def_cfa_offset 16
+ 857              		.cfi_offset 4, -16
+ 858              		.cfi_offset 5, -12
+ 859              		.cfi_offset 7, -8
+ 860              		.cfi_offset 14, -4
+ 861 057a 84B0     		sub	sp, sp, #16
+ 862              		.cfi_def_cfa_offset 32
+ 863 057c 00AF     		add	r7, sp, #0
+ 864              		.cfi_def_cfa_register 7
+ 865 057e F860     		str	r0, [r7, #12]
+ 866 0580 B960     		str	r1, [r7, #8]
+ 867 0582 7A60     		str	r2, [r7, #4]
+ 364:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     IntDisable(INT_AES);
+ 868              		.loc 1 364 0
+ 869 0584 9F20     		movs	r0, #159
+ 870 0586 FFF7FEFF 		bl	IntDisable
+ 365:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     // workaround for AES registers not retained after PM2
+ 366:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     HWREG(AES_CTRL_INT_CFG) = AES_CTRL_INT_CFG_LEVEL;
+ 871              		.loc 1 366 0
+ 872 058a 4BF28073 		movw	r3, #46976
+ 873 058e C4F20803 		movt	r3, 16392
+ 874 0592 0122     		movs	r2, #1
+ 875 0594 1A60     		str	r2, [r3]
+ 367:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     HWREG(AES_CTRL_INT_EN)  = (AES_CTRL_INT_EN_RESULT_AV |
+ 876              		.loc 1 367 0
+ 877 0596 4BF28473 		movw	r3, #46980
+ 878 059a C4F20803 		movt	r3, 16392
+ 879 059e 0322     		movs	r2, #3
+ 880 05a0 1A60     		str	r2, [r3]
+ 368:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****                                AES_CTRL_INT_EN_DMA_IN_DONE);
+ 369:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** 
+ 370:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     // configure master control module and enable
+ 371:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     // the DMA path to the SHA-256 engine
+ 372:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     //
+ 373:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     HWREG(AES_CTRL_ALG_SEL) = AES_CTRL_ALG_SEL_HASH;
+ 881              		.loc 1 373 0
+ 882 05a2 4FF43743 		mov	r3, #46848
+ 883 05a6 C4F20803 		movt	r3, 16392
+ 884 05aa 0422     		movs	r2, #4
+ 885 05ac 1A60     		str	r2, [r3]
+ 374:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** 
+ 375:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     // clear any outstanding events
+ 376:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     HWREG(AES_CTRL_INT_CLR) =  AES_CTRL_INT_CLR_RESULT_AV;
+ 886              		.loc 1 376 0
+ 887 05ae 4BF28873 		movw	r3, #46984
+ 888 05b2 C4F20803 		movt	r3, 16392
+ 889 05b6 0122     		movs	r2, #1
+ 890 05b8 1A60     		str	r2, [r3]
+ 377:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** 
+ 378:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     // configure hash engine
+ 379:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     // indicate the start of a resumed hash session and SHA256
+ 380:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     HWREG(AES_HASH_MODE_IN) = AES_HASH_MODE_IN_SHA256_MODE;
+ 891              		.loc 1 380 0
+ 892 05ba 4BF24463 		movw	r3, #46660
+ 893 05be C4F20803 		movt	r3, 16392
+ 894 05c2 0822     		movs	r2, #8
+ 895 05c4 1A60     		str	r2, [r3]
+ 381:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** 
+ 382:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     // if the final digest is required (pad the input DMA data)
+ 383:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     if(psMd->final_digest)
+ 896              		.loc 1 383 0
+ 897 05c6 FB68     		ldr	r3, [r7, #12]
+ 898 05c8 93F86D30 		ldrb	r3, [r3, #109]	@ zero_extendqisi2
+ 899 05cc 002B     		cmp	r3, #0
+ 900 05ce 15D0     		beq	.L42
+ 384:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     {
+ 385:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****         // write length of the message (lo)
+ 386:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****         HWREG(AES_HASH_LENGTH_IN_L) = (uint32_t)psMd->length;
+ 901              		.loc 1 386 0
+ 902 05d0 4BF24863 		movw	r3, #46664
+ 903 05d4 C4F20803 		movt	r3, 16392
+ 904 05d8 FA68     		ldr	r2, [r7, #12]
+ 905 05da D2E90001 		ldrd	r0, [r2]
+ 906 05de 0246     		mov	r2, r0
+ 907 05e0 1A60     		str	r2, [r3]
+ 387:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****         // write length of the message (hi)
+ 388:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****         HWREG(AES_HASH_LENGTH_IN_H) = (uint32_t)(psMd->length >> 16);
+ 908              		.loc 1 388 0
+ 909 05e2 4BF24C61 		movw	r1, #46668
+ 910 05e6 C4F20801 		movt	r1, 16392
+ 911 05ea FB68     		ldr	r3, [r7, #12]
+ 912 05ec D3E90023 		ldrd	r2, [r3]
+ 913 05f0 140C     		lsrs	r4, r2, #16
+ 914 05f2 44EA0344 		orr	r4, r4, r3, lsl #16
+ 915 05f6 1D0C     		lsrs	r5, r3, #16
+ 916 05f8 2346     		mov	r3, r4
+ 917 05fa 0B60     		str	r3, [r1]
+ 918              	.L42:
+ 389:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     }
+ 390:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** 
+ 391:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     // write the initial digest
+ 392:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     HWREG(AES_HASH_DIGEST_A) = (uint32_t)psMd->state[0];
+ 919              		.loc 1 392 0
+ 920 05fc 4BF25063 		movw	r3, #46672
+ 921 0600 C4F20803 		movt	r3, 16392
+ 922 0604 FA68     		ldr	r2, [r7, #12]
+ 923 0606 9268     		ldr	r2, [r2, #8]
+ 924 0608 1A60     		str	r2, [r3]
+ 393:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     HWREG(AES_HASH_DIGEST_B) = (uint32_t)psMd->state[1];
+ 925              		.loc 1 393 0
+ 926 060a 4BF25463 		movw	r3, #46676
+ 927 060e C4F20803 		movt	r3, 16392
+ 928 0612 FA68     		ldr	r2, [r7, #12]
+ 929 0614 D268     		ldr	r2, [r2, #12]
+ 930 0616 1A60     		str	r2, [r3]
+ 394:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     HWREG(AES_HASH_DIGEST_C) = (uint32_t)psMd->state[2];
+ 931              		.loc 1 394 0
+ 932 0618 4BF25863 		movw	r3, #46680
+ 933 061c C4F20803 		movt	r3, 16392
+ 934 0620 FA68     		ldr	r2, [r7, #12]
+ 935 0622 1269     		ldr	r2, [r2, #16]
+ 936 0624 1A60     		str	r2, [r3]
+ 395:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     HWREG(AES_HASH_DIGEST_D) = (uint32_t)psMd->state[3];
+ 937              		.loc 1 395 0
+ 938 0626 4BF25C63 		movw	r3, #46684
+ 939 062a C4F20803 		movt	r3, 16392
+ 940 062e FA68     		ldr	r2, [r7, #12]
+ 941 0630 5269     		ldr	r2, [r2, #20]
+ 942 0632 1A60     		str	r2, [r3]
+ 396:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     HWREG(AES_HASH_DIGEST_E) = (uint32_t)psMd->state[4];
+ 943              		.loc 1 396 0
+ 944 0634 4BF26063 		movw	r3, #46688
+ 945 0638 C4F20803 		movt	r3, 16392
+ 946 063c FA68     		ldr	r2, [r7, #12]
+ 947 063e 9269     		ldr	r2, [r2, #24]
+ 948 0640 1A60     		str	r2, [r3]
+ 397:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     HWREG(AES_HASH_DIGEST_F) = (uint32_t)psMd->state[5];
+ 949              		.loc 1 397 0
+ 950 0642 4BF26463 		movw	r3, #46692
+ 951 0646 C4F20803 		movt	r3, 16392
+ 952 064a FA68     		ldr	r2, [r7, #12]
+ 953 064c D269     		ldr	r2, [r2, #28]
+ 954 064e 1A60     		str	r2, [r3]
+ 398:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     HWREG(AES_HASH_DIGEST_G) = (uint32_t)psMd->state[6];
+ 955              		.loc 1 398 0
+ 956 0650 4BF26863 		movw	r3, #46696
+ 957 0654 C4F20803 		movt	r3, 16392
+ 958 0658 FA68     		ldr	r2, [r7, #12]
+ 959 065a 126A     		ldr	r2, [r2, #32]
+ 960 065c 1A60     		str	r2, [r3]
+ 399:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     HWREG(AES_HASH_DIGEST_H) = (uint32_t)psMd->state[7];
+ 961              		.loc 1 399 0
+ 962 065e 4BF26C63 		movw	r3, #46700
+ 963 0662 C4F20803 		movt	r3, 16392
+ 964 0666 FA68     		ldr	r2, [r7, #12]
+ 965 0668 526A     		ldr	r2, [r2, #36]
+ 966 066a 1A60     		str	r2, [r3]
+ 400:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** 
+ 401:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     // If final digest, pad the DMA-ed data
+ 402:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     if(psMd->final_digest)
+ 967              		.loc 1 402 0
+ 968 066c FB68     		ldr	r3, [r7, #12]
+ 969 066e 93F86D30 		ldrb	r3, [r3, #109]	@ zero_extendqisi2
+ 970 0672 002B     		cmp	r3, #0
+ 971 0674 05D0     		beq	.L43
+ 403:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     {
+ 404:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****         HWREG(AES_HASH_IO_BUF_CTRL) = AES_HASH_IO_BUF_CTRL_PAD_DMA_MESSAGE;
+ 972              		.loc 1 404 0
+ 973 0676 4BF24063 		movw	r3, #46656
+ 974 067a C4F20803 		movt	r3, 16392
+ 975 067e 8022     		movs	r2, #128
+ 976 0680 1A60     		str	r2, [r3]
+ 977              	.L43:
+ 405:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     }
+ 406:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** 
+ 407:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     // enable DMA channel 0 for message data
+ 408:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     HWREG(AES_DMAC_CH0_CTRL) |= AES_DMAC_CH0_CTRL_EN;
+ 978              		.loc 1 408 0
+ 979 0682 4FF43043 		mov	r3, #45056
+ 980 0686 C4F20803 		movt	r3, 16392
+ 981 068a 4FF43042 		mov	r2, #45056
+ 982 068e C4F20802 		movt	r2, 16392
+ 983 0692 1268     		ldr	r2, [r2]
+ 984 0694 42F00102 		orr	r2, r2, #1
+ 985 0698 1A60     		str	r2, [r3]
+ 409:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     // base address of the data in ext. memory
+ 410:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     HWREG(AES_DMAC_CH0_EXTADDR) = (uint32_t)ui8In;
+ 986              		.loc 1 410 0
+ 987 069a 4BF20403 		movw	r3, #45060
+ 988 069e C4F20803 		movt	r3, 16392
+ 989 06a2 BA68     		ldr	r2, [r7, #8]
+ 990 06a4 1A60     		str	r2, [r3]
+ 411:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     // input data length in bytes, equal to the message
+ 412:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     if(psMd->final_digest)
+ 991              		.loc 1 412 0
+ 992 06a6 FB68     		ldr	r3, [r7, #12]
+ 993 06a8 93F86D30 		ldrb	r3, [r3, #109]	@ zero_extendqisi2
+ 994 06ac 002B     		cmp	r3, #0
+ 995 06ae 07D0     		beq	.L44
+ 413:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     {
+ 414:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****         HWREG(AES_DMAC_CH0_DMALENGTH) = psMd->curlen;
+ 996              		.loc 1 414 0
+ 997 06b0 4BF20C03 		movw	r3, #45068
+ 998 06b4 C4F20803 		movt	r3, 16392
+ 999 06b8 FA68     		ldr	r2, [r7, #12]
+ 1000 06ba 926A     		ldr	r2, [r2, #40]
+ 1001 06bc 1A60     		str	r2, [r3]
+ 1002 06be 05E0     		b	.L45
+ 1003              	.L44:
+ 415:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     }
+ 416:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     else
+ 417:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     {
+ 418:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****         HWREG(AES_DMAC_CH0_DMALENGTH) = SHA256_BLOCK_SIZE;
+ 1004              		.loc 1 418 0
+ 1005 06c0 4BF20C03 		movw	r3, #45068
+ 1006 06c4 C4F20803 		movt	r3, 16392
+ 1007 06c8 4022     		movs	r2, #64
+ 1008 06ca 1A60     		str	r2, [r3]
+ 1009              	.L45:
+ 419:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     }
+ 420:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** 
+ 421:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     // wait for completion of the operation
+ 422:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     do
+ 423:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     {
+ 424:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****         ASM_NOP;
+ 1010              		.loc 1 424 0 discriminator 1
+ 1011              	@ 424 "build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c" 1
+ 1012 06cc 00BF     		NOP
+ 1013              	@ 0 "" 2
+ 425:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     }
+ 426:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     while(!(HWREG(AES_CTRL_INT_STAT) & AES_CTRL_INT_STAT_RESULT_AV));
+ 1014              		.loc 1 426 0 discriminator 1
+ 1015              		.thumb
+ 1016 06ce 4BF29073 		movw	r3, #46992
+ 1017 06d2 C4F20803 		movt	r3, 16392
+ 1018 06d6 1B68     		ldr	r3, [r3]
+ 1019 06d8 03F00103 		and	r3, r3, #1
+ 1020 06dc 002B     		cmp	r3, #0
+ 1021 06de F5D0     		beq	.L45
+ 427:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** 
+ 428:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     // check for any DMA Bus errors
+ 429:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     if((HWREG(AES_CTRL_INT_STAT) & AES_CTRL_INT_STAT_DMA_BUS_ERR))
+ 1022              		.loc 1 429 0
+ 1023 06e0 4BF29073 		movw	r3, #46992
+ 1024 06e4 C4F20803 		movt	r3, 16392
+ 1025 06e8 1B68     		ldr	r3, [r3]
+ 1026 06ea 002B     		cmp	r3, #0
+ 1027 06ec 01DA     		bge	.L46
+ 430:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     {
+ 431:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****         return (AES_DMA_BUS_ERROR);
+ 1028              		.loc 1 431 0
+ 1029 06ee 0323     		movs	r3, #3
+ 1030 06f0 5DE0     		b	.L47
+ 1031              	.L46:
+ 432:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     }
+ 433:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** 
+ 434:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     // read digest
+ 435:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     ((uint32_t  *)ui8Out)[0] = HWREG(AES_HASH_DIGEST_A);
+ 1032              		.loc 1 435 0
+ 1033 06f2 4BF25063 		movw	r3, #46672
+ 1034 06f6 C4F20803 		movt	r3, 16392
+ 1035 06fa 1A68     		ldr	r2, [r3]
+ 1036 06fc 7B68     		ldr	r3, [r7, #4]
+ 1037 06fe 1A60     		str	r2, [r3]
+ 436:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     ((uint32_t  *)ui8Out)[1] = HWREG(AES_HASH_DIGEST_B);
+ 1038              		.loc 1 436 0
+ 1039 0700 7B68     		ldr	r3, [r7, #4]
+ 1040 0702 1A1D     		adds	r2, r3, #4
+ 1041 0704 4BF25463 		movw	r3, #46676
+ 1042 0708 C4F20803 		movt	r3, 16392
+ 1043 070c 1B68     		ldr	r3, [r3]
+ 1044 070e 1360     		str	r3, [r2]
+ 437:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     ((uint32_t  *)ui8Out)[2] = HWREG(AES_HASH_DIGEST_C);
+ 1045              		.loc 1 437 0
+ 1046 0710 7B68     		ldr	r3, [r7, #4]
+ 1047 0712 03F10802 		add	r2, r3, #8
+ 1048 0716 4BF25863 		movw	r3, #46680
+ 1049 071a C4F20803 		movt	r3, 16392
+ 1050 071e 1B68     		ldr	r3, [r3]
+ 1051 0720 1360     		str	r3, [r2]
+ 438:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     ((uint32_t  *)ui8Out)[3] = HWREG(AES_HASH_DIGEST_D);
+ 1052              		.loc 1 438 0
+ 1053 0722 7B68     		ldr	r3, [r7, #4]
+ 1054 0724 03F10C02 		add	r2, r3, #12
+ 1055 0728 4BF25C63 		movw	r3, #46684
+ 1056 072c C4F20803 		movt	r3, 16392
+ 1057 0730 1B68     		ldr	r3, [r3]
+ 1058 0732 1360     		str	r3, [r2]
+ 439:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     ((uint32_t  *)ui8Out)[4] = HWREG(AES_HASH_DIGEST_E);
+ 1059              		.loc 1 439 0
+ 1060 0734 7B68     		ldr	r3, [r7, #4]
+ 1061 0736 03F11002 		add	r2, r3, #16
+ 1062 073a 4BF26063 		movw	r3, #46688
+ 1063 073e C4F20803 		movt	r3, 16392
+ 1064 0742 1B68     		ldr	r3, [r3]
+ 1065 0744 1360     		str	r3, [r2]
+ 440:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     ((uint32_t  *)ui8Out)[5] = HWREG(AES_HASH_DIGEST_F);
+ 1066              		.loc 1 440 0
+ 1067 0746 7B68     		ldr	r3, [r7, #4]
+ 1068 0748 03F11402 		add	r2, r3, #20
+ 1069 074c 4BF26463 		movw	r3, #46692
+ 1070 0750 C4F20803 		movt	r3, 16392
+ 1071 0754 1B68     		ldr	r3, [r3]
+ 1072 0756 1360     		str	r3, [r2]
+ 441:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     ((uint32_t  *)ui8Out)[6] = HWREG(AES_HASH_DIGEST_G);
+ 1073              		.loc 1 441 0
+ 1074 0758 7B68     		ldr	r3, [r7, #4]
+ 1075 075a 03F11802 		add	r2, r3, #24
+ 1076 075e 4BF26863 		movw	r3, #46696
+ 1077 0762 C4F20803 		movt	r3, 16392
+ 1078 0766 1B68     		ldr	r3, [r3]
+ 1079 0768 1360     		str	r3, [r2]
+ 442:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     ((uint32_t  *)ui8Out)[7] = HWREG(AES_HASH_DIGEST_H);
+ 1080              		.loc 1 442 0
+ 1081 076a 7B68     		ldr	r3, [r7, #4]
+ 1082 076c 03F11C02 		add	r2, r3, #28
+ 1083 0770 4BF26C63 		movw	r3, #46700
+ 1084 0774 C4F20803 		movt	r3, 16392
+ 1085 0778 1B68     		ldr	r3, [r3]
+ 1086 077a 1360     		str	r3, [r2]
+ 443:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** 
+ 444:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     // acknowledge reading of the digest
+ 445:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     HWREG(AES_HASH_IO_BUF_CTRL) = AES_HASH_IO_BUF_CTRL_OUTPUT_FULL;
+ 1087              		.loc 1 445 0
+ 1088 077c 4BF24063 		movw	r3, #46656
+ 1089 0780 C4F20803 		movt	r3, 16392
+ 1090 0784 0122     		movs	r2, #1
+ 1091 0786 1A60     		str	r2, [r3]
+ 446:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** 
+ 447:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     // clear the interrupt
+ 448:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     HWREG(AES_CTRL_INT_CLR) = (AES_CTRL_INT_CLR_DMA_IN_DONE |
+ 1092              		.loc 1 448 0
+ 1093 0788 4BF28873 		movw	r3, #46984
+ 1094 078c C4F20803 		movt	r3, 16392
+ 1095 0790 0322     		movs	r2, #3
+ 1096 0792 1A60     		str	r2, [r3]
+ 449:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****                                AES_CTRL_INT_CLR_RESULT_AV);
+ 450:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     // acknowledge result and clear interrupts
+ 451:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     // disable master control/DMA clock
+ 452:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     HWREG(AES_CTRL_ALG_SEL) = 0x00000000;
+ 1097              		.loc 1 452 0
+ 1098 0794 4FF43743 		mov	r3, #46848
+ 1099 0798 C4F20803 		movt	r3, 16392
+ 1100 079c 0022     		movs	r2, #0
+ 1101 079e 1A60     		str	r2, [r3]
+ 453:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     // clear mode
+ 454:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     HWREG(AES_AES_CTRL) = 0x00000000;
+ 1102              		.loc 1 454 0
+ 1103 07a0 4BF25053 		movw	r3, #46416
+ 1104 07a4 C4F20803 		movt	r3, 16392
+ 1105 07a8 0022     		movs	r2, #0
+ 1106 07aa 1A60     		str	r2, [r3]
+ 455:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** 
+ 456:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c ****     return (SHA256_SUCCESS);
+ 1107              		.loc 1 456 0
+ 1108 07ac 0023     		movs	r3, #0
+ 1109              	.L47:
+ 457:build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.c **** }
+ 1110              		.loc 1 457 0
+ 1111 07ae 1846     		mov	r0, r3
+ 1112 07b0 1037     		adds	r7, r7, #16
+ 1113 07b2 BD46     		mov	sp, r7
+ 1114              		@ sp needed
+ 1115 07b4 B0BD     		pop	{r4, r5, r7, pc}
+ 1116              		.cfi_endproc
+ 1117              	.LFE4:
+ 1119              	.Letext0:
+ 1120              		.file 2 "/usr/include/newlib/machine/_default_types.h"
+ 1121              		.file 3 "/usr/include/newlib/stdint.h"
+ 1122              		.file 4 "build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/sha256.h"
+ 1123              		.file 5 "build/openmote-cc2538_armgcc/bsp/boards/openmote-cc2538/source/aes.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 sha256.c
+     /tmp/ccXNOXr2.s:18     .text:0000000000000000 $t
+     /tmp/ccXNOXr2.s:23     .text:0000000000000000 SHA256Init
+     /tmp/ccXNOXr2.s:82     .text:0000000000000044 SHA256Process
+     /tmp/ccXNOXr2.s:669    .text:0000000000000414 SHA256HashNew
+     /tmp/ccXNOXr2.s:849    .text:0000000000000578 SHA256HashResume
+     /tmp/ccXNOXr2.s:534    .text:000000000000033c SHA256Done
+                     .debug_frame:0000000000000010 $d
+                           .group:0000000000000000 wm4.1.08074afb2ccc9da754fae8e3ee0f577b
+                           .group:0000000000000000 wm4.hw_aes.h.39.77ecc3829d96bb0e5669b1f36ecffb12
+                           .group:0000000000000000 wm4.hw_ints.h.42.85b9479f2be35b086f1bb7cbb15bc097
+                           .group:0000000000000000 wm4.features.h.22.6a4ca7cd053637cc1d0db6c16f39b2d7
+                           .group:0000000000000000 wm4._default_types.h.15.8b2cb27e528498f8ff711db085d6e489
+                           .group:0000000000000000 wm4.stdint.h.20.796e373797e732130a803d4c0338fa1b
+                           .group:0000000000000000 wm4.stdbool.h.29.1c9ee6859ce8145f7838a4f2549ccec2
+                           .group:0000000000000000 wm4.hw_types.h.67.b10589a0806dcc2d274d6fab6b736519
+                           .group:0000000000000000 wm4.interrupt.h.41.272fc4ec0e276feb439e7974d0f77eaf
+                           .group:0000000000000000 wm4.aes.h.66.0fb976edb685649779bd34f5f8f7ef75
+                           .group:0000000000000000 wm4.sha256.h.41.514ee8300173bb8429f560abe8ea7bd5
+                           .group:0000000000000000 wm4.newlib.h.8.fec018e441fee7bfa1923812ad010f97
+                           .group:0000000000000000 wm4.config.h.212.4163ef2871a828c674038d036b081cfd
+                           .group:0000000000000000 wm4._ansi.h.23.5644b60c990a4800b02a6e654e88f93a
+                           .group:0000000000000000 wm4.stddef.h.39.daafd3d79fe2f3a84d2d73d7d4e706f8
+                           .group:0000000000000000 wm4.lock.h.2.9bc98482741e5e2a9450b12934a684ea
+                           .group:0000000000000000 wm4._types.h.54.d3d34a3b7f3cc230cd159baf022b4b08
+                           .group:0000000000000000 wm4.stddef.h.158.61317cdbfb4026324507d123a50b0fd6
+                           .group:0000000000000000 wm4.reent.h.17.8bd9e4098e0428508c282cad794fae43
+                           .group:0000000000000000 wm4.cdefs.h.47.339223046f475c9f2d5db3a9118d7c65
+                           .group:0000000000000000 wm4.string.h.15.dab3980bf35408a4c507182805e2de3a
+                           .group:0000000000000000 wm4.stddef.h.158.a7efb00f6cbc6f43213b50e183c9830c
+                           .group:0000000000000000 wm4.string.h.126.6ff3aa59129e7f66b2c273baf353e066
+
+UNDEFINED SYMBOLS
+g_ui8CurrentAESOp
+IntDisable
